@@ -14,6 +14,8 @@ landing/legal/              Termos, privacidade, LGPD, cookies, contrato
 css/                        Estilos do app (01 → 04, a ordem afeta a cascata)
 js/firebase-init.js         Conexão com Firebase + login automático (module)
 js/app/                     Código usado por todos os planos
+acessos/                    Acessos da equipe (Master, Sócio, Admin, Dev): perfis, Clientes, Sócios, preview, Ver como
+planos/                     Somente planos dos CLIENTES
 planos/18-regras-planos.js  PLANOS_CONFIG — o que cada plano libera
 planos/essencial/           Investimentos
 planos/evolucao/            Metas, objetivos, recorrentes, calendário, notas, assinaturas, cartões
@@ -29,5 +31,6 @@ sw.js / manifest.json       PWA
    funções chamadas pelo HTML (`onclick="..."`) precisam continuar globais.
 3. Código que roda **na hora** (fora de função ou evento) só pode usar o que foi declarado em arquivos de número **menor**.
    A inicialização fica em `js/app/33-pwa-init.js`, por isso ele é o último.
-4. Separar por pasta é organização: quem bloqueia acesso é `PLANOS_CONFIG` + `verComoPlanoPermite()` (`js/app/27-ver-como.js`).
+4. Separar por pasta é organização: quem bloqueia acesso é `PLANOS_CONFIG` + `verComoPlanoPermite()` (`acessos/27-ver-como.js`).
+   Acessos de equipe: só o **Master** (o dono) cria/altera — conferido também no servidor.
 5. Ao alterar um CSS/JS, aumente o `?v=` da tag no `index.html` para os navegadores baixarem a versão nova.

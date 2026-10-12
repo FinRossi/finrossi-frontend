@@ -21,6 +21,30 @@ function getAdminToken(){
   return _adminToken;
 }
 
+// Cabeçalhos das chamadas admin: senha admin + login do Firebase de quem está usando.
+// O servidor usa o login para saber se é o Master (único que mexe em acessos da equipe).
+async function adminHeaders(token, extra){
+  const h = {'x-admin-token':token, ...(extra||{})};
+  try{
+    const u = window._firebaseUser;
+    if(u && u.getIdToken) h.Authorization = 'Bearer ' + await u.getIdToken();
+  }catch(e){}
+  return h;
+}
+
+const ROLES_EQUIPE = ['master','socio','admin','dev'];
+
+// Só o Master pode escolher um acesso de equipe ao cadastrar
+function limitarRolesNovoUsuario(){
+  const sel=document.getElementById('nc-role');
+  if(!sel) return;
+  [...sel.options].forEach(o=>{
+    const bloqueado = o.value!=='cliente' && !isMaster();
+    o.disabled = bloqueado;
+    o.hidden = bloqueado;
+  });
+}
+
 function toggleCamposRole(){
   const role=document.getElementById('nc-role')?.value||'cliente';
   const clienteFields=document.getElementById('nc-campos-cliente');
@@ -34,6 +58,7 @@ function openModalNovoCliente(){
   document.getElementById('msg-novo-cliente').textContent='';
   const roleEl=document.getElementById('nc-role');
   if(roleEl) roleEl.value='cliente';
+  limitarRolesNovoUsuario();
   toggleCamposRole();
   document.getElementById('modal-novo-cliente').classList.add('open');
 }
@@ -59,14 +84,17 @@ async function cadastrarNovoCliente(){
   try{
     const res=await fetch(`${BACKEND_URL}/admin/clientes/teste`,{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-admin-token':token},
+      headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body:JSON.stringify({nome,email,senha,plano,origem,role})
     });
     if(res.status===401){_adminToken='';showMsg('msg-novo-cliente','Senha admin incorreta','err');return;}
     const data=await res.json();
     if(data.ok){
-      showMsg('msg-novo-cliente','Cliente cadastrado com sucesso!','ok');
-      setTimeout(()=>{closeModal('modal-novo-cliente');renderClientes();},1500);
+      showMsg('msg-novo-cliente',ROLES_EQUIPE.includes(role)?'Acesso criado com sucesso!':'Cliente cadastrado com sucesso!','ok');
+      // Atualiza a tela de onde o cadastro foi aberto (Sócios ou Clientes)
+      const secSoc=document.getElementById('sec-socios');
+      const naSocios=!!secSoc && !secSoc.classList.contains('section-hidden');
+      setTimeout(()=>{closeModal('modal-novo-cliente');(naSocios?renderSocios:renderClientes)();},1500);
     } else {
       showMsg('msg-novo-cliente',data.erro||'Erro ao cadastrar','err');
     }
@@ -84,7 +112,7 @@ async function renderClientes(){
 
   try{
     const res=await fetch(`${BACKEND_URL}/admin/clientes`,{
-      headers:{'x-admin-token':token}
+      headers:await adminHeaders(token)
     });
     
     if(res.status===401){
@@ -99,7 +127,7 @@ async function renderClientes(){
     const clientes=data.clientes||[];
 
     // Separa equipe interna de clientes reais
-    const ROLES_INTERNOS=['socio','admin','dev'];
+    const ROLES_INTERNOS=ROLES_EQUIPE;
     const clientesReais=clientes.filter(c=>!ROLES_INTERNOS.includes(c.role));
     const equipeInterna=clientes.filter(c=>ROLES_INTERNOS.includes(c.role));
 
@@ -136,8 +164,8 @@ async function renderClientes(){
 
     const PLANO_CORES={gratuito:'var(--muted)',essencial:'var(--blue)',evolucao:'var(--green)',patrimonio:'var(--accent)'};
     const STATUS_CORES={ativo:'var(--green)',trial:'var(--amber)',inativo:'var(--red)',pendente:'var(--amber)'};
-    const ROLE_BADGE={socio:['👑','var(--accent)','Sócio'],admin:['👔','var(--purple)','Admin'],dev:['💻','var(--blue)','Dev'],cliente:['👤','var(--muted)','Cliente']};
-    const ROLES_INTERNOS_TBL=['socio','admin','dev'];
+    const ROLE_BADGE={master:['🔑','var(--accent)','Master'],socio:['👑','var(--accent)','Sócio'],admin:['👔','var(--purple)','Admin'],dev:['💻','var(--blue)','Dev'],cliente:['👤','var(--muted)','Cliente']};
+    const ROLES_INTERNOS_TBL=ROLES_EQUIPE;
 
     tabela.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead><tr style="border-bottom:1px solid var(--border)">
@@ -183,7 +211,7 @@ async function editarCliente(uid){
   if(!token) return;
 
   try{
-    const res = await fetch(`${BACKEND_URL}/admin/clientes`, {headers:{'x-admin-token':token}});
+    const res = await fetch(`${BACKEND_URL}/admin/clientes`, {headers:await adminHeaders(token)});
     const data = await res.json();
     const c = (data.clientes||[]).find(x=>x.uid===uid);
     if(!c){ alert('Cliente não encontrado'); return; }
@@ -275,15 +303,15 @@ async function salvarEdicaoCliente(){
   try{
     // Atualiza plano
     await fetch(`${BACKEND_URL}/admin/clientes/${uid}/plano`,{
-      method:'POST', headers:{'x-admin-token':token,'Content-Type':'application/json'},
+      method:'POST', headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body: JSON.stringify({plano})
     });
     // Atualiza status
     const endpoint = status==='inativo' ? 'desativar' : 'reativar';
     if(status==='inativo'){
-      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:{'x-admin-token':token}});
+      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
     } else if(_clienteEditando?.status === 'inativo'){
-      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:{'x-admin-token':token}});
+      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
     }
     // Salva campos extras diretamente no Firebase
     if(window._db && window._ref && window._set){
@@ -345,7 +373,7 @@ async function desativarCliente(uid){
   const token=getAdminToken();
   if(!token) return;
   try{
-    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:{'x-admin-token':token}});
+    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
     renderClientes();
   }catch(e){alert('Erro ao desativar');}
 }
@@ -355,7 +383,7 @@ async function reativarCliente(uid){
   const token=getAdminToken();
   if(!token) return;
   try{
-    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:{'x-admin-token':token}});
+    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
     renderClientes();
   }catch(e){alert('Erro ao reativar');}
 }

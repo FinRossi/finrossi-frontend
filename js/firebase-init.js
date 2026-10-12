@@ -86,7 +86,7 @@
 
       if(user){
         if(user.email === 'lucasrossi2100@gmail.com'){
-          window._userRole = 'socio';
+          window._userRole = 'master'; // dono: nível Master (acima de Sócio)
           window._userPlano = 'patrimonio';
         } else {
           try{

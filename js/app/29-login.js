@@ -177,6 +177,8 @@ async function fazerLogout(){
   // Esconde nav extras
   const navCli = document.getElementById('nav-clientes-item');
   if(navCli) navCli.style.display='none';
+  const navSoc = document.getElementById('nav-socios-item');
+  if(navSoc) navSoc.style.display='none';
   const navExtra = document.getElementById('sb-nav-cliente-extra');
   if(navExtra) navExtra.style.display='none';
   const navPreview = document.getElementById('nav-preview');

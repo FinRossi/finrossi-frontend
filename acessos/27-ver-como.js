@@ -32,7 +32,7 @@ function ativarVerComo(plano){
   aplicarNavConfig();
 
   // Esconde tudo que é exclusivo de admin/sócio — o cliente não vê nada disso
-  ['sb-perfis-admin','nav-clientes-item','nav-preview','sb-perfil-equipe'].forEach(id=>{
+  ['sb-perfis-admin','nav-clientes-item','nav-socios-item','nav-preview','sb-perfil-equipe'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display='none';
   });
@@ -57,6 +57,8 @@ function sairVerComo(){
   // setupPerfilUI não cobre esses dois — dependem do perfil (Pessoal/FinRossi), não só do role
   const navClientes=document.getElementById('nav-clientes-item');
   if(navClientes) navClientes.style.display = cp==='finrossi' ? 'flex' : 'none';
+  const navSocios=document.getElementById('nav-socios-item');
+  if(navSocios) navSocios.style.display = (cp==='finrossi' && isMaster()) ? 'flex' : 'none';
   const cliExtra=document.getElementById('sb-nav-cliente-extra');
   if(cliExtra) cliExtra.style.display='none';
 

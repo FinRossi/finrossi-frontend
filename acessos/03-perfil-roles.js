@@ -6,7 +6,7 @@ const ADMIN_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d15
 const ADMIN_EMAIL = 'lucasrossi2100@gmail.com';
 
 // Role do usuário logado (atualizado após login via Firebase)
-let _userRole = null; // 'socio' | 'admin' | 'dev' | 'cliente' | null
+let _userRole = null; // 'master' | 'socio' | 'admin' | 'dev' | 'cliente' | null
 let _userPlano = null; // plano real do cliente logado: 'gratuito' | 'essencial' | 'evolucao' | 'patrimonio' | null
 
 // Busca role do Firebase para o usuário logado
@@ -14,23 +14,26 @@ async function fetchUserRole(uid){
   if(!uid) return null;
   try{
     const f=window._firebase;
-    if(!f||!f.firebaseOk) return 'socio'; // modo local = sócio
+    if(!f||!f.firebaseOk) return 'master'; // modo local = acesso total
     const snap = await new Promise(res=>f.onValue(f.ref(f.db,`usuarios/${uid}/role`),res,{onlyOnce:true}));
     return snap.val()||'cliente';
   }catch(e){return 'cliente';}
 }
 
 // Helpers de role
-function isSocio(){ return _userRole==='socio' || !window._firebaseUser; }
-function isEquipe(){ return ['socio','admin','dev'].includes(_userRole); }
-function isAdmin(){ // mantém compatibilidade — true para sócio (acesso total)
+// Master (o dono) está acima do Sócio: tem tudo que o Sócio tem + controla os acessos da equipe
+function isMaster(){ return _userRole==='master'; }
+function isSocio(){ return _userRole==='socio' || isMaster() || !window._firebaseUser; }
+function isEquipe(){ return ['master','socio','admin','dev'].includes(_userRole); }
+function isAdmin(){ // mantém compatibilidade — true para sócio e master (acesso total)
   const f=window._firebase;
   if(!f||!f.firebaseOk) return true;
-  return _userRole==='socio';
+  return _userRole==='socio' || isMaster();
 }
 
 // Permissões por área
 const ROLE_PERMS = {
+  master:  {pessoal:true,  finrossi:true,  clientes:true,  financeiro:true, acessos:true},
   socio:   {pessoal:true,  finrossi:true,  clientes:true,  financeiro:true},
   admin:   {pessoal:false, finrossi:false, clientes:true,  financeiro:false},
   dev:     {pessoal:false, finrossi:false, clientes:true,  financeiro:false},
@@ -40,7 +43,7 @@ function canAccess(area){ return (ROLE_PERMS[_userRole]||ROLE_PERMS.cliente)[are
 
 function setupPerfilUI(){
   const role = _userRole||'cliente';
-  const socio = role==='socio';
+  const socio = role==='socio' || role==='master'; // Master vê tudo que o Sócio vê
   const admin = role==='admin';
   const dev = role==='dev';
   const equipe = isEquipe();
@@ -164,9 +167,11 @@ function _setProfileFinRossi(){
   });
   const sub=document.getElementById('sb-logo-sub');
   if(sub) sub.textContent='Negócio FinRossi';
-  // Mostra Clientes no nav, esconde Renda Passiva
+  // Mostra Clientes no nav (e Sócios, só para o Master), esconde Renda Passiva
   const navCli=document.getElementById('nav-clientes-item');
   if(navCli) navCli.style.display='flex';
+  const navSoc=document.getElementById('nav-socios-item');
+  if(navSoc) navSoc.style.display=isMaster()?'flex':'none';
   const navRenda=document.getElementById('nav-renda');
   if(navRenda) navRenda.style.display='none';
   goTo('dashboard');
@@ -189,6 +194,8 @@ function setProfile(p){
   // Nav items
   const navCli=document.getElementById('nav-clientes-item');
   if(navCli) navCli.style.display='none';
+  const navSoc=document.getElementById('nav-socios-item');
+  if(navSoc) navSoc.style.display='none';
   const navRenda=document.getElementById('nav-renda');
   if(navRenda) navRenda.style.display=p==='pessoal'?'flex':'none';
   const navEmp=document.getElementById('nav-empresas');
@@ -219,7 +226,7 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','preview','minha-assinatura'];
+const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura'];
 function goTo(name){
   if(_verComoPlano && !verComoPlanoPermite(name)){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
@@ -232,7 +239,7 @@ function goTo(name){
     const oc=b.getAttribute('onclick');
     if(oc) b.classList.toggle('active',oc.includes("'"+name+"'"));
   });
-  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura};
+  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura};
   if(fn[name]) fn[name]();
 }
 
