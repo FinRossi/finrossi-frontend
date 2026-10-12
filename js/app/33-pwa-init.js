@@ -1,4 +1,4 @@
-// js/app/26-pwa-init.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/33-pwa-init.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── PWA SERVICE WORKER + AUTO-UPDATE ────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   // Marca se a página JÁ estava controlada por um SW antes de registrar.

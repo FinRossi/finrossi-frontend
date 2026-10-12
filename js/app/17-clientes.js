@@ -1,4 +1,4 @@
-// js/app/13-clientes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/17-clientes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── CLIENTES ────────────────────────────────────────────────────────────────
 const BACKEND_URL = 'https://finrossi-backend-production.up.railway.app';
 const ADMIN_TOKEN = ''; // Deixe em branco — será pedido se necessário

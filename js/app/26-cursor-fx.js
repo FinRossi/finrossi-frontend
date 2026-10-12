@@ -1,4 +1,4 @@
-// js/app/19-cursor-fx.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/26-cursor-fx.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── CURSOR FX (neon) ─────────────────────────────────────────────────────
 var _cursorFxOn=false, _cursorFxRAF=null;
 var _cfxMouseX=0, _cfxMouseY=0, _cfxRingX=0, _cfxRingY=0, _cfxEase=0.15;

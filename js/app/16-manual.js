@@ -1,4 +1,4 @@
-// js/app/12-manual.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/16-manual.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── MANUAL DE USO ────────────────────────────────────────────────────────────
 const MANUAL_SECTIONS=[
   {icon:'📊',titulo:'Dashboard',cor:'var(--green)',desc:'A tela principal do FinRossi. Mostra um resumo completo do mês selecionado.',itens:[

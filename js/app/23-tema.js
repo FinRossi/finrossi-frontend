@@ -1,4 +1,4 @@
-// js/app/16-tema.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/23-tema.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── TEMA ─────────────────────────────────────────────────────────────────────
 function setTema(tema){
   document.documentElement.setAttribute('data-theme', tema === 'escuro' ? '' : tema);

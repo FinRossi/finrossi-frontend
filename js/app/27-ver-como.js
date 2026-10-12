@@ -1,4 +1,4 @@
-// js/app/20-ver-como.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/27-ver-como.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── VER COMO (sócio simula outro plano na própria tela) ─────────────────────
 let _verComoPlano = null;
 

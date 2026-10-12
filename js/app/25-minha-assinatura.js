@@ -1,4 +1,4 @@
-// js/app/18-minha-assinatura.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/25-minha-assinatura.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── MINHA ASSINATURA (cliente) ───────────────────────────────────────────────
 async function renderMinhaAssinatura(){
   const el = document.getElementById('assinatura-content');

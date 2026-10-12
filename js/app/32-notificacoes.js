@@ -1,4 +1,4 @@
-// js/app/25-notificacoes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/32-notificacoes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ═══════════════════════════════════════════════════════════
 // SISTEMA DE NOTIFICAÇÕES — FinRossi
 // ═══════════════════════════════════════════════════════════

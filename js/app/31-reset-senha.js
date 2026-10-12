@@ -1,4 +1,4 @@
-// js/app/24-reset-senha.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/31-reset-senha.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── RESET DE SENHA ──────────────────────────────────────────────────────────
 function abrirResetSenha(){
   const modal = document.getElementById('modal-reset-senha');

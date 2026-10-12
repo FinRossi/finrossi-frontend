@@ -1,4 +1,4 @@
-// js/app/08-metas-objetivos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// planos/evolucao/09-metas-objetivos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── METAS ────────────────────────────────────────────────────────────────────
 function openModalMeta(id){
   document.getElementById('mm-title').textContent=id?'Editar meta':'Nova meta';

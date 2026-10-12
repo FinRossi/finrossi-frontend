@@ -1,4 +1,4 @@
-// js/app/10-modal-export.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/11-modal-export.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── MODAL & EXPORT ──────────────────────────────────────────────────────────
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));

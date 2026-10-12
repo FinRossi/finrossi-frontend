@@ -1,0 +1,91 @@
+// js/app/22-mobile-nav.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+function isMobile(){ return window.innerWidth <= 767; }
+
+function setupMobile(){
+  const mob = isMobile();
+  const nav = document.getElementById('mobile-nav');
+  if(nav) nav.style.display = mob ? 'flex' : 'none';
+  // Topbars: só mostra no mobile
+  document.querySelectorAll('.mobile-topbar').forEach(el => el.classList.remove('visible'));
+  if(mob){
+    const cur = document.querySelector('section:not(.section-hidden)');
+    const sid = cur ? cur.id.replace('sec-','') : 'dashboard';
+    const top = document.getElementById('mob-top-'+sid);
+    if(top) top.classList.add('visible');
+  }
+}
+
+function updateMobileNav(section){
+  // todos os 6 itens são diretos agora
+  document.querySelectorAll('.mobile-nav-item').forEach(b => {
+    b.classList.toggle('active', b.id === 'mnav-'+section);
+  });
+  // Atualiza topbars
+  document.querySelectorAll('.mobile-topbar').forEach(el => el.classList.remove('visible'));
+  if(isMobile()){
+    const top = document.getElementById('mob-top-'+section);
+    if(top) top.classList.add('visible');
+  }
+  // Atualiza sync badge mobile
+  const sb = document.getElementById('sync-badge');
+  const msb = document.getElementById('mob-sync-badge');
+  const mtxt = document.getElementById('mob-sync-txt');
+  if(sb && msb){
+    msb.className = sb.className;
+    if(mtxt) mtxt.textContent = sb.classList.contains('ok') ? 'Sync' : 'Local';
+  }
+  // Atualiza título mobile
+  const t = document.getElementById('mob-dash-title');
+  const s = document.getElementById('mob-dash-sub');
+  if(t) t.textContent = PNAMES[cp];
+  if(s) s.textContent = document.getElementById('dash-sub')?.textContent || '';
+}
+
+function openMobileMore(){
+  const drawer = document.getElementById('mobile-more-drawer');
+  drawer.classList.add('open');
+  // Atualiza perfil ativo
+  ['pessoal','finrossi'].forEach(p=>{
+    const el = document.getElementById('mp-'+p);
+    if(el) el.classList.toggle('active', p===cp);
+  });
+  // Mostra/esconde renda passiva (só no pessoal)
+  const rOpt = document.getElementById('mnav-renda-opt');
+  if(rOpt) rOpt.style.display = cp==='pessoal' ? 'flex' : 'none';
+}
+function closeMobileMore(e){
+  if(e.target === document.getElementById('mobile-more-drawer')) closeMobileMoreForce();
+}
+function closeMobileMoreForce(){
+  document.getElementById('mobile-more-drawer').classList.remove('open');
+}
+
+// Intercepta goTo para atualizar mobile
+const _origGoTo = goTo;
+window.goTo = function(name){
+  _origGoTo(name);
+  updateMobileNav(name);
+};
+
+// Intercepta setProfile para atualizar mobile
+const _origSetProfile = setProfile;
+window.setProfile = function(p){
+  _origSetProfile(p);
+  // Atualiza visual mobile depois (pode ter sido bloqueado pela senha)
+  setTimeout(()=>{
+    const t = document.getElementById('mob-dash-title');
+    if(t) t.textContent = PNAMES[cp];
+    ['pessoal','finrossi'].forEach(id=>{
+      const el = document.getElementById('mp-'+id);
+      if(el) el.classList.toggle('active', id===cp);
+    });
+    // Empresas no drawer mobile
+    const empOpt = document.getElementById('emp-drawer-opt');
+    if(empOpt) empOpt.style.display='none';
+  }, 100);
+};
+
+window.addEventListener('resize', setupMobile);
+setupMobile();
+updateMobileNav('dashboard');
+

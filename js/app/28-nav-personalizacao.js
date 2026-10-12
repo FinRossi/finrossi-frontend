@@ -1,4 +1,4 @@
-// js/app/21-nav-personalizacao.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// js/app/28-nav-personalizacao.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── NAV PERSONALIZATION ─────────────────────────────────────────────────────
 var NAV_ITEMS_DEF=[
   {id:'investimentos',label:'Investimentos',group:'menu',removable:true},

@@ -32,7 +32,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <!-- Funcionalidades exclusivas por plano — mantidas fora do arquivo principal -->
-<script src="planos/patrimonio.js" defer></script>
+<script src="planos/patrimonio/patrimonio.js" defer></script>
 
 <!-- Firebase SDK -->
 <script type="module" src="js/firebase-init.js?v=1"></script>
@@ -1236,7 +1236,7 @@
         </div>
       </label>
 
-      <!-- Cores (exclusivo Patrimônio) — conteúdo populado por planos/patrimonio.js -->
+      <!-- Cores (exclusivo Patrimônio) — conteúdo populado por planos/patrimonio/patrimonio.js -->
       <div id="patrimonio-cores-wrap" style="display:none"></div>
 
       <!-- Aplicativo -->
@@ -1859,32 +1859,39 @@
   </div>
 </div>
 
-<!-- Scripts do app — carregados em ordem numérica; 26-pwa-init.js roda a inicialização e deve ser o último -->
+<!-- Scripts do app — carregados em ordem numérica; 33-pwa-init.js roda a inicialização e deve ser o último -->
 <script src="js/app/01-base.js?v=1"></script>
 <script src="js/app/02-firebase-sync.js?v=1"></script>
 <script src="js/app/03-perfil-roles.js?v=1"></script>
 <script src="js/app/04-categorias.js?v=1"></script>
 <script src="js/app/05-dashboard.js?v=1"></script>
 <script src="js/app/06-lancamentos.js?v=1"></script>
-<script src="js/app/07-investimentos-historico.js?v=1"></script>
-<script src="js/app/08-metas-objetivos.js?v=1"></script>
-<script src="js/app/09-renda-passiva.js?v=1"></script>
-<script src="js/app/10-modal-export.js?v=1"></script>
-<script src="js/app/11-assinaturas-calendario.js?v=1"></script>
-<script src="js/app/12-manual.js?v=1"></script>
-<script src="js/app/13-clientes.js?v=1"></script>
-<script src="js/app/14-preview-planos.js?v=1"></script>
-<script src="js/app/15-cartoes.js?v=1"></script>
-<script src="js/app/16-tema.js?v=1"></script>
-<script src="js/app/17-configuracoes.js?v=1"></script>
-<script src="js/app/18-minha-assinatura.js?v=1"></script>
-<script src="js/app/19-cursor-fx.js?v=1"></script>
-<script src="js/app/20-ver-como.js?v=1"></script>
-<script src="js/app/21-nav-personalizacao.js?v=1"></script>
-<script src="js/app/22-login.js?v=1"></script>
-<script src="js/app/23-date-picker.js?v=1"></script>
-<script src="js/app/24-reset-senha.js?v=1"></script>
-<script src="js/app/25-notificacoes.js?v=1"></script>
-<script src="js/app/26-pwa-init.js?v=1"></script>
+<script src="planos/essencial/07-investimentos.js?v=1"></script>
+<script src="js/app/08-historico.js?v=1"></script>
+<script src="planos/evolucao/09-metas-objetivos.js?v=1"></script>
+<script src="planos/patrimonio/10-renda-passiva.js?v=1"></script>
+<script src="js/app/11-modal-export.js?v=1"></script>
+<script src="planos/evolucao/12-recorrentes.js?v=1"></script>
+<script src="planos/evolucao/13-calendario-navegacao.js?v=1"></script>
+<script src="planos/evolucao/14-notas.js?v=1"></script>
+<script src="planos/evolucao/15-assinaturas-calendario.js?v=1"></script>
+<script src="js/app/16-manual.js?v=1"></script>
+<script src="js/app/17-clientes.js?v=1"></script>
+<script src="planos/18-regras-planos.js?v=1"></script>
+<script src="js/app/19-preview-planos.js?v=1"></script>
+<script src="planos/evolucao/20-cartoes.js?v=1"></script>
+<script src="js/app/21-manual-render.js?v=1"></script>
+<script src="js/app/22-mobile-nav.js?v=1"></script>
+<script src="js/app/23-tema.js?v=1"></script>
+<script src="js/app/24-configuracoes.js?v=1"></script>
+<script src="js/app/25-minha-assinatura.js?v=1"></script>
+<script src="js/app/26-cursor-fx.js?v=1"></script>
+<script src="js/app/27-ver-como.js?v=1"></script>
+<script src="js/app/28-nav-personalizacao.js?v=1"></script>
+<script src="js/app/29-login.js?v=1"></script>
+<script src="js/app/30-date-picker.js?v=1"></script>
+<script src="js/app/31-reset-senha.js?v=1"></script>
+<script src="js/app/32-notificacoes.js?v=1"></script>
+<script src="js/app/33-pwa-init.js?v=1"></script>
 </body>
 </html>

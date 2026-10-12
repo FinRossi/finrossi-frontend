@@ -436,7 +436,7 @@ function refreshDash(){
   renderTodosMeses();
 
   // Plano Patrimônio: mantém o Score/Insights/Tarefas sempre atualizados,
-  // sem precisar sair e voltar na tela (a função só existe se planos/patrimonio.js já carregou)
+  // sem precisar sair e voltar na tela (a função só existe se planos/patrimonio/patrimonio.js já carregou)
   if(typeof renderScore==='function') renderScore();
   if(typeof initPersonalizacaoDashboard==='function') initPersonalizacaoDashboard();
   if(typeof initPatrimonioCores==='function') initPatrimonioCores();
