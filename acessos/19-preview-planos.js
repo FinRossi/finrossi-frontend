@@ -33,6 +33,7 @@ const PERMS_TABLE = [
   {label:'Edição pelo consultor',    g:false,  s:false, e:false, c:true},
   {label:'Reunião mensal',           g:false,  s:false, e:false, c:true},
   {label:'Relatórios semanais e mensais', g:false, s:false, e:false, c:true},
+  {label:'Lançar por foto',         g:false,  s:false, e:false, c:true},
   {label:'App personalizável',       g:false,  s:false, e:false, c:true},
   {label:'Acesso a "Minha Assinatura"', g:true,  s:true,  e:true,  c:true},
   {label:'Período gratuito (dias)',  g:'30d',  s:false, e:false, c:false},
