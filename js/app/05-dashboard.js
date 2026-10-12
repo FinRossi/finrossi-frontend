@@ -377,10 +377,10 @@ function refreshDash(){
             ctx.save();
             ctx.textAlign='center';
             ctx.textBaseline='middle';
-            ctx.font='bold 19px DM Sans,Arial';
+            ctx.font="500 22px 'Bodoni Moda',Georgia,serif";
             ctx.fillStyle='#f0ede8';
             ctx.fillText(fmtR(totalCat).replace('R$\u00a0','R$ '), cx, cy-8);
-            ctx.font='11px DM Sans,Arial';
+            ctx.font="12px 'DM Sans',Arial";
             ctx.fillStyle='#777';
             ctx.fillText('Total', cx, cy+12);
             ctx.restore();
