@@ -1,0 +1,73 @@
+/* css/06-cedula-app.css — identidade "Cédula" aplicada aos componentes de TODO o app.
+   Carregado depois do CSS base: só reestiliza (tipografia, linhas, cantos), não muda layout
+   nem comportamento. Valores e títulos no numeral de cédula; etiquetas em texto normal;
+   indicadores como faixa de extrato; cartões com linha gravada. Cores via var(--accent). */
+
+/* ── Tipografia: o serifado do app passa a ser o numeral de cédula ─────────── */
+.page-title h2,.modal h3,.sb-logo h1,
+[style*="font-family:'DM Serif Display'"],[style*="font-family: 'DM Serif Display'"]{
+  font-family:var(--ced-serif)!important;font-weight:500!important;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.page-title h2{font-size:30px;letter-spacing:-.5px;line-height:1.1}
+.page-title p{font-size:13px}
+.modal h3{font-size:24px;letter-spacing:-.3px}
+td,.mc-val,.currency-input{font-variant-numeric:lining-nums tabular-nums}
+
+/* ── Etiquetas: texto normal em vez de MAIÚSCULAS espaçadas ────────────────── */
+.mc-label,.field label,th,.sb-group-label,
+[style*="text-transform:uppercase"],[style*="text-transform: uppercase"]{
+  text-transform:none!important;letter-spacing:.1px!important;
+}
+.mc-label{font-size:12.5px;margin-bottom:6px}
+.field label{font-size:12.5px}
+th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
+.sb-group-label{font-size:11.5px;color:var(--muted)}
+
+/* ── Indicadores (.metrics/.mc) como faixa de extrato ──────────────────────── */
+.metrics{gap:0;overflow:hidden;border-top:1px solid var(--ced-gravura-fina);border-bottom:1px solid var(--ced-gravura-fina)}
+.metrics .mc{background:none;border:none;border-radius:0;border-left:1px solid var(--ced-gravura-fina);margin-left:-1px;padding:16px 20px}
+.mc-val{font-family:var(--ced-serif);font-weight:500;font-size:26px;letter-spacing:-.4px;line-height:1.1}
+.mc-sub{font-size:12px}
+
+/* ── Cartões: canto contido e linha gravada ─────────────────────────────────── */
+.card{border-radius:8px;border-color:var(--ced-gravura-fina)}
+.card h3{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;letter-spacing:0}
+.card h3 .dot{display:none}
+
+/* ── Janelas ───────────────────────────────────────────────────────────────── */
+.modal{border-radius:10px!important;border:1px solid var(--ced-gravura)!important}
+
+/* ── Botões: menos "pílula", mais carimbo ──────────────────────────────────── */
+.btn{border-radius:6px}
+.btn.sm{border-radius:5px}
+.btn.xs{border-radius:4px}
+
+/* ── Abas: linha sob a ativa, como a área Patrimônio ───────────────────────── */
+.tabs{background:none;border-radius:0;padding:0;gap:2px;border-bottom:1px solid var(--border)}
+.tab-btn{border-radius:0;padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{background:none;color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── Menu lateral: item ativo marcado por um filete, não por uma pílula cheia ─ */
+.nav-item.active{background:color-mix(in srgb,var(--accent) 8%,transparent);box-shadow:inset 2px 0 0 var(--accent)}
+
+@media(max-width:767px){
+  .page-title h2{font-size:26px}
+  .mc-val{font-size:22px}
+  .metrics .mc{padding:14px 14px}
+}
+
+/* Tabelas largas (ex.: Renda Passiva) rolam dentro do próprio cartão no celular */
+@media(max-width:767px){
+  #sec-renda .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+
+/* Posições de investimento como linhas de extrato (o estilo antigo dessa lista havia
+   sido apagado num commit anterior e ela aparecia desmontada) */
+.inv-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.inv-item:last-child{border-bottom:none}
+.inv-left{display:flex;align-items:center;gap:12px;min-width:0}
+.inv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.inv-name{font-size:14px;font-weight:500;color:var(--text)}
+.inv-type{font-size:12px;color:var(--muted);margin-top:1px}
+.inv-val{font-family:var(--ced-serif);font-weight:500;font-size:18px;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}

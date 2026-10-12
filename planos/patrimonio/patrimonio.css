@@ -4,16 +4,15 @@
    a cor de tema que o cliente Patrimônio escolher. */
 
 .pt-wrap{position:relative}
-.pt-serif{font-family:'DM Serif Display',Georgia,serif;font-weight:400}
+.pt-serif{font-family:var(--ced-serif);font-weight:400}
 .pt-num{font-variant-numeric:tabular-nums}
-.pt-eyebrow{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.pt-eyebrow::before{content:'';width:22px;height:1px;background:var(--accent)}
-.pt-titulo{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:22px;letter-spacing:-.3px;line-height:1.15;color:var(--text)}
-.pt-titulo em{font-style:italic;color:var(--accent)}
+.pt-eyebrow{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.pt-titulo{font-family:var(--ced-serif);font-weight:400;font-size:22px;letter-spacing:-.3px;line-height:1.15;color:var(--text)}
+.pt-titulo em{font-style:normal;color:inherit}
 
 /* Cabeçalho da página */
-#sec-score .page-title h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;letter-spacing:-.5px}
-#sec-score .page-title h2 em{font-style:italic;color:var(--accent)}
+#sec-score .page-title h2{font-family:var(--ced-serif);font-weight:400;letter-spacing:-.5px}
+#sec-score .page-title h2 em{font-style:normal;color:inherit}
 
 /* Abas: linha sob a ativa, com ícones de linha */
 .pt-abas{display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
@@ -26,23 +25,23 @@
 /* Cartões */
 .pt-card{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px}
 .pt-card-cab{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
-.pt-r{position:absolute;right:-18px;bottom:-70px;font-family:'DM Serif Display',Georgia,serif;font-size:260px;line-height:1;color:var(--accent);opacity:.05;pointer-events:none;user-select:none}
+.pt-r{position:absolute;right:-18px;bottom:-70px;font-family:var(--ced-serif);font-size:260px;line-height:1;color:var(--accent);opacity:.05;pointer-events:none;user-select:none}
 
 /* Score: destaque + fatores */
 .pt-score{display:grid;grid-template-columns:minmax(220px,.8fr) 1.2fr;gap:28px;align-items:center}
 .pt-anel{position:relative;width:190px;height:190px;margin:0 auto}
 .pt-anel svg{transform:rotate(-90deg);display:block}
 .pt-anel-centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.pt-anel-num{font-family:'DM Serif Display',Georgia,serif;font-size:64px;line-height:1}
-.pt-anel-de{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.pt-anel-num{font-family:var(--ced-serif);font-size:64px;line-height:1}
+.pt-anel-de{font-size:12px;color:var(--muted);margin-top:4px}
 .pt-nivel{text-align:center;margin-top:14px}
-.pt-nivel strong{display:block;font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.1}
+.pt-nivel strong{display:block;font-family:var(--ced-serif);font-style:normal;font-weight:500;font-size:26px;line-height:1.1}
 .pt-nivel span{font-size:12px;color:var(--muted)}
 .pt-fatores{display:flex;flex-direction:column;gap:18px}
 .pt-fator-linha{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px}
 .pt-fator-nome{font-size:14px;font-weight:500;color:var(--text)}
 .pt-fator-pts{font-size:12px;color:var(--muted)}
-.pt-fator-pts b{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:18px;color:var(--accent)}
+.pt-fator-pts b{font-family:var(--ced-serif);font-weight:400;font-size:18px;color:var(--accent)}
 .pt-barra{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden}
 .pt-barra i{display:block;height:100%;border-radius:2px;background:var(--accent);transition:width .6s ease}
 .pt-fator-desc{font-size:11.5px;color:var(--muted);margin-top:6px}
@@ -58,9 +57,9 @@
 /* Desafios */
 .pt-nivel-card{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .pt-medalha{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--pt-cor,var(--accent));color:var(--pt-cor,var(--accent));flex-shrink:0;box-shadow:0 0 30px color-mix(in srgb,var(--pt-cor,var(--accent)) 25%,transparent)}
-.pt-medalha span{font-family:'DM Serif Display',Georgia,serif;font-size:30px;line-height:1}
+.pt-medalha span{font-family:var(--ced-serif);font-size:30px;line-height:1}
 .pt-nivel-info{flex:1;min-width:200px}
-.pt-pontos{font-family:'DM Serif Display',Georgia,serif;font-size:44px;line-height:1;color:var(--text)}
+.pt-pontos{font-family:var(--ced-serif);font-size:44px;line-height:1;color:var(--text)}
 .pt-pontos small{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--muted);margin-left:6px}
 .pt-desafios{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .pt-desafio{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:14px}
@@ -71,7 +70,7 @@
 .pt-desafio h4{font-size:13px;font-weight:600;color:var(--text)}
 .pt-desafio:not(.feito) h4{color:var(--muted)}
 .pt-desafio p{font-size:11.5px;color:var(--muted);margin-top:2px}
-.pt-desafio-pts{margin-left:auto;font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--muted);flex-shrink:0}
+.pt-desafio-pts{margin-left:auto;font-family:var(--ced-serif);font-size:17px;color:var(--muted);flex-shrink:0}
 .pt-desafio.feito .pt-desafio-pts{color:var(--accent)}
 
 /* Projeções */
@@ -82,8 +81,8 @@
 .pt-marcos{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border)}
 .pt-marco{padding:18px 16px 4px 0}
 .pt-marco+.pt-marco{padding-left:16px;border-left:1px solid var(--border)}
-.pt-marco small{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
-.pt-marco strong{display:block;font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:24px;color:var(--text);margin-top:6px;line-height:1.1}
+.pt-marco small{display:block;font-size:12.5px;color:var(--muted)}
+.pt-marco strong{display:block;font-family:var(--ced-serif);font-weight:400;font-size:24px;color:var(--text);margin-top:6px;line-height:1.1}
 .pt-marco:last-child strong{color:var(--accent)}
 
 /* Sem dados */
