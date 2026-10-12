@@ -1,0 +1,87 @@
+// js/app/01-base.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+const PNAMES={pessoal:'Pessoal',finrossi:'FinRossi'};
+const PALETTE=['#4ade80','#60a5fa','#fbbf24','#c084fc','#2dd4bf','#f87171','#fb923c','#a78bfa','#34d399'];
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let cp='pessoal', charts={}, fbOk=false;
+let _cartaoPage=0;
+let _db,_ref,_set,_get,_onValue,_remove,_push;
+
+// Dados em memória (sincronizados do Firebase ou localStorage)
+let DATA={pessoal:{lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]},finrossi:{lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]}};
+
+const hoje=()=>new Date().toISOString().slice(0,10);
+const fmtR=(v)=>'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtR0=(v)=>'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const mesLbl=(ym)=>{const[y,m]=ym.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+y.slice(2)};
+const curMes=()=>new Date().toISOString().slice(0,7);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pd=()=>{if(!DATA[cp])DATA[cp]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};return DATA[cp];};
+
+function showMsg(id,txt,cls){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.className='msg '+cls;setTimeout(()=>{el.textContent='';el.className='msg'},2800)}
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+function lsLoad(){
+  // Carrega perfis fixos
+  ['pessoal','finrossi'].forEach(p=>{
+    ['lancs','invs','metas','objs','notas','assinaturas','recorrentes','cartoes'].forEach(t=>{
+      try{const v=localStorage.getItem(`fin3_${p}_${t}`);if(v)DATA[p][t]=JSON.parse(v)}catch{}
+    });
+  });
+  // Carrega perfil de cliente (UID) se existir
+  const uid = window._firebaseUser?.uid;
+  if(uid && uid !== 'pessoal' && uid !== 'finrossi'){
+    if(!DATA[uid]) DATA[uid]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};
+    ['lancs','invs','metas','objs','notas','assinaturas','recorrentes','cartoes'].forEach(t=>{
+      try{const v=localStorage.getItem(`fin3_${uid}_${t}`);if(v)DATA[uid][t]=JSON.parse(v)}catch{}
+    });
+  }
+}
+function lsSave(profile,type){
+  if(!DATA[profile]) DATA[profile]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};
+  try{localStorage.setItem(`fin3_${profile}_${type}`,JSON.stringify(DATA[profile][type]))}catch{}
+}
+
+async function fbSave(profile,type){
+  if(!fbOk||!_db||!_ref||!_set) return;
+  try{
+    const role = window._userRole || _userRole;
+    const savePath = (role==='cliente' && window._firebaseUser?.uid)
+      ? `financeiro/${window._firebaseUser.uid}/${type}`
+      : `financeiro/${profile}/${type}`;
+    const data = DATA[profile][type];
+    await _set(_ref(_db, savePath), data||null);
+  }catch(e){console.warn('fbSave err',e)}
+}
+
+async function saveCollection(type){
+  // Garante que DATA[cp] existe
+  if(!DATA[cp]) DATA[cp]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};
+  
+  // Salva localStorage primeiro (imediato)
+  lsSave(cp, type);
+  
+  // Salva Firebase em background
+  if(fbOk && _db && _ref && _set){
+    try{
+      const role = window._userRole || _userRole;
+      // Cliente usa UID como path
+      const savePath = (role==='cliente' && window._firebaseUser?.uid)
+        ? `financeiro/${window._firebaseUser.uid}/${type}`
+        : `financeiro/${cp}/${type}`;
+      await _set(_ref(_db, savePath), DATA[cp][type] || null);
+      // Atualiza badge
+      const sb = document.getElementById('sync-badge');
+      if(sb){ sb.className='sync-badge ok'; sb.innerHTML='<span class="sync-dot"></span><span class="nav-text">Sincronizado</span>'; }
+    }catch(e){
+      console.warn('fbSave erro:', e);
+      const sb = document.getElementById('sync-badge');
+      if(sb){ sb.className='sync-badge local'; sb.innerHTML='<span class="sync-dot"></span><span class="nav-text">Salvo localmente</span>'; }
+    }
+  } else {
+    // Sem Firebase — salvo só local, badge avisa
+    const sb = document.getElementById('sync-badge');
+    if(sb && sb.className !== 'sync-badge ok'){ sb.innerHTML='<span class="sync-dot"></span><span class="nav-text">Salvo localmente</span>'; }
+  }
+}
+

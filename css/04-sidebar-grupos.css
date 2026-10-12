@@ -1,0 +1,4 @@
+/* css/04-sidebar-grupos.css — carregado pelo index.html em ordem numérica (a ordem afeta a cascata). */
+.sb-section{padding:0 0 8px}
+.sb-group-label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.2px;padding:10px 18px 4px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.sb-group-items{overflow:hidden;transition:max-height .2s ease}

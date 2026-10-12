@@ -1,0 +1,464 @@
+// js/app/15-cartoes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// ─── CARTÕES DE CRÉDITO ──────────────────────────────────────────────────────
+function getCartoes(){return pd().cartoes||[];}
+async function saveCartoes(){lsSave(cp,'cartoes');fbSave(cp,'cartoes');}
+
+function populateCartaoSelect(){
+  const cartoes=getCartoes();
+  const sel=document.getElementById('d-cartao');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Selecione o cartão usado</option>'+
+    cartoes.map(c=>`<option value="${c.id}">${c.nome} •••• ${c.final} (${c.banco})</option>`).join('');
+  sel.value=cur;
+}
+
+function atualizarPreviewCartao(){
+  const wrap=document.getElementById('cartao-preview-wrap');
+  if(!wrap) return;
+  const c={
+    final: document.getElementById('cartao-final')?.value || '0000',
+    cor: document.getElementById('cartao-cor')?.value || '#C8A96E',
+    modelo: document.getElementById('cartao-modelo')?.value || 'preto',
+    nome: document.getElementById('cartao-nome')?.value || '',
+    banco: document.getElementById('cartao-banco')?.value || '',
+  };
+  wrap.innerHTML=cartaoVisualHTML(c, 220, 138);
+}
+
+function openModalCartao(id){
+  document.getElementById('mcartao-title').textContent=id?'Editar cartão':'Novo cartão';
+  document.getElementById('cartao-edit-id').value=id||'';
+  if(id){
+    const c=getCartoes().find(x=>x.id===id);
+    if(c){
+      document.getElementById('cartao-nome').value=c.nome;
+      document.getElementById('cartao-banco').value=c.banco;
+      document.getElementById('cartao-final').value=c.final;
+      document.getElementById('cartao-limite').value=(c.limite||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('cartao-venc').value=c.venc;
+      document.getElementById('cartao-fecha').value=c.fecha||'';
+      document.getElementById('cartao-cor').value=c.cor||'#C8A96E';
+      document.getElementById('cartao-modelo').value=c.modelo||'preto';
+    }
+  } else {
+    ['cartao-nome','cartao-final','cartao-limite','cartao-venc','cartao-fecha'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('cartao-cor').value='#C8A96E';
+    document.getElementById('cartao-modelo').value='preto';
+  }
+  document.getElementById('modal-cartao').classList.add('open');
+  atualizarPreviewCartao();
+}
+
+async function salvarCartao(){
+  const nome=document.getElementById('cartao-nome').value.trim();
+  const banco=document.getElementById('cartao-banco').value;
+  const final=document.getElementById('cartao-final').value.trim();
+  const limite=parseCurrency(document.getElementById('cartao-limite'));
+  const venc=parseInt(document.getElementById('cartao-venc').value)||0;
+  const fecha=parseInt(document.getElementById('cartao-fecha').value)||0;
+  const cor=document.getElementById('cartao-cor').value;
+  const modelo=document.getElementById('cartao-modelo').value;
+  if(!nome){showMsg('msg-cartao','Informe o nome','err');return}
+  if(!final||final.length!==4){showMsg('msg-cartao','Informe os 4 dígitos finais','err');return}
+  const id=document.getElementById('cartao-edit-id').value;
+  const obj={id:id||uid(),nome,banco,final,limite,venc,fecha,cor,modelo};
+  if(id){const i=pd().cartoes.findIndex(c=>c.id===id);if(i>=0)pd().cartoes[i]=obj;}
+  else{if(!pd().cartoes)pd().cartoes=[];pd().cartoes.push(obj);}
+  await saveCartoes();
+  closeModal('modal-cartao');
+  renderCartoes();
+  populateCartaoSelect();
+}
+
+async function remCartao(id){
+  if(!confirm('Excluir este cartão?'))return;
+  pd().cartoes=getCartoes().filter(c=>c.id!==id);
+  renderCartoes();saveCartoes();populateCartaoSelect();
+}
+
+// ─── Visual do cartão (modelo + cor) — reaproveitado no dashboard e na página Cartões ──
+const CARTAO_MODELOS = {
+  preto:       'Preto fosco + friso',
+  solido:      'Cor sólida premium',
+  carbono:     'Carbono + brilho',
+  minimalista: 'Linhas finas',
+};
+function cartaoVisualHTML(c, w, h){
+  const cor = c.cor || '#C8A96E';
+  const modelo = CARTAO_MODELOS[c.modelo] ? c.modelo : 'preto';
+  const final = c.final || '0000';
+  const banco = c.banco || 'FinRossi';
+  const nome = (c.nome || '').toUpperCase();
+  const bandeira = `<svg width="${Math.round(w*0.15)}" height="${Math.round(h*0.12)}" viewBox="0 0 36 22" style="flex-shrink:0"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg>`;
+  const chip = `<svg width="${Math.round(w*0.15)}" height="${Math.round(h*0.16)}" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/></svg>`;
+  const bgByModelo = {
+    preto:       `background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid ${cor}55`,
+    solido:      `background:linear-gradient(135deg,${cor} 0%,${cor}99 60%,#1a1a1a 100%)`,
+    carbono:     `background:radial-gradient(circle at 30% 20%,#2a2a2a,#050505 70%);border:1px solid rgba(255,255,255,.08)`,
+    minimalista: `background:#0a0a0a;border:1px solid ${cor}66`,
+  };
+  const textByModelo = { preto:'#fff', solido:'#1a1400', carbono:'#fff', minimalista:'#fff' };
+  const numByModelo   = { preto:'rgba(255,255,255,.7)', solido:'rgba(26,20,0,.7)', carbono:'#999', minimalista:'#ccc' };
+  const subByModelo   = { preto:'rgba(255,255,255,.55)', solido:'rgba(26,20,0,.55)', carbono:'#888', minimalista:'#999' };
+  let extra = '';
+  if(modelo==='preto') extra = `<div style="position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,${cor}22 50%,transparent 60%)"></div>`;
+  else if(modelo==='solido') extra = `<div style="position:absolute;top:-30px;right:-30px;width:${Math.round(w*0.6)}px;height:${Math.round(w*0.6)}px;border-radius:50%;background:rgba(255,255,255,.12)"></div>`;
+  else if(modelo==='carbono') extra = `<div style="position:absolute;top:10px;left:10px;width:5px;height:5px;border-radius:50%;background:${cor};box-shadow:0 0 8px ${cor}"></div>`;
+  else if(modelo==='minimalista') extra = `<svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.4"><line x1="0" y1="25%" x2="100%" y2="25%" stroke="${cor}" stroke-width=".5"/><line x1="0" y1="50%" x2="100%" y2="50%" stroke="${cor}" stroke-width=".5"/><line x1="0" y1="75%" x2="100%" y2="75%" stroke="${cor}" stroke-width=".5"/></svg>`;
+  const pad = Math.round(w*0.07);
+  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;border-radius:${Math.round(h*0.11)}px;${bgByModelo[modelo]};padding:${pad}px;position:relative;overflow:hidden;box-shadow:0 8px 24px ${cor}22,0 2px 8px rgba(0,0,0,.4)">
+    ${extra}
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative">
+      <div style="font-size:${Math.round(w*0.052)}px;letter-spacing:.5px;color:${subByModelo[modelo]};font-weight:500;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${banco}</div>
+      ${bandeira}
+    </div>
+    <div style="position:relative;margin-top:${Math.round(h*0.1)}px">${chip}</div>
+    <div style="font-size:${Math.round(w*0.062)}px;letter-spacing:2px;color:${numByModelo[modelo]};font-family:monospace;margin-top:${Math.round(h*0.07)}px;position:relative">•••• •••• •••• ${final}</div>
+    <div style="position:absolute;bottom:${pad}px;left:${pad}px;right:${pad}px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+      <div style="min-width:0">
+        <div style="font-size:${Math.round(w*0.028)}px;letter-spacing:1px;color:${subByModelo[modelo]};text-transform:uppercase;margin-bottom:2px">Titular</div>
+        <div style="font-size:${Math.round(w*0.05)}px;font-weight:700;color:${textByModelo[modelo]};text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome||'—'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function mudarPaginaCartao(delta){
+  _cartaoPage += delta;
+  renderCartoes();
+}
+
+function renderCartoes(){
+  try{
+  populateCartaoSelect();
+  const cartoes=getCartoes();
+  const mes=curMes();
+  const el=document.getElementById('cartoes-content');
+  const hdrBtn=document.getElementById('cartoes-header-btn');
+  if(!el){console.warn('renderCartoes: cartoes-content não encontrado');return;}
+
+  if(!cartoes.length){
+    if(hdrBtn) hdrBtn.innerHTML='';
+    el.innerHTML=`
+      <div class="card" style="text-align:center;padding:56px 24px;margin-bottom:18px;border-style:dashed">
+        <div style="font-size:48px;margin-bottom:16px">💳</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:10px">Nenhum cartão cadastrado ainda</div>
+        <p style="font-size:13px;color:var(--muted);max-width:400px;margin:0 auto 24px;line-height:1.8">
+          Cadastre seus cartões para controlar fatura, limite disponível e ver automaticamente quais despesas foram feitas em cada um.
+        </p>
+        <button class="btn primary" onclick="openModalCartao()" style="font-size:14px;padding:11px 28px">+ Cadastrar primeiro cartão</button>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <h3><span class="dot" style="background:var(--accent)"></span>Como funciona</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:8px">
+          ${[['1','Cadastre o cartão','Informe nome, banco, 4 dígitos finais, limite e dia de vencimento.'],
+             ['2','Lance as despesas','Em Lançamentos, adicione uma despesa e selecione o cartão. Entra na fatura automaticamente.'],
+             ['3','Acompanhe a fatura','Veja fatura atual, limite disponível, gastos por categoria e alertas de limite.']
+          ].map(([n,t,d])=>`<div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-s);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0">${n}</div>
+            <div><div style="font-size:13px;font-weight:500;margin-bottom:3px">${t}</div><div style="font-size:12px;color:var(--muted);line-height:1.6">${d}</div></div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    destroyChart('cartao-dist'); destroyChart('cartao-limite');
+    return;
+  }
+
+  // Tem cartões
+  if(hdrBtn) hdrBtn.innerHTML='<button class="btn primary" onclick="openModalCartao()">+ Novo cartão</button>';
+  const lancs=pd().lancs.filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));
+
+  // Grid de cartões — tamanho padrão fixo, paginado de 3 em 3
+  const CARTAO_PAGE_SIZE = 3;
+  const totalPaginas = Math.ceil(cartoes.length / CARTAO_PAGE_SIZE) || 1;
+  if(_cartaoPage >= totalPaginas) _cartaoPage = totalPaginas - 1;
+  if(_cartaoPage < 0) _cartaoPage = 0;
+  const cartoesVisiveis = cartoes.slice(_cartaoPage*CARTAO_PAGE_SIZE, _cartaoPage*CARTAO_PAGE_SIZE + CARTAO_PAGE_SIZE);
+  const gridCols = 'repeat(auto-fit,minmax(280px,300px))';
+  const gridMaxW = '956px';
+
+  const BANDEIRAS = {
+    visa: '<svg width="44" height="14" viewBox="0 0 44 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="14" fill="white" letter-spacing="-1">VISA</text></svg>',
+    master: '<svg width="36" height="22" viewBox="0 0 36 22"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg>',
+    elo: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="13" fill="white">elo</text></svg>',
+    amex: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="11" fill="white">AMEX</text></svg>',
+    hipercard: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="10" fill="white">Hiper</text></svg>',
+  };
+  const CHIP = '<svg width="34" height="26" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/><rect x="11" y="8" width="12" height="10" fill="#B8881A" opacity=".7"/></svg>';
+
+  const gridHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;max-width:${gridMaxW}">
+    ${cartoes.length>CARTAO_PAGE_SIZE?`<button class="btn xs" onclick="mudarPaginaCartao(-1)" ${_cartaoPage===0?'disabled':''} style="flex-shrink:0;${_cartaoPage===0?'opacity:.3;cursor:default':''}">‹</button>`:''}
+    <div style="display:grid;grid-template-columns:${gridCols};gap:24px;flex:1" id="cartoes-grid-inner">
+    ${cartoesVisiveis.map(c=>{
+      const gastos=lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0);
+      const pct=c.limite>0?Math.min(100,(gastos/c.limite)*100):0;
+      const disponivel=Math.max(0,c.limite-gastos);
+      const corS=pct>=90?'var(--red)':pct>=70?'var(--amber)':'var(--green)';
+      const cor=c.cor||'#C8A96E';
+      const modelo=CARTAO_MODELOS[c.modelo]?c.modelo:'preto';
+      const bandSVG=BANDEIRAS[(c.bandeira||'visa').toLowerCase()]||BANDEIRAS['visa'];
+      const MODELO_BG_FULL={
+        preto:       `background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid ${cor}55`,
+        solido:      `background:linear-gradient(135deg,${cor}ee 0%,${cor}99 50%,#1a1a1a 100%)`,
+        carbono:     `background:radial-gradient(circle at 25% 15%,#2a2a2a,#050505 75%);border:1px solid rgba(255,255,255,.08)`,
+        minimalista: `background:#0a0a0a;border:1px solid ${cor}66`,
+      };
+      const decorFull = modelo==='preto'
+        ? `<div style="position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,${cor}22 50%,transparent 60%)"></div>`
+        : modelo==='carbono'
+        ? `<div style="position:absolute;top:16px;left:16px;width:6px;height:6px;border-radius:50%;background:${cor};box-shadow:0 0 10px ${cor}"></div>`
+        : modelo==='minimalista'
+        ? `<svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.35"><line x1="0" y1="30%" x2="100%" y2="30%" stroke="${cor}" stroke-width=".5"/><line x1="0" y1="55%" x2="100%" y2="55%" stroke="${cor}" stroke-width=".5"/><line x1="0" y1="80%" x2="100%" y2="80%" stroke="${cor}" stroke-width=".5"/></svg>`
+        : `<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+           <div style="position:absolute;bottom:-60px;left:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.03)"></div>`;
+      return`<div>
+        <div style="${MODELO_BG_FULL[modelo]};border-radius:18px;padding:24px;position:relative;overflow:hidden;height:190px;box-shadow:0 8px 32px ${cor}33,0 2px 8px rgba(0,0,0,.5);margin-bottom:16px">
+          ${decorFull}
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative">
+            <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${c.banco}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn xs" onclick="openModalCartao('${c.id}')" style="background:rgba(255,255,255,.15);border:none;color:white">✏</button>
+              <button class="btn danger xs" onclick="remCartao('${c.id}')" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;position:relative">${CHIP}</div>
+          <div style="font-size:16px;letter-spacing:4px;color:rgba(255,255,255,.9);font-family:monospace;margin-bottom:16px;position:relative">•••• •••• •••• ${c.final||'0000'}</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
+            <div>
+              <div style="font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Titular</div>
+              <div style="font-size:13px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${c.nome}</div>
+            </div>
+            <div>${bandSVG}</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Fatura atual</div>
+            <div style="font-size:18px;font-weight:700;color:var(--red)">${fmtR(gastos)}</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Disponível</div>
+            <div style="font-size:18px;font-weight:700;color:var(--green)">${fmtR(disponivel)}</div>
+          </div>
+        </div>
+        ${c.limite>0?`<div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+            <span style="color:var(--muted)">Limite: ${fmtR(c.limite)}</span>
+            <span style="color:${corS};font-weight:600">${pct.toFixed(0)}% usado</span>
+          </div>
+          <div style="background:var(--surface3);border-radius:6px;height:6px;overflow:hidden">
+            <div style="width:${pct.toFixed(1)}%;height:100%;background:${corS};border-radius:6px;transition:width .6s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:6px">
+            <span>Venc. dia ${c.venc}</span>${c.fecha?`<span>Fecha dia ${c.fecha}</span>`:''}
+          </div>
+        </div>`:''}</div>`;
+    }).join('')}
+  </div>
+    ${cartoes.length>CARTAO_PAGE_SIZE?`<button class="btn xs" onclick="mudarPaginaCartao(1)" ${_cartaoPage>=totalPaginas-1?'disabled':''} style="flex-shrink:0;${_cartaoPage>=totalPaginas-1?'opacity:.3;cursor:default':''}">›</button>`:''}
+  </div>
+  ${cartoes.length>CARTAO_PAGE_SIZE?`<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:-16px;margin-bottom:20px">${_cartaoPage+1} / ${totalPaginas}</div>`:''}`;
+
+  // Linhas de gastos do mês agrupados por cartão (estava faltando — causava erro e travava o render)
+  const gastosCartao = lancs.filter(l=>l.cartaoId).sort((a,b)=>b.data.localeCompare(a.data));
+  const rowsHTML = gastosCartao.length ? `<div style="display:flex;flex-direction:column;gap:8px">
+    ${gastosCartao.map(l=>{
+      const cartao = cartoes.find(c=>c.id===l.cartaoId);
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div style="min-width:0">
+          <div style="font-size:13px;color:var(--text)">${l.desc}</div>
+          <div style="font-size:11px;color:var(--muted)">${l.cat} · ${cartao?`${cartao.nome} ••${cartao.final}`:'Cartão removido'} · ${l.data.split('-').reverse().join('/')}</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--red);white-space:nowrap;margin-left:12px">${fmtR(l.val)}</div>
+      </div>`;
+    }).join('')}
+  </div>` : '';
+
+  el.innerHTML=gridHTML+`
+    <div class="card card-full" style="margin-bottom:20px">
+      <h3><span class="dot" style="background:var(--blue)"></span>Gastos por cartão — ${MONTHS[parseInt(mes.split('-')[1])-1]}</h3>
+      <div id="cartoes-gastos-inner">${rowsHTML||'<p class="empty">Nenhum gasto com cartão este mês</p>'}</div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3><span class="dot" style="background:var(--purple)"></span>Distribuição de gastos</h3>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-cartao-dist"></canvas></div></div>
+      <div class="card"><h3><span class="dot" style="background:var(--amber)"></span>Fatura vs Limite</h3>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-cartao-limite"></canvas></div></div>
+    </div>`;
+
+  // Gráficos
+  destroyChart('cartao-dist');
+  const ctxD=document.getElementById('c-cartao-dist');
+  if(ctxD){
+    const vals=cartoes.map(c=>lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0));
+    charts['cartao-dist']=new Chart(ctxD,{type:'doughnut',data:{labels:cartoes.map(c=>`${c.nome} ••${c.final}`),datasets:[{data:vals,backgroundColor:cartoes.map(c=>c.cor),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:11},padding:6,boxWidth:10}}}}});
+  }
+  destroyChart('cartao-limite');
+  const ctxL=document.getElementById('c-cartao-limite');
+  if(ctxL){
+    const com=cartoes.filter(c=>c.limite>0);
+    charts['cartao-limite']=new Chart(ctxL,{type:'bar',data:{labels:com.map(c=>`${c.nome} ••${c.final}`),datasets:[
+      {label:'Fatura',data:com.map(c=>lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0)),backgroundColor:'rgba(248,113,113,0.7)',borderRadius:4},
+      {label:'Limite',data:com.map(c=>c.limite),backgroundColor:'rgba(200,169,110,0.3)',borderRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:10}}},scales:{x:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+  }
+  }catch(e){console.error('renderCartoes error:',e);}
+}
+
+function renderManual(){
+  const el=document.getElementById('manual-content');
+  el.innerHTML=`
+    <div class="card card-full" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(74,222,128,0.06) 0%,rgba(96,165,250,0.04) 100%);border-color:rgba(74,222,128,0.15)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="font-size:32px">💎</div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px">Bem-vindo ao FinRossi</div>
+          <div style="font-size:13px;color:var(--muted)">Controle financeiro pessoal simples e inteligente</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7">Este manual explica cada funcionalidade do app. Navegue pelas seções abaixo para aprender a usar tudo. Se tiver dúvidas, entre em contato pelo suporte.</p>
+    </div>
+    ${MANUAL_SECTIONS.map((s,i)=>`
+      <div class="card card-full" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="font-size:24px">${s.icon}</div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:16px">${i+1}. ${s.titulo}</div>
+            <div style="font-size:12px;color:var(--muted)">${s.desc}</div>
+          </div>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px">
+          ${s.itens.map(item=>`
+            <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text);line-height:1.6">
+              <span style="color:${s.cor};margin-top:1px;flex-shrink:0">›</span>
+              <span>${item}</span>
+            </li>`).join('')}
+        </ul>
+      </div>`).join('')}
+    <div class="card card-full" style="margin-bottom:16px;text-align:center;padding:24px">
+      <div style="font-size:24px;margin-bottom:8px">💬</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:6px">Precisa de ajuda?</div>
+      <div style="font-size:13px;color:var(--muted)">Entre em contato com o suporte do FinRossi pelo WhatsApp ou e-mail.</div>
+    </div>`;
+}
+
+function exportarManualPDF(){
+  const conteudo=document.getElementById('manual-content').innerHTML;
+  const janela=window.open('','_blank');
+  janela.document.write(`<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <title>Manual FinRossi</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'DM Sans',sans-serif;color:#1a1a1a;padding:40px;max-width:800px;margin:0 auto;line-height:1.6}
+      h1{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:6px}
+      .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:14px;page-break-inside:avoid}
+      .card-full{margin-bottom:14px}
+      ul{list-style:none}
+      li{padding:4px 0;font-size:14px}
+      strong{font-weight:600}
+      @media print{body{padding:20px}.card{page-break-inside:avoid}}
+    </style>
+  </head><body>
+    <div style="text-align:center;margin-bottom:32px;padding:24px;background:#f9fafb;border-radius:12px">
+      <h1>📖 Manual de Uso — FinRossi</h1>
+      <p style="color:#6b7280;margin-top:8px">Controle financeiro pessoal simples e inteligente</p>
+    </div>
+    ${conteudo}
+  </body></html>`);
+  janela.document.close();
+  setTimeout(()=>janela.print(),800);
+}
+
+function isMobile(){ return window.innerWidth <= 767; }
+
+function setupMobile(){
+  const mob = isMobile();
+  const nav = document.getElementById('mobile-nav');
+  if(nav) nav.style.display = mob ? 'flex' : 'none';
+  // Topbars: só mostra no mobile
+  document.querySelectorAll('.mobile-topbar').forEach(el => el.classList.remove('visible'));
+  if(mob){
+    const cur = document.querySelector('section:not(.section-hidden)');
+    const sid = cur ? cur.id.replace('sec-','') : 'dashboard';
+    const top = document.getElementById('mob-top-'+sid);
+    if(top) top.classList.add('visible');
+  }
+}
+
+function updateMobileNav(section){
+  // todos os 6 itens são diretos agora
+  document.querySelectorAll('.mobile-nav-item').forEach(b => {
+    b.classList.toggle('active', b.id === 'mnav-'+section);
+  });
+  // Atualiza topbars
+  document.querySelectorAll('.mobile-topbar').forEach(el => el.classList.remove('visible'));
+  if(isMobile()){
+    const top = document.getElementById('mob-top-'+section);
+    if(top) top.classList.add('visible');
+  }
+  // Atualiza sync badge mobile
+  const sb = document.getElementById('sync-badge');
+  const msb = document.getElementById('mob-sync-badge');
+  const mtxt = document.getElementById('mob-sync-txt');
+  if(sb && msb){
+    msb.className = sb.className;
+    if(mtxt) mtxt.textContent = sb.classList.contains('ok') ? 'Sync' : 'Local';
+  }
+  // Atualiza título mobile
+  const t = document.getElementById('mob-dash-title');
+  const s = document.getElementById('mob-dash-sub');
+  if(t) t.textContent = PNAMES[cp];
+  if(s) s.textContent = document.getElementById('dash-sub')?.textContent || '';
+}
+
+function openMobileMore(){
+  const drawer = document.getElementById('mobile-more-drawer');
+  drawer.classList.add('open');
+  // Atualiza perfil ativo
+  ['pessoal','finrossi'].forEach(p=>{
+    const el = document.getElementById('mp-'+p);
+    if(el) el.classList.toggle('active', p===cp);
+  });
+  // Mostra/esconde renda passiva (só no pessoal)
+  const rOpt = document.getElementById('mnav-renda-opt');
+  if(rOpt) rOpt.style.display = cp==='pessoal' ? 'flex' : 'none';
+}
+function closeMobileMore(e){
+  if(e.target === document.getElementById('mobile-more-drawer')) closeMobileMoreForce();
+}
+function closeMobileMoreForce(){
+  document.getElementById('mobile-more-drawer').classList.remove('open');
+}
+
+// Intercepta goTo para atualizar mobile
+const _origGoTo = goTo;
+window.goTo = function(name){
+  _origGoTo(name);
+  updateMobileNav(name);
+};
+
+// Intercepta setProfile para atualizar mobile
+const _origSetProfile = setProfile;
+window.setProfile = function(p){
+  _origSetProfile(p);
+  // Atualiza visual mobile depois (pode ter sido bloqueado pela senha)
+  setTimeout(()=>{
+    const t = document.getElementById('mob-dash-title');
+    if(t) t.textContent = PNAMES[cp];
+    ['pessoal','finrossi'].forEach(id=>{
+      const el = document.getElementById('mp-'+id);
+      if(el) el.classList.toggle('active', id===cp);
+    });
+    // Empresas no drawer mobile
+    const empOpt = document.getElementById('emp-drawer-opt');
+    if(empOpt) empOpt.style.display='none';
+  }, 100);
+};
+
+window.addEventListener('resize', setupMobile);
+setupMobile();
+updateMobileNav('dashboard');
+

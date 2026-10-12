@@ -1,0 +1,96 @@
+/* css/03-responsivo.css — carregado pelo index.html em ordem numérica (a ordem afeta a cascata). */
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+
+/* ── TABLET (768-1199px) ───────────────────────────────── */
+@media(max-width:1199px){
+  .sidebar{width:190px}
+  .main{padding:20px 24px}
+  .grid3{grid-template-columns:1fr 1fr}
+  .form-row.tri,.form-row.quad,.form-row.five{grid-template-columns:1fr 1fr}
+  .rp-scenarios{grid-template-columns:1fr 1fr}
+}
+
+/* ── MOBILE (≤767px) ───────────────────────────────────── */
+@media(max-width:767px){
+  html,body{overflow:hidden}
+  #tela-app{height:100dvh;overflow:hidden}
+
+  /* Oculta sidebar */
+  .sidebar-wrap{display:none!important}
+
+  /* Oculta coluna de quantidade de lançamentos na tabela "Todos os meses" */
+  .col-qtd-lancs{display:none!important}
+
+  /* Main ocupa tudo */
+  .main{
+    padding:10px 12px 72px;
+    height:100dvh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    width:100vw;
+  }
+
+  /* Mostra elementos mobile */
+  .mobile-nav{display:flex}
+  .mobile-topbar{display:flex}
+  .page-header{display:none!important}
+
+  /* Grids colapsam */
+  .grid2,.grid3,.rp-scenarios{grid-template-columns:1fr}
+  .form-row,.form-row.tri,.form-row.quad,.form-row.five{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr 1fr}
+
+  /* KPI cards — 2 por linha, compactos */
+  #dash-kpi-cards{grid-template-columns:1fr 1fr!important;gap:8px!important;margin-bottom:12px!important}
+  #dash-kpi-cards>div{padding:12px 14px!important}
+  #dash-kpi-cards>div>div:first-child{font-size:9px!important;margin-bottom:3px!important}
+  #dash-kpi-cards>div>div:nth-child(2){font-size:16px!important}
+  #dash-kpi-cards canvas{height:28px!important}
+
+  /* Gráficos menores no mobile */
+  .card{padding:12px 14px}
+  .chart-wrap canvas{max-height:160px}
+  .grid2{gap:10px;margin-bottom:12px}
+
+  /* Inputs maiores para iOS */
+  .field input,.field select,.field textarea{height:48px;font-size:16px!important}
+  .dp-input{height:48px;font-size:16px!important}
+  .currency-input{font-size:16px!important}
+  select,input{font-size:16px!important}
+
+  /* Botões maiores */
+  .btn.primary{height:52px;font-size:15px}
+  .btn{height:44px}
+
+  /* Cards */
+  .card{padding:14px 16px}
+  .mc-val{font-size:18px}
+
+  /* Modal bottom sheet */
+  .modal{
+    border-radius:16px 16px 0 0;
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%!important;max-height:90vh;
+    border-bottom:none;
+  }
+  .modal-overlay{align-items:flex-end}
+
+  /* Table scroll */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px;font-size:12px}
+
+  /* DP popup */
+  .dp-popup{width:calc(100vw - 28px);max-width:320px}
+
+  /* PWA banners */
+  #pwa-banner,#ios-banner{right:12px!important;left:12px!important;bottom:72px!important;width:auto!important;max-width:100%!important}
+}
+
+/* ── SMALL MOBILE (≤360px) ─────────────────────────────── */
+@media(max-width:360px){
+  .main{padding:10px 10px 72px}
+  .metrics{grid-template-columns:1fr}
+}
+

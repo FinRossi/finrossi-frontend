@@ -1,0 +1,110 @@
+/* css/01-variaveis-temas.css — carregado pelo index.html em ordem numérica (a ordem afeta a cascata). */
+:root{
+  /* Cores base */
+  --bg:#0f0f0f;
+  --surface:#1a1a1a;
+  --surface2:#222;
+  --surface3:#2a2a2a;
+  --surface4:#313131;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#f0ede8;
+  --muted:#888;
+  --muted2:#555;
+  /* Accent dourado */
+  --accent:#C8A96E;
+  --accent-s:rgba(200,169,110,0.12);
+  --accent-hover:#D8BC8A;
+  --accent-light:#E8C96D;
+  --accent-dark:#8A6A1A;
+  --accent-gradient:none;
+  --accent-bg:#C8A96E;
+  /* Semânticas */
+  --green:#4ade80;
+  --green-s:rgba(74,222,128,0.1);
+  --red:#f87171;
+  --red-s:rgba(248,113,113,0.1);
+  --blue:#60a5fa;
+  --blue-s:rgba(96,165,250,0.1);
+  --amber:#fbbf24;
+  --amber-s:rgba(251,191,36,0.09);
+  --purple:#c084fc;
+  --teal:#2dd4bf;
+  /* Radius padrão */
+  --radius:14px;
+  --radius-sm:9px;
+}
+
+/* Entrada em sequência da tela de carregamento */
+#loading-logo{animation:loadingFadeIn .7s ease forwards;animation-delay:.1s}
+#loading-texto{animation:loadingFadeInUp .6s ease forwards;animation-delay:.6s}
+#loading-spinner{animation:loadingFadeIn .5s ease forwards;animation-delay:1.1s}
+@keyframes loadingFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes loadingFadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Entrada suave da tela de login */
+#tela-login{animation:loginFadeIn .4s ease both}
+@keyframes loginFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* Tela de carregamento "vindo até você" antes de revelar login ou app */
+.loading-zoom-out{animation:loadingZoomOut .55s ease-in forwards}
+@keyframes loadingZoomOut{
+  0%{transform:scale(1);filter:blur(0px);opacity:1}
+  100%{transform:scale(2.2);filter:blur(7px);opacity:0}
+}
+
+/* Transição "íris" ao entrar no app (login bem-sucedido) */
+
+/* ALL BLACK — variante do tema Escuro com preto puro */
+[data-theme=""][data-allblack="1"]{
+  --bg:#000000;
+  --surface:#050402;
+  --surface2:#070502;
+  --surface3:#0a0704;
+  --surface4:#0d0905;
+  --border:rgba(255,255,255,0.12);
+  --border2:rgba(255,255,255,0.22);
+  --accent-s:rgba(200,169,110,0.16);
+}
+/* Brilho de borda simulando reflexo de luz — só no All Black */
+[data-allblack="1"] .card,
+[data-allblack="1"] .mc,
+[data-allblack="1"] .modal,
+[data-allblack="1"] .sidebar,
+[data-allblack="1"] .tabs,
+[data-allblack="1"] .field input,
+[data-allblack="1"] .field select,
+[data-allblack="1"] .field textarea,
+[data-allblack="1"] .dp-popup{
+  box-shadow: inset 0 1px 0 rgba(200,169,110,.08), inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+/* TEMA CLARO */
+[data-theme="claro"]{
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --surface2:#f0f0f2;
+  --surface3:#e5e5e8;
+  --surface4:#d8d8dc;
+  --border:rgba(0,0,0,0.08);
+  --border2:rgba(0,0,0,0.14);
+  --text:#1a1a1a;
+  --muted:#666;
+  --muted2:#999;
+}
+
+/* TEMA AZUL */
+[data-theme="azul"]{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface2:#1c2128;
+  --surface3:#252d38;
+  --surface4:#2d3748;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.15);
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --muted2:#656d76;
+}
+
+
