@@ -111,7 +111,9 @@ async function renderMinhaAssinatura(){
             ['Cartões e Assinaturas', ['evolucao','patrimonio'].includes(plano), ['evolucao','patrimonio'].includes(plano)],
             ['Calendário e Notas', ['evolucao','patrimonio'].includes(plano), ['evolucao','patrimonio'].includes(plano)],
             ['Suporte prioritário', plano==='patrimonio', plano==='patrimonio'],
-            ['Suporte WhatsApp', plano==='patrimonio', plano==='patrimonio'],
+            ['Relatórios semanais e mensais', plano==='patrimonio', plano==='patrimonio'],
+            ['Saúde do patrimônio', plano==='patrimonio', plano==='patrimonio'],
+            ['App personalizável', plano==='patrimonio', plano==='patrimonio'],
           ].map(([label, detalhe, ok])=>`
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
               <span style="color:${ok?'var(--text)':'var(--muted2)'}">${label}</span>
