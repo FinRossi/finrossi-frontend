@@ -72,3 +72,12 @@
   #sec-dashboard .page-title h2{font-size:28px}
 }
 @media(prefers-reduced-motion:reduce){.ced-roseta.ced-anima{animation:none}}
+
+/* Cartões lado a lado no dashboard com a mesma altura */
+#dash-widgets-grid>.dash-widget>.card{height:100%}
+
+/* Escolha Despesas | Receitas no cartão de categorias */
+.ced-seg{display:inline-flex;gap:2px;border-bottom:1px solid var(--border)}
+.ced-seg button{padding:6px 10px;font-size:12.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
+.ced-seg button:hover{color:var(--text)}
+.ced-seg button.ativo{color:var(--accent);border-bottom-color:var(--accent)}

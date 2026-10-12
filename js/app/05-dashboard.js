@@ -51,6 +51,17 @@ function renderComparativo(lancs,mes){
     </div>`;
 }
 
+// Gráfico por categoria: mostra despesas ou receitas do mês (escolha no próprio cartão)
+let _catModo = 'despesa';
+function setCatModo(modo){
+  _catModo = modo === 'receita' ? 'receita' : 'despesa';
+  ['despesa','receita'].forEach(m=>{
+    const b=document.getElementById('cat-modo-'+m);
+    if(b){ b.classList.toggle('ativo', m===_catModo); b.setAttribute('aria-selected', m===_catModo); }
+  });
+  refreshDash();
+}
+
 function refreshDash(){
   const {lancs,invs}=pd(), mes=getMesFiltro();
   document.getElementById('dash-title').textContent=PNAMES[cp];
@@ -320,7 +331,9 @@ function refreshDash(){
 
   // ── Gráfico donut categorias ──
   const catMap={};
-  doMes.filter(l=>l.tipo==='despesa').forEach(l=>catMap[l.cat]=(catMap[l.cat]||0)+l.val);
+  doMes.filter(l=>l.tipo===_catModo).forEach(l=>catMap[l.cat]=(catMap[l.cat]||0)+l.val);
+  const catTitulo=document.getElementById('dash-cat-titulo');
+  if(catTitulo) catTitulo.textContent=_catModo==='receita'?'Receitas por categoria':'Gastos por categoria';
   destroyChart('cat');
   const ctxCat=document.getElementById('c-cat');
   // Ordena do maior gasto pro menor — "Outros" sempre fica por último
@@ -339,11 +352,21 @@ function refreshDash(){
   const CAT_COLORS=cL.map(c=>c==='Outros'?COR_OUTROS:GOLD_PALETTE[_goldIdx++%GOLD_PALETTE.length]);
 
   if(ctxCat){
+    let catVazio=document.getElementById('cat-vazio');
     if(!cL.length){
-      ctxCat.parentElement.innerHTML='<p class="empty" style="padding:60px 0;text-align:center;color:var(--muted)">Sem despesas este mês</p>';
+      ctxCat.style.display='none';
+      if(!catVazio){
+        catVazio=document.createElement('p');
+        catVazio.id='cat-vazio'; catVazio.className='empty';
+        catVazio.style.cssText='padding:60px 0;text-align:center;color:var(--muted)';
+        ctxCat.parentElement.appendChild(catVazio);
+      }
+      catVazio.textContent=_catModo==='receita'?'Sem receitas este mês':'Sem despesas este mês';
       const legendElVazio=document.getElementById('cat-legend');
       if(legendElVazio) legendElVazio.innerHTML='';
     } else {
+      ctxCat.style.display='';
+      if(catVazio) catVazio.remove();
       charts['cat']=new Chart(ctxCat,{
         type:'doughnut',
         data:{

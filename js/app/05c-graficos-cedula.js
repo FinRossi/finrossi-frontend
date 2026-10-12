@@ -81,6 +81,18 @@
         });
       }
 
+      // Linhas: respiro nas pontas (o 1º mês não cola no eixo) e, sem valores negativos,
+      // eixo começando no zero (evita "R$ -0,5" quando ainda não há dados)
+      if(tipo === 'line' || tipo === 'bar'){
+        o.scales = o.scales || {};
+        if(tipo === 'line') o.scales.x = Object.assign(o.scales.x || {}, { offset: true });
+        const valores = (cfg.data.datasets || []).flatMap(ds => (ds.data || []).map(Number)).filter(v => !isNaN(v));
+        if(valores.length && Math.min(...valores) >= 0){
+          o.scales.y = Object.assign(o.scales.y || {}, { beginAtZero: true });
+          if(Math.max(...valores) === 0) o.scales.y.suggestedMax = 100;
+        }
+      }
+
       // Eixos: grade quase invisível, sem borda
       Object.values(o.scales || {}).forEach(s => {
         s.border = Object.assign(s.border || {}, { display: false });
