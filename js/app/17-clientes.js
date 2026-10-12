@@ -1,6 +1,10 @@
 // js/app/17-clientes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── CLIENTES ────────────────────────────────────────────────────────────────
-const BACKEND_URL = 'https://finrossi-backend-production.up.railway.app';
+// Site oficial (finrossi.com.br) usa o servidor do Railway; teste no computador
+// (localhost ou IP da rede, via "npm run local" no backend) usa o backend local na porta 3000.
+const BACKEND_URL = /(^|\.)finrossi\.com\.br$|\.github\.io$/.test(location.hostname)
+  ? 'https://finrossi-backend-production.up.railway.app'
+  : 'http://' + (location.hostname || 'localhost') + ':3000';
 const ADMIN_TOKEN = ''; // Deixe em branco — será pedido se necessário
 
 var _adminToken = localStorage.getItem('fin_admin_token')||'';
