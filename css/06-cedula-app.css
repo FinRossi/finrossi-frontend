@@ -99,7 +99,8 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
 .obj-meta-row{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:2px}
 
 /* Renda passiva: cenários como painéis de valor */
-.rp-scenarios{grid-template-columns:1fr 1fr}
+@media(min-width:768px){.rp-scenarios{grid-template-columns:1fr 1fr}}
+.rp-patrimonio{overflow-wrap:anywhere}
 .rp-scenario{border:1px solid var(--ced-gravura-fina);border-radius:8px;padding:18px 20px;background:var(--surface)}
 .rp-result-grid{display:flex;flex-direction:column}
 .rp-item{padding:12px 0;border-bottom:1px solid var(--ced-gravura-fina)}
