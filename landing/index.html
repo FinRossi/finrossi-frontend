@@ -25,8 +25,8 @@
   --border:rgba(255,255,255,0.06);
   --border2:rgba(255,255,255,0.1);
   --text:#f5f0e8;
-  --muted:#888;
-  --muted2:#555;
+  --muted:#8a8680;
+  --muted2:#55524d;
   --gold:#c9a84c;
   --gold-light:#e8c96d;
   --gold-s:rgba(201,168,76,0.12);
@@ -34,6 +34,13 @@
   --green:#4ade80;
   --green-s:rgba(74,222,128,0.1);
   --red:#f87171;
+  --blue:#60a5fa;
+  /* Cores do app (usadas dentro do celular) */
+  --app-bg:#0f0f0f;
+  --app-card:#1a1a1a;
+  --app-accent:#C8A96E;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 }
 #cursor-fx-dot,#cursor-fx-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s,width .2s,height .2s,box-shadow .2s,border-width .2s}
 #cursor-fx-dot{width:6px;height:6px;background:var(--gold);box-shadow:0 0 6px var(--gold),0 0 14px var(--gold)}
@@ -44,391 +51,545 @@
 .cursor-fx-ripple{position:fixed;top:0;left:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--gold);pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(0);opacity:.7;animation:cfx-ripple .5s ease-out forwards}
 @keyframes cfx-ripple{to{transform:translate(-50%,-50%) scale(3);opacity:0}}
 html{font-size:16px;scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(16px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-right,0px)) 16px calc(24px + env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(8,8,8,0.85);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-logo{white-space:nowrap;font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.5px;color:var(--text)}
-.nav-logo span{color:var(--gold-light)}
-.nav-links{display:flex;align-items:center;gap:24px}
+/* ── NAV ─────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(14px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-right,0px)) 14px calc(24px + env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(8,8,8,0.82);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:22px;letter-spacing:-.5px;color:var(--text);text-decoration:none;white-space:nowrap}
+.nav-logo img{display:block;border-radius:8px}
+.nav-logo b{font-weight:400;color:var(--gold-light)}
+.nav-links{display:flex;align-items:center;gap:28px}
 .nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:var(--text)}
-.nav-cta{background:var(--gold);color:#000;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;white-space:nowrap}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-login{color:var(--text);padding:9px 16px;border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color .2s}
+.nav-login:hover{color:var(--gold-light)}
+.nav-cta{background:var(--gold);color:#0a0a0a;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s,transform .2s}
 .nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
-.nav-login{color:var(--text);padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,0.12);transition:all .2s;white-space:nowrap}
-.nav-login:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.22)}
 
-/* HERO */
-.hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-s);border:1px solid rgba(201,168,76,0.25);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--gold-light);margin-bottom:24px}
-.hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(36px,6vw,72px);line-height:1.1;letter-spacing:-1px;margin-bottom:20px;max-width:800px}
+/* ── BOTÕES ──────────────────────────────────────────── */
+.btn-primary{background:var(--gold);color:#0a0a0a;padding:15px 26px;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:background .2s,transform .2s,box-shadow .2s}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 36px rgba(201,168,76,0.28)}
+.btn-primary svg{transition:transform .2s}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-link{color:var(--text);font-size:15px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:15px 6px;border-bottom:1px solid transparent;transition:border-color .2s,color .2s}
+.btn-link:hover{color:var(--gold-light)}
+.btn-secondary{background:transparent;color:var(--text);padding:15px 24px;border-radius:12px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--border2);display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,color .2s}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold-light)}
+
+/* ── HERO: texto + o app ─────────────────────────────── */
+.hero{position:relative;overflow:hidden;padding:calc(120px + env(safe-area-inset-top,0px)) 0 90px;min-height:100vh;min-height:100svh;display:flex;align-items:center}
+.hero::before{content:'';position:absolute;right:-10%;top:10%;width:780px;height:780px;max-width:120vw;background:radial-gradient(circle,rgba(201,168,76,0.16) 0%,rgba(201,168,76,0.04) 40%,transparent 70%);pointer-events:none}
+.hero-monograma{position:absolute;right:-60px;bottom:-140px;font-family:var(--serif);font-size:640px;line-height:1;color:rgba(201,168,76,0.035);pointer-events:none;user-select:none}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+.eyebrow::before{content:'';width:32px;height:1px;background:var(--gold)}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(42px,6.2vw,80px);line-height:1.02;letter-spacing:-1.5px;margin-bottom:24px}
 .hero h1 em{font-style:italic;color:var(--gold-light)}
-.hero p{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:560px;margin:0 auto 36px;font-weight:300}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--gold);color:#000;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
-.btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,0.25)}
-.btn-secondary{background:transparent;color:var(--text);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--border2);transition:all .2s;display:inline-flex;align-items:center;gap:8px}
-.btn-secondary:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
-.hero-stats{display:flex;gap:32px;justify-content:center;margin-top:56px;flex-wrap:wrap}
-.stat{text-align:center}
-.stat-num{font-family:'DM Serif Display',serif;font-size:32px;color:var(--gold-light);display:block}
-.stat-label{font-size:13px;color:var(--muted)}
+.hero-sub{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:500px;margin-bottom:36px;font-weight:300}
+.hero-acoes{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:40px}
+.hero-confianca{display:flex;flex-wrap:wrap;gap:10px 24px;font-size:13px;color:var(--muted)}
+.hero-confianca span{display:inline-flex;align-items:center;gap:8px}
+.hero-confianca svg{color:var(--gold);flex-shrink:0}
 
-/* SECTIONS */
-section{padding:80px 24px}
-.container{max-width:1100px;margin:0 auto}
-.section-label{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:12px;display:block}
-.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-.5px;margin-bottom:16px}
-.section-sub{font-size:16px;color:var(--muted);max-width:520px}
+/* Celular com o app */
+.palco{position:relative;display:flex;justify-content:center;padding:20px 0}
+.celular{position:relative;width:300px;aspect-ratio:300/620;background:#050505;border-radius:46px;padding:12px;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 0 0 7px #151515,0 0 0 8px rgba(201,168,76,0.25),0 50px 100px -20px rgba(0,0,0,0.9),0 0 120px rgba(201,168,76,0.12);transform:rotate(-2deg);animation:flutua 7s ease-in-out infinite}
+@keyframes flutua{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-12px)}}
+.celular::before{content:'';position:absolute;top:22px;left:50%;transform:translateX(-50%);width:92px;height:24px;background:#000;border-radius:14px;z-index:3}
+.tela{position:relative;height:100%;background:var(--app-bg);border-radius:36px;overflow:hidden;padding:52px 16px 0;display:flex;flex-direction:column;gap:10px;font-family:var(--sans)}
+.app-topo{display:flex;justify-content:space-between;align-items:flex-start}
+.app-ola{font-size:10px;color:var(--muted)}
+.app-perfil{font-family:var(--serif);font-size:19px;line-height:1.1}
+.app-mes{font-size:9px;color:var(--muted);border:1px solid var(--border2);border-radius:7px;padding:4px 7px;margin-top:4px}
+.app-card{background:var(--app-card);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px}
+.app-label{font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.app-valor{font-size:22px;font-weight:600;letter-spacing:-.5px;margin-top:3px}
+.app-valor.ouro{color:var(--app-accent);font-size:20px}
+.app-delta{font-size:9px;color:var(--green);margin-top:2px}
+.app-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.app-duo .app-valor{font-size:14px}
+.app-grafico{margin-top:6px;display:block;width:100%;height:auto}
+.app-meta{display:flex;flex-direction:column;gap:5px}
+.app-meta-linha{display:flex;justify-content:space-between;font-size:9px;color:var(--muted)}
+.app-barra{height:5px;border-radius:3px;background:rgba(255,255,255,0.07);overflow:hidden}
+.app-barra i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.app-abas{margin-top:auto;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(255,255,255,0.06);padding:9px 0 16px;margin-left:-16px;margin-right:-16px;background:#121212}
+.app-aba{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:7.5px;color:var(--muted2)}
+.app-aba svg{width:15px;height:15px}
+.app-aba.ativa{color:var(--app-accent)}
 
-/* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;margin-top:48px}
-.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .25s;position:relative;overflow:hidden}
-.feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-s2) 0%,transparent 60%);opacity:0;transition:opacity .25s}
-.feature-card:hover{border-color:rgba(201,168,76,0.25);transform:translateY(-3px)}
-.feature-card:hover::before{opacity:1}
-.feature-icon{font-size:28px;margin-bottom:14px;display:block}
-.feature-card h3{font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text)}
+/* Cartões flutuando ao redor do celular */
+.flutuante{position:absolute;background:rgba(22,22,22,0.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(201,168,76,0.22);border-radius:16px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,0.6);font-size:12px;z-index:4}
+.flutuante small{display:block;font-size:10px;color:var(--muted);letter-spacing:.4px}
+.flutuante strong{font-weight:600}
+.fl-alerta{top:-4px;left:-6px;display:flex;align-items:center;gap:10px;animation:flutua2 6s ease-in-out infinite}
+.fl-meta{bottom:90px;right:-20px;width:190px;animation:flutua2 7s ease-in-out -2s infinite}
+.fl-icone{width:32px;height:32px;border-radius:10px;background:var(--gold-s);color:var(--gold-light);display:grid;place-items:center;flex-shrink:0}
+@keyframes flutua2{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ── FAIXA DE NÚMEROS ────────────────────────────────── */
+.faixa{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:linear-gradient(90deg,transparent,var(--gold-s2),transparent)}
+.faixa-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.faixa-item{padding:30px 24px;display:flex;align-items:baseline;gap:14px;justify-content:center}
+.faixa-item+.faixa-item{border-left:1px solid var(--border)}
+.faixa-num{font-family:var(--serif);font-size:38px;color:var(--gold-light);line-height:1}
+.faixa-txt{font-size:13px;color:var(--muted);max-width:150px;line-height:1.35}
+
+/* ── SEÇÕES ──────────────────────────────────────────── */
+section{padding:110px 0}
+.sec-cab{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:56px}
+.section-label{font-size:12px;text-transform:uppercase;letter-spacing:2.4px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.section-label::before{content:'';width:24px;height:1px;background:var(--gold)}
+.section-title{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.4vw,54px);letter-spacing:-1px;line-height:1.05}
+.section-title em{font-style:italic;color:var(--gold-light)}
+.section-sub{font-size:16px;color:var(--muted);max-width:460px}
+
+/* ── FUNCIONALIDADES: o app em pedaços ───────────────── */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.feature-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:26px;overflow:hidden;display:flex;flex-direction:column;gap:18px;transition:border-color .25s,transform .25s}
+.feature-card:hover{border-color:rgba(201,168,76,0.3);transform:translateY(-3px)}
+.feature-card h3{font-size:18px;font-weight:600;letter-spacing:-.2px;margin-bottom:6px}
 .feature-card p{font-size:14px;color:var(--muted);line-height:1.6}
+.b-3{grid-column:span 3}.b-2{grid-column:span 2}.b-4{grid-column:span 4}
+.fc-ico{width:40px;height:40px;border-radius:12px;background:var(--gold-s);color:var(--gold-light);display:grid;place-items:center}
+.fc-ico svg{width:20px;height:20px}
+.mini{background:var(--app-bg);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;margin-top:auto;font-size:12px}
+.mini-linha{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.mini-linha:last-child{border-bottom:none}
+.mini-linha span:first-child{color:var(--muted);display:flex;align-items:center;gap:8px}
+.ponto{width:7px;height:7px;border-radius:50%;display:inline-block}
+.mais{color:var(--green)}.menos{color:var(--red)}.ouro{color:var(--gold-light)}
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.legenda{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.legenda b{color:var(--text);font-weight:600;margin-left:4px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center;font-size:10px;color:var(--muted2)}
+.cal span{padding:5px 0;border-radius:7px;position:relative}
+.cal .h{color:var(--muted);font-size:9px;letter-spacing:.5px}
+.cal .v{color:var(--text);background:rgba(255,255,255,0.04)}
+.cal .v::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.cal .v.r::after{background:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;padding:6px 11px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--text)}
+.chip b{color:var(--gold-light);font-weight:500;margin-left:4px}
+.barras{display:flex;align-items:flex-end;gap:7px;height:90px}
+.barras i{flex:1;border-radius:5px 5px 2px 2px;background:rgba(255,255,255,0.08)}
+.barras i.g{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
 
-/* HOW IT WORKS */
-.how-bg{background:var(--surface)}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:24px;margin-top:48px;position:relative}
-.step{text-align:center;padding:24px 16px}
-.step-num{width:44px;height:44px;border-radius:50%;background:var(--gold-s);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);font-family:'DM Serif Display',serif;font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.step h3{font-size:15px;font-weight:600;margin-bottom:8px}
-.step p{font-size:13px;color:var(--muted)}
+/* ── COMO FUNCIONA ───────────────────────────────────── */
+.how-bg{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.step{padding:0 28px 0 0;position:relative}
+.step-num{font-family:var(--serif);font-size:56px;line-height:1;color:var(--gold-light);margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.step-num::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.4),transparent)}
+.step:last-child .step-num::after{display:none}
+.step h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:var(--muted)}
 
-/* SCREENSHOTS */
-.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px;margin-top:48px}
-.screen-card{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
-.screen-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.screen-dot{width:8px;height:8px;border-radius:50%}
-.screen-title{font-size:13px;font-weight:500;color:var(--muted)}
-.screen-preview{background:var(--surface3);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
-.preview-bar{height:8px;border-radius:4px;background:rgba(255,255,255,0.06)}
-.preview-bar.gold{background:linear-gradient(90deg,var(--gold),var(--gold-light));width:70%}
-.preview-bar.green{background:var(--green);width:55%}
-.preview-bar.short{width:40%}
-.preview-bar.med{width:60%}
-.preview-metric{display:flex;justify-content:space-between;align-items:center}
-.preview-label{font-size:11px;color:var(--muted)}
-.preview-val{font-size:13px;font-weight:600}
-.preview-val.gold{color:var(--gold-light)}
-.preview-val.green{color:var(--green)}
-.preview-val.red{color:var(--red)}
-
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px;margin-top:48px;align-items:start}
-.plan-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;transition:all .25s}
-.plan-card.featured{background:linear-gradient(135deg,#181408 0%,#1a1600 100%);border-color:rgba(201,168,76,0.4);transform:scale(1.02)}
-.plan-card.featured::before{content:'Mais popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.5px}
-.plan-badge{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;display:block}
-.plan-name{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px}
-.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
-.plan-price .currency{font-size:16px;color:var(--muted);margin-top:4px}
-.plan-price .amount{font-family:'DM Serif Display',serif;font-size:42px;color:var(--gold-light)}
+/* ── PLANOS ──────────────────────────────────────────── */
+.periodo-wrap{display:flex;justify-content:flex-start;margin-top:22px}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}
+.plan-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:28px 24px;position:relative;transition:border-color .25s;display:flex;flex-direction:column}
+.plan-card:hover{border-color:var(--border2)}
+.plan-card.featured{background:linear-gradient(180deg,#17130a 0%,#0f0d08 100%);border-color:rgba(201,168,76,0.5);box-shadow:0 30px 80px -30px rgba(201,168,76,0.25)}
+.plan-badge{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);margin-bottom:14px;display:block}
+.plan-card.featured .plan-badge{color:var(--gold-light)}
+.plan-name{font-family:var(--serif);font-size:26px;margin-bottom:8px}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.plan-price .currency{font-size:15px;color:var(--muted)}
+.plan-price .amount{font-family:var(--serif);font-size:48px;line-height:1;color:var(--gold-light)}
 .plan-price .period{font-size:13px;color:var(--muted)}
-.plan-desc{font-size:13px;color:var(--muted);margin-bottom:20px;min-height:36px}
-.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-.plan-features li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text)}
-.plan-features li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;margin-top:1px}
-.plan-features li.no{color:var(--muted)}
-.plan-features li.no::before{content:'✗';color:var(--muted2)}
-.plan-btn{display:block;width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
-.plan-btn.gold-btn{background:var(--gold);color:#000}
+.plan-desc{font-size:13px;color:var(--muted);margin-bottom:22px;min-height:40px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:26px;padding-top:20px;border-top:1px solid var(--border)}
+.plan-features li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--text)}
+.plan-features li::before{content:'';flex-shrink:0;width:16px;height:16px;margin-top:2px;border-radius:50%;background:var(--gold-s) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8c96d' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/10px no-repeat}
+.plan-features li.no{color:var(--muted2)}
+.plan-features li.no::before{background:rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355524d' stroke-width='3' stroke-linecap='round'%3E%3Cline x1='6' y1='12' x2='18' y2='12'/%3E%3C/svg%3E") center/10px no-repeat}
+.plan-btn{display:block;width:100%;margin-top:auto;padding:14px;border-radius:12px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;cursor:pointer;border:none;font-family:var(--sans);transition:background .2s,border-color .2s,color .2s,transform .2s}
+.plan-btn.gold-btn{background:var(--gold);color:#0a0a0a}
 .plan-btn.gold-btn:hover{background:var(--gold-light);transform:translateY(-1px)}
 .plan-btn.outline-btn{background:transparent;color:var(--text);border:1px solid var(--border2)}
-.plan-btn.outline-btn:hover{border-color:var(--gold);color:var(--gold)}
+.plan-btn.outline-btn:hover{border-color:var(--gold);color:var(--gold-light)}
 .plan-btn.free-btn{background:var(--surface3);color:var(--text);border:1px solid var(--border2)}
-.plan-btn.free-btn:hover{border-color:var(--border2);background:var(--surface2)}
-.plan-tag-free{color:var(--green)!important;font-family:'DM Serif Display',serif;font-size:42px}
+.plan-btn.free-btn:hover{background:var(--surface2)}
+.plan-tag-free{color:var(--green)!important;font-family:var(--serif);font-size:48px;line-height:1}
+.plan-nota{text-align:center;font-size:13px;color:var(--muted);margin-top:28px}
 
-/* FAQ */
-.faq-list{margin-top:40px;display:flex;flex-direction:column;gap:12px;max-width:720px}
-.faq-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.faq-q{width:100%;text-align:left;padding:18px 20px;background:none;border:none;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:500}
-.faq-q:hover{background:var(--surface2)}
-.faq-q span{font-size:18px;color:var(--gold);flex-shrink:0;transition:transform .2s}
-.faq-q.open span{transform:rotate(45deg)}
-.faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:all .3s;font-size:14px;color:var(--muted);line-height:1.7}
-.faq-a.open{padding:0 20px 18px;max-height:600px}
+/* ── FAQ ─────────────────────────────────────────────── */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
+.faq-lado{position:sticky;top:110px}
+.faq-list{display:flex;flex-direction:column;border-top:1px solid var(--border)}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;text-align:left;padding:22px 0;background:none;border:none;color:var(--text);font-size:16px;font-family:var(--sans);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;font-weight:500;transition:color .2s}
+.faq-q:hover{color:var(--gold-light)}
+.faq-q span{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);display:grid;place-items:center;font-size:16px;color:var(--gold);flex-shrink:0;transition:transform .25s,border-color .25s}
+.faq-q.open span{transform:rotate(45deg);border-color:var(--gold)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;font-size:14.5px;color:var(--muted);line-height:1.75;padding-right:44px}
+.faq-a.open{max-height:600px;padding-bottom:22px}
 
-/* CTA FINAL */
-.cta-section{text-align:center;padding:100px 24px;background:linear-gradient(180deg,var(--bg) 0%,rgba(201,168,76,0.04) 50%,var(--bg) 100%);position:relative}
-.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none}
-.cta-section h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,52px);letter-spacing:-.5px;margin-bottom:16px}
-.cta-section p{font-size:16px;color:var(--muted);margin-bottom:36px}
+/* ── CTA FINAL ───────────────────────────────────────── */
+.cta-section{padding:0 0 110px}
+.cta-box{position:relative;overflow:hidden;border:1px solid rgba(201,168,76,0.3);border-radius:32px;padding:72px 56px;background:radial-gradient(ellipse 70% 90% at 100% 100%,rgba(201,168,76,0.14),transparent 60%),var(--surface)}
+.cta-box h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.6vw,58px);letter-spacing:-1px;line-height:1.05;margin-bottom:16px;max-width:620px}
+.cta-box h2 em{font-style:italic;color:var(--gold-light)}
+.cta-box p{font-size:16px;color:var(--muted);margin-bottom:34px}
+.cta-acoes{display:flex;gap:14px;flex-wrap:wrap}
+.cta-r{position:absolute;right:40px;bottom:-90px;font-family:var(--serif);font-size:380px;line-height:1;color:rgba(201,168,76,0.08);pointer-events:none;user-select:none}
 
-/* FOOTER */
-footer{padding:40px 24px calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);text-align:center}
+/* ── FOOTER ──────────────────────────────────────────── */
+footer{padding:48px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border)}
+.footer-grid{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.footer-marca{display:flex;align-items:center;gap:12px}
+.footer-marca img{border-radius:10px}
 footer p{font-size:13px;color:var(--muted2)}
-footer strong{color:var(--gold)}
-.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px}
+footer strong{color:var(--gold);font-weight:500}
+.footer-links{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12px}
 .footer-links a{color:var(--muted2);text-decoration:none;padding:6px 0;transition:color .2s}
 .footer-links a:hover{color:var(--gold)}
+.footer-copy{margin-top:22px;font-size:12px;color:var(--muted2)}
 
-/* DIVIDER */
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:0 auto}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  nav .nav-links{display:none}
-  .hero{padding:100px 20px 60px}
-  .hero-stats{gap:20px}
-  .plan-card.featured{transform:scale(1)}
-  section{padding:60px 20px}
-  .cta-section{padding:72px 20px}
+/* ── RESPONSIVO ──────────────────────────────────────── */
+@media(max-width:1024px){
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .b-3,.b-2,.b-4{grid-column:span 1}
+  .b-largo{grid-column:span 2}
 }
-@media(max-width:480px){
+@media(max-width:860px){
+  .nav-links{display:none}
+  .hero{min-height:auto;padding-top:calc(104px + env(safe-area-inset-top,0px));padding-bottom:64px}
+  .hero-grid{grid-template-columns:1fr;gap:28px}
+  .hero-texto{text-align:left}
+  .palco{margin-top:6px}
+  .hero-monograma{font-size:420px;right:-80px;bottom:auto;top:40%}
+  .sec-cab{grid-template-columns:1fr;gap:16px;margin-bottom:40px}
+  .steps{grid-template-columns:1fr 1fr;gap:40px 24px}
+  .step:nth-child(2) .step-num::after{display:none}
+  .faq-grid{grid-template-columns:1fr;gap:28px}
+  .faq-lado{position:static}
+  section{padding:80px 0}
+  .cta-section{padding:0 0 80px}
+  .cta-box{padding:52px 28px}
+}
+@media(max-width:600px){
+  .wrap{padding:0 18px}
   nav{padding:calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 12px calc(16px + env(safe-area-inset-left,0px))}
   .nav-logo{font-size:19px}
-  .nav-actions{gap:8px}
-  .nav-login,.nav-cta{padding:8px 12px;font-size:13px}
-  .hero{padding:96px 16px 56px}
-  .hero-btns{flex-direction:column;align-items:stretch;max-width:340px;margin:0 auto}
-  .hero-btns a{justify-content:center}
-  .hero-stats{gap:16px 24px;margin-top:40px}
-  .stat-num{font-size:26px}
-  section{padding:56px 16px}
-  .section-title br{display:none}
-  .plan-card{padding:24px 20px}
+  .nav-actions{gap:6px}
+  .nav-login{padding:8px 10px;font-size:13px}
+  .nav-cta{padding:8px 13px;font-size:13px}
+  .hero h1{letter-spacing:-1px}
+  .hero-acoes{gap:6px 18px}
+  .hero-acoes .btn-primary{width:100%;justify-content:center}
+  .celular{width:250px}
+  .tela{padding:46px 13px 0;gap:8px}
+  .fl-alerta{left:-4px;top:-8px;transform-origin:left;font-size:11px}
+  .fl-meta{right:-8px;bottom:70px;width:160px}
+  .faixa-grid{grid-template-columns:1fr}
+  .faixa-item{justify-content:flex-start;padding:18px 18px}
+  .faixa-item+.faixa-item{border-left:none;border-top:1px solid var(--border)}
+  .pricing-grid,.bento{grid-template-columns:1fr}
+  .b-largo{grid-column:span 1}
+  .steps{grid-template-columns:1fr;gap:34px}
+  .step{padding:0}
+  .step-num::after{display:none}
+  .feature-card{padding:22px}
+  .cta-r{font-size:240px;right:-10px;bottom:-60px}
   .modal-card{padding:22px 18px!important}
   .modal-logo{margin-bottom:18px!important}
 }
-/* Telas muito estreitas (ex.: iPhone SE 1ª geração, Androids compactos) */
 @media(max-width:359px){
   .nav-cta{display:none}
+  .celular{width:228px}
 }
 /* Celular/tablet: sem efeito de "levantar" preso após o toque */
 @media(hover:none){
-  .nav-cta:hover,.btn-primary:hover,.btn-secondary:hover,.feature-card:hover,.plan-btn.gold-btn:hover{transform:none}
+  .nav-cta:hover,.btn-primary:hover,.feature-card:hover,.plan-btn.gold-btn:hover{transform:none}
   .btn-primary:hover{box-shadow:none}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
-/* MODAL */
+#portal-transition{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;display:none}
+#portal-circle{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#e8c96d 0%,#c9a84c 45%,rgba(201,168,76,0) 70%);transform:translate(-50%,-50%) scale(0);opacity:0}
+#portal-circle.go{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65s ease}
+body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65s ease}
+/* MODAL (formulário de cadastro — inalterado) */
 #modal-cadastro{position:fixed;inset:0;z-index:999;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:rgba(8,8,8,0.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:calc(20px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))}
 #modal-cadastro.open{display:flex}
 #modal-cadastro>div{margin:auto}
 /* iOS dá zoom ao focar campos com fonte < 16px — só no celular */
 @media(max-width:768px){#modal-cadastro input[type=text],#modal-cadastro input[type=email],#modal-cadastro input[type=password]{font-size:16px!important}}
 body.modal-aberto{overflow:hidden}
-#portal-transition{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;display:none}
-#portal-circle{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#e8c96d 0%,#c9a84c 45%,rgba(201,168,76,0) 70%);transform:translate(-50%,-50%) scale(0);opacity:0}
-#portal-circle.go{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65s ease}
-body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65s ease}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <div id="portal-transition"><div id="portal-circle"></div></div>
 
+<!-- NAV -->
 <nav>
-  <div class="nav-logo" style="display:flex;align-items:center;gap:9px"><img src="../img/icon-192.png?v=3" width="28" height="28" alt="FinRossi" style="display:block;border-radius:8px"><span style="color:inherit">Fin<span>Rossi</span></span></div>
+  <a href="#" class="nav-logo" aria-label="FinRossi — início"><img src="../img/icon-192.png?v=3" width="30" height="30" alt=""><span>Fin<b>Rossi</b></span></a>
   <div class="nav-links">
-    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#funcionalidades">O app</a>
     <a href="#como-funciona">Como funciona</a>
     <a href="#planos">Planos</a>
-    <a href="#faq">FAQ</a>
+    <a href="#faq">Dúvidas</a>
   </div>
   <div class="nav-actions">
     <a href="https://finrossi.com.br/" class="nav-login" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">Entrar</a>
-    <a href="#planos" class="nav-cta" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">Começar agora</a>
+    <a href="#planos" class="nav-cta" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">Testar grátis</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div>
-    <div class="hero-badge"><span></span> Controle financeiro simplificado</div>
-    <h1>Seu dinheiro,<br><em>finalmente organizado</em></h1>
-    <p>Controle financeiro pessoal simples e inteligente. Receitas, despesas, investimentos e metas — tudo em um só lugar.</p>
-    <div class="hero-btns">
-      <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        Começar grátis
-      </a>
-      <a href="https://finrossi.com.br/" class="btn-secondary">Já tenho conta →</a>
-      <a href="#funcionalidades" class="btn-secondary" style="opacity:.7">Ver funcionalidades</a>
+<!-- HERO: o app como protagonista -->
+<header class="hero">
+  <div class="hero-monograma" aria-hidden="true">R</div>
+  <div class="wrap hero-grid">
+    <div class="hero-texto">
+      <span class="eyebrow">Controle financeiro pessoal</span>
+      <h1>Seu dinheiro,<br><em>finalmente organizado.</em></h1>
+      <p class="hero-sub">Controle financeiro pessoal simples e inteligente. Receitas, despesas, investimentos e metas — tudo em um só lugar, no celular e no computador.</p>
+      <div class="hero-acoes">
+        <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
+          Começar grátis
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="https://finrossi.com.br/" class="btn-link">Já tenho conta →</a>
+      </div>
+      <div class="hero-confianca">
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>R$0 para começar</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Sem cartão de crédito</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Cancele quando quiser</span>
+      </div>
     </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Online — celular e notebook</span></div>
-      <div class="stat"><span class="stat-num">4</span><span class="stat-label">Planos disponíveis</span></div>
-      <div class="stat"><span class="stat-num">R$0</span><span class="stat-label">Para começar</span></div>
+
+    <!-- O app de verdade, num celular -->
+    <div class="palco" aria-label="Tela do app FinRossi">
+      <div class="flutuante fl-alerta">
+        <div class="fl-icone"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div><small>Vence em 3 dias</small><strong>Aluguel · <span class="num">R$ 900</span></strong></div>
+      </div>
+      <div class="celular">
+        <div class="tela">
+          <div class="app-topo">
+            <div><div class="app-ola">Boa tarde</div><div class="app-perfil">Pessoal</div></div>
+            <div class="app-mes">Out/26</div>
+          </div>
+          <div class="app-card">
+            <div class="app-label">Patrimônio líquido</div>
+            <div class="app-valor num">R$ 48.320</div>
+            <div class="app-delta num">↑ 4,2% este mês</div>
+          </div>
+          <div class="app-duo">
+            <div class="app-card"><div class="app-label">Receitas</div><div class="app-valor num mais">R$ 6.500</div></div>
+            <div class="app-card"><div class="app-label">Despesas</div><div class="app-valor num menos">R$ 3.840</div></div>
+          </div>
+          <div class="app-card">
+            <div class="app-label">Evolução do patrimônio</div>
+            <div class="app-valor ouro num">R$ 48.320</div>
+            <svg class="app-grafico" viewBox="0 0 240 80" aria-hidden="true">
+              <defs><linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C8A96E" stop-opacity=".45"/><stop offset="1" stop-color="#C8A96E" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 66 L30 60 L60 62 L90 50 L120 46 L150 36 L180 30 L210 20 L240 12 L240 80 L0 80 Z" fill="url(#gArea)"/>
+              <path d="M0 66 L30 60 L60 62 L90 50 L120 46 L150 36 L180 30 L210 20 L240 12" fill="none" stroke="#C8A96E" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="240" cy="12" r="3.5" fill="#E8C96D"/>
+            </svg>
+          </div>
+          <div class="app-card app-meta">
+            <div class="app-meta-linha"><span>Reserva de emergência</span><span class="num">68%</span></div>
+            <div class="app-barra"><i style="width:68%"></i></div>
+          </div>
+          <div class="app-abas" aria-hidden="true">
+            <div class="app-aba ativa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Início</div>
+            <div class="app-aba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Lançar</div>
+            <div class="app-aba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Histórico</div>
+            <div class="app-aba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Metas</div>
+            <div class="app-aba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>Mais</div>
+          </div>
+        </div>
+      </div>
+      <div class="flutuante fl-meta">
+        <small>Meta · Viagem Europa</small>
+        <strong class="num">R$ 6.800 <span style="color:var(--muted);font-weight:400">de R$ 20.000</span></strong>
+        <div class="app-barra" style="margin-top:8px"><i style="width:34%"></i></div>
+      </div>
     </div>
   </div>
-</section>
+</header>
 
-<div class="divider"></div>
+<!-- FAIXA -->
+<div class="faixa">
+  <div class="wrap faixa-grid">
+    <div class="faixa-item"><span class="faixa-num">100%</span><span class="faixa-txt">Online — celular e notebook</span></div>
+    <div class="faixa-item"><span class="faixa-num">4</span><span class="faixa-txt">Planos disponíveis</span></div>
+    <div class="faixa-item"><span class="faixa-num">R$0</span><span class="faixa-txt">Para começar</span></div>
+  </div>
+</div>
 
-<!-- FUNCIONALIDADES -->
+<!-- FUNCIONALIDADES: o app em pedaços -->
 <section id="funcionalidades">
-  <div class="container">
-    <span class="section-label">Funcionalidades</span>
-    <h2 class="section-title">Tudo que você precisa para<br>controlar suas finanças</h2>
-    <p class="section-sub">Do lançamento diário até o planejamento de longo prazo — simples o suficiente para usar todo dia.</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon">💰</span>
-        <h3>Receitas e Despesas</h3>
-        <p>Lance entradas e saídas rapidamente. Categorize, filtre por mês e veja exatamente para onde vai seu dinheiro.</p>
+  <div class="wrap">
+    <div class="sec-cab">
+      <div>
+        <span class="section-label">O app</span>
+        <h2 class="section-title">Simples de usar,<br><em>poderoso nos dados.</em></h2>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">📈</span>
-        <h3>Investimentos</h3>
-        <p>Registre seus investimentos em renda fixa e variável. Acompanhe o total investido e a distribuição da carteira.</p>
+      <p class="section-sub">Do lançamento diário até o planejamento de longo prazo — simples o suficiente para usar todo dia.</p>
+    </div>
+
+    <div class="bento">
+      <!-- Receitas e despesas -->
+      <div class="feature-card b-3 b-largo">
+        <div>
+          <h3>Receitas e Despesas</h3>
+          <p>Lance entradas e saídas rapidamente. Categorize, filtre por mês e veja exatamente para onde vai seu dinheiro.</p>
+        </div>
+        <div class="mini num">
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--green)"></i>Salário</span><span class="mais">+ R$ 5.000,00</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--red)"></i>Aluguel · Moradia</span><span class="menos">− R$ 1.500,00</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--red)"></i>Mercado · Alimentação</span><span class="menos">− R$ 620,40</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--gold)"></i>Saldo do mês</span><span class="ouro">R$ 2.879,60</span></div>
+        </div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">🎯</span>
-        <h3>Metas financeiras</h3>
-        <p>Defina metas com valor alvo e acompanhe o progresso. Simule quanto tempo falta para atingir cada objetivo.</p>
+
+      <!-- Investimentos -->
+      <div class="feature-card b-3">
+        <div>
+          <h3>Investimentos</h3>
+          <p>Registre seus investimentos em renda fixa e variável. Acompanhe o total investido e a distribuição da carteira.</p>
+        </div>
+        <div class="mini donut-wrap">
+          <svg width="92" height="92" viewBox="0 0 42 42" aria-hidden="true">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#c9a84c" stroke-width="6" stroke-dasharray="62 38" stroke-dashoffset="25"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#60a5fa" stroke-width="6" stroke-dasharray="38 62" stroke-dashoffset="-37"/>
+          </svg>
+          <div class="legenda num">
+            <span><i class="ponto" style="background:var(--gold)"></i> Renda fixa <b>62%</b></span>
+            <span><i class="ponto" style="background:var(--blue)"></i> Renda variável <b>38%</b></span>
+            <span>Total investido <b>R$ 31.400</b></span>
+          </div>
+        </div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">📅</span>
-        <h3>Calendário de vencimentos</h3>
-        <p>Veja todos os seus vencimentos no calendário. Nunca mais esqueça uma conta — tudo organizado por data.</p>
+
+      <!-- Metas -->
+      <div class="feature-card b-2">
+        <div>
+          <h3>Metas financeiras</h3>
+          <p>Defina metas com valor alvo e acompanhe o progresso. Simule quanto tempo falta para atingir cada objetivo.</p>
+        </div>
+        <div class="mini app-meta num">
+          <div class="app-meta-linha"><span>Reserva emergência</span><span class="ouro">68%</span></div>
+          <div class="app-barra"><i style="width:68%"></i></div>
+          <div class="app-meta-linha" style="margin-top:6px"><span>Viagem Europa</span><span>34%</span></div>
+          <div class="app-barra"><i style="width:34%;background:var(--green)"></i></div>
+        </div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">🔄</span>
-        <h3>Contas recorrentes</h3>
-        <p>Cadastre aluguel, luz, internet uma vez. O sistema gera os lançamentos automaticamente todo mês.</p>
+
+      <!-- Calendário -->
+      <div class="feature-card b-2">
+        <div>
+          <h3>Calendário de vencimentos</h3>
+          <p>Veja todos os seus vencimentos no calendário. Nunca mais esqueça uma conta — tudo organizado por data.</p>
+        </div>
+        <div class="mini cal num" aria-hidden="true">
+          <span class="h">D</span><span class="h">S</span><span class="h">T</span><span class="h">Q</span><span class="h">Q</span><span class="h">S</span><span class="h">S</span>
+          <span>12</span><span>13</span><span>14</span><span class="v r">15</span><span>16</span><span>17</span><span>18</span>
+          <span>19</span><span class="v">20</span><span>21</span><span>22</span><span>23</span><span>24</span><span class="v">25</span>
+        </div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">📦</span>
-        <h3>Assinaturas</h3>
-        <p>Controle Netflix, Spotify, academia e todos os serviços mensais. Saiba exatamente quanto gasta por mês.</p>
+
+      <!-- Gráficos -->
+      <div class="feature-card b-2">
+        <div>
+          <h3>Gráficos e relatórios</h3>
+          <p>Visualize sua evolução mensal, gastos por categoria e saldo em gráficos claros e modernos.</p>
+        </div>
+        <div class="mini"><div class="barras" aria-hidden="true"><i style="height:40%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:66%"></i><i style="height:72%"></i><i class="g" style="height:90%"></i></div></div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">✅</span>
-        <h3>Objetivos</h3>
-        <p>Crie objetivos diários, semanais e mensais. Marque como concluído e acompanhe sua produtividade financeira.</p>
+
+      <!-- Recorrentes -->
+      <div class="feature-card b-3">
+        <div>
+          <h3>Contas recorrentes</h3>
+          <p>Cadastre aluguel, luz, internet uma vez. O sistema gera os lançamentos automaticamente todo mês.</p>
+        </div>
+        <div class="mini num">
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Aluguel · todo dia 25</span><span>R$ 900,00</span></div>
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Internet · todo dia 20</span><span>R$ 100,00</span></div>
+        </div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">📝</span>
-        <h3>Notas</h3>
-        <p>Um bloco de notas integrado para anotar ideias, lembretes e decisões financeiras importantes.</p>
+
+      <!-- Assinaturas -->
+      <div class="feature-card b-3">
+        <div>
+          <h3>Assinaturas</h3>
+          <p>Controle Netflix, Spotify, academia e todos os serviços mensais. Saiba exatamente quanto gasta por mês.</p>
+        </div>
+        <div class="mini chips num"><span class="chip">Netflix<b>R$ 44,90</b></span><span class="chip">Spotify<b>R$ 21,90</b></span><span class="chip">Academia<b>R$ 99,00</b></span></div>
       </div>
-      <div class="feature-card">
-        <span class="feature-icon">📊</span>
-        <h3>Gráficos e relatórios</h3>
-        <p>Visualize sua evolução mensal, gastos por categoria e saldo em gráficos claros e modernos.</p>
+
+      <!-- Objetivos -->
+      <div class="feature-card b-3">
+        <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <div>
+          <h3>Objetivos</h3>
+          <p>Crie objetivos diários, semanais e mensais. Marque como concluído e acompanhe sua produtividade financeira.</p>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div class="feature-card b-3">
+        <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div>
+          <h3>Notas</h3>
+          <p>Um bloco de notas integrado para anotar ideias, lembretes e decisões financeiras importantes.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- COMO FUNCIONA -->
 <section id="como-funciona" class="how-bg">
-  <div class="container">
-    <span class="section-label">Como funciona</span>
-    <h2 class="section-title">Comece em menos de 5 minutos</h2>
-    <p class="section-sub">Sem complicação. Sem planilha. Sem instalação.</p>
+  <div class="wrap">
+    <div class="sec-cab">
+      <div>
+        <span class="section-label">Como funciona</span>
+        <h2 class="section-title">Comece em menos<br><em>de 5 minutos.</em></h2>
+      </div>
+      <p class="section-sub">Sem complicação. Sem planilha. Sem instalação.</p>
+    </div>
     <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3>Escolha seu plano</h3>
-        <p>Gratuito para experimentar ou assine direto o plano que faz sentido para você.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>Crie sua conta</h3>
-        <p>Email e senha. Acessa pelo celular, notebook ou tablet — sempre sincronizado.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3>Lance seus primeiros dados</h3>
-        <p>Receitas, despesas e investimentos em poucos cliques. Interface simples e rápida.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <h3>Acompanhe a evolução</h3>
-        <p>Veja gráficos, metas e calendário de vencimentos. Tudo atualizado em tempo real.</p>
-      </div>
+      <div class="step"><div class="step-num">01</div><h3>Escolha seu plano</h3><p>Gratuito para experimentar ou assine direto o plano que faz sentido para você.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>Crie sua conta</h3><p>Email e senha. Acessa pelo celular, notebook ou tablet — sempre sincronizado.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Lance seus primeiros dados</h3><p>Receitas, despesas e investimentos em poucos cliques. Interface simples e rápida.</p></div>
+      <div class="step"><div class="step-num">04</div><h3>Acompanhe a evolução</h3><p>Veja gráficos, metas e calendário de vencimentos. Tudo atualizado em tempo real.</p></div>
     </div>
   </div>
 </section>
-
-<div class="divider"></div>
-
-<!-- PREVIEW -->
-<section>
-  <div class="container">
-    <span class="section-label">O app</span>
-    <h2 class="section-title">Simples de usar,<br>poderoso nos dados</h2>
-    <div class="screens">
-      <div class="screen-card">
-        <div class="screen-header">
-          <div class="screen-dot" style="background:#4ade80"></div>
-          <span class="screen-title">Dashboard</span>
-        </div>
-        <div class="screen-preview">
-          <div class="preview-metric"><span class="preview-label">Receitas do mês</span><span class="preview-val green">R$ 3.500</span></div>
-          <div class="preview-metric"><span class="preview-label">Despesas do mês</span><span class="preview-val red">R$ 1.840</span></div>
-          <div class="preview-metric"><span class="preview-label">Saldo</span><span class="preview-val gold">R$ 1.660</span></div>
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin:4px 0"></div>
-          <div class="preview-bar gold"></div>
-          <div class="preview-bar green"></div>
-          <div class="preview-bar short" style="background:var(--red)"></div>
-        </div>
-      </div>
-      <div class="screen-card">
-        <div class="screen-header">
-          <div class="screen-dot" style="background:#c9a84c"></div>
-          <span class="screen-title">Metas</span>
-        </div>
-        <div class="screen-preview">
-          <div class="preview-metric"><span class="preview-label">🎯 Reserva emergência</span><span class="preview-val gold">68%</span></div>
-          <div class="preview-bar gold" style="width:68%"></div>
-          <div style="height:6px"></div>
-          <div class="preview-metric"><span class="preview-label">💎 Viagem Europa</span><span class="preview-val green">34%</span></div>
-          <div class="preview-bar green" style="width:34%"></div>
-          <div style="height:6px"></div>
-          <div class="preview-metric"><span class="preview-label">🏆 R$ 50.000</span><span class="preview-val" style="color:var(--muted)">12%</span></div>
-          <div class="preview-bar" style="width:12%;background:rgba(255,255,255,0.15)"></div>
-        </div>
-      </div>
-      <div class="screen-card">
-        <div class="screen-header">
-          <div class="screen-dot" style="background:#60a5fa"></div>
-          <span class="screen-title">Calendário</span>
-        </div>
-        <div class="screen-preview">
-          <div class="preview-metric"><span class="preview-label">15/06 — Nubank</span><span class="preview-val red">R$ 850</span></div>
-          <div class="preview-metric"><span class="preview-label">20/06 — Internet</span><span class="preview-val" style="color:var(--amber,#fbbf24)">R$ 100</span></div>
-          <div class="preview-metric"><span class="preview-label">25/06 — Aluguel</span><span class="preview-val green">R$ 900</span></div>
-          <div class="preview-metric"><span class="preview-label">30/06 — Energia</span><span class="preview-val green">R$ 150</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
 
 <!-- PLANOS -->
 <section id="planos">
-  <div class="container">
-    <span class="section-label">Planos</span>
-    <h2 class="section-title">Escolha o plano ideal para você</h2>
-    <p class="section-sub">Comece grátis. Faça upgrade quando quiser. Cancele a qualquer momento.</p>
-
-    <div style="display:flex;justify-content:center;margin-bottom:32px">
-      <div style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:30px;padding:4px">
-        <button id="toggle-mensal" onclick="setPeriodo('mensal')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:#C8A96E;color:#0f0f0f">Mensal</button>
-        <button id="toggle-anual" onclick="setPeriodo('anual')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:#888;display:flex;align-items:center;gap:6px">
-          Anual <span style="background:rgba(74,222,128,0.15);color:#4ade80;font-size:11px;padding:2px 8px;border-radius:10px">-20%</span>
-        </button>
+  <div class="wrap">
+    <div class="sec-cab">
+      <div>
+        <span class="section-label">Planos</span>
+        <h2 class="section-title">Escolha o plano<br><em>ideal para você.</em></h2>
+      </div>
+      <div>
+        <p class="section-sub">Comece grátis. Faça upgrade quando quiser. Cancele a qualquer momento.</p>
+        <div class="periodo-wrap">
+          <div style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:30px;padding:4px">
+            <button id="toggle-mensal" onclick="setPeriodo('mensal')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:#C8A96E;color:#0f0f0f">Mensal</button>
+            <button id="toggle-anual" onclick="setPeriodo('anual')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:#888;display:flex;align-items:center;gap:6px">
+              Anual <span style="background:rgba(74,222,128,0.15);color:#4ade80;font-size:11px;padding:2px 8px;border-radius:10px">-20%</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -452,7 +613,7 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
         <button class="plan-btn free-btn" onclick="portalTransition(event,()=>assinar('gratuito'))">Começar grátis</button>
       </div>
 
-      <!-- STARTER -->
+      <!-- ESSENCIAL -->
       <div class="plan-card">
         <span class="plan-badge">Para começar</span>
         <div class="plan-name">Essencial</div>
@@ -498,7 +659,7 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
         <button class="plan-btn gold-btn" onclick="portalTransition(event,()=>assinar('evolucao'))">Assinar Evolução</button>
       </div>
 
-      <!-- PERFORMANCE -->
+      <!-- PATRIMÔNIO -->
       <div class="plan-card">
         <span class="plan-badge">Premium</span>
         <div class="plan-name">Patrimônio</div>
@@ -520,17 +681,17 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
       </div>
 
     </div>
-    <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:24px">Pagamento via Pix ou cartão de crédito · Cancele quando quiser · Sem fidelidade</p>
+    <p class="plan-nota">Pagamento via Pix ou cartão de crédito · Cancele quando quiser · Sem fidelidade</p>
   </div>
 </section>
 
-<div class="divider"></div>
-
 <!-- FAQ -->
-<section id="faq">
-  <div class="container">
-    <span class="section-label">Dúvidas</span>
-    <h2 class="section-title">Perguntas frequentes</h2>
+<section id="faq" class="how-bg">
+  <div class="wrap faq-grid">
+    <div class="faq-lado">
+      <span class="section-label">Dúvidas</span>
+      <h2 class="section-title">Perguntas<br><em>frequentes.</em></h2>
+    </div>
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Funciona no celular e no computador? <span>+</span></button>
@@ -560,37 +721,42 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
   </div>
 </section>
 
-<div class="divider"></div>
-
 <!-- CTA FINAL -->
-<section class="cta-section">
-  <div class="container">
-    <h2>Comece a controlar<br>seu dinheiro hoje</h2>
-    <p>Gratuito para começar. Sem cartão de crédito.</p>
-    <div class="hero-btns">
-      <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        Criar conta grátis
-      </a>
-      <a href="https://finrossi.com.br/" class="btn-secondary" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">
-        Já tenho conta →
-      </a>
+<section class="cta-section" style="padding-top:110px">
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="cta-r" aria-hidden="true">R</div>
+      <h2>Comece a controlar<br><em>seu dinheiro hoje.</em></h2>
+      <p>Gratuito para começar. Sem cartão de crédito.</p>
+      <div class="cta-acoes">
+        <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
+          Criar conta grátis
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="https://finrossi.com.br/" class="btn-secondary" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">Já tenho conta →</a>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <img src="../img/icon-192.png?v=3" width="36" height="36" alt="FinRossi" style="display:block;border-radius:10px;margin:0 auto 14px">
-  <p><strong>FinRossi</strong> — Controle financeiro pessoal simples e inteligente</p>
-  <p style="margin-top:8px">© 2025 FinRossi · Todos os direitos reservados</p>
-  <p class="footer-links" style="margin-top:12px;font-size:12px">
-    <a href="legal/privacidade.html">Política de Privacidade</a>
-    <a href="legal/termos.html">Termos de Uso</a>
-    <a href="legal/contrato.html">Contrato SaaS</a>
-    <a href="legal/lgpd.html">LGPD</a>
-    <a href="legal/cookies.html">Cookies</a>
-  </p>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-marca">
+        <img src="../img/icon-192.png?v=3" width="36" height="36" alt="FinRossi">
+        <p><strong>FinRossi</strong> — Controle financeiro pessoal simples e inteligente</p>
+      </div>
+      <p class="footer-links">
+        <a href="legal/privacidade.html">Política de Privacidade</a>
+        <a href="legal/termos.html">Termos de Uso</a>
+        <a href="legal/contrato.html">Contrato SaaS</a>
+        <a href="legal/lgpd.html">LGPD</a>
+        <a href="legal/cookies.html">Cookies</a>
+      </p>
+    </div>
+    <p class="footer-copy">© 2025 FinRossi · Todos os direitos reservados</p>
+  </div>
 </footer>
 
 <script>
