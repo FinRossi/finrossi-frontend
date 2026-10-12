@@ -16,7 +16,7 @@
   p{margin-bottom:12px;color:#ccc}
   ul{margin:0 0 14px 20px;color:#ccc}
   li{margin-bottom:6px}
-  table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:14px}
+  table{width:100%;min-width:520px;border-collapse:collapse;margin:16px 0 24px;font-size:14px}
   th{background:rgba(200,169,110,0.1);color:var(--accent);padding:10px 14px;text-align:left;border:1px solid var(--border)}
   td{padding:10px 14px;border:1px solid var(--border);color:#ccc}
   .alert{background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.2);border-radius:10px;padding:16px 18px;margin:24px 0;font-size:14px}
@@ -36,7 +36,7 @@
   <div class="logo">FinRossi</div>
   <div class="doc-title">Contrato de Assinatura (SaaS)</div>
   <!-- EDITAR: atualize a data abaixo a cada alteração -->
-  <div class="updated">Última atualização: <!-- DATA --> · Versão 1.0</div>
+  <div class="updated">Última atualização: 12 de outubro de 2026 · Versão 2.0</div>
 
   <div class="alert">
     Este contrato rege a relação entre você (Assinante) e o FinRossi (Prestador) 
@@ -44,11 +44,13 @@
   </div>
 
   <h2>1. Planos disponíveis</h2>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
   <table>
     <thead>
       <tr>
         <th>Plano</th>
-        <th>Valor mensal</th>
+        <th>Mensal</th>
+        <th>Anual (Pix, 20% off)</th>
         <th>O que inclui</th>
       </tr>
     </thead>
@@ -56,33 +58,39 @@
       <tr>
         <td>Gratuito</td>
         <td>R$ 0,00</td>
-        <td>30 dias, até 20 lançamentos, sem investimentos ou metas</td>
-      </tr>
-      <tr>
-        <td>Starter</td>
-        <td>R$ 19,90</td>
-        <td>Lançamentos ilimitados, gráficos, investimentos básicos</td>
+        <td>—</td>
+        <td>30 dias de acesso, até 20 lançamentos, receitas e despesas, gráfico básico</td>
       </tr>
       <tr>
         <td>Essencial</td>
-        <td>R$ 39,90</td>
-        <td>Tudo do Starter + metas, objetivos, cartões, assinaturas, notas, calendário</td>
+        <td>R$ 9,90</td>
+        <td>R$ 95,04</td>
+        <td>Lançamentos ilimitados, gráficos completos, investimentos</td>
       </tr>
       <tr>
-        <td>Consultoria</td>
-        <td>R$ 89,90</td>
-        <td>Tudo do Essencial + acesso do consultor, reunião mensal, relatório, WhatsApp</td>
+        <td>Evolução</td>
+        <td>R$ 24,90</td>
+        <td>R$ 239,04</td>
+        <td>Tudo do Essencial + metas, objetivos, cartões, assinaturas, contas recorrentes, calendário financeiro e notas</td>
+      </tr>
+      <tr>
+        <td>Patrimônio</td>
+        <td>R$ 49,90</td>
+        <td>R$ 479,04</td>
+        <td>Tudo do Evolução + acompanhamento do consultor com sessão mensal, relatórios semanais e mensais, saúde do patrimônio (score), calculadora de renda passiva, app personalizável e atendimento prioritário</td>
       </tr>
     </tbody>
   </table>
-  <!-- EDITAR: ajuste valores conforme necessário -->
+  </div>
+  <!-- EDITAR: mantenha estes valores iguais aos da landing (PLANO_MENSAL/PLANO_ANUAL) e do backend (asaas.js) -->
 
   <h2>2. Cobrança e renovação</h2>
   <ul>
-    <li>A cobrança é mensal, no mesmo dia da contratação inicial</li>
-    <li>O pagamento é processado via <strong>Asaas</strong> (Pix ou cartão de crédito)</li>
-    <li>A assinatura é renovada automaticamente até o cancelamento</li>
-    <li>Você receberá aviso por e-mail antes de cada cobrança</li>
+    <li>Os pagamentos são processados pelo <strong>Asaas</strong>; o FinRossi não armazena dados do seu cartão</li>
+    <li><strong>Plano mensal:</strong> cobrança recorrente por cartão de crédito ou boleto bancário, no mesmo dia da contratação inicial, renovada automaticamente até o cancelamento</li>
+    <li><strong>Plano anual:</strong> pagamento único via Pix, com 20% de desconto sobre 12 mensalidades, válido por 12 meses a partir da confirmação do pagamento. Não há renovação automática — ao fim do período, você escolhe se deseja renovar</li>
+    <li>O acesso ao plano pago é liberado após a confirmação do pagamento</li>
+    <li>Você receberá aviso por e-mail antes do vencimento</li>
   </ul>
 
   <h2>3. Período gratuito (Trial)</h2>
@@ -95,7 +103,7 @@
   <h2>4. Cancelamento</h2>
   <ul>
     <li>Você pode cancelar a assinatura a qualquer momento, sem multa ou fidelidade mínima</li>
-    <li>O cancelamento pode ser feito pelo e-mail <a href="mailto:<!-- EMAIL -->"><!-- EMAIL --></a> ou nas configurações do app</li>
+    <li>O cancelamento pode ser solicitado pelo e-mail <a href="mailto:finrossiapp@gmail.com">finrossiapp@gmail.com</a></li>
     <li>Após o cancelamento, o acesso ao plano permanece ativo até o fim do período já pago</li>
     <li>Não há cobrança adicional após o cancelamento</li>
   </ul>
@@ -106,7 +114,7 @@
     <li><strong>Após 7 dias:</strong> não há reembolso proporcional, mas o acesso permanece até o fim do período pago</li>
     <li>Em caso de falha técnica comprovada do serviço: análise caso a caso com possibilidade de crédito ou reembolso</li>
   </ul>
-  <p>Para solicitar reembolso, envie e-mail para <a href="mailto:<!-- EMAIL -->"><!-- EMAIL --></a> com o assunto "Reembolso".</p>
+  <p>Para solicitar reembolso, envie e-mail para <a href="mailto:finrossiapp@gmail.com">finrossiapp@gmail.com</a> com o assunto "Reembolso".</p>
 
   <h2>6. Alteração de plano</h2>
   <ul>
@@ -120,11 +128,12 @@
     Após isso, o acesso será suspenso. O acesso é restaurado automaticamente após regularização.
   </p>
 
-  <h2>8. Plano Consultoria — condições específicas</h2>
+  <h2>8. Plano Patrimônio — condições específicas</h2>
   <ul>
-    <li>O consultor (Lucas Rossi) terá acesso de leitura e edição aos seus dados financeiros</li>
-    <li>A reunião mensal será agendada por WhatsApp ou e-mail em data acordada entre as partes</li>
-    <li>O relatório mensal será entregue até o dia 10 de cada mês</li>
+    <li>O consultor (Lucas Rossi) terá acesso de leitura e edição aos seus dados financeiros, exclusivamente para o acompanhamento contratado</li>
+    <li>A sessão mensal de acompanhamento será agendada por e-mail, em data acordada entre as partes</li>
+    <li>Os relatórios semanais e mensais ficam disponíveis no app; o relatório mensal é disponibilizado até o dia 10 do mês seguinte</li>
+    <li>O atendimento prioritário é feito por e-mail</li>
     <li>O acesso do consultor pode ser revogado a qualquer momento pelo assinante</li>
   </ul>
 
@@ -137,14 +146,14 @@
 
   <h2>10. Contato</h2>
   <p>
-    <!-- NOME/EMPRESA --><br>
-    <!-- CNPJ --><br>
+    FinRossi<br>
+    <!-- EDITAR: incluir razão social e CNPJ quando houver --><br>
     Ribeirão Preto, SP — Brasil<br>
-    E-mail: <a href="mailto:<!-- EMAIL -->"><!-- EMAIL --></a>
+    E-mail: <a href="mailto:finrossiapp@gmail.com">finrossiapp@gmail.com</a>
   </p>
 
   <div class="footer">
-    <span>© <!-- ANO --> FinRossi. Todos os direitos reservados.</span>
+    <span>© 2026 FinRossi. Todos os direitos reservados.</span>
     <span>
       <a href="privacidade.html">Privacidade</a> · 
       <a href="termos.html">Termos de Uso</a> · 
