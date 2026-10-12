@@ -2,12 +2,18 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no">
 <title>FinRossi — Aplicativo para construir sua riqueza</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <meta name="description" content="Controle suas receitas, despesas, investimentos e metas em um só lugar. Simples, inteligente e acessível.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -37,23 +43,24 @@
 #cursor-fx-dot.cfx-hover{box-shadow:0 0 10px var(--gold),0 0 22px var(--gold)}
 .cursor-fx-ripple{position:fixed;top:0;left:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--gold);pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(0);opacity:.7;animation:cfx-ripple .5s ease-out forwards}
 @keyframes cfx-ripple{to{transform:translate(-50%,-50%) scale(3);opacity:0}}
-html{font-size:16px;scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+html{font-size:16px;scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,8,8,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.5px;color:var(--text)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(16px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-right,0px)) 16px calc(24px + env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(8,8,8,0.85);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-logo{white-space:nowrap;font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.5px;color:var(--text)}
 .nav-logo span{color:var(--gold-light)}
 .nav-links{display:flex;align-items:center;gap:24px}
 .nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:var(--text)}
-.nav-cta{background:var(--gold);color:#000;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s}
+.nav-cta{background:var(--gold);color:#000;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;white-space:nowrap}
 .nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
-.nav-login{color:var(--text);padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,0.12);transition:all .2s}
+.nav-login{color:var(--text);padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,0.12);transition:all .2s;white-space:nowrap}
 .nav-login:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.22)}
 
 /* HERO */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-s);border:1px solid rgba(201,168,76,0.25);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--gold-light);margin-bottom:24px}
@@ -80,7 +87,7 @@ section{padding:80px 24px}
 .section-sub{font-size:16px;color:var(--muted);max-width:520px}
 
 /* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:48px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;margin-top:48px}
 .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .25s;position:relative;overflow:hidden}
 .feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-s2) 0%,transparent 60%);opacity:0;transition:opacity .25s}
 .feature-card:hover{border-color:rgba(201,168,76,0.25);transform:translateY(-3px)}
@@ -91,14 +98,14 @@ section{padding:80px 24px}
 
 /* HOW IT WORKS */
 .how-bg{background:var(--surface)}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:48px;position:relative}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:24px;margin-top:48px;position:relative}
 .step{text-align:center;padding:24px 16px}
 .step-num{width:44px;height:44px;border-radius:50%;background:var(--gold-s);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);font-family:'DM Serif Display',serif;font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .step h3{font-size:15px;font-weight:600;margin-bottom:8px}
 .step p{font-size:13px;color:var(--muted)}
 
 /* SCREENSHOTS */
-.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:48px}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px;margin-top:48px}
 .screen-card{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
 .screen-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .screen-dot{width:8px;height:8px;border-radius:50%}
@@ -117,7 +124,7 @@ section{padding:80px 24px}
 .preview-val.red{color:var(--red)}
 
 /* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:48px;align-items:start}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px;margin-top:48px;align-items:start}
 .plan-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;transition:all .25s}
 .plan-card.featured{background:linear-gradient(135deg,#181408 0%,#1a1600 100%);border-color:rgba(201,168,76,0.4);transform:scale(1.02)}
 .plan-card.featured::before{content:'Mais popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.5px}
@@ -150,7 +157,7 @@ section{padding:80px 24px}
 .faq-q span{font-size:18px;color:var(--gold);flex-shrink:0;transition:transform .2s}
 .faq-q.open span{transform:rotate(45deg)}
 .faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:all .3s;font-size:14px;color:var(--muted);line-height:1.7}
-.faq-a.open{padding:0 20px 18px;max-height:200px}
+.faq-a.open{padding:0 20px 18px;max-height:600px}
 
 /* CTA FINAL */
 .cta-section{text-align:center;padding:100px 24px;background:linear-gradient(180deg,var(--bg) 0%,rgba(201,168,76,0.04) 50%,var(--bg) 100%);position:relative}
@@ -159,9 +166,12 @@ section{padding:80px 24px}
 .cta-section p{font-size:16px;color:var(--muted);margin-bottom:36px}
 
 /* FOOTER */
-footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
+footer{padding:40px 24px calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);text-align:center}
 footer p{font-size:13px;color:var(--muted2)}
 footer strong{color:var(--gold)}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px}
+.footer-links a{color:var(--muted2);text-decoration:none;padding:6px 0;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
 
 /* DIVIDER */
 .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:0 auto}
@@ -173,7 +183,44 @@ footer strong{color:var(--gold)}
   .hero-stats{gap:20px}
   .plan-card.featured{transform:scale(1)}
   section{padding:60px 20px}
+  .cta-section{padding:72px 20px}
 }
+@media(max-width:480px){
+  nav{padding:calc(12px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 12px calc(16px + env(safe-area-inset-left,0px))}
+  .nav-logo{font-size:19px}
+  .nav-actions{gap:8px}
+  .nav-login,.nav-cta{padding:8px 12px;font-size:13px}
+  .hero{padding:96px 16px 56px}
+  .hero-btns{flex-direction:column;align-items:stretch;max-width:340px;margin:0 auto}
+  .hero-btns a{justify-content:center}
+  .hero-stats{gap:16px 24px;margin-top:40px}
+  .stat-num{font-size:26px}
+  section{padding:56px 16px}
+  .section-title br{display:none}
+  .plan-card{padding:24px 20px}
+  .modal-card{padding:22px 18px!important}
+  .modal-logo{margin-bottom:18px!important}
+}
+/* Telas muito estreitas (ex.: iPhone SE 1ª geração, Androids compactos) */
+@media(max-width:359px){
+  .nav-cta{display:none}
+}
+/* Celular/tablet: sem efeito de "levantar" preso após o toque */
+@media(hover:none){
+  .nav-cta:hover,.btn-primary:hover,.btn-secondary:hover,.feature-card:hover,.plan-btn.gold-btn:hover{transform:none}
+  .btn-primary:hover{box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+/* MODAL */
+#modal-cadastro{position:fixed;inset:0;z-index:999;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:rgba(8,8,8,0.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:calc(20px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))}
+#modal-cadastro.open{display:flex}
+#modal-cadastro>div{margin:auto}
+/* iOS dá zoom ao focar campos com fonte < 16px — só no celular */
+@media(max-width:768px){#modal-cadastro input[type=text],#modal-cadastro input[type=email],#modal-cadastro input[type=password]{font-size:16px!important}}
+body.modal-aberto{overflow:hidden}
 #portal-transition{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;display:none}
 #portal-circle{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#e8c96d 0%,#c9a84c 45%,rgba(201,168,76,0) 70%);transform:translate(-50%,-50%) scale(0);opacity:0}
 #portal-circle.go{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65s ease}
@@ -186,14 +233,14 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
 <div id="portal-transition"><div id="portal-circle"></div></div>
 
 <nav>
-  <div class="nav-logo" style="display:flex;align-items:center;gap:9px"><img src="icon-192.png?v=3" width="28" height="28" alt="FinRossi" style="display:block;border-radius:8px">Fin<span>Rossi</span></div>
+  <div class="nav-logo" style="display:flex;align-items:center;gap:9px"><img src="icon-192.png?v=3" width="28" height="28" alt="FinRossi" style="display:block;border-radius:8px"><span style="color:inherit">Fin<span>Rossi</span></span></div>
   <div class="nav-links">
     <a href="#funcionalidades">Funcionalidades</a>
     <a href="#como-funciona">Como funciona</a>
     <a href="#planos">Planos</a>
     <a href="#faq">FAQ</a>
   </div>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div class="nav-actions">
     <a href="https://finrossi.com.br/" class="nav-login" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">Entrar</a>
     <a href="#planos" class="nav-cta" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">Começar agora</a>
   </div>
@@ -537,12 +584,12 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
   <img src="icon-192.png?v=3" width="36" height="36" alt="FinRossi" style="display:block;border-radius:10px;margin:0 auto 14px">
   <p><strong>FinRossi</strong> — Controle financeiro pessoal simples e inteligente</p>
   <p style="margin-top:8px">© 2025 FinRossi · Todos os direitos reservados</p>
-  <p style="margin-top:12px;font-size:12px">
-    <a href="legal/privacidade.html" style="color:var(--muted2);text-decoration:none;margin:0 8px" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted2)'">Política de Privacidade</a>·
-    <a href="legal/termos.html" style="color:var(--muted2);text-decoration:none;margin:0 8px" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted2)'">Termos de Uso</a>·
-    <a href="legal/contrato.html" style="color:var(--muted2);text-decoration:none;margin:0 8px" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted2)'">Contrato SaaS</a>·
-    <a href="legal/lgpd.html" style="color:var(--muted2);text-decoration:none;margin:0 8px" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted2)'">LGPD</a>·
-    <a href="legal/cookies.html" style="color:var(--muted2);text-decoration:none;margin:0 8px" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted2)'">Cookies</a>
+  <p class="footer-links" style="margin-top:12px;font-size:12px">
+    <a href="legal/privacidade.html">Política de Privacidade</a>
+    <a href="legal/termos.html">Termos de Uso</a>
+    <a href="legal/contrato.html">Contrato SaaS</a>
+    <a href="legal/lgpd.html">LGPD</a>
+    <a href="legal/cookies.html">Cookies</a>
   </p>
 </footer>
 
@@ -561,7 +608,7 @@ function portalTransition(e, callback){
   const y = e ? e.clientY : window.innerHeight/2;
   const wrap = document.getElementById('portal-transition');
   const circle = document.getElementById('portal-circle');
-  if(!wrap || !circle){ callback(); return; }
+  if(!wrap || !circle || window.matchMedia('(prefers-reduced-motion:reduce)').matches){ callback(); return; }
 
   // Raio necessário pra cobrir a tela inteira a partir do ponto clicado
   const maxDist = Math.max(
@@ -672,15 +719,12 @@ function abrirModalCadastro(plano, periodo){
   if(metodos){
     metodos.style.display = isGratuito ? 'none' : 'block';
     // Anual: só Pix | Mensal: cartão + boleto
-    document.getElementById('metodo-cartao').style.display = isAnual ? 'none' : '';
-    document.getElementById('metodo-boleto').style.display = isAnual ? 'none' : '';
-    document.getElementById('metodo-pix').style.display = isAnual ? '' : 'none';
-    document.getElementById('metodo-pix-anual').style.display = isAnual ? '' : 'none';
-    if(isAnual){
-      document.getElementById('metodo-pix').checked = true;
-    } else {
-      document.getElementById('metodo-cartao').checked = true;
-    }
+    document.getElementById('metodo-cartao').style.display = isAnual ? 'none' : 'flex';
+    document.getElementById('metodo-boleto').style.display = isAnual ? 'none' : 'flex';
+    document.getElementById('metodo-pix').style.display = isAnual ? 'flex' : 'none';
+    document.getElementById('metodo-pix-anual').style.display = isAnual ? 'block' : 'none';
+    // Os ids ficam nos <label>; o radio é o <input> dentro deles
+    document.querySelector(isAnual ? '#metodo-pix input' : '#metodo-cartao input').checked = true;
   }
 
   ['modal-nome','modal-email','modal-senha'].forEach(id=>document.getElementById(id).value='');
@@ -688,12 +732,19 @@ function abrirModalCadastro(plano, periodo){
   document.getElementById('modal-form').style.display='block';
   document.getElementById('modal-sucesso').style.display='none';
   document.getElementById('modal-pix-area').style.display='none';
-  document.getElementById('modal-cadastro').style.display='flex';
-  setTimeout(()=>document.getElementById('modal-nome').focus(), 120);
+  const modal = document.getElementById('modal-cadastro');
+  modal.classList.add('open');
+  modal.scrollTop = 0;
+  document.body.classList.add('modal-aberto');
+  // No celular, focar abre o teclado e esconde o plano escolhido — só foca com mouse
+  if(window.matchMedia('(pointer:fine)').matches){
+    setTimeout(()=>document.getElementById('modal-nome').focus(), 120);
+  }
 }
 
 function fecharModal(){
-  document.getElementById('modal-cadastro').style.display='none';
+  document.getElementById('modal-cadastro').classList.remove('open');
+  document.body.classList.remove('modal-aberto');
 }
 
 async function confirmarCadastro(){
@@ -762,11 +813,28 @@ async function confirmarCadastro(){
 
 function copiarPix(){
   const txt = document.getElementById('pix-copia-cola').textContent;
-  navigator.clipboard.writeText(txt).then(()=>{
-    const btn = document.getElementById('btn-copiar-pix');
+  const btn = document.getElementById('btn-copiar-pix');
+  const ok = ()=>{
     btn.textContent='✓ Copiado!'; btn.style.background='#4ade80'; btn.style.color='#000';
     setTimeout(()=>{ btn.textContent='Copiar código'; btn.style.background='#C8A96E'; btn.style.color='#0f0f0f'; },2000);
-  });
+  };
+  // Fallback para navegadores sem Clipboard API (Android antigo, navegadores embutidos de apps)
+  const fallback = ()=>{
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.setAttribute('readonly','');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, txt.length);
+    let copiou = false;
+    try{ copiou = document.execCommand('copy'); }catch(e){}
+    ta.remove();
+    if(copiou) ok(); else btn.textContent='Selecione e copie o código acima';
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(ok).catch(fallback);
+  } else {
+    fallback();
+  }
 }
 
 function showModalMsg(texto, tipo){
@@ -793,13 +861,24 @@ document.addEventListener('keydown', e=>{
 
 
 // Animação de entrada nos cards
-const observer=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform=e.target.classList.contains('featured')?'scale(1.02)':'translateY(0)'}});
-},{threshold:0.1});
-document.querySelectorAll('.feature-card,.plan-card,.step').forEach(el=>{
-  el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .5s ease, transform .5s ease';
-  observer.observe(el);
-});
+// Ao terminar, remove os estilos inline para o CSS voltar a valer (hover, e o
+// card em destaque sem scale no celular). Sem IntersectionObserver, nada é escondido.
+if('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const el=e.target;
+      observer.unobserve(el);
+      el.style.opacity='';
+      el.style.transform='';
+      setTimeout(()=>{el.style.transition='';},550);
+    });
+  },{threshold:0.1});
+  document.querySelectorAll('.feature-card,.plan-card,.step').forEach(el=>{
+    el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .5s ease, transform .5s ease';
+    observer.observe(el);
+  });
+}
 
 // Cursor neon
 if(window.matchMedia('(pointer:fine)').matches){
@@ -839,18 +918,18 @@ if(window.matchMedia('(pointer:fine)').matches){
 }
 </script>
 <!-- MODAL CADASTRO -->
-<div id="modal-cadastro" style="display:none;position:fixed;inset:0;background:rgba(8,8,8,0.92);backdrop-filter:blur(6px);align-items:center;justify-content:center;z-index:999;padding:20px">
+<div id="modal-cadastro" role="dialog" aria-modal="true" aria-labelledby="modal-plano-nome">
   <div style="width:100%;max-width:420px">
 
     <!-- Logo -->
-    <div style="text-align:center;margin-bottom:28px">
+    <div class="modal-logo" style="text-align:center;margin-bottom:28px">
       <img src="icon-192.png?v=3" width="44" height="44" alt="FinRossi" style="display:block;border-radius:10px;margin:0 auto 10px">
       <div style="font-family:'DM Serif Display',serif;font-size:30px;color:#C8A96E;letter-spacing:-1px">FinRossi</div>
       <div style="font-size:12px;color:#555;margin-top:4px">Controle financeiro pessoal</div>
     </div>
 
     <!-- Card -->
-    <div style="background:#111;border:1px solid rgba(200,169,110,0.15);border-radius:16px;padding:28px">
+    <div class="modal-card" style="background:#111;border:1px solid rgba(200,169,110,0.15);border-radius:16px;padding:28px">
 
       <!-- Plano selecionado -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;padding:10px 14px;background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.2);border-radius:10px">
@@ -867,21 +946,21 @@ if(window.matchMedia('(pointer:fine)').matches){
       <div id="modal-form">
         <div style="margin-bottom:14px">
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Nome completo</label>
-          <input id="modal-nome" type="text" placeholder="Seu nome"
+          <input id="modal-nome" type="text" placeholder="Seu nome" autocomplete="name" autocapitalize="words" enterkeyhint="next"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
             onkeydown="if(event.key==='Enter')document.getElementById('modal-email').focus()">
         </div>
         <div style="margin-bottom:14px">
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Email</label>
-          <input id="modal-email" type="email" placeholder="seu@email.com"
+          <input id="modal-email" type="email" placeholder="seu@email.com" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
             onkeydown="if(event.key==='Enter')document.getElementById('modal-senha').focus()">
         </div>
         <div style="margin-bottom:14px">
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Senha</label>
-          <input id="modal-senha" type="password" placeholder="Mínimo 6 caracteres"
+          <input id="modal-senha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" enterkeyhint="done"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
             onkeydown="if(event.key==='Enter')confirmarCadastro()">
@@ -924,7 +1003,7 @@ if(window.matchMedia('(pointer:fine)').matches){
         <div style="font-size:20px;font-weight:600;color:#C8A96E;margin-bottom:16px" id="pix-valor"></div>
         <img id="pix-qr-img" style="display:none;width:180px;height:180px;border-radius:8px;margin:0 auto 16px;border:2px solid #C8A96E">
         <div style="font-size:11px;color:#666;margin-bottom:6px">Ou copie o código Pix copia e cola:</div>
-        <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;font-size:10px;color:#888;word-break:break-all;margin-bottom:12px;max-height:60px;overflow:hidden" id="pix-copia-cola"></div>
+        <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;font-size:10px;color:#888;word-break:break-all;margin-bottom:12px;max-height:72px;overflow-y:auto;-webkit-user-select:all;user-select:all" id="pix-copia-cola"></div>
         <button id="btn-copiar-pix" onclick="copiarPix()"
           style="width:100%;background:#C8A96E;color:#0f0f0f;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-bottom:10px">Copiar código</button>
         <div style="font-size:12px;color:#555;margin-bottom:12px">Após o pagamento, sua conta será ativada automaticamente.</div>
