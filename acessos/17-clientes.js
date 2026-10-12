@@ -1,4 +1,4 @@
-// js/app/17-clientes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// acessos/17-clientes.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── CLIENTES ────────────────────────────────────────────────────────────────
 // Site oficial (finrossi.com.br) usa o servidor do Railway; teste no computador
 // (localhost ou IP da rede, via "npm run local" no backend) usa o backend local na porta 3000.

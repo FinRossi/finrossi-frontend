@@ -1,4 +1,4 @@
-// js/app/19-preview-planos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// acessos/19-preview-planos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 const NAV_PREVIEW = [
   {id:'dashboard',         icon:'▦', label:'Dashboard'},
   {id:'lancamentos',       icon:'+', label:'Lançamentos'},
