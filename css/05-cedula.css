@@ -1,0 +1,74 @@
+/* css/05-cedula.css — identidade "Cédula" (por enquanto só no dashboard).
+   Linguagem de papel-moeda: numerais de alto contraste (Bodoni Moda), moldura dupla
+   gravada no valor principal, roseta de guilhoché, totais secundários como extrato.
+   Cores via var(--accent) → acompanham o tema escolhido no plano Patrimônio. */
+
+:root{
+  --ced-serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;
+  --ced-gravura:color-mix(in srgb,var(--accent) 34%,transparent);
+  --ced-gravura-fina:color-mix(in srgb,var(--accent) 18%,transparent);
+}
+
+/* Cabeçalho do dashboard: título com o numeral de cédula, sem emoji */
+#sec-dashboard .page-title h2{font-family:var(--ced-serif);font-weight:500;font-size:34px;letter-spacing:-.5px;line-height:1.05}
+#sec-dashboard #mob-dash-title{font-family:var(--ced-serif)!important;font-weight:500}
+
+/* ── Painel principal: o "campo do valor" da cédula ───────────────────────── */
+.ced-kpis{display:block}
+.ced-painel{position:relative;overflow:hidden;background:var(--surface);border-radius:6px;padding:7px;border:1px solid var(--ced-gravura);margin-bottom:14px}
+.ced-painel-int{position:relative;border:1px solid var(--ced-gravura-fina);border-radius:3px;padding:40px 34px 28px;min-height:190px;display:flex;flex-direction:column;justify-content:center}
+.ced-roseta{position:absolute;right:-40px;top:50%;width:360px;height:360px;transform:translateY(-50%);color:var(--accent);opacity:.55;pointer-events:none}
+.ced-roseta.ced-anima{animation:ced-gravar 1.8s cubic-bezier(.2,.7,.2,1) both}
+@keyframes ced-gravar{from{opacity:0;transform:translateY(-50%) rotate(-24deg) scale(.94)}to{opacity:.55;transform:translateY(-50%) rotate(0) scale(1)}}
+.ced-serie{position:absolute;top:13px;left:18px;font-size:11px;letter-spacing:1.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ced-rotulo{font-size:13px;color:var(--muted);margin-bottom:6px}
+.ced-valor{font-family:var(--ced-serif);font-weight:500;font-size:clamp(40px,5.4vw,64px);line-height:1;color:var(--text);letter-spacing:-1px;font-variant-numeric:lining-nums tabular-nums;position:relative}
+.ced-moeda{font-size:.42em;color:var(--accent);margin-right:.25em;vertical-align:.95em;letter-spacing:0}
+.ced-var{margin-top:12px;font-size:13px;display:flex;gap:6px;align-items:baseline}
+.ced-var .ced-sub{color:var(--muted)}
+
+/* ── Faixa de extrato: receitas, despesas, saldo ───────────────────────────── */
+.ced-extrato{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ced-gravura-fina);border-bottom:1px solid var(--ced-gravura-fina);margin-bottom:16px}
+.ced-item{padding:16px 20px}
+.ced-item+.ced-item{border-left:1px solid var(--ced-gravura-fina)}
+.ced-item .ced-rotulo{margin-bottom:4px}
+.ced-item .ced-valor{font-size:26px;letter-spacing:-.4px}
+.ced-item .ced-moeda{font-size:.5em;vertical-align:.6em}
+.ced-item .ced-var{margin-top:6px;font-size:12px}
+.ced-pos{color:var(--green)}.ced-neg{color:var(--red)}
+
+/* ── Comparativo como extrato ──────────────────────────────────────────────── */
+.ced-tabela{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ced-tabela th{font-size:12px;font-weight:500;color:var(--muted);text-align:right;padding:0 0 10px;border-bottom:1px solid var(--ced-gravura-fina)}
+.ced-tabela th:first-child,.ced-tabela td:first-child{text-align:left}
+.ced-tabela td{padding:12px 0;text-align:right;border-bottom:1px solid var(--border);font-size:14px}
+.ced-tabela tr:last-child td{border-bottom:none}
+.ced-tabela td.ced-ant{color:var(--muted)}
+.ced-tabela td .ced-num{font-family:var(--ced-serif);font-size:17px}
+.ced-titulo-card{font-size:15px;font-weight:600;color:var(--text);margin-bottom:14px}
+.ced-titulo-card span{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+
+/* Valores de destaque dos gráficos no mesmo numeral */
+#dash-evo-total{font-family:var(--ced-serif);font-weight:500!important;font-size:26px!important;font-variant-numeric:lining-nums tabular-nums}
+
+/* Blocos do dashboard podem encolher até a largura da tela (antes um bloco largo
+   esticava a grade para 534px no celular e cortava tudo à direita) */
+#dash-widgets-grid{min-width:0}
+#dash-widgets-grid>.dash-widget{min-width:0;max-width:100%}
+#dash-widgets-grid .chart-wrap{max-width:100%}
+
+/* Cartões do dashboard: canto mais contido, linha gravada em vez de caixa genérica */
+#sec-dashboard .dash-widget .card{border-radius:8px;border-color:var(--ced-gravura-fina)}
+
+@media(max-width:767px){
+  .ced-painel-int{padding:24px 20px 22px;min-height:160px}
+  .ced-roseta{width:260px;height:260px;right:-70px;opacity:.4}
+  @keyframes ced-gravar{from{opacity:0;transform:translateY(-50%) rotate(-24deg) scale(.94)}to{opacity:.4;transform:translateY(-50%) rotate(0) scale(1)}}
+  .ced-extrato{grid-template-columns:1fr}
+  .ced-item{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 4px}
+  .ced-item+.ced-item{border-left:none;border-top:1px solid var(--ced-gravura-fina)}
+  .ced-item .ced-valor{font-size:22px}
+  .ced-item .ced-var{margin-top:0}
+  #sec-dashboard .page-title h2{font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){.ced-roseta.ced-anima{animation:none}}

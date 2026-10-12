@@ -26,53 +26,28 @@ function renderComparativo(lancs,mes){
     return`<span style="font-size:11px;color:${cor};margin-left:6px">${up?'▲':'▼'} ${Math.abs(pct)}%</span>`;
   }
 
+  const linha = (rotulo, ant, atual, invertido) => {
+    const diff = atual - ant;
+    const pct = ant > 0 ? ((diff / ant) * 100).toFixed(1) : 0;
+    const bom = invertido ? diff <= 0 : diff >= 0;
+    return `<tr>
+      <td>${rotulo}</td>
+      <td class="ced-ant"><span class="ced-num">${fmtR(ant)}</span></td>
+      <td><span class="ced-num">${fmtR(atual)}</span></td>
+      <td class="${bom ? 'ced-pos' : 'ced-neg'}">${diff >= 0 ? '↑' : '↓'} ${String(Math.abs(pct)).replace('.', ',')}%</td>
+    </tr>`;
+  };
   document.getElementById('dash-comparativo').innerHTML=`
     <div class="card card-full">
-      <h3><span class="dot" style="background:var(--teal)"></span>Comparativo — ${mesLbl(mes+'-01')} vs ${mesLbl(mesAnt+'-01')}</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Receitas</div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mesAnt+'-01')}</div>
-              <div style="font-size:15px;color:var(--muted);font-family:'DM Serif Display',serif">${fmtR(recAnt)}</div>
-            </div>
-            <div style="font-size:18px;color:var(--muted2)">→</div>
-            <div style="text-align:right">
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mes+'-01')}</div>
-              <div style="font-size:15px;color:var(--green);font-family:'DM Serif Display',serif">${fmtR(rec)}${seta(rec,recAnt)}</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Despesas</div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mesAnt+'-01')}</div>
-              <div style="font-size:15px;color:var(--muted);font-family:'DM Serif Display',serif">${fmtR(desAnt)}</div>
-            </div>
-            <div style="font-size:18px;color:var(--muted2)">→</div>
-            <div style="text-align:right">
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mes+'-01')}</div>
-              <div style="font-size:15px;color:var(--red);font-family:'DM Serif Display',serif">${fmtR(des)}${seta(des,desAnt)}</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Saldo</div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mesAnt+'-01')}</div>
-              <div style="font-size:15px;color:var(--muted);font-family:'DM Serif Display',serif">${fmtR(recAnt-desAnt)}</div>
-            </div>
-            <div style="font-size:18px;color:var(--muted2)">→</div>
-            <div style="text-align:right">
-              <div style="font-size:11px;color:var(--muted)">${mesLbl(mes+'-01')}</div>
-              <div style="font-size:15px;color:${(rec-des)>=0?'var(--green)':'var(--red)'};font-family:'DM Serif Display',serif">${fmtR(rec-des)}${seta(rec-des,recAnt-desAnt)}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="ced-titulo-card">Comparativo<span>${mesLbl(mesAnt+'-01')} e ${mesLbl(mes+'-01')}</span></div>
+      <div style="overflow-x:auto"><table class="ced-tabela">
+        <thead><tr><th></th><th>${mesLbl(mesAnt+'-01')}</th><th>${mesLbl(mes+'-01')}</th><th>Variação</th></tr></thead>
+        <tbody>
+          ${linha('Receitas', recAnt, rec, false)}
+          ${linha('Despesas', desAnt, des, true)}
+          ${linha('Saldo', recAnt - desAnt, rec - des, false)}
+        </tbody>
+      </table></div>
     </div>`;
 }
 
@@ -91,9 +66,9 @@ function refreshDash(){
   const nomeUser = window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '';
   const primeiroNome = nomeUser ? ', ' + nomeUser.split(' ')[0] : '';
   const saudEl=document.getElementById('dash-saudacao');
-  if(saudEl) saudEl.textContent=saud + primeiroNome + ' 👋';
+  if(saudEl) saudEl.textContent=saud + primeiroNome;
   const saudMobEl=document.getElementById('mob-dash-saudacao');
-  if(saudMobEl) saudMobEl.textContent=saud + primeiroNome + ' 👋';
+  if(saudMobEl) saudMobEl.textContent=saud + primeiroNome;
 
   populateMesFiltro();
   const doMes=lancs.filter(l=>l.data.startsWith(mes));
@@ -151,15 +126,32 @@ function refreshDash(){
 
   const kpiEl=document.getElementById('dash-kpi-cards');
   if(kpiEl){
-    kpiEl.innerHTML=kpiCards.map(k=>`
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;min-height:110px;display:flex;flex-direction:column;justify-content:space-between">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">${k.label}</div>
-        <div>
-          <div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;line-height:1">${k.val}</div>
-          ${mkVar(k.var, k.id==='des')}
-        </div>
-        <div style="position:absolute;bottom:16px;right:18px;opacity:.85">${k.icon}</div>
-      </div>`).join('');
+    // Identidade "Cédula": patrimônio no campo do valor (moldura dupla + roseta de guilhoché),
+    // receitas/despesas/saldo como faixa de extrato. Mesmos valores e variações de antes.
+    const anima = !window._cedAnimou; window._cedAnimou = true; // roseta anima só na 1ª abertura
+    const varTxt = (v, invertido) => {
+      const subiu = parseFloat(v) >= 0;
+      const bom = invertido ? !subiu : subiu; // despesas: gastar menos é bom
+      return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'} ${String(Math.abs(v)).replace('.', ',')}%</span><span class="ced-sub">no mês</span>`;
+    };
+    const pat = totalInv + saldo;
+    kpiEl.innerHTML = `
+      <div class="ced-painel"><div class="ced-painel-int">
+        ${rosetaGuillocheSVG().replace('class="ced-roseta"', anima ? 'class="ced-roseta ced-anima"' : 'class="ced-roseta"')}
+        <div class="ced-serie">${serieCedula(mes)}</div>
+        <div class="ced-rotulo">Patrimônio líquido</div>
+        <div class="ced-valor">${valorCedula(pat)}</div>
+        <div class="ced-var">${varTxt(varPct(pat, totalInv + saldoAnt), false)}</div>
+      </div></div>
+      <div class="ced-extrato">
+        ${[['Receitas', rec, varPct(rec, recAnt), false], ['Despesas', des, varPct(des, desAnt), true], ['Saldo disponível', saldo, varPct(saldo, saldoAnt), false]]
+          .map(([rotulo, v, p, inv]) => `
+          <div class="ced-item">
+            <div class="ced-rotulo">${rotulo}</div>
+            <div class="ced-valor">${valorCedula(v)}</div>
+            <div class="ced-var">${varTxt(p, inv)}</div>
+          </div>`).join('')}
+      </div>`;
 
     // Renderiza sparklines via canvas
     setTimeout(()=>{
