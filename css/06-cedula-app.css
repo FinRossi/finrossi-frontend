@@ -71,3 +71,79 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
 .inv-name{font-size:14px;font-weight:500;color:var(--text)}
 .inv-type{font-size:12px;color:var(--muted);margin-top:1px}
 .inv-val{font-family:var(--ced-serif);font-weight:500;font-size:18px;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
+
+/* ═══ Componentes que tinham perdido o estilo (commit antigo) — agora na linguagem Cédula ═══ */
+
+/* Filtros (Histórico, Clientes): mesmos campos do app, com seta própria */
+.filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px}
+.filter-bar select,.filter-bar input{height:36px;padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font:13px 'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.filter-bar select{-webkit-appearance:none;appearance:none;padding-right:32px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8680' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:12px}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--accent)}
+
+/* Metas: progresso */
+.prog-meta{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--muted);margin-bottom:7px}
+.prog-meta strong{font-family:var(--ced-serif);font-weight:500;font-size:17px;color:var(--text)}
+.prog-track{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
+/* Objetivos: lista com marcação */
+.obj-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.obj-item:last-child{border-bottom:none}
+.obj-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:background .15s,border-color .15s}
+.obj-check:hover{border-color:var(--accent)}
+.obj-check.done{background:var(--accent);border-color:var(--accent)}
+.obj-text{font-size:14px;color:var(--text)}
+.obj-text.done{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--muted2)}
+.obj-meta-row{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Renda passiva: cenários como painéis de valor */
+.rp-scenarios{grid-template-columns:1fr 1fr}
+.rp-scenario{border:1px solid var(--ced-gravura-fina);border-radius:8px;padding:18px 20px;background:var(--surface)}
+.rp-result-grid{display:flex;flex-direction:column}
+.rp-item{padding:12px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.rp-item:last-child{border-bottom:none;padding-bottom:0}
+.rp-renda-label{font-size:12.5px;color:var(--muted)}
+.rp-patrimonio{font-family:var(--ced-serif);font-weight:500;font-size:26px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:lining-nums tabular-nums;margin:2px 0}
+.rp-falta{font-size:12px;color:var(--muted)}
+
+/* Dashboard: linhas de "Todos os meses" */
+.mes-row{transition:background .15s}
+.mes-row:hover{background:var(--surface2)}
+.sb-group-arrow{display:inline-block;transition:transform .2s}
+
+/* Valores dos indicadores: branco no numeral de cédula (cor só para entrada/saída) */
+.mc-val.blue,.mc-val.amber,.mc-val.purple{color:var(--text)}
+
+/* Botão de ícone (editar) */
+.btn.xs svg{width:12px;height:12px}
+
+/* ═══ Histórico como extrato ═══ */
+.ext-mes{margin-top:22px}
+.ext-mes:first-child{margin-top:4px}
+.ext-mes-cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--ced-gravura)}
+.ext-mes-nome{font-family:var(--ced-serif);font-weight:500;font-size:22px;letter-spacing:-.3px;color:var(--text)}
+.ext-mes-tot{display:flex;gap:16px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ext-mes-tot b{font-weight:500}
+.ext-linha{display:grid;grid-template-columns:44px 1fr auto auto;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.ext-dia{text-align:center;line-height:1}
+.ext-dia b{display:block;font-family:var(--ced-serif);font-weight:500;font-size:20px;color:var(--text);font-variant-numeric:lining-nums}
+.ext-dia span{font-size:11px;color:var(--muted)}
+.ext-tit{font-size:14px;font-weight:500;color:var(--text)}
+.ext-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.ext-meta .ext-parc{color:var(--amber)}
+.ext-valor{font-family:var(--ced-serif);font-weight:500;font-size:18px;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap;text-align:right;color:var(--text)}
+.ext-valor.receita{color:var(--green)}
+.ext-acoes{display:flex;gap:4px;opacity:.55;transition:opacity .15s}
+.ext-linha:hover .ext-acoes,.ext-acoes:focus-within{opacity:1}
+@media(max-width:767px){
+  .ext-linha{grid-template-columns:36px 1fr auto;grid-template-rows:auto auto;column-gap:10px;row-gap:4px}
+  .ext-linha>.ext-dia,.ext-linha>div:nth-child(2){grid-row:1 / span 2}
+  .ext-valor{grid-row:1;grid-column:3}
+  .ext-acoes{grid-row:2;grid-column:3;justify-content:flex-end;opacity:1}
+  .ext-acoes .btn.xs{height:24px;padding:0 7px}
+  .ext-mes-nome{font-size:19px}
+  .ext-valor{font-size:16px}
+}
+@media(hover:none){.ext-acoes{opacity:1}}

@@ -192,7 +192,7 @@ async function renderClientes(){
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'🏢 Interno':c.origem==='teste'?'🎁 Teste':c.origem==='trial'?'⏱ Trial':'💳 Pagante'}</td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">Equipe</span>':`<div style="display:flex;gap:4px;justify-content:center">
-            <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar">✏</button>
+            <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
             ${c.status==='inativo'
               ?`<button class="btn xs" onclick="reativarCliente('${c.uid}')" style="color:var(--green);border-color:var(--green)">↺</button>`
               :`<button class="btn danger xs" onclick="desativarCliente('${c.uid}')">✕</button>`}

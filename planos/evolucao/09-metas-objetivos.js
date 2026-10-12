@@ -60,7 +60,7 @@ function renderMetas(){
           <div style="font-family:'DM Serif Display',serif;font-size:15px">${m.icone||'🎯'} ${m.nome}</div>
           <div style="display:flex;gap:4px">
             ${atingida?'<span style="font-size:10px;background:var(--green-s);color:var(--green);padding:2px 6px;border-radius:20px">✓</span>':''}
-            <button class="btn xs" onclick="openModalMeta('${m.id}')">✏</button>
+            <button class="btn xs" onclick="openModalMeta('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
             <button class="btn danger xs" onclick="remMeta('${m.id}')">✕</button>
           </div>
         </div>
@@ -164,7 +164,7 @@ function renderObjItem(o){
     <div class="obj-check ${o.done?'done':''}" onclick="toggleObj('${o.id}')">${o.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
     <div style="flex:1"><div class="obj-text ${o.done?'done':''}">${o.desc}</div>
       <div class="obj-meta-row"><span style="color:${PCOL[o.prioridade]}">${PLBL[o.prioridade]}</span>${o.data?`<span>até ${o.data.split('-').reverse().join('/')}</span>`:''}</div></div>
-    <div style="display:flex;gap:4px"><button class="btn xs" onclick="openModalObj('${o.id}')">✏</button><button class="btn danger xs" onclick="remObj('${o.id}')">✕</button></div>
+    <div style="display:flex;gap:4px"><button class="btn xs" onclick="openModalObj('${o.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button><button class="btn danger xs" onclick="remObj('${o.id}')">✕</button></div>
   </div>`;
 }
 

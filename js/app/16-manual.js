@@ -21,7 +21,7 @@ const MANUAL_SECTIONS=[
   ]},
   {icon:'🎯',titulo:'Metas',cor:'var(--purple)',desc:'Defina objetivos financeiros e acompanhe o progresso.',itens:[
     'Clique em <strong>"+ Nova meta"</strong> e defina nome, valor alvo e quanto já investiu',
-    'Atualize o valor investido clicando em <strong>"atualizar saldo"</strong> ou no ✏',
+    'Atualize o valor investido clicando em <strong>"atualizar saldo"</strong> ou no ícone de lápis',
     'A <strong>simulação de aportes</strong> calcula em quanto tempo você atinge cada meta',
     'Selecione uma meta no <strong>Dashboard</strong> para ver o gráfico de progresso'
   ]},
@@ -53,7 +53,7 @@ const MANUAL_SECTIONS=[
     'Crie notas com título, conteúdo, categoria e cor',
     'Use a <strong>busca</strong> para encontrar notas rapidamente',
     'Cada nota tem data e hora de criação automáticas',
-    'Edite qualquer nota clicando no ✏'
+    'Edite qualquer nota clicando no ícone de lápis'
   ]},
   {icon:'💵',titulo:'Renda Passiva',cor:'var(--green)',desc:'Calcule quanto precisa investir para viver de renda. (Disponível no perfil Pessoal)',itens:[
     'Informe a <strong>taxa mensal</strong> dos seus investimentos e o IR',

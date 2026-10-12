@@ -218,7 +218,7 @@ function renderCartoes(){
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative">
             <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${c.banco}</div>
             <div style="display:flex;gap:6px">
-              <button class="btn xs" onclick="openModalCartao('${c.id}')" style="background:rgba(255,255,255,.15);border:none;color:white">✏</button>
+              <button class="btn xs" onclick="openModalCartao('${c.id}')" style="background:rgba(255,255,255,.15);border:none;color:white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
               <button class="btn danger xs" onclick="remCartao('${c.id}')" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
             </div>
           </div>

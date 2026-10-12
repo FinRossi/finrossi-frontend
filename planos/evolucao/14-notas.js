@@ -66,7 +66,7 @@ function renderNotas(){
           <div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.titulo}</div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="btn xs" onclick="abrirEditNota('${n.id}')">✏</button>
+          <button class="btn xs" onclick="abrirEditNota('${n.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
           <button class="btn danger xs" onclick="remNota('${n.id}')">✕</button>
         </div>
       </div>

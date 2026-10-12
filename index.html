@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="css/03-responsivo.css?v=1">
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=4">
-<link rel="stylesheet" href="css/06-cedula-app.css?v=3">
+<link rel="stylesheet" href="css/06-cedula-app.css?v=5">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=4">
 </head>
 <body>
@@ -637,10 +637,7 @@
       <select id="h-cat" onchange="renderHistorico()"><option value="">Todas as categorias</option></select>
       <button class="btn danger sm" onclick="limparTudo()" style="margin-left:auto">Limpar tudo</button>
     </div>
-    <div class="tbl-wrap">
-      <table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th style="text-align:right">Valor</th><th>Obs.</th><th></th></tr></thead>
-      <tbody id="h-tbody"></tbody></table>
-    </div>
+    <div id="h-extrato"></div>
   </div>
 </section>
 
@@ -1558,7 +1555,7 @@
 <!-- MODAL EDITAR CLIENTE -->
 <div class="modal-overlay" id="modal-editar-cliente">
   <div class="modal" style="max-width:480px">
-    <h3>✏ Editar cliente</h3>
+    <h3>Editar cliente</h3>
     <input type="hidden" id="ec-uid">
 
     <!-- Info do cliente (readonly) -->
@@ -1917,20 +1914,20 @@
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
 <script src="js/app/06-lancamentos.js?v=1"></script>
 <script src="planos/essencial/07-investimentos.js?v=1"></script>
-<script src="js/app/08-historico.js?v=1"></script>
-<script src="planos/evolucao/09-metas-objetivos.js?v=1"></script>
+<script src="js/app/08-historico.js?v=2"></script>
+<script src="planos/evolucao/09-metas-objetivos.js?v=2"></script>
 <script src="planos/patrimonio/10-renda-passiva.js?v=1"></script>
 <script src="js/app/11-modal-export.js?v=1"></script>
 <script src="planos/evolucao/12-recorrentes.js?v=1"></script>
 <script src="planos/evolucao/13-calendario-navegacao.js?v=1"></script>
-<script src="planos/evolucao/14-notas.js?v=1"></script>
-<script src="planos/evolucao/15-assinaturas-calendario.js?v=1"></script>
-<script src="js/app/16-manual.js?v=1"></script>
-<script src="acessos/17-clientes.js?v=4"></script>
+<script src="planos/evolucao/14-notas.js?v=2"></script>
+<script src="planos/evolucao/15-assinaturas-calendario.js?v=2"></script>
+<script src="js/app/16-manual.js?v=2"></script>
+<script src="acessos/17-clientes.js?v=5"></script>
 <script src="acessos/17b-socios.js?v=1"></script>
 <script src="planos/18-regras-planos.js?v=1"></script>
 <script src="acessos/19-preview-planos.js?v=3"></script>
-<script src="planos/evolucao/20-cartoes.js?v=1"></script>
+<script src="planos/evolucao/20-cartoes.js?v=2"></script>
 <script src="js/app/21-manual-render.js?v=1"></script>
 <script src="js/app/22-mobile-nav.js?v=1"></script>
 <script src="js/app/23-tema.js?v=1"></script>

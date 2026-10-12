@@ -91,7 +91,7 @@ function renderAssinaturas(){
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             <div class="inv-val">${fmtR(a.val)}</div>
-            <button class="btn xs" onclick="openModalAssin('${a.id}')">✏</button>
+            <button class="btn xs" onclick="openModalAssin('${a.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
             <button class="btn danger xs" onclick="remAssin('${a.id}')">✕</button>
           </div>
         </div>`;
@@ -212,7 +212,7 @@ function renderRecorrentes(){
           ${lançado?'<span style="font-size:11px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px">✓ Lançado</span>':'<span style="font-size:11px;background:var(--amber-s);color:var(--amber);padding:2px 8px;border-radius:20px">Pendente</span>'}
         </td>
         <td style="padding:8px;display:flex;gap:4px">
-          <button class="btn xs" onclick="openModalRec('${r.id}')">✏</button>
+          <button class="btn xs" onclick="openModalRec('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
           <button class="btn danger xs" onclick="remRec('${r.id}')">✕</button>
         </td>
       </tr>`;
