@@ -118,6 +118,8 @@ function goToClientes(){ goTo('clientes'); }
 let finrossiAutenticado = false;
 
 function abrirFinRossi(){
+  // Master entra direto: o servidor reconhece o login dele, não precisa da senha admin
+  if(isMaster()) finrossiAutenticado=true;
   if(finrossiAutenticado){_setProfileFinRossi();return;}
   // Abre modal estilo login
   const overlay=document.getElementById('modal-finrossi-senha');

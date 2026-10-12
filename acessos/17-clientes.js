@@ -10,6 +10,8 @@ const ADMIN_TOKEN = ''; // Deixe em branco — será pedido se necessário
 var _adminToken = localStorage.getItem('fin_admin_token')||'';
 
 function getAdminToken(){
+  // Master não precisa da senha: o login dele vai junto em adminHeaders() e o servidor aceita
+  if(isMaster() && window._firebaseUser) return _adminToken || 'login-master';
   if(_adminToken) return _adminToken;
   // Tenta pegar do localStorage primeiro
   const saved=localStorage.getItem('fin_admin_token');
