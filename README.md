@@ -6,8 +6,12 @@ Site e app publicados em **finrossi.com.br** (GitHub Pages, sem etapa de build).
 
 ```
 index.html                  App (HTML das telas + tags que carregam CSS/JS)
-landing.html                Página de vendas / planos
-legal/                      Termos, privacidade, LGPD, cookies, contrato
+404.html                    Página "não encontrada" + redireciona endereços antigos (/landing.html, /legal/...)
+favicon.ico                 Fica na raiz: navegadores e Google procuram aqui
+img/                        Ícones e imagens (favicons, ícones do PWA/notificações)
+landing/index.html          Página de vendas / planos  → finrossi.com.br/landing/
+landing/legal/              Termos, privacidade, LGPD, cookies, contrato
+landing/legal/landing-antiga.html   Cópia antiga da landing, não usada (manter até decidir apagar)
 css/                        Estilos do app (01 → 04, a ordem afeta a cascata)
 js/firebase-init.js         Conexão com Firebase + login automático (module)
 js/app/                     Código usado por todos os planos

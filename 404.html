@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>FinRossi</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<script>
+// O GitHub Pages abre esta página para qualquer endereço que não existe.
+// Endereços antigos (antes de reorganizar as pastas) são redirecionados para o novo lugar,
+// mantendo #âncora e ?parâmetros — links de emails já enviados continuam funcionando.
+(function(){
+  var p = location.pathname;
+  var novo = null;
+  if (p === '/landing.html' || p === '/landing') novo = '/landing/';
+  else if (/^\/legal\/[a-z-]+\.html$/.test(p)) novo = '/landing' + p;
+  else if (/^\/(favicon-16|favicon-32|icon-192|icon-512)\.png$/.test(p)) novo = '/img' + p;
+  if (novo) location.replace(novo + location.search + location.hash);
+})();
+</script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0f0f0f;color:#f0ede8;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif}
+  h1{font-size:28px;color:#C8A96E;margin-bottom:8px;letter-spacing:-1px}
+  p{color:#888;margin-bottom:24px;font-size:15px}
+  a{display:inline-block;background:#C8A96E;color:#0f0f0f;padding:12px 24px;border-radius:9px;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+  <div>
+    <h1>FinRossi</h1>
+    <p>Página não encontrada.</p>
+    <a href="/">Ir para o FinRossi</a>
+  </div>
+</body>
+</html>

@@ -130,7 +130,7 @@ async function renderMinhaAssinatura(){
         suporte prioritário e muito mais.
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        ${plano==='gratuito'||plano==='essencial'?`<a href="https://finrossi.com.br/landing.html#planos" target="_blank" class="btn primary" style="text-decoration:none">⚡ Ver planos disponíveis</a>`:''}
+        ${plano==='gratuito'||plano==='essencial'?`<a href="https://finrossi.com.br/landing/#planos" target="_blank" class="btn primary" style="text-decoration:none">⚡ Ver planos disponíveis</a>`:''}
         <a href="mailto:finrossiapp@gmail.com?subject=Upgrade de plano FinRossi" class="btn" style="text-decoration:none">✉ Falar com suporte</a>
       </div>
     </div>`:''}
@@ -140,8 +140,8 @@ async function renderMinhaAssinatura(){
       <h3><span class="dot" style="background:var(--purple)"></span>Precisa de ajuda?</h3>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <a href="mailto:finrossiapp@gmail.com?subject=Suporte FinRossi" class="btn" style="text-decoration:none;font-size:13px">✉ Enviar e-mail</a>
-        <a href="https://finrossi.com.br/legal/termos.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">📄 Termos de Uso</a>
-        <a href="https://finrossi.com.br/legal/privacidade.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">🔒 Privacidade</a>
+        <a href="https://finrossi.com.br/landing/legal/termos.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">📄 Termos de Uso</a>
+        <a href="https://finrossi.com.br/landing/legal/privacidade.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">🔒 Privacidade</a>
         ${plano==='patrimonio'?`<a href="mailto:finrossiapp@gmail.com?subject=Agendamento sessão FinRossi" class="btn primary" style="text-decoration:none;font-size:13px">📅 Agendar sessão</a>`:''}
       </div>
     </div>
