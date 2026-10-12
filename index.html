@@ -32,7 +32,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <!-- Funcionalidades exclusivas por plano — mantidas fora do arquivo principal -->
-<script src="planos/patrimonio/patrimonio.js" defer></script>
+<script src="planos/patrimonio/patrimonio.js?v=2" defer></script>
 
 <!-- Firebase SDK -->
 <script type="module" src="js/firebase-init.js?v=2"></script>
@@ -41,6 +41,7 @@
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
 <link rel="stylesheet" href="css/03-responsivo.css?v=1">
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
+<link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=3">
 </head>
 <body>
 
@@ -765,9 +766,9 @@
 
 <section id="sec-score" class="section-hidden">
   <div class="mobile-topbar" id="mob-top-score">
-    <div style="font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px">Score de Saúde</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.3px">Saúde do <em style="color:var(--accent)">patrimônio</em></div>
   </div>
-  <div class="page-header"><div class="page-title"><h2>💎 Score de Saúde Financeira</h2><p>Um retrato de como está sua saúde financeira agora</p></div></div>
+  <div class="page-header"><div class="page-title"><h2>Saúde do seu <em>patrimônio</em></h2><p>Score, insights, desafios e projeções — um retrato de como está sua saúde financeira agora</p></div></div>
   <div id="score-content"></div>
 </section>
 

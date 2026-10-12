@@ -241,52 +241,72 @@ function trocarAbaPatrimonio(tab){
   renderScore();
 }
 
+// Ícones de linha da identidade FinRossi (substituem os emojis na área Patrimônio)
+const PT_ICO = {
+  score:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  insights: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>',
+  desafios: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/></svg>',
+  projecoes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  alerta:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  positivo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  neutro:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  check:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+};
+
+function ptVazio(icone, titulo, texto){
+  return `
+    <div class="pt-card pt-vazio">
+      <div class="pt-vazio-ico">${PT_ICO[icone]}</div>
+      <div class="pt-titulo">${titulo}</div>
+      <p>${texto}</p>
+    </div>`;
+}
+
 function renderScoreTabHTML(){
   const r = calcularScoreSaude();
 
   if(r.semDados){
-    return `
-      <div class="card card-full" style="text-align:center;padding:48px 20px">
-        <div style="font-size:38px;margin-bottom:12px">💎</div>
-        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Ainda não temos dados suficientes</div>
-        <div style="font-size:13px;color:var(--muted);max-width:340px;margin:0 auto">Registre suas receitas e despesas do mês pra começar a calcular seu Score de Saúde Financeira.</div>
-      </div>`;
+    return ptVazio('score','Ainda não temos <em>dados suficientes</em>','Registre suas receitas e despesas do mês pra começar a calcular a saúde do seu patrimônio.');
   }
 
   const raio = 54, circ = 2*Math.PI*raio;
   const offset = circ - (r.score/100)*circ;
 
   return `
-    <div class="card card-full" style="margin-bottom:16px;text-align:center;padding:32px 20px">
-      <div style="position:relative;width:160px;height:160px;margin:0 auto 16px">
-        <svg width="160" height="160" viewBox="0 0 120 120" style="transform:rotate(-90deg)">
-          <circle cx="60" cy="60" r="${raio}" fill="none" stroke="var(--surface3)" stroke-width="10"/>
-          <circle cx="60" cy="60" r="${raio}" fill="none" stroke="${r.cor}" stroke-width="10" stroke-linecap="round"
-            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transition:stroke-dashoffset .6s ease"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div style="font-size:38px;font-weight:700;color:${r.cor};line-height:1">${r.score}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">de 100</div>
+    <div class="pt-card">
+      <div class="pt-r" aria-hidden="true">R</div>
+      <div class="pt-score">
+        <div>
+          <div class="pt-anel">
+            <svg width="190" height="190" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="${raio}" fill="none" stroke="var(--surface3)" stroke-width="6"/>
+              <circle cx="60" cy="60" r="${raio}" fill="none" stroke="${r.cor}" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transition:stroke-dashoffset .6s ease"/>
+            </svg>
+            <div class="pt-anel-centro">
+              <div class="pt-anel-num pt-num" style="color:${r.cor}">${r.score}</div>
+              <div class="pt-anel-de">de 100</div>
+            </div>
+          </div>
+          <div class="pt-nivel">
+            <strong style="color:${r.cor}">${r.nivel}</strong>
+            <span>Sua saúde financeira está ${r.nivel.toLowerCase()} este mês</span>
+          </div>
         </div>
-      </div>
-      <div style="font-size:19px;font-weight:600;color:${r.cor}">${r.nivel}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Sua saúde financeira está ${r.nivel.toLowerCase()} este mês</div>
-    </div>
-
-    <div class="card card-full">
-      <h3><span class="dot" style="background:var(--accent)"></span>O que compõe seu score</h3>
-      <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
-        ${r.fatores.map(f=>`
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:13px;font-weight:500">${f.label}</span>
-              <span style="font-size:12px;color:var(--muted)">${f.pontos}/${f.max} pts</span>
-            </div>
-            <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden">
-              <div style="width:${(f.pontos/f.max*100).toFixed(0)}%;height:100%;background:var(--accent);border-radius:4px;transition:width .6s ease"></div>
-            </div>
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">${f.desc} · ${f.valor}</div>
-          </div>`).join('')}
+        <div>
+          <div class="pt-eyebrow">O que compõe seu score</div>
+          <div class="pt-fatores">
+            ${r.fatores.map(f=>`
+              <div>
+                <div class="pt-fator-linha">
+                  <span class="pt-fator-nome">${f.label}</span>
+                  <span class="pt-fator-pts pt-num"><b>${f.pontos}</b> / ${f.max}</span>
+                </div>
+                <div class="pt-barra"><i style="width:${(f.pontos/f.max*100).toFixed(0)}%"></i></div>
+                <div class="pt-fator-desc">${f.desc} · ${f.valor}</div>
+              </div>`).join('')}
+          </div>
+        </div>
       </div>
     </div>`;
 }
@@ -294,23 +314,24 @@ function renderScoreTabHTML(){
 function renderInsightsTabHTML(){
   const r = gerarInsights();
   if(r.semDados || !r.insights.length){
-    return `
-      <div class="card card-full" style="text-align:center;padding:48px 20px">
-        <div style="font-size:38px;margin-bottom:12px">💡</div>
-        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Sem insights ainda</div>
-        <div style="font-size:13px;color:var(--muted);max-width:340px;margin:0 auto">Registre alguns lançamentos pra começarmos a analisar seus dados.</div>
-      </div>`;
+    return ptVazio('insights','Sem <em>insights</em> ainda','Registre alguns lançamentos pra começarmos a analisar seus dados.');
   }
+  const icoTipo = t => t==='positivo' ? PT_ICO.positivo : t==='atencao' ? PT_ICO.alerta : PT_ICO.neutro;
   return `
-    <div class="card card-full">
-      <h3><span class="dot" style="background:var(--accent)"></span>Insights automáticos</h3>
-      <div style="display:flex;flex-direction:column;gap:2px;margin-top:12px">
+    <div class="pt-card">
+      <div class="pt-card-cab">
+        <div>
+          <div class="pt-eyebrow">Este mês</div>
+          <div class="pt-titulo">Insights <em>automáticos</em></div>
+        </div>
+      </div>
+      <div class="pt-insights">
         ${r.insights.map(i=>`
-          <div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
-            <div style="font-size:18px;flex-shrink:0">${i.icone}</div>
+          <div class="pt-insight" style="--pt-cor:${corInsight(i.tipo)}">
+            <div class="pt-insight-ico">${icoTipo(i.tipo)}</div>
             <div style="min-width:0">
-              <div style="font-size:13px;font-weight:600;color:${corInsight(i.tipo)}">${i.titulo}</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4">${i.texto}</div>
+              <h4>${i.titulo}</h4>
+              <p>${i.texto}</p>
             </div>
           </div>`).join('')}
       </div>
@@ -325,26 +346,34 @@ function renderDesafiosTabHTML(){
   const concluidos = desafios.filter(d=>d.concluido).length;
 
   return `
-    <div class="card card-full" style="margin-bottom:16px;text-align:center;padding:24px 20px">
-      <div style="font-size:32px;margin-bottom:6px">${nivel.icone}</div>
-      <div style="font-size:26px;font-weight:700;color:${nivel.cor}">${pontosGanhos} pts</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:2px">Nível ${nivel.nome} · ${concluidos}/${desafios.length} desafios concluídos</div>
-      <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden;margin-top:14px">
-        <div style="width:${pontosTotais>0?(pontosGanhos/pontosTotais*100).toFixed(0):0}%;height:100%;background:${nivel.cor};border-radius:4px;transition:width .6s ease"></div>
+    <div class="pt-card">
+      <div class="pt-r" aria-hidden="true">R</div>
+      <div class="pt-nivel-card">
+        <div class="pt-medalha" style="--pt-cor:${nivel.cor}"><span>${nivel.nome.charAt(0)}</span></div>
+        <div class="pt-nivel-info">
+          <div class="pt-eyebrow">Nível ${nivel.nome}</div>
+          <div class="pt-pontos pt-num">${pontosGanhos}<small>pts · ${concluidos}/${desafios.length} desafios</small></div>
+          <div class="pt-barra" style="margin-top:14px"><i style="width:${pontosTotais>0?(pontosGanhos/pontosTotais*100).toFixed(0):0}%;background:${nivel.cor}"></i></div>
+        </div>
       </div>
     </div>
 
-    <div class="card card-full">
-      <h3><span class="dot" style="background:var(--accent)"></span>Desafios</h3>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+    <div class="pt-card">
+      <div class="pt-card-cab">
+        <div>
+          <div class="pt-eyebrow">Gamificação</div>
+          <div class="pt-titulo">Seus <em>desafios</em></div>
+        </div>
+      </div>
+      <div class="pt-desafios">
         ${desafios.map(d=>`
-          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:10px;opacity:${d.concluido?'1':'.65'}">
-            <div style="font-size:20px;flex-shrink:0">${d.concluido?'✅':d.icone}</div>
-            <div style="min-width:0;flex:1">
-              <div style="font-size:13px;font-weight:600;color:${d.concluido?'var(--text)':'var(--muted)'}">${d.titulo}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">${d.desc}</div>
+          <div class="pt-desafio${d.concluido?' feito':''}">
+            <div class="pt-check">${d.concluido?PT_ICO.check:''}</div>
+            <div style="min-width:0">
+              <h4>${d.titulo}</h4>
+              <p>${d.desc}</p>
             </div>
-            <div style="font-size:12px;font-weight:700;color:${d.concluido?'#4ade80':'var(--muted)'};flex-shrink:0">+${d.pontos}</div>
+            <div class="pt-desafio-pts pt-num">+${d.pontos}</div>
           </div>`).join('')}
       </div>
     </div>`;
@@ -403,41 +432,33 @@ function calcularProjecoes(){
 function renderProjecoesTabHTML(){
   const r = calcularProjecoes();
   if(r.semDados){
-    return `
-      <div class="card card-full" style="text-align:center;padding:48px 20px">
-        <div style="font-size:38px;margin-bottom:12px">📈</div>
-        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Ainda não temos dados suficientes</div>
-        <div style="font-size:13px;color:var(--muted);max-width:340px;margin:0 auto">Registre seus lançamentos pra começarmos a projetar seu futuro financeiro.</div>
-      </div>`;
+    return ptVazio('projecoes','Ainda não temos <em>dados suficientes</em>','Registre seus lançamentos pra começarmos a projetar seu futuro financeiro.');
   }
 
   return `
-    <div class="card card-full" style="margin-bottom:16px">
-      <h3><span class="dot" style="background:var(--accent)"></span>Parâmetros da projeção</h3>
-      <div class="form-row" style="margin-top:12px">
+    <div class="pt-card">
+      <div class="pt-card-cab">
+        <div>
+          <div class="pt-eyebrow">Próximos 5 anos</div>
+          <div class="pt-titulo">Sua trajetória <em>patrimonial</em></div>
+        </div>
+      </div>
+      <div class="pt-param">
         <div class="field">
           <label>Taxa de retorno esperada (%/mês)</label>
           <input type="number" value="${r.taxa}" step="0.1" min="0" max="5" oninput="atualizarProjecaoTaxa(this.value)">
         </div>
+        <div class="pt-param-nota">
+          Baseado na sua média de poupança dos últimos 6 meses: <strong class="pt-num">${fmtR(r.mediaPoupanca)}</strong>/mês
+          ${r.mediaPoupanca<=0?' <span style="color:#f97316">(negativa — a projeção considera aporte zero até você voltar a poupar)</span>':''}
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">
-        Baseado na sua média de poupança dos últimos 6 meses: <strong style="color:var(--text)">${fmtR(r.mediaPoupanca)}</strong>/mês
-        ${r.mediaPoupanca<=0?' <span style="color:#f97316">(negativa — a projeção considera aporte zero até você voltar a poupar)</span>':''}
-      </div>
-    </div>
-
-    <div class="card card-full" style="margin-bottom:16px">
-      <h3><span class="dot" style="background:var(--accent)"></span>Sua trajetória patrimonial</h3>
-      <div class="chart-wrap" style="height:200px;margin-top:12px"><canvas id="c-projecao"></canvas></div>
-    </div>
-
-    <div class="card card-full">
-      <h3><span class="dot" style="background:var(--accent)"></span>Marcos futuros</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+      <div class="chart-wrap" style="height:220px;margin:20px 0 6px"><canvas id="c-projecao"></canvas></div>
+      <div class="pt-marcos">
         ${r.marcos.map(m=>`
-          <div style="background:var(--surface2);border-radius:10px;padding:14px">
-            <div style="font-size:11px;color:var(--muted)">${m.label}</div>
-            <div style="font-size:17px;font-weight:700;color:var(--accent);margin-top:4px">${fmtR(m.valor)}</div>
+          <div class="pt-marco">
+            <small>${m.label}</small>
+            <strong class="pt-num">${fmtR(m.valor)}</strong>
           </div>`).join('')}
       </div>
     </div>`;
@@ -455,8 +476,8 @@ function desenharGraficoProjecao(){
       labels: r.trajetoria.map((_,i)=>i),
       datasets:[{
         data: r.trajetoria,
-        borderColor:'#C8A96E',
-        backgroundColor:'rgba(200,169,110,.12)',
+        borderColor:(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#C8A96E'),
+        backgroundColor:(typeof hexParaRgba==='function'?hexParaRgba(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#C8A96E',.12):'rgba(200,169,110,.12)'),
         fill:true, tension:.3, pointRadius:0, borderWidth:2,
       }]
     },
@@ -476,12 +497,10 @@ function renderScore(){
     const el = document.getElementById('score-content');
     if(!el) return;
 
-    const abas = [['score','📊 Score'],['insights','💡 Insights'],['desafios','🏆 Desafios'],['projecoes','📈 Projeções']];
+    const abas = [['score','Score'],['insights','Insights'],['desafios','Desafios'],['projecoes','Projeções']];
     const tabBar = `
-      <div style="display:flex;gap:4px;margin-bottom:16px;background:var(--surface2);padding:4px;border-radius:10px">
-        ${abas.map(([id,label])=>`
-          <button onclick="trocarAbaPatrimonio('${id}')" style="flex:1;padding:9px 4px;border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;background:${_patrimonioTab===id?'var(--accent)':'transparent'};color:${_patrimonioTab===id?'#0f0f0f':'var(--muted)'}">${label}</button>
-        `).join('')}
+      <div class="pt-abas" role="tablist">
+        ${abas.map(([id,label])=>`<button class="pt-aba${_patrimonioTab===id?' ativa':''}" role="tab" aria-selected="${_patrimonioTab===id}" onclick="trocarAbaPatrimonio('${id}')">${PT_ICO[id]}${label}</button>`).join('')}
       </div>`;
 
     let conteudo = '';
