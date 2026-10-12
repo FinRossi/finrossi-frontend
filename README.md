@@ -11,7 +11,6 @@ favicon.ico                 Fica na raiz: navegadores e Google procuram aqui
 img/                        Ícones e imagens (favicons, ícones do PWA/notificações)
 landing/index.html          Página de vendas / planos  → finrossi.com.br/landing/
 landing/legal/              Termos, privacidade, LGPD, cookies, contrato
-landing/legal/landing-antiga.html   Cópia antiga da landing, não usada (manter até decidir apagar)
 css/                        Estilos do app (01 → 04, a ordem afeta a cascata)
 js/firebase-init.js         Conexão com Firebase + login automático (module)
 js/app/                     Código usado por todos os planos
