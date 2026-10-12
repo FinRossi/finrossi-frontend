@@ -18,12 +18,16 @@ function getNavConfig(){
   try{const s=localStorage.getItem('fin_nav_cfg_'+cp);if(s)return JSON.parse(s);}catch(e){}
   const def={};NAV_ITEMS_DEF.forEach(i=>def[i.id]=true);return def;
 }
+// Itens que não fazem sentido no perfil do negócio (FinRossi) — continuam no Pessoal e para clientes
+const NAV_OCULTOS_FINROSSI=['renda','manual'];
+function navOcultoNoPerfil(id){ return cp==='finrossi' && NAV_OCULTOS_FINROSSI.includes(id); }
+
 function aplicarNavConfig(){
   const cfg=getNavConfig();
   NAV_ITEMS_DEF.forEach(item=>{
     const usuarioQuer = cfg[item.id]!==false;
     const planoPermite = verComoPlanoPermite(item.id);
-    const visivel = (usuarioQuer && planoPermite) ? '' : 'none';
+    const visivel = (usuarioQuer && planoPermite && !navOcultoNoPerfil(item.id)) ? '' : 'none';
 
     const el=document.getElementById('nav-'+item.id);
     if(el && item.removable) el.style.display = visivel;
@@ -45,7 +49,7 @@ function renderNavConfigCards(){
   const groups={menu:'Menu',controles:'Controles'};
   let html='';
   Object.entries(groups).forEach(([g,label])=>{
-    const items=NAV_ITEMS_DEF.filter(i=>i.group===g);
+    const items=NAV_ITEMS_DEF.filter(i=>i.group===g && !navOcultoNoPerfil(i.id));
     html+=`<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">${label}</div>`;
     html+=items.map(item=>{
       const on=cfg[item.id]!==false;
