@@ -61,6 +61,7 @@ function renderHistorico(){
           </div>
           <div class="ext-valor ${l.tipo}">${sinal} ${valorFmt(l.val)}</div>
           <div class="ext-acoes">
+            ${l.anexo?`<button class="btn xs" onclick="verAnexo('${l.anexo.id}','${l.anexo.criadoEm||''}')" title="Ver anexo" aria-label="Ver anexo">${typeof ICO_ANEXO!=='undefined'?ICO_ANEXO:'Anexo'}</button>`:''}
             <button class="btn xs" onclick="editarLanc('${l.id}')" title="Editar" aria-label="Editar lançamento">${ICO_EDITAR}</button>
             <button class="btn danger xs" onclick="remLanc('${l.id}')" title="Excluir" aria-label="Excluir lançamento">✕</button>
           </div>

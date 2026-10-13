@@ -75,21 +75,24 @@ function addLanc(tipo){
       if(nParc<2){showMsg('msg-d','Informe ao menos 2 parcelas','err');return}
       const valParc=val/nParc;
       const gid=uid();
+      const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar('d'):null; // mesma foto para todas as parcelas
       const [yr,mo,dy]=data.split('-').map(Number);
       for(let i=0;i<nParc;i++){
         const d=new Date(yr,mo-1+i,dy);
         const dataParc=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        pd().lancs.push({id:uid(),tipo,desc,val:valParc,data:dataParc,cat,obs,metodo,parcelado:true,parcela:i+1,totalParcelas:nParc,valorTotal:val,groupId:gid,cartaoId});
+        pd().lancs.push({id:uid(),tipo,desc,val:valParc,data:dataParc,cat,obs,metodo,parcelado:true,parcela:i+1,totalParcelas:nParc,valorTotal:val,groupId:gid,cartaoId,...(anexo?{anexo}:{})});
       }
       saveCollection('lancs');clearForm(p);showMsg('msg-d',`${nParc} parcelas de ${fmtR(valParc)} adicionadas!`,'ok');refreshDash();renderHistorico();
       return;
     }
-    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId});
+    const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar('d'):null;
+    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId,...(anexo?{anexo}:{})});
     saveCollection('lancs');clearForm(p);showMsg('msg-d','Despesa adicionada!','ok');refreshDash();renderHistorico();
     return;
   }
 
-  pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo});
+  const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar(p):null;
+  pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,...(anexo?{anexo}:{})});
   saveCollection('lancs');clearForm(p);showMsg('msg-'+p,tipo==='receita'?'Receita adicionada!':'Despesa adicionada!','ok');refreshDash();renderHistorico();
 }
 function addInv(){
@@ -159,6 +162,7 @@ function clearForm(p){
   if(p==='r'||p==='d'){
     ['desc','val','obs'].forEach(f=>{const el=document.getElementById(p+'-'+f);if(el)el.value=''});
     dpInit(p+'-data', hoje());
+    if(typeof limparAnexoPendente==='function') limparAnexoPendente(p);
     if(p==='d'){
       const sel=document.getElementById('d-parcelado');if(sel)sel.value='avista';
       const pw=document.getElementById('d-parcelas-wrap');if(pw)pw.style.display='none';

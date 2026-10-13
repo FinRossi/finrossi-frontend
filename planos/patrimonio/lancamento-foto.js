@@ -19,6 +19,7 @@ function fotoTemAcesso(){
 function atualizarBotaoFoto(){
   const el = document.getElementById('lanc-foto-wrap');
   if(el) el.style.display = fotoTemAcesso() ? '' : 'none';
+  document.querySelectorAll('.anexo-campo').forEach(c => { c.hidden = !fotoTemAcesso(); });
 }
 
 // "Escolher da galeria": fotos ou prints já salvos
@@ -31,18 +32,22 @@ function abrirLancamentoFoto(){
 // ── "Tirar foto": câmera ao vivo dentro do app ───────────────────────────────
 // O navegador só libera a câmera ao vivo em endereço seguro (https ou localhost).
 // Fora disso (ex.: teste pelo IP da rede), usa a câmera nativa do celular.
-let _camStream = null, _camFacing = 'environment';
+let _camStream = null, _camFacing = 'environment', _camDestino = null;
 
-function tirarFotoLanc(){
+// Abre a câmera e entrega a foto capturada para "destino" (leitura do comprovante ou anexo)
+function tirarFotoPara(destino, inputNativoId){
   if(!fotoTemAcesso()) return;
+  _camDestino = destino;
   const ok = window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
   if(!ok){
-    const inp = document.getElementById('inp-lanc-camera');
+    const inp = document.getElementById(inputNativoId);
     if(inp){ inp.value=''; inp.click(); }
     return;
   }
   _abrirCamera();
 }
+
+function tirarFotoLanc(){ tirarFotoPara(processarFotoLanc, 'inp-lanc-camera'); }
 
 function _modalCamera(){
   let m = document.getElementById('modal-camera');
@@ -54,11 +59,17 @@ function _modalCamera(){
     <div class="cam-palco">
       <video id="cam-video" autoplay playsinline muted></video>
       <div class="cam-moldura" aria-hidden="true"></div>
+      <div class="cam-contagem" id="cam-contagem" aria-live="assertive" hidden></div>
       <p class="cam-erro" id="cam-erro" hidden></p>
     </div>
     <p class="cam-dica">Enquadre o comprovante inteiro na moldura, com boa luz e o papel esticado.</p>
+    <div class="cam-timer"><span>Timer</span><div class="ced-seg" role="tablist" aria-label="Timer da câmera">
+      <button type="button" data-t="0" onclick="_definirTimer(0)">Desligado</button>
+      <button type="button" data-t="3" onclick="_definirTimer(3)">3 s</button>
+      <button type="button" data-t="5" onclick="_definirTimer(5)">5 s</button>
+    </div></div>
     <div class="btn-row cam-acoes">
-      <button class="btn primary" id="cam-capturar" onclick="_capturarFoto()">Capturar</button>
+      <button class="btn primary" id="cam-capturar" onclick="_capturarComTimer()">Capturar</button>
       <button class="btn" id="cam-trocar" onclick="_trocarCamera()" hidden>Trocar câmera</button>
       <button class="btn" onclick="_fecharCamera()">Cancelar</button>
     </div>
@@ -70,6 +81,8 @@ function _modalCamera(){
 async function _abrirCamera(){
   const m = _modalCamera();
   m.classList.add('open');
+  _cancelarContagem();
+  _definirTimer(_camTimer);
   const erro = document.getElementById('cam-erro');
   erro.hidden = true;
   document.getElementById('cam-capturar').disabled = true;
@@ -115,9 +128,45 @@ function _pararCamera(){
 }
 
 function _fecharCamera(){
+  _cancelarContagem();
   _pararCamera();
   const m = document.getElementById('modal-camera');
   if(m) m.classList.remove('open');
+}
+
+// ── Timer (até 5 segundos) ───────────────────────────────────────────────────
+let _camTimer = (() => { try{ return Math.min(5, Math.max(0, parseInt(localStorage.getItem('fin_cam_timer') || '0', 10) || 0)); }catch(e){ return 0; } })();
+let _contagemId = null;
+
+function _definirTimer(seg){
+  _camTimer = Math.min(5, Math.max(0, seg | 0));
+  try{ localStorage.setItem('fin_cam_timer', String(_camTimer)); }catch(e){}
+  document.querySelectorAll('.cam-timer [data-t]').forEach(b => {
+    const ativo = +b.dataset.t === _camTimer;
+    b.classList.toggle('ativo', ativo); b.setAttribute('aria-selected', ativo);
+  });
+}
+
+function _cancelarContagem(){
+  if(_contagemId){ clearInterval(_contagemId); _contagemId = null; }
+  const el = document.getElementById('cam-contagem'); if(el) el.hidden = true;
+  const btn = document.getElementById('cam-capturar'); if(btn) btn.textContent = 'Capturar';
+}
+
+// Sem timer: captura na hora. Com timer: contagem regressiva grande e captura no fim;
+// tocar de novo durante a contagem cancela.
+function _capturarComTimer(){
+  if(_contagemId){ _cancelarContagem(); return; }
+  if(!_camTimer) return _capturarFoto();
+  let resta = _camTimer;
+  const el = document.getElementById('cam-contagem'), btn = document.getElementById('cam-capturar');
+  el.hidden = false; el.textContent = resta; btn.textContent = 'Cancelar timer';
+  _contagemId = setInterval(() => {
+    resta--;
+    if(resta > 0){ el.textContent = resta; return; }
+    _cancelarContagem();
+    _capturarFoto();
+  }, 1000);
 }
 
 function _capturarFoto(){
@@ -140,7 +189,7 @@ function _capturarFoto(){
     return;
   }
   _fecharCamera();
-  c.toBlob(blob => { if(blob) processarFotoLanc(blob); }, 'image/jpeg', 0.92);
+  c.toBlob(blob => { if(blob) (_camDestino || processarFotoLanc)(blob); }, 'image/jpeg', 0.92);
 }
 
 // ── Janela de progresso ──────────────────────────────────────────────────────
@@ -349,14 +398,14 @@ async function processarFotoLanc(file){
       return;
     }
     closeModal('modal-lanc-foto');
-    _preencherLancamento(r);
+    _preencherLancamento(r, file);
   }catch(e){
     console.warn('[Lançar por foto]', e);
     _fotoErro(e && e.message ? e.message : 'Não foi possível ler a foto. Tente novamente.');
   }
 }
 
-function _preencherLancamento(r){
+function _preencherLancamento(r, foto){
   const p = r.tipo === 'receita' ? 'r' : 'd';
   switchTab(r.tipo);
   const set = (id, v) => { const el = document.getElementById(id); if(el && v != null && v !== '') el.value = v; return el; };
@@ -380,5 +429,7 @@ function _preencherLancamento(r){
     msg.className = 'msg ok';
     msg.textContent = 'Lido da foto. Confira os dados e toque em "Adicionar" para salvar.';
   }
+  // A foto do comprovante entra como anexo do lançamento
+  if(foto && typeof definirAnexoPendente === 'function') definirAnexoPendente(p, foto);
   document.getElementById(`${p}-desc`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
