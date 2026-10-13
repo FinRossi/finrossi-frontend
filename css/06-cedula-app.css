@@ -155,3 +155,20 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
 .lanc-foto-bar span{font-size:12.5px;color:var(--muted);flex:1;min-width:200px}
 .lf-lido{border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent);transition:box-shadow .4s}
 @media(max-width:767px){.lanc-foto-bar .btn{width:100%;justify-content:center;height:44px}}
+.lanc-foto-botoes{display:flex;gap:8px;flex-wrap:wrap}
+.lanc-foto-bar .lanc-foto-principal{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600}
+.lanc-foto-bar .btn{border-color:var(--ced-gravura);color:var(--text)}
+
+/* Câmera ao vivo */
+.cam-modal{max-width:560px;width:calc(100vw - 32px)}
+.cam-palco{position:relative;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:3/4;max-height:62vh;margin:0 auto}
+.cam-palco video{width:100%;height:100%;object-fit:cover;display:block}
+.cam-moldura{position:absolute;inset:8% 10%;border:2px solid color-mix(in srgb,var(--accent) 85%,transparent);border-radius:6px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
+.cam-erro{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:#F2EBDD;font-size:14px;background:rgba(0,0,0,.85)}
+.cam-dica{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+.cam-acoes .btn.primary{min-width:130px}
+@media(max-width:767px){
+  .lanc-foto-botoes{width:100%}
+  .lanc-foto-botoes .btn{flex:1;height:44px;justify-content:center}
+  .cam-palco{max-height:58vh}
+}

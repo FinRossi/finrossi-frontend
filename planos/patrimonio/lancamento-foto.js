@@ -21,10 +21,126 @@ function atualizarBotaoFoto(){
   if(el) el.style.display = fotoTemAcesso() ? '' : 'none';
 }
 
+// "Escolher da galeria": fotos ou prints já salvos
 function abrirLancamentoFoto(){
   if(!fotoTemAcesso()) return;
   const inp = document.getElementById('inp-lanc-foto');
   if(inp){ inp.value=''; inp.click(); }
+}
+
+// ── "Tirar foto": câmera ao vivo dentro do app ───────────────────────────────
+// O navegador só libera a câmera ao vivo em endereço seguro (https ou localhost).
+// Fora disso (ex.: teste pelo IP da rede), usa a câmera nativa do celular.
+let _camStream = null, _camFacing = 'environment';
+
+function tirarFotoLanc(){
+  if(!fotoTemAcesso()) return;
+  const ok = window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  if(!ok){
+    const inp = document.getElementById('inp-lanc-camera');
+    if(inp){ inp.value=''; inp.click(); }
+    return;
+  }
+  _abrirCamera();
+}
+
+function _modalCamera(){
+  let m = document.getElementById('modal-camera');
+  if(m) return m;
+  m = document.createElement('div');
+  m.className = 'modal-overlay'; m.id = 'modal-camera';
+  m.innerHTML = `<div class="modal cam-modal">
+    <h3>Fotografe o comprovante</h3>
+    <div class="cam-palco">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <div class="cam-moldura" aria-hidden="true"></div>
+      <p class="cam-erro" id="cam-erro" hidden></p>
+    </div>
+    <p class="cam-dica">Enquadre o comprovante inteiro na moldura, com boa luz e o papel esticado.</p>
+    <div class="btn-row cam-acoes">
+      <button class="btn primary" id="cam-capturar" onclick="_capturarFoto()">Capturar</button>
+      <button class="btn" id="cam-trocar" onclick="_trocarCamera()" hidden>Trocar câmera</button>
+      <button class="btn" onclick="_fecharCamera()">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  return m;
+}
+
+async function _abrirCamera(){
+  const m = _modalCamera();
+  m.classList.add('open');
+  const erro = document.getElementById('cam-erro');
+  erro.hidden = true;
+  document.getElementById('cam-capturar').disabled = true;
+  _pararCamera();
+  // Se o navegador estiver esperando a permissão, orienta em vez de mostrar tela preta
+  const aviso = setTimeout(() => {
+    if(!_camStream && erro.hidden){
+      erro.hidden = false;
+      erro.textContent = 'Toque em "Permitir" para o FinRossi usar a câmera.';
+    }
+  }, 1500);
+  try{
+    _camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: _camFacing }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false,
+    });
+    clearTimeout(aviso);
+    erro.hidden = true;
+    const v = document.getElementById('cam-video');
+    v.srcObject = _camStream;
+    await v.play().catch(()=>{});
+    // A câmera começa escura enquanto ajusta a luz — libera o "Capturar" após estabilizar
+    await new Promise(r => setTimeout(r, 800));
+    document.getElementById('cam-capturar').disabled = false;
+    const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+    document.getElementById('cam-trocar').hidden = cams.length < 2;
+  }catch(e){
+    clearTimeout(aviso);
+    erro.hidden = false;
+    erro.innerHTML = (e && e.name === 'NotAllowedError')
+      ? 'O acesso à câmera foi bloqueado. Libere a câmera nas permissões do navegador ou use "Escolher da galeria".'
+      : 'Não encontrei uma câmera disponível. Use "Escolher da galeria".';
+  }
+}
+
+function _trocarCamera(){
+  _camFacing = _camFacing === 'environment' ? 'user' : 'environment';
+  _abrirCamera();
+}
+
+function _pararCamera(){
+  if(_camStream){ _camStream.getTracks().forEach(t => t.stop()); _camStream = null; }
+}
+
+function _fecharCamera(){
+  _pararCamera();
+  const m = document.getElementById('modal-camera');
+  if(m) m.classList.remove('open');
+}
+
+function _capturarFoto(){
+  const v = document.getElementById('cam-video');
+  if(!v || !v.videoWidth) return;
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  // Captura escura ou vazia (câmera ainda iniciando, lente tampada): pede outra, sem mandar ao leitor
+  const amostra = document.createElement('canvas'); amostra.width = amostra.height = 48;
+  const ga = amostra.getContext('2d'); ga.drawImage(c, 0, 0, 48, 48);
+  const px = ga.getImageData(0, 0, 48, 48).data;
+  let soma = 0, min = 255, max = 0;
+  for(let i = 0; i < px.length; i += 4){ const g = (px[i] + px[i+1] + px[i+2]) / 3; soma += g; if(g < min) min = g; if(g > max) max = g; }
+  if(soma / (px.length / 4) < 25 || max - min < 20){
+    const erro = document.getElementById('cam-erro');
+    erro.hidden = false;
+    erro.textContent = 'A foto saiu escura ou vazia. Aponte para o comprovante com boa luz e toque em "Capturar" de novo.';
+    setTimeout(() => { erro.hidden = true; }, 2500);
+    return;
+  }
+  _fecharCamera();
+  c.toBlob(blob => { if(blob) processarFotoLanc(blob); }, 'image/jpeg', 0.92);
 }
 
 // ── Janela de progresso ──────────────────────────────────────────────────────
