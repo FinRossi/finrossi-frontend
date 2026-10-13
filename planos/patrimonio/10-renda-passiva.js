@@ -38,28 +38,26 @@ function renderRP(){
     const patriCDI=renda/taxaLiqCDI, patriCustom=renda/taxaLiqCustom;
 
     function calcPrazo(taxa, patri){
-      if(atual>=patri)return'✓ Já possível';
+      if(atual>=patri)return'Já possível';
       let s=atual,mes=0;while(s<patri&&mes<1200){s=s*(1+taxa)+aporte;mes++}
-      if(mes>=1200)return'> 100 anos';
+      if(mes>=1200)return'Mais de 100 anos';
       const a=Math.floor(mes/12),m=mes%12;return a>0?`${a}a ${m}m`:`${mes} meses`;
     }
     const p1=calcPrazo(cdi,patriCDI), p2=calcPrazo(custom,patriCustom);
-    const c1=p1.startsWith('✓')?'color:var(--green)':'color:var(--amber)';
-    const c2=p2.startsWith('✓')?'color:var(--green)':'color:var(--purple)';
+    const cel=p=>`<td style="font-family:var(--ced-serif);font-size:16px;color:${p==='Já possível'?'var(--green)':'var(--accent)'}">${p}</td>`;
     return`<tr>
       <td style="font-weight:500">${labels[i]}</td>
-      <td style="${c1}">${p1}</td>
-      <td style="${c2}">${p2}</td>
+      ${cel(p1)}${cel(p2)}
       <td style="color:var(--muted);font-size:12px">${fmtR0(patriCDI)} / ${fmtR0(patriCustom)}</td>
     </tr>`;
   }).join('');
   document.getElementById('rp-prazo').innerHTML=`
     <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="border-bottom:1px solid var(--border)">
-        <th style="text-align:left;padding:5px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Renda alvo</th>
-        <th style="text-align:left;padding:5px 8px;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.5px">CDI atual</th>
-        <th style="text-align:left;padding:5px 8px;font-size:11px;color:var(--purple);text-transform:uppercase;letter-spacing:.5px">Taxa custom</th>
-        <th style="text-align:left;padding:5px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Patrimônio necessário</th>
+      <thead><tr>
+        <th>Renda desejada</th>
+        <th>Cenário 1 (CDI)</th>
+        <th>Cenário 2 (sua taxa)</th>
+        <th>Patrimônio necessário</th>
       </tr></thead><tbody>${prazoRows}</tbody>
     </table>`;
 }

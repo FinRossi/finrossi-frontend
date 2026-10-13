@@ -21,8 +21,10 @@ function renderInvs(){
   }
   const listEl=document.getElementById('inv-list');
   if(!invs.length){listEl.innerHTML='<p class="empty">Nenhum investimento cadastrado</p>';return}
-  listEl.innerHTML=invs.map((inv,idx)=>`
-    <div class="inv-item"><div class="inv-left"><div class="inv-dot" style="background:${PALETTE[idx%PALETTE.length]}"></div><div><div class="inv-name">${inv.nome}</div><div class="inv-type">${inv.tipo}${inv.rent?' · '+inv.rent:''}${inv.banco?' · '+inv.banco:''}</div></div></div>
+  // A cor do ponto é a mesma do tipo no gráfico ao lado
+  const tipos=[...new Set(invs.map(i=>i.tipo))];
+  listEl.innerHTML=invs.map(inv=>`
+    <div class="inv-item"><div class="inv-left"><div class="inv-dot" style="background:${PALETTE[tipos.indexOf(inv.tipo)%PALETTE.length]}"></div><div><div class="inv-name">${inv.nome}</div><div class="inv-type">${inv.tipo}${inv.rent?' · '+inv.rent:''}${inv.banco?' · '+inv.banco:''}</div></div></div>
     <div style="display:flex;align-items:center;gap:8px"><div class="inv-val">${fmtR(inv.val)}</div><button class="btn danger xs" onclick="remInv('${inv.id}')">✕</button></div></div>`).join('');
 }
 

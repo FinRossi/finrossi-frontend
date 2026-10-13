@@ -1,6 +1,7 @@
 // js/app/01-base.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 const PNAMES={pessoal:'Pessoal',finrossi:'FinRossi'};
-const PALETTE=['#4ade80','#60a5fa','#fbbf24','#c084fc','#2dd4bf','#f87171','#fb923c','#a78bfa','#34d399'];
+// Mesma paleta dourada dos gráficos do Dashboard (antes era arco-íris: verde, azul, roxo...)
+const PALETTE=['#E8C560','#C8A96E','#D4B896','#B8935A','#9A8560','#6A5838','#6B7A6E','#8A7A5C','#5F5E5A'];
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let cp='pessoal', charts={}, fbOk=false;
 let _cartaoPage=0;

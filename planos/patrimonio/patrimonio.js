@@ -551,7 +551,11 @@ function toggleDashPersonalizar(){
   const grid = document.getElementById('dash-widgets-grid');
   const btn = document.getElementById('btn-dash-personalizar');
   if(grid) grid.classList.toggle('dash-editing', _dashPersonalizando);
-  if(btn) btn.textContent = _dashPersonalizando ? '✅ Concluir personalização' : '🎨 Personalizar Dashboard';
+  if(btn){
+    // guarda o ícone do botão na primeira vez e troca só o texto
+    if(!btn.dataset.ico){ const s = btn.querySelector('svg'); btn.dataset.ico = s ? s.outerHTML : ''; }
+    btn.innerHTML = btn.dataset.ico + (_dashPersonalizando ? 'Concluir personalização' : 'Personalizar dashboard');
+  }
 
   if(_dashPersonalizando){
     ativarControlesWidgets();

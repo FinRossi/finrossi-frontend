@@ -44,32 +44,32 @@ async function remMeta(id){
 
 function renderMetas(){
   const metas=pd().metas;
-  document.getElementById('metas-sub').textContent='Perfil: '+PNAMES[cp];
+  document.getElementById('metas-sub').textContent='Quanto falta para cada objetivo de dinheiro';
   const cont=document.getElementById('metas-cards');
   if(!metas.length){
-    cont.innerHTML='<div class="card" style="grid-column:1/-1"><p class="empty">Nenhuma meta. Clique em "+ Nova meta".</p></div>';
+    cont.innerHTML='<div class="card fr-vazio" style="grid-column:1/-1"><b>Nenhuma meta ainda</b><p>Defina um valor para juntar, como a reserva de emergência ou uma viagem, e acompanhe quanto falta.</p><button class="btn primary" onclick="openModalMeta()">+ Nova meta</button></div>';
   } else {
     cont.innerHTML=metas.map(m=>{
       const investido=m.investido||0;
       const pct=Math.min(100,(investido/m.valor)*100);
       const falta=Math.max(0,m.valor-investido);
       const atingida=investido>=m.valor;
-      const cor=m.cor||'#4ade80';
-      return`<div class="card" style="${atingida?'border-color:var(--green)':''}">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-family:'DM Serif Display',serif;font-size:15px">${m.icone||'🎯'} ${m.nome}</div>
-          <div style="display:flex;gap:4px">
-            ${atingida?'<span style="font-size:10px;background:var(--green-s);color:var(--green);padding:2px 6px;border-radius:20px">✓</span>':''}
-            <button class="btn xs" onclick="openModalMeta('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-            <button class="btn danger xs" onclick="remMeta('${m.id}')">✕</button>
+      const cor=m.cor||'var(--accent)';
+      return`<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div class="meta-tit">${m.icone?m.icone+' ':''}${m.nome}</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
+            ${atingida?'<span class="fr-selo ok">Atingida</span>':''}
+            <button class="btn xs" onclick="openModalMeta('${m.id}')" title="Editar" aria-label="Editar meta">${ICO_EDITAR}</button>
+            <button class="btn danger xs" onclick="remMeta('${m.id}')" title="Excluir" aria-label="Excluir meta">✕</button>
           </div>
         </div>
-        <div style="font-size:18px;font-family:'DM Serif Display',serif;color:${cor};margin-bottom:10px">${fmtR0(m.valor)}</div>
-        <div class="prog-meta"><span style="color:var(--green)">${fmtR(investido)} investido</span><strong>${pct.toFixed(1)}%</strong></div>
+        <div class="meta-valor">${fmtR0(m.valor)}</div>
+        <div class="prog-meta"><span>${fmtR(investido)} guardado</span><strong>${pct.toFixed(1).replace('.',',')}%</strong></div>
         <div class="prog-track"><div class="prog-fill" style="width:${pct.toFixed(1)}%;background:${cor}"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)">
-          <span>Falta <strong style="color:var(--amber)">${fmtR(falta)}</strong></span>
-          <span style="cursor:pointer;text-decoration:underline" onclick="openModalMeta('${m.id}')">atualizar saldo</span>
+        <div class="meta-rodape">
+          <span>${atingida?'Meta atingida':`Falta <b>${fmtR(falta)}</b>`}</span>
+          <button type="button" onclick="openModalMeta('${m.id}')">Atualizar saldo</button>
         </div>
       </div>`;
     }).join('');
@@ -81,32 +81,23 @@ function renderSim(){
   const metas=pd().metas;
   const aporte=parseFloat(document.getElementById('sim-aporte').value)||300;
   const cdi=(parseFloat(document.getElementById('sim-cdi').value)||0.8)/100;
-  if(!metas.length){document.getElementById('sim-resultado').innerHTML='<p style="font-size:13px;color:var(--muted)">Crie metas acima para ver a simulação.</p>';return}
+  if(!metas.length){document.getElementById('sim-resultado').innerHTML='<p class="empty" style="padding:8px 0;text-align:left">Crie uma meta para ver em quanto tempo chega lá.</p>';return}
 
   const rows=metas.map(m=>{
     const investido=m.investido||0;
+    const nome=`${m.icone?m.icone+' ':''}${m.nome}`;
     if(investido>=m.valor)return`
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <span style="font-size:14px">${m.icone||'🎯'}</span>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.nome}</div></div>
-        <span style="font-size:12px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px;white-space:nowrap">✓ Atingida!</span>
-      </div>`;
+      <div class="sim-linha"><div class="sim-nome">${nome}</div><span class="fr-selo ok">Atingida</span></div>`;
     let s=investido,mes=0;
     while(s<m.valor&&mes<600){s=s*(1+cdi)+aporte;mes++}
     const a=Math.floor(mes/12),mr=mes%12;
-    const prazo=a>0?`${a}a ${mr}m`:`${mes} meses`;
+    const prazo=a>0?`${a} ${a>1?'anos':'ano'}${mr?` e ${mr} ${mr>1?'meses':'mês'}`:''}`:`${mes} ${mes===1?'mês':'meses'}`;
     const rend=s-investido-aporte*mes;
     return`
-      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span style="font-size:14px">${m.icone||'🎯'}</span>
-          <span style="font-size:13px;font-weight:500;flex:1">${m.nome}</span>
-          <span style="font-size:12px;color:var(--amber);font-weight:500;white-space:nowrap">⏱ ${prazo}</span>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <span style="font-size:11px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px">Rend. ${fmtR(rend)}</span>
-          <span style="font-size:11px;background:var(--blue-s);color:var(--blue);padding:2px 8px;border-radius:20px">Saldo final ${fmtR(s)}</span>
-        </div>
+      <div class="sim-linha">
+        <div class="sim-nome">${nome}</div>
+        <div class="sim-prazo">${prazo}</div>
+        <div class="sim-det">Rendimento <b>${fmtR(rend)}</b>, saldo final <b>${fmtR(s)}</b></div>
       </div>`;
   }).join('');
 
@@ -157,7 +148,7 @@ async function remObj(id){
   renderObjs();
   saveCollection('objs');
 }
-const PCOL={alta:'var(--red)',media:'var(--amber)',baixa:'var(--muted)'}, PLBL={alta:'Alta',media:'Média',baixa:'Baixa'};
+const PCOL={alta:'var(--red)',media:'var(--accent)',baixa:'var(--muted)'}, PLBL={alta:'Alta',media:'Média',baixa:'Baixa'};
 
 function renderObjItem(o){
   return`<div class="obj-item">
@@ -169,11 +160,11 @@ function renderObjItem(o){
 }
 
 function renderObjs(){
-  document.getElementById('obj-sub').textContent='Perfil: '+PNAMES[cp];
+  document.getElementById('obj-sub').textContent='Tarefas do dia, da semana e do mês';
   ['hoje','semana','mes'].forEach(p=>{
     const lista=pd().objs.filter(o=>o.periodo===p).sort((a,b)=>{const po={alta:0,media:1,baixa:2};return po[a.prioridade]-po[b.prioridade]});
     const el=document.getElementById('obj-'+p);
-    if(!lista.length){el.innerHTML='<p class="empty" style="padding:14px 0">Nenhum objetivo</p>';return}
+    if(!lista.length){el.innerHTML='<p class="empty" style="padding:6px 0 4px;text-align:left">Nada por aqui. Toque em "+ Novo objetivo" para incluir.</p>';return}
     el.innerHTML=lista.map(renderObjItem).join('');
   });
   if(objDashOpen) renderObjDash();
@@ -228,7 +219,7 @@ function renderObjDash(){
     }
 
     if(!pendList.length){
-      elPend.innerHTML='<p class="empty" style="padding:8px 0;font-size:12px;color:var(--green)">✓ Tudo concluído!</p>';
+      elPend.innerHTML='<p class="empty" style="padding:8px 0;font-size:12px;color:var(--green)">Tudo concluído</p>';
     } else {
       elPend.innerHTML=pendList.map(o=>`
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">

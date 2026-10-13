@@ -1,0 +1,120 @@
+/* css/07-layout-finrossi.css — LAYOUT FIXO FINROSSI
+   Um único jeito de montar cada peça, igual em todas as telas:
+     • título de página .......... Bodoni + uma linha de descrição (page-title)
+     • título de cartão .......... Bodoni 19px (.card h3, .fr-card-tit)
+     • linha de lista ............ extrato: dia | descrição + detalhe | valor | ações (.ext-linha)
+     • selo de situação .......... .fr-selo (+ .ok, .alerta, .destaque)
+     • lista vazia ............... .fr-vazio (título + orientação + botão)
+     • cores ..................... só var(--accent), texto, cinzas; verde = entrada, vermelho = saída/atraso
+   Carregado por último: só aparência, nenhum comportamento muda. */
+
+/* ── Página ────────────────────────────────────────────────────────────────── */
+.main{padding-bottom:110px}                        /* espaço para o botão flutuante não cobrir o fim da tela */
+.page-header{margin-bottom:22px}
+
+/* ── Título de cartão ─────────────────────────────────────────────────────── */
+.card h3,.fr-card-tit,.rp-scenario h4{
+  font-family:var(--ced-serif);font-weight:500;font-size:19px;letter-spacing:-.2px;line-height:1.2;
+  color:var(--text);margin:0 0 14px;display:flex;align-items:center;gap:8px;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.rp-scenario h4{font-size:17px}
+.card h3 .dot,.rp-scenario h4 .dot{display:none}
+.fr-card-sub{font-size:12.5px;color:var(--muted);margin:-8px 0 14px}
+
+/* ── Selo de situação ─────────────────────────────────────────────────────── */
+.fr-selo{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:500;line-height:1;
+  padding:4px 7px;border-radius:4px;white-space:nowrap;color:var(--muted);
+  border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:color-mix(in srgb,currentColor 7%,transparent)}
+.fr-selo.ok{color:var(--green)}
+.fr-selo.alerta{color:var(--red)}
+.fr-selo.destaque{color:var(--accent)}
+
+/* ── Lista vazia ──────────────────────────────────────────────────────────── */
+.fr-vazio{text-align:center;padding:36px 20px}
+.fr-vazio b{display:block;font-family:var(--ced-serif);font-weight:500;font-size:20px;letter-spacing:-.2px;color:var(--text);margin-bottom:6px}
+.fr-vazio p{font-size:13px;color:var(--muted);max-width:380px;margin:0 auto 18px;line-height:1.6}
+.card.fr-vazio{border-style:dashed}
+.empty{color:var(--muted);font-size:13px}
+
+/* ── Linhas de extrato: variações ─────────────────────────────────────────── */
+.ext-linha:last-child{border-bottom:none}
+.ext-linha.pausada{opacity:.5}
+.ext-valor.despesa{color:var(--text)}
+.ext-valor-col{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+@media(max-width:767px){
+  .ext-valor-col{grid-row:1;grid-column:3}
+}
+
+/* ── Menu lateral ─────────────────────────────────────────────────────────── */
+.sb-label{display:block;padding:10px 18px 6px;font-size:11.5px;color:var(--muted)}
+#sync-badge{margin-left:16px;width:fit-content}
+.sidebar.collapsed #sync-badge{margin-left:0}
+.profile-ico{width:18px;height:18px;flex-shrink:0;color:var(--accent)}
+
+/* ── Botões com ícone (sem emoji) ─────────────────────────────────────────── */
+.btn .ico{width:14px;height:14px;flex-shrink:0}
+.btn.export{gap:7px}
+
+/* Objetivos: o seletor "Dashboard" vira um botão comum */
+.obj-view-toggle{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:1px solid var(--border2);
+  border-radius:6px;background:var(--surface2);color:var(--text);font-size:13px;cursor:pointer;user-select:none}
+.obj-view-toggle:hover,.obj-view-toggle.open{border-color:var(--accent);color:var(--accent)}
+
+/* ── Dashboard: blocos vazios não deixam buraco ───────────────────────────── */
+#dash-widgets-grid:not(.dash-editing)>.dash-widget:has(>div:empty){display:none}
+
+/* ── Metas ────────────────────────────────────────────────────────────────── */
+.meta-tit{font-family:var(--ced-serif);font-weight:500;font-size:19px;letter-spacing:-.2px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta-valor{font-family:var(--ced-serif);font-weight:500;font-size:26px;letter-spacing:-.3px;margin:2px 0 12px;font-variant-numeric:lining-nums tabular-nums}
+.meta-rodape{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;color:var(--muted)}
+.meta-rodape b{color:var(--text);font-weight:500}
+.meta-rodape button{background:none;border:none;padding:0;color:var(--accent);font:inherit;cursor:pointer}
+.meta-rodape button:hover{text-decoration:underline}
+.sim-linha{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.sim-linha:last-child{border-bottom:none}
+.sim-nome{font-size:14px;font-weight:500;color:var(--text)}
+.sim-prazo{font-family:var(--ced-serif);font-weight:500;font-size:18px;color:var(--accent);white-space:nowrap;text-align:right}
+.sim-det{grid-column:1 / -1;font-size:12px;color:var(--muted)}
+.sim-det b{color:var(--text);font-weight:500}
+
+/* ── Calendário ───────────────────────────────────────────────────────────── */
+.cal-semana{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px}
+.cal-semana div{text-align:center;font-size:12px;color:var(--muted);padding:4px}
+.cal-dia{min-height:58px;border-radius:6px;padding:6px;position:relative;background:var(--surface);border:1px solid var(--ced-gravura-fina);transition:background .15s;min-width:0}
+.cal-dia.com-evt{background:var(--surface2);cursor:pointer}
+.cal-dia.com-evt:hover{background:var(--surface3)}
+.cal-dia.hoje{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.cal-num{font-family:var(--ced-serif);font-weight:500;font-size:16px;line-height:1;color:var(--text);margin-bottom:4px;font-variant-numeric:lining-nums}
+.cal-dia.passado .cal-num{color:var(--muted)}
+.cal-dia.hoje .cal-num{color:var(--accent)}
+.cal-evt{font-size:10px;line-height:1.4;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-evt.receita{color:var(--green)}
+.cal-evt.atraso{color:var(--red)}
+.cal-marca{position:absolute;bottom:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.cal-marca.atraso{background:var(--red)}
+.cal-marca.receita{background:var(--green)}
+.cal-legenda{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 16px;font-size:12px;color:var(--muted)}
+.cal-legenda span{display:inline-flex;align-items:center;gap:6px}
+.cal-legenda i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.cal-legenda i.atraso{background:var(--red)}
+.cal-legenda i.receita{background:var(--green)}
+.cal-legenda i.hoje{background:none;border:1px solid var(--accent);border-radius:2px}
+#cal-titulo{font-family:var(--ced-serif);font-weight:500;font-size:18px;padding:0 10px;min-width:150px;text-align:center}
+@media(max-width:767px){
+  .cal-dia{min-height:46px;padding:4px}
+  .cal-num{font-size:14px}
+  .cal-evt{display:none}
+}
+
+/* ── Notas: filtros com a mesma aparência dos campos ──────────────────────── */
+#sec-notas .filter-bar,#notas-filtros{margin:4px 0 16px}
+
+/* ── Botão flutuante "Instalar app": menor e fora do caminho ─────────────── */
+#pwa-fab{bottom:24px!important;right:24px!important}
+#pwa-fab>div:last-child{width:42px!important;height:42px!important;border-radius:10px!important;box-shadow:0 4px 14px rgba(0,0,0,.45)!important}
+@media(max-width:767px){
+  .main{padding-bottom:150px}
+  #pwa-fab{bottom:84px!important;right:14px!important}
+  #pwa-fab>div:first-child{display:none!important}
+}

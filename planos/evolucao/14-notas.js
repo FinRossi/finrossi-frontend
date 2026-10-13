@@ -48,32 +48,34 @@ async function remNota(id){
 
 function renderNotas(){
   try{
-  document.getElementById('notas-sub').textContent='Perfil: '+PNAMES[cp];
+  document.getElementById('notas-sub').textContent='Anotações, ideias e lembretes';
   const busca=(document.getElementById('nota-busca')||{}).value?.toLowerCase()||'';
   const filtCat=(document.getElementById('nota-filtro-cat')||{}).value||'';
   let notas=getNotas();
   if(busca)notas=notas.filter(n=>(n.titulo+n.texto).toLowerCase().includes(busca));
   if(filtCat)notas=notas.filter(n=>n.cat===filtCat);
   const grid=document.getElementById('notas-grid');
-  if(!notas.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">${busca||filtCat?'Nenhuma nota encontrada':'Nenhuma nota ainda. Crie sua primeira anotação acima!'}</div>`;return}
+  if(!notas.length){grid.innerHTML=busca||filtCat
+    ?'<p class="empty" style="grid-column:1/-1">Nenhuma nota encontrada. Ajuste a busca ou a categoria.</p>'
+    :'<div class="card fr-vazio" style="grid-column:1/-1"><b>Nenhuma nota ainda</b><p>Escreva no formulário acima para guardar ideias, combinados e lembretes.</p></div>';return}
   grid.innerHTML=notas.map(n=>{
     const c=NOTA_CORES[n.cor||'default'];
     const preview=n.texto.length>120?n.texto.slice(0,120)+'...':n.texto;
-    return`<div style="background:${c.bg};border:1px solid ${c.border};border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:8px;min-height:120px">
+    return`<div style="background:${c.bg};border:1px solid ${c.border};border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
-          <div style="width:8px;height:8px;border-radius:50%;background:${c.dot};flex-shrink:0"></div>
-          <div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.titulo}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};flex-shrink:0"></div>
+          <div class="meta-tit" style="font-size:17px">${n.titulo}</div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="btn xs" onclick="abrirEditNota('${n.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-          <button class="btn danger xs" onclick="remNota('${n.id}')">✕</button>
+          <button class="btn xs" onclick="abrirEditNota('${n.id}')" title="Editar" aria-label="Editar nota">${ICO_EDITAR}</button>
+          <button class="btn danger xs" onclick="remNota('${n.id}')" title="Excluir" aria-label="Excluir nota">✕</button>
         </div>
       </div>
-      ${preview?`<div style="font-size:12px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${preview}</div>`:''}
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
-        <span style="font-size:10px;background:var(--surface3);padding:2px 7px;border-radius:20px;color:var(--muted)">${n.cat}</span>
-        <span style="font-size:10px;color:var(--muted2)">${n.data}${n.hora?' · '+n.hora:''}</span>
+      ${preview?`<div style="font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${preview}</div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:11.5px;color:var(--muted)">
+        <span class="fr-selo">${n.cat}</span>
+        <span>${n.data}${n.hora?' às '+n.hora:''}</span>
       </div>
     </div>`;
   }).join('');

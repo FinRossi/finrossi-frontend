@@ -45,12 +45,10 @@ function renderAssinaturas(){
     if(!el) return;
 
     if(!list.length){
-      el.innerHTML=`<div class="card" style="text-align:center;padding:56px 24px;border-style:dashed">
-        <div style="font-size:48px;margin-bottom:16px">📺</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:10px">Nenhuma assinatura cadastrada</div>
-        <p style="font-size:13px;color:var(--muted);max-width:380px;margin:0 auto 24px;line-height:1.8">
-          Cadastre Netflix, Spotify, academia e outros serviços recorrentes para acompanhar quanto gasta por mês.</p>
-        <button class="btn primary" onclick="openModalAssin()" style="font-size:14px;padding:11px 28px">+ Cadastrar assinatura</button>
+      el.innerHTML=`<div class="card fr-vazio" style="margin-top:16px">
+        <b>Nenhuma assinatura cadastrada</b>
+        <p>Cadastre streaming, música, academia e outros serviços para ver quanto eles somam por mês.</p>
+        <button class="btn primary" onclick="openModalAssin()">+ Nova assinatura</button>
       </div>`;
       destroyChart('assin-cat');
       return;
@@ -58,11 +56,11 @@ function renderAssinaturas(){
 
     el.innerHTML=`<div class="grid2" style="margin-bottom:16px">
       <div class="card">
-        <h3><span class="dot" style="background:var(--purple)"></span>Gastos por categoria</h3>
+        <h3>Gastos por categoria</h3>
         <div class="chart-wrap" style="height:200px"><canvas id="c-assin-cat"></canvas></div>
       </div>
       <div class="card">
-        <h3><span class="dot" style="background:var(--blue)"></span>Lista de assinaturas</h3>
+        <h3>Assinaturas por dia de cobrança</h3>
         <div id="assin-list"></div>
       </div>
     </div>`;
@@ -80,19 +78,17 @@ function renderAssinaturas(){
     const listEl=document.getElementById('assin-list');
     if(listEl){
       listEl.innerHTML=[...list].sort((a,b)=>a.dia-b.dia).map(a=>{
-        const icon=ASSIN_ICONS[a.cat]||'📦';
         const diasFaltam=a.dia>=hoje_d?a.dia-hoje_d:30-(hoje_d-a.dia);
         const urgente=diasFaltam<=3, pausada=a.status==='pausada';
-        return`<div class="inv-item" style="${pausada?'opacity:.5':''}">
-          <div class="inv-left">
-            <div style="font-size:20px;width:32px;text-align:center">${icon}</div>
-            <div><div class="inv-name">${a.nome}</div>
-            <div class="inv-type">${a.cat} · dia ${a.dia}${pausada?' · <span style="color:var(--amber)">Pausada</span>':urgente?` · <span style="color:var(--red)">Vence em ${diasFaltam}d</span>`:''}</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="inv-val">${fmtR(a.val)}</div>
-            <button class="btn xs" onclick="openModalAssin('${a.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-            <button class="btn danger xs" onclick="remAssin('${a.id}')">✕</button>
+        const selo=pausada?'<span class="fr-selo">Pausada</span>'
+          :urgente?`<span class="fr-selo destaque">${diasFaltam===0?'Cobra hoje':`Cobra em ${diasFaltam} ${diasFaltam===1?'dia':'dias'}`}</span>`:'';
+        return`<div class="ext-linha${pausada?' pausada':''}">
+          <div class="ext-dia"><b>${String(a.dia).padStart(2,'0')}</b><span>mensal</span></div>
+          <div style="min-width:0"><div class="ext-tit">${a.nome}</div><div class="ext-meta">${a.cat}</div></div>
+          <div class="ext-valor-col"><div class="ext-valor">${fmtR(a.val)}</div>${selo}</div>
+          <div class="ext-acoes">
+            <button class="btn xs" onclick="openModalAssin('${a.id}')" title="Editar" aria-label="Editar assinatura">${ICO_EDITAR}</button>
+            <button class="btn danger xs" onclick="remAssin('${a.id}')" title="Excluir" aria-label="Excluir assinatura">✕</button>
           </div>
         </div>`;
       }).join('');
@@ -170,7 +166,7 @@ function renderRecorrentes(){
   const mes=curMes();
   const now=new Date();
   const nomesMes=MONTHS;
-  document.getElementById('rec-mes-label').textContent=nomesMes[now.getMonth()]+'/'+now.getFullYear();
+  document.getElementById('rec-mes-label').textContent=nomesMes[now.getMonth()].toLowerCase()+' de '+now.getFullYear();
 
   document.getElementById('rec-metrics').innerHTML=`
     <div class="mc"><div class="mc-label">Total mensal</div><div class="mc-val red">${fmtR(total)}</div></div>
@@ -180,44 +176,27 @@ function renderRecorrentes(){
 
   const listEl=document.getElementById('rec-list');
   if(!list.length){listEl.innerHTML=`
-    <div style="text-align:center;padding:40px 24px">
-      <div style="font-size:40px;margin-bottom:12px">🔁</div>
-      <div style="font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:8px">Nenhuma conta recorrente</div>
-      <p style="font-size:13px;color:var(--muted);max-width:360px;margin:0 auto 20px;line-height:1.7">
-        Cadastre aluguel, energia, internet e outros gastos fixos mensais. Com um clique, todos são lançados automaticamente nas despesas.
-      </p>
-      <button class="btn primary" onclick="openModalRec()">+ Cadastrar conta recorrente</button>
+    <div class="fr-vazio">
+      <b>Nenhuma conta recorrente</b>
+      <p>Cadastre aluguel, energia, internet e outros gastos fixos. Depois, um toque lança todos nas despesas do mês.</p>
+      <button class="btn primary" onclick="openModalRec()">+ Nova conta</button>
     </div>`;return}
   const sorted=[...list].sort((a,b)=>a.dia-b.dia);
-  listEl.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="border-bottom:1px solid var(--border)">
-      <th style="text-align:left;padding:6px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Descrição</th>
-      <th style="text-align:left;padding:6px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Categoria</th>
-      <th style="text-align:center;padding:6px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Dia</th>
-      <th style="text-align:right;padding:6px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Valor</th>
-      <th style="text-align:center;padding:6px 8px;font-size:11px;color:var(--muted)">Status</th>
-      <th></th>
-    </tr></thead>
-    <tbody>${sorted.map(r=>{
+  listEl.innerHTML=sorted.map(r=>{
       const [yr,mo]=mes.split('-').map(Number);
       const dia=Math.min(r.dia,new Date(yr,mo,0).getDate());
       const data=`${mes}-${String(dia).padStart(2,'0')}`;
       const lançado=pd().lancs.some(l=>l.desc===r.desc&&l.data===data&&l.tipo==='despesa'&&l.recorrente);
-      return`<tr>
-        <td style="padding:8px">${r.desc}</td>
-        <td style="padding:8px;color:var(--muted);font-size:12px">${r.cat}</td>
-        <td style="padding:8px;text-align:center">dia ${r.dia}</td>
-        <td style="padding:8px;text-align:right;color:var(--red);font-weight:500">${fmtR(r.val)}</td>
-        <td style="padding:8px;text-align:center">
-          ${lançado?'<span style="font-size:11px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px">✓ Lançado</span>':'<span style="font-size:11px;background:var(--amber-s);color:var(--amber);padding:2px 8px;border-radius:20px">Pendente</span>'}
-        </td>
-        <td style="padding:8px;display:flex;gap:4px">
-          <button class="btn xs" onclick="openModalRec('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-          <button class="btn danger xs" onclick="remRec('${r.id}')">✕</button>
-        </td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div>`;
+      return`<div class="ext-linha">
+        <div class="ext-dia"><b>${String(r.dia).padStart(2,'0')}</b><span>mensal</span></div>
+        <div style="min-width:0"><div class="ext-tit">${r.desc}</div><div class="ext-meta">${r.cat}</div></div>
+        <div class="ext-valor-col"><div class="ext-valor">${fmtR(r.val)}</div>${lançado?'<span class="fr-selo ok">Lançada</span>':'<span class="fr-selo destaque">A lançar</span>'}</div>
+        <div class="ext-acoes">
+          <button class="btn xs" onclick="openModalRec('${r.id}')" title="Editar" aria-label="Editar conta">${ICO_EDITAR}</button>
+          <button class="btn danger xs" onclick="remRec('${r.id}')" title="Excluir" aria-label="Excluir conta">✕</button>
+        </div>
+      </div>`;
+    }).join('');
   }catch(e){console.error('renderRecorrentes error:',e);}
 }
 
@@ -234,7 +213,7 @@ function mudarMesCalendario(dir){
 function renderCalendario(){
   try{
   const now=new Date();
-  const hoje_str=now.toISOString().slice(0,10);
+  const hoje_str=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; // data local (toISOString virava o dia à noite)
   document.getElementById('cal-titulo').textContent=MONTHS[calMes]+' de '+calAno;
 
   // Coleta todos os eventos do mês
@@ -282,20 +261,18 @@ function renderCalendario(){
     const isHoje=d===hoje_dia;
     const data_str=`${mesStr}-${String(d).padStart(2,'0')}`;
     const passado=data_str<hoje_str&&!isHoje;
-    const temDespesa=evts.some(e=>e.tipo!=='receita');
-    const temReceita=evts.some(e=>e.tipo==='receita');
-    const cor=evts.length===0?'':passado&&temDespesa?'var(--red)':isHoje?'var(--amber)':temDespesa?'var(--green)':'var(--blue)';
+    // Atraso = conta fixa (assinatura/recorrente) com data já passada e ainda não lançada
+    const atrasado=e=>passado&&(e.tipo==='assinatura'||e.tipo==='recorrente');
+    const temAtraso=evts.some(atrasado);
+    const soReceita=evts.length&&evts.every(e=>e.tipo==='receita');
+    const marca=!evts.length?'':temAtraso?'atraso':soReceita?'receita':'';
+    const classes=['cal-dia',evts.length?'com-evt':'',isHoje?'hoje':'',passado?'passado':''].filter(Boolean).join(' ');
 
-    cells+=`<div onclick="mostrarDiaCalendario(${d})" style="
-      min-height:52px;border-radius:8px;padding:4px;cursor:${evts.length?'pointer':'default'};
-      background:${isHoje?'rgba(251,191,36,0.12)':evts.length?'var(--surface2)':'var(--surface)'};
-      border:1px solid ${isHoje?'var(--amber)':evts.length?'var(--border2)':'var(--border)'};
-      position:relative;transition:all .15s;
-    " onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='${isHoje?'rgba(251,191,36,0.12)':evts.length?'var(--surface2)':'var(--surface)'}'">
-      <div style="font-size:12px;font-weight:${isHoje?'700':'400'};color:${isHoje?'var(--amber)':passado?'var(--muted)':'var(--text)'};margin-bottom:3px">${d}</div>
-      ${evts.slice(0,2).map(e=>`<div style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${e.tipo==='receita'?'var(--blue)':passado?'var(--red)':isHoje?'var(--amber)':'var(--green)'};line-height:1.4">${e.label}</div>`).join('')}
-      ${evts.length>2?`<div style="font-size:9px;color:var(--muted)">+${evts.length-2}</div>`:''}
-      ${cor&&evts.length?`<div style="position:absolute;bottom:3px;right:4px;width:5px;height:5px;border-radius:50%;background:${cor}"></div>`:''}
+    cells+=`<div class="${classes}"${evts.length?` onclick="mostrarDiaCalendario(${d})"`:''}>
+      <div class="cal-num">${d}</div>
+      ${evts.slice(0,2).map(e=>`<div class="cal-evt${e.tipo==='receita'?' receita':atrasado(e)?' atraso':''}">${e.label}</div>`).join('')}
+      ${evts.length>2?`<div class="cal-evt">+${evts.length-2}</div>`:''}
+      ${evts.length?`<div class="cal-marca ${marca}"></div>`:''}
     </div>`;
   }
 
@@ -309,25 +286,26 @@ function renderCalendario(){
   todosEvts.sort((a,b)=>a.dia-b.dia);
 
   const listaEl=document.getElementById('cal-lista');
-  if(!todosEvts.length){listaEl.innerHTML='<p class="empty">Nenhum evento neste mês</p>';return}
+  if(!todosEvts.length){listaEl.innerHTML='<p class="empty">Nada para pagar ou receber neste mês.</p>';return}
 
+  const mesCurto=MESES_CURTOS[calMes];
   listaEl.innerHTML=todosEvts.map(e=>{
     const passado=e.data<hoje_str;
     const isHoje_e=e.data===hoje_str;
-    const cor=passado?'var(--red)':isHoje_e?'var(--amber)':e.tipo==='receita'?'var(--blue)':'var(--green)';
-    const status=passado?'Vencido':isHoje_e?'Hoje':'Futuro';
-    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-      <div style="width:36px;height:36px;border-radius:8px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <span style="font-size:12px;font-weight:600;color:${cor}">${e.dia}</span>
-      </div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:500">${e.label}</div>
-        <div style="font-size:11px;color:var(--muted)">${e.tipo==='recorrente'?'Recorrente':e.tipo==='assinatura'?'Assinatura':e.tipo==='receita'?'Receita':'Despesa'}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:13px;font-weight:500;color:${e.tipo==='receita'?'var(--green)':'var(--red)'}">${fmtR(e.val)}</div>
-        <div style="font-size:10px;padding:1px 6px;border-radius:10px;background:${cor}18;color:${cor}">${status}</div>
-      </div>
+    const fixa=e.tipo==='assinatura'||e.tipo==='recorrente';
+    // Lançamentos já registrados não "vencem"; só as contas fixas ainda não lançadas
+    const selo=e.tipo==='receita'
+        ? (passado||isHoje_e?'<span class="fr-selo ok">Recebida</span>':'<span class="fr-selo">A receber</span>')
+      : !fixa
+        ? (passado||isHoje_e?'<span class="fr-selo">Paga</span>':'<span class="fr-selo">Agendada</span>')
+      : passado ? '<span class="fr-selo alerta">Vencida</span>'
+      : isHoje_e ? '<span class="fr-selo destaque">Vence hoje</span>'
+      : '<span class="fr-selo">A vencer</span>';
+    const tipoNome=e.tipo==='recorrente'?'Conta recorrente':e.tipo==='assinatura'?'Assinatura':e.tipo==='receita'?'Receita':'Despesa';
+    return`<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
+      <div class="ext-dia"><b>${String(e.dia).padStart(2,'0')}</b><span>${mesCurto}</span></div>
+      <div style="min-width:0"><div class="ext-tit">${e.label}</div><div class="ext-meta">${tipoNome}</div></div>
+      <div class="ext-valor-col"><div class="ext-valor ${e.tipo==='receita'?'receita':''}">${e.tipo==='receita'?'+':'−'} ${fmtR(e.val).replace(/^R\$\s?/,'')}</div>${selo}</div>
     </div>`;
   }).join('');
   }catch(e){console.error('renderCalendario error:',e);}
