@@ -341,3 +341,8 @@
 #tela-app{transition:opacity .45s ease}
 #tela-app.app-entrando{opacity:0}
 @media(prefers-reduced-motion:reduce){#tela-app{transition:none}}
+
+/* Frase da marca embaixo do nome (some com o menu recolhido) */
+.sb-logo-marca{display:flex;flex-direction:column;min-width:0}
+.sb-logo-frase{font-size:11px;line-height:1.35;color:var(--muted);margin-top:3px;max-width:140px}
+.sidebar.collapsed .sb-logo-marca{display:none}
