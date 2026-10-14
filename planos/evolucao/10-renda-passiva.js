@@ -1,4 +1,4 @@
-// planos/patrimonio/10-renda-passiva.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// planos/evolucao/10-renda-passiva.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── RENDA PASSIVA (dois cenários) ───────────────────────────────────────────
 // ─── Funcionalidades do plano Patrimônio (Score, Insights, etc.) ────────────
 // Vivem em planos/patrimonio/patrimonio.js, carregado no <head>. Ficam disponíveis aqui
