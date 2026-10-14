@@ -200,8 +200,8 @@ async function renderClientes(){
         const interno=ROLES_INTERNOS_TBL.includes(c.role);
         const rb=ROLE_BADGE[c.role]||ROLE_BADGE.cliente;
         return`<tr style="border-bottom:1px solid var(--border);${interno?'background:rgba(200,169,110,0.04)':''}">
-          <td style="padding:10px;font-weight:${interno?500:400}">${c.nome||'—'}</td>
-          <td style="padding:10px;color:var(--muted);font-size:12px">${c.email}</td>
+          <td style="padding:10px;font-weight:${interno?500:400}">${escHTML(c.nome||'—')}</td>
+          <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${rb[1]}18;color:${rb[1]}">${rb[2]}</span></td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">—</span>':`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${c.plano||'—'}</span>`}</td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[c.status]||'var(--muted)'}18;color:${STATUS_CORES[c.status]||'var(--muted)'}">${c.status||'—'}</span></td>
@@ -298,7 +298,7 @@ function renderHistoricoPagamentos(pagamentos){
       <div>
         <span style="color:var(--green);font-weight:500">${fmtR(p.valor)}</span>
         <span style="color:var(--muted);margin-left:8px">${p.forma||'—'}</span>
-        ${p.obs?`<span style="color:var(--muted2);margin-left:6px">· ${p.obs}</span>`:''}
+        ${p.obs?`<span style="color:var(--muted2);margin-left:6px">· ${escHTML(p.obs)}</span>`:''}
       </div>
       <span style="color:var(--muted2)">${p.data||'—'}</span>
     </div>`).join('');
@@ -331,13 +331,13 @@ async function salvarEdicaoCliente(){
     } else if(_clienteEditando?.status === 'inativo'){
       await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
     }
-    // Salva campos extras diretamente no Firebase
+    // Salva só os campos editados, um a um. Antes gravava o cadastro inteiro por cima e
+    // apagava o que não estava na cópia (preferências, cores, atalhos, foto...).
+    // Lançamentos e demais dados ficam em financeiro/<uid> e nunca são tocados aqui.
     if(window._db && window._ref && window._set){
-      await window._set(window._ref(window._db,`usuarios/${uid}`),{
-        ...(_clienteEditando||{}),
-        plano, status, origem, vencimento, observacoes,
-        uid, // garante que uid está salvo
-      });
+      const campos = { plano, status, origem, vencimento, observacoes };
+      await Promise.all(Object.entries(campos).map(([k, v]) =>
+        window._set(window._ref(window._db, `usuarios/${uid}/${k}`), v === undefined ? null : v)));
     }
 
     if(msg){ msg.textContent='✓ Salvo com sucesso!'; msg.style.color='var(--green)'; }

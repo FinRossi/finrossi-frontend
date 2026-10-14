@@ -136,7 +136,7 @@ function gerarInsights(){
     const [maiorCat, maiorVal] = categorias[0];
     const pct = (maiorVal/desAtual)*100;
     if(pct>=30){
-      insights.push({tipo:'neutro', icone:'📊', titulo:`${maiorCat} domina seus gastos`, texto:`${maiorCat} representa ${pct.toFixed(0)}% de tudo que você gastou este mês (${fmtR(maiorVal)}).`});
+      insights.push({tipo:'neutro', icone:'📊', titulo:`${escHTML(maiorCat)} domina seus gastos`, texto:`${escHTML(maiorCat)} representa ${pct.toFixed(0)}% de tudo que você gastou este mês (${fmtR(maiorVal)}).`});
     }
   }
 

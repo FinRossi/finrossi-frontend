@@ -115,7 +115,7 @@ function editarLanc(id){
   // Popula categorias
   const cats=getCats(l.tipo);
   const catSel=document.getElementById('mel-cat');
-  catSel.innerHTML=cats.map(c=>`<option value="${c}" ${c===l.cat?'selected':''}>${c}</option>`).join('');
+  catSel.innerHTML=cats.map(c=>`<option value="${escHTML(c)}" ${c===l.cat?'selected':''}>${escHTML(c)}</option>`).join('');
   document.getElementById('mel-metodo').value=l.metodo||'';
   document.getElementById('mel-obs').value=l.obs||'';
   document.getElementById('msg-mel').textContent='';

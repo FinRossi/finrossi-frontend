@@ -69,7 +69,7 @@ function setupPerfilUI(){
     sbEquipe.style.display=(role==='admin'||role==='dev')?'block':'none';
     sbEquipe.innerHTML=`<div style="padding:10px 10px 14px">
       <div style="font-size:13px;font-weight:500;color:var(--text)">${ROLE_LABEL[role]||role}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">${window._firebaseUser?.email||''}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${escHTML(window._firebaseUser?.email||'')}</div>
       <div style="margin-top:8px;font-size:11px;padding:4px 8px;background:var(--accent-s);border:1px solid var(--accent);border-radius:6px;color:var(--accent);display:inline-block">${role==='dev'?'Acesso: painel técnico':'Acesso: gestão de clientes'}</div>
     </div>`;
   }

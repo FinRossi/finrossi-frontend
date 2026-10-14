@@ -21,14 +21,14 @@ function populateCatSelects(){
   const dCat = document.getElementById('d-cat');
   if(dCat){
     const cur = dCat.value;
-    dCat.innerHTML = getCats('despesa').map(c=>`<option value="${c}">${c}</option>`).join('');
+    dCat.innerHTML = getCats('despesa').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) dCat.value = cur;
   }
   // Receita
   const rCat = document.getElementById('r-cat');
   if(rCat){
     const cur = rCat.value;
-    rCat.innerHTML = getCats('receita').map(c=>`<option value="${c}">${c}</option>`).join('');
+    rCat.innerHTML = getCats('receita').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) rCat.value = cur;
   }
   // Histórico
@@ -36,20 +36,20 @@ function populateCatSelects(){
   if(hCat){
     const cur = hCat.value;
     const todas = [...new Set([...getCats('despesa'),...getCats('receita')])];
-    hCat.innerHTML = '<option value="">Todas as categorias</option>'+todas.map(c=>`<option value="${c}">${c}</option>`).join('');
+    hCat.innerHTML = '<option value="">Todas as categorias</option>'+todas.map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) hCat.value = cur;
   }
   // Assinaturas e Recorrentes
   const assinCat = document.getElementById('assin-cat');
   if(assinCat){
     const cur = assinCat.value;
-    assinCat.innerHTML = getCats('despesa').map(c=>`<option value="${c}">${c}</option>`).join('');
+    assinCat.innerHTML = getCats('despesa').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) assinCat.value = cur;
   }
   const recCat = document.getElementById('rec-cat');
   if(recCat){
     const cur = recCat.value;
-    recCat.innerHTML = getCats('despesa').map(c=>`<option value="${c}">${c}</option>`).join('');
+    recCat.innerHTML = getCats('despesa').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) recCat.value = cur;
   }
 }
@@ -86,7 +86,7 @@ function renderCatsLista(){
   el.innerHTML = _catsTemp.map((cat,idx)=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border:1px solid ${cat.ativa?'var(--border)':'rgba(248,113,113,0.2)'};border-radius:var(--radius-sm);opacity:${cat.ativa?1:.6}">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:13px;${cat.ativa?'':'text-decoration:line-through;color:var(--muted)'}">${cat.nome}</span>
+        <span style="font-size:13px;${cat.ativa?'':'text-decoration:line-through;color:var(--muted)'}">${escHTML(cat.nome)}</span>
         ${cat.padrao?`<span style="font-size:10px;color:var(--muted2);background:var(--surface3);padding:1px 6px;border-radius:10px">padrão</span>`:''}
         ${!cat.ativa?`<span style="font-size:10px;color:var(--red);background:rgba(248,113,113,0.1);padding:1px 6px;border-radius:10px">inativa</span>`:''}
       </div>

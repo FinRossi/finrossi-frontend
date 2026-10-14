@@ -56,7 +56,7 @@ function renderAlertasVencimento(){
       : `<span class="fr-selo destaque">Em ${a.diasFaltam} dias</span>`;
     return `<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
       <div class="ext-dia"><b>${String(a.dia).padStart(2,'0')}</b><span>dia</span></div>
-      <div style="min-width:0"><div class="ext-tit">${a.nome}</div><div class="ext-meta">${TIPO_NOME[a.tipo]||a.cat}</div></div>
+      <div style="min-width:0"><div class="ext-tit">${escHTML(a.nome)}</div><div class="ext-meta">${escHTML(TIPO_NOME[a.tipo]||a.cat)}</div></div>
       <div class="ext-valor-col">${a.val?`<div class="ext-valor">${fmtR(a.val)}</div>`:''}${selo}</div>
     </div>`;
   }).join('');

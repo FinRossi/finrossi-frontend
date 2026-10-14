@@ -17,7 +17,7 @@ function populateCartaoSelect(){
   if(!sel)return;
   const cur=sel.value;
   sel.innerHTML='<option value="">Selecione o cartão usado</option>'+
-    cartoes.map(c=>`<option value="${c.id}">${c.nome} •••• ${c.final} (${c.banco})</option>`).join('');
+    cartoes.map(c=>`<option value="${c.id}">${escHTML(c.nome)} •••• ${escHTML(c.final)} (${escHTML(c.banco)})</option>`).join('');
   sel.value=cur;
 }
 
@@ -98,9 +98,9 @@ const CARTAO_MODELOS = {
 function cartaoVisualHTML(c, w, h){
   const cor = c.cor || '#C8A96E';
   const modelo = CARTAO_MODELOS[c.modelo] ? c.modelo : 'preto';
-  const final = c.final || '0000';
-  const banco = c.banco || 'FinRossi';
-  const nome = (c.nome || '').toUpperCase();
+  const final = escHTML(c.final || '0000');
+  const banco = escHTML(c.banco || 'FinRossi');
+  const nome = escHTML((c.nome || '').toUpperCase());
   const bandeira = `<div style="flex-shrink:0;transform:scale(${(w/300).toFixed(2)});transform-origin:top right">${CARTAO_BANDEIRAS[c.bandeira]||''}</div>`;
   const chip = `<svg width="${Math.round(w*0.15)}" height="${Math.round(h*0.16)}" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/></svg>`;
   const bgByModelo = {
@@ -217,18 +217,18 @@ function renderCartoes(){
         <div style="${MODELO_BG_FULL[modelo]};border-radius:18px;padding:24px;position:relative;overflow:hidden;height:190px;box-shadow:0 8px 32px ${cor}33,0 2px 8px rgba(0,0,0,.5);margin-bottom:16px">
           ${decorFull}
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative">
-            <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${c.banco}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${escHTML(c.banco)}</div>
             <div style="display:flex;gap:6px">
               <button class="btn xs" onclick="openModalCartao('${c.id}')" title="Editar" aria-label="Editar cartão" style="background:rgba(255,255,255,.15);border:none;color:white">${ICO_EDITAR}</button>
               <button class="btn danger xs" onclick="remCartao('${c.id}')" title="Excluir" aria-label="Excluir cartão" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
             </div>
           </div>
           <div style="margin-bottom:16px;position:relative">${CHIP}</div>
-          <div style="font-size:16px;letter-spacing:4px;color:rgba(255,255,255,.9);font-family:monospace;margin-bottom:16px;position:relative">•••• •••• •••• ${c.final||'0000'}</div>
+          <div style="font-size:16px;letter-spacing:4px;color:rgba(255,255,255,.9);font-family:monospace;margin-bottom:16px;position:relative">•••• •••• •••• ${escHTML(c.final||'0000')}</div>
           <div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
             <div>
               <div style="font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Titular</div>
-              <div style="font-size:13px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${c.nome}</div>
+              <div style="font-size:13px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${escHTML(c.nome)}</div>
             </div>
             <div>${bandSVG}</div>
           </div>
@@ -254,7 +254,7 @@ function renderCartoes(){
       const cartao = cartoes.find(c=>c.id===l.cartaoId);
       return `<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
         <div class="ext-dia"><b>${l.data.slice(8,10)}</b><span>${MESES_CURTOS[+l.data.slice(5,7)-1]}</span></div>
-        <div style="min-width:0"><div class="ext-tit">${l.desc}</div><div class="ext-meta">${l.cat}, ${cartao?`${cartao.nome} final ${cartao.final}`:'cartão removido'}</div></div>
+        <div style="min-width:0"><div class="ext-tit">${escHTML(l.desc)}</div><div class="ext-meta">${escHTML(l.cat)}, ${cartao?`${escHTML(cartao.nome)} final ${escHTML(cartao.final)}`:'cartão removido'}</div></div>
         <div class="ext-valor">− ${fmtR(l.val).replace(/^R\$\s?/,'')}</div>
       </div>`;
     }).join('') : '';

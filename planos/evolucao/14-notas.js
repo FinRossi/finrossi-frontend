@@ -65,7 +65,7 @@ function renderNotas(){
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
           <div style="width:7px;height:7px;border-radius:50%;background:${c.dot};flex-shrink:0"></div>
-          <div class="meta-tit" style="font-size:17px">${n.titulo}</div>
+          <div class="meta-tit" style="font-size:17px">${escHTML(n.titulo)}</div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button class="btn xs" onclick="abrirEditNota('${n.id}')" title="Editar" aria-label="Editar nota">${ICO_EDITAR}</button>
@@ -74,7 +74,7 @@ function renderNotas(){
       </div>
       ${preview?`<div style="font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${preview}</div>`:''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:11.5px;color:var(--muted)">
-        <span class="fr-selo">${n.cat}</span>
+        <span class="fr-selo">${escHTML(n.cat)}</span>
         <span>${n.data}${n.hora?' às '+n.hora:''}</span>
       </div>
     </div>`;

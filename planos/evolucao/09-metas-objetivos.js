@@ -58,7 +58,7 @@ function renderMetas(){
       const cor=m.cor||'var(--accent)';
       return`<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-          <div class="meta-tit">${m.icone?m.icone+' ':''}${m.nome}</div>
+          <div class="meta-tit">${m.icone?escHTML(m.icone)+' ':''}${escHTML(m.nome)}</div>
           <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
             ${atingida?'<span class="fr-selo ok">Atingida</span>':''}
             <button class="btn xs" onclick="openModalMeta('${m.id}')" title="Editar" aria-label="Editar meta">${ICO_EDITAR}</button>
@@ -86,7 +86,7 @@ function renderSim(){
 
   const rows=metas.map(m=>{
     const investido=m.investido||0;
-    const nome=`${m.icone?m.icone+' ':''}${m.nome}`;
+    const nome=`${m.icone?escHTML(m.icone)+' ':''}${escHTML(m.nome)}`;
     if(investido>=m.valor)return`
       <div class="sim-linha"><div class="sim-nome">${nome}</div><span class="fr-selo ok">Atingida</span></div>`;
     let s=investido,mes=0;
@@ -154,7 +154,7 @@ const PCOL={alta:'var(--red)',media:'var(--accent)',baixa:'var(--muted)'}, PLBL=
 function renderObjItem(o){
   return`<div class="obj-item">
     <div class="obj-check ${o.done?'done':''}" onclick="toggleObj('${o.id}')">${o.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
-    <div style="flex:1"><div class="obj-text ${o.done?'done':''}">${o.desc}</div>
+    <div style="flex:1"><div class="obj-text ${o.done?'done':''}">${escHTML(o.desc)}</div>
       <div class="obj-meta-row"><span style="color:${PCOL[o.prioridade]}">${PLBL[o.prioridade]}</span>${o.data?`<span>até ${o.data.split('-').reverse().join('/')}</span>`:''}</div></div>
     <div style="display:flex;gap:4px"><button class="btn xs" onclick="openModalObj('${o.id}')">${ICO_EDITAR}</button><button class="btn danger xs" onclick="remObj('${o.id}')">✕</button></div>
   </div>`;
@@ -215,7 +215,7 @@ function renderObjDash(){
           <div style="width:14px;height:14px;border-radius:4px;background:var(--green);flex-shrink:0;display:flex;align-items:center;justify-content:center">
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <span style="font-size:12px;text-decoration:line-through;color:var(--muted);flex:1">${o.desc}</span>
+          <span style="font-size:12px;text-decoration:line-through;color:var(--muted);flex:1">${escHTML(o.desc)}</span>
         </div>`).join('');
     }
 
@@ -225,7 +225,7 @@ function renderObjDash(){
       elPend.innerHTML=pendList.map(o=>`
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
           <div style="width:8px;height:8px;border-radius:50%;background:${PCOL[o.prioridade]};flex-shrink:0"></div>
-          <span style="font-size:12px;flex:1;color:var(--text)">${o.desc}</span>
+          <span style="font-size:12px;flex:1;color:var(--text)">${escHTML(o.desc)}</span>
           <span style="font-size:10px;color:${PCOL[o.prioridade]};white-space:nowrap">${PLBL[o.prioridade]}</span>
         </div>`).join('');
     }

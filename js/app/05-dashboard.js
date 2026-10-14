@@ -280,8 +280,8 @@ function refreshDash(){
           const restam=g.n-g.pagas;
           return`<div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px;border-left:3px solid ${concluida?'var(--green)':'var(--amber)'}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:6px">
-              <div><div style="font-size:13px;font-weight:500">${g.desc}</div>
-              <div style="font-size:11px;color:var(--muted)">${g.cat} · ${fmtR(g.valParc)}/mês</div></div>
+              <div><div style="font-size:13px;font-weight:500">${escHTML(g.desc)}</div>
+              <div style="font-size:11px;color:var(--muted)">${escHTML(g.cat)} · ${fmtR(g.valParc)}/mês</div></div>
               <div style="text-align:right">${concluida
                 ?`<span style="font-size:11px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px">✓ Quitado</span>`
                 :`<div style="font-size:12px;color:var(--amber);font-weight:500">${restam}x restantes</div>`}
@@ -552,7 +552,7 @@ function populateDashMetaSel(){
   const metas=pd().metas, sel=document.getElementById('dash-meta-sel');
   if(!sel) return;
   const cur=sel.value;
-  sel.innerHTML='<option value="">Selecione uma meta</option>'+metas.map(m=>`<option value="${m.id}" ${m.id===cur?'selected':''}>${m.icone?m.icone+' ':''}${m.nome}, ${fmtR0(m.valor)}</option>`).join('');
+  sel.innerHTML='<option value="">Selecione uma meta</option>'+metas.map(m=>`<option value="${m.id}" ${m.id===cur?'selected':''}>${m.icone?escHTML(m.icone)+' ':''}${escHTML(m.nome)}, ${fmtR0(m.valor)}</option>`).join('');
 }
 
 function renderDashMeta(){
@@ -577,7 +577,7 @@ function renderDashMeta(){
       <span>Falta: <strong style="color:var(--amber)">${fmtR(falta)}</strong></span>
     </div>
     <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden"><div style="width:${pct.toFixed(1)}%;height:100%;background:${cor};border-radius:4px"></div></div>
-    <div style="text-align:center;margin-top:4px;font-size:13px;font-weight:500">${pct.toFixed(1).replace('.',',')}% de ${meta.icone?meta.icone+' ':''}${meta.nome}</div>`;
+    <div style="text-align:center;margin-top:4px;font-size:13px;font-weight:500">${pct.toFixed(1).replace('.',',')}% de ${meta.icone?escHTML(meta.icone)+' ':''}${escHTML(meta.nome)}</div>`;
 }
 
 let _dashCartaoSelId=null;
@@ -621,7 +621,7 @@ function renderDashCartaoWidget(){
   if(selWrap){
     selWrap.innerHTML = cartoes.length>1 ? `
       <select onclick="event.stopPropagation()" onchange="selecionarCartaoDash(this.value)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:5px 8px;font-size:11px;font-family:'DM Sans',sans-serif;outline:none;width:auto;max-width:130px;cursor:pointer">
-        ${cartoes.map(cc=>`<option value="${cc.id}" ${cc.id===c.id?'selected':''}>${cc.nome} •••• ${cc.final}</option>`).join('')}
+        ${cartoes.map(cc=>`<option value="${cc.id}" ${cc.id===c.id?'selected':''}>${escHTML(cc.nome)} •••• ${escHTML(cc.final)}</option>`).join('')}
       </select>` : '';
   }
   el.innerHTML=`
@@ -663,7 +663,7 @@ function renderLegendaCat(chart){
     const pct = visivel && vis > 0 ? Math.round(d.cV[i] / vis * 100) + '%' : 'fora';
     return `<div class="cat-leg${visivel ? '' : ' fora'}" onclick="toggleCatSlice(${i})" data-cat-idx="${i}" role="button" tabindex="0" title="${visivel ? 'Tirar do gráfico' : 'Voltar ao gráfico'}">
       <span class="cat-leg-cor" style="background:${d.cores[i]}"></span>
-      <span class="cat-leg-nome">${label}</span>
+      <span class="cat-leg-nome">${escHTML(label)}</span>
       <span class="cat-leg-val">${fmtR(d.cV[i])}</span>
       <span class="cat-leg-pct">${pct}</span>
     </div>`;

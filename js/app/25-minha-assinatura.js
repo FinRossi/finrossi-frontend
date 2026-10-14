@@ -98,6 +98,7 @@ async function renderMinhaAssinatura(){
         <ul class="ma-recursos">
           ${RECURSOS.map(([rotulo, ok]) => `<li class="${ok?'':'fora'}">${ok?ICO_OK:'<i></i>'}<span>${rotulo}${typeof ok==='string'?`<small>, ${ok}</small>`:''}</span></li>`).join('')}
         </ul>
+        <p class="fr-card-sub" style="margin:12px 0 0">Seus dados ficam na sua conta. Ao mudar de plano, nada é apagado: o que não fizer parte do novo plano só fica bloqueado e volta a aparecer quando o recurso for liberado.</p>
       </div>
     </div>
 

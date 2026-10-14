@@ -15,7 +15,7 @@ function renderHistorico(){
   selMes.innerHTML='<option value="">Todos os meses</option>'+mesUniq.map(m=>`<option value="${m}" ${m===cM?'selected':''}>${mesLbl(m+'-01')}</option>`).join('');
   const cats=[...new Set(lancs.map(l=>l.cat))].sort();
   const selCat=document.getElementById('h-cat'),cC=selCat.value;
-  selCat.innerHTML='<option value="">Todas as categorias</option>'+cats.map(c=>`<option value="${c}" ${c===cC?'selected':''}>${c}</option>`).join('');
+  selCat.innerHTML='<option value="">Todas as categorias</option>'+cats.map(c=>`<option value="${escHTML(c)}" ${c===cC?'selected':''}>${escHTML(c)}</option>`).join('');
   let lista=[...lancs].sort((a,b)=>b.data.localeCompare(a.data));
   if(filtroMes)lista=lista.filter(l=>l.data.startsWith(filtroMes));
   if(filtroTipo)lista=lista.filter(l=>l.tipo===filtroTipo);
@@ -49,14 +49,14 @@ function renderHistorico(){
       </div>
       ${g.itens.map(l=>{
         const dia=l.data.slice(8,10);
-        const detalhes=[l.cat, l.metodo?(METODO_NOME[l.metodo]||l.metodo):''].filter(Boolean).join(', ');
+        const detalhes=escHTML([l.cat, l.metodo?(METODO_NOME[l.metodo]||l.metodo):''].filter(Boolean).join(', '));
         const parc=l.parcelado?` <span class="ext-parc">parcela ${l.parcela}/${l.totalParcelas}</span>`:'';
-        const obs=l.obs?`<div class="ext-meta">${l.obs}</div>`:'';
+        const obs=l.obs?`<div class="ext-meta">${escHTML(l.obs)}</div>`:'';
         const sinal=l.tipo==='receita'?'+':'−';
         return`<div class="ext-linha">
           <div class="ext-dia"><b>${dia}</b><span>${MESES_CURTOS[+mo-1]}</span></div>
           <div style="min-width:0">
-            <div class="ext-tit">${l.desc}</div>
+            <div class="ext-tit">${escHTML(l.desc)}</div>
             <div class="ext-meta">${detalhes}${parc}</div>${obs}
           </div>
           <div class="ext-valor ${l.tipo}">${sinal} ${valorFmt(l.val)}</div>

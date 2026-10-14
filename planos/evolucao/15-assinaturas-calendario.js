@@ -84,7 +84,7 @@ function renderAssinaturas(){
           :urgente?`<span class="fr-selo destaque">${diasFaltam===0?'Cobra hoje':`Cobra em ${diasFaltam} ${diasFaltam===1?'dia':'dias'}`}</span>`:'';
         return`<div class="ext-linha${pausada?' pausada':''}">
           <div class="ext-dia"><b>${String(a.dia).padStart(2,'0')}</b><span>mensal</span></div>
-          <div style="min-width:0"><div class="ext-tit">${a.nome}</div><div class="ext-meta">${a.cat}</div></div>
+          <div style="min-width:0"><div class="ext-tit">${escHTML(a.nome)}</div><div class="ext-meta">${escHTML(a.cat)}</div></div>
           <div class="ext-valor-col"><div class="ext-valor">${fmtR(a.val)}</div>${selo}</div>
           <div class="ext-acoes">
             <button class="btn xs" onclick="openModalAssin('${a.id}')" title="Editar" aria-label="Editar assinatura">${ICO_EDITAR}</button>
@@ -189,7 +189,7 @@ function renderRecorrentes(){
       const lançado=pd().lancs.some(l=>l.desc===r.desc&&l.data===data&&l.tipo==='despesa'&&l.recorrente);
       return`<div class="ext-linha">
         <div class="ext-dia"><b>${String(r.dia).padStart(2,'0')}</b><span>mensal</span></div>
-        <div style="min-width:0"><div class="ext-tit">${r.desc}</div><div class="ext-meta">${r.cat}</div></div>
+        <div style="min-width:0"><div class="ext-tit">${escHTML(r.desc)}</div><div class="ext-meta">${escHTML(r.cat)}</div></div>
         <div class="ext-valor-col"><div class="ext-valor">${fmtR(r.val)}</div>${lançado?'<span class="fr-selo ok">Lançada</span>':'<span class="fr-selo destaque">A lançar</span>'}</div>
         <div class="ext-acoes">
           <button class="btn xs" onclick="openModalRec('${r.id}')" title="Editar" aria-label="Editar conta">${ICO_EDITAR}</button>
@@ -270,7 +270,7 @@ function renderCalendario(){
 
     cells+=`<div class="${classes}"${evts.length?` onclick="mostrarDiaCalendario(${d})"`:''}>
       <div class="cal-num">${d}</div>
-      ${evts.slice(0,2).map(e=>`<div class="cal-evt${e.tipo==='receita'?' receita':atrasado(e)?' atraso':''}">${e.label}</div>`).join('')}
+      ${evts.slice(0,2).map(e=>`<div class="cal-evt${e.tipo==='receita'?' receita':atrasado(e)?' atraso':''}">${escHTML(e.label)}</div>`).join('')}
       ${evts.length>2?`<div class="cal-evt">+${evts.length-2}</div>`:''}
       ${evts.length?`<div class="cal-marca ${marca}"></div>`:''}
     </div>`;
@@ -304,7 +304,7 @@ function renderCalendario(){
     const tipoNome=e.tipo==='recorrente'?'Conta recorrente':e.tipo==='assinatura'?'Assinatura':e.tipo==='receita'?'Receita':'Despesa';
     return`<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
       <div class="ext-dia"><b>${String(e.dia).padStart(2,'0')}</b><span>${mesCurto}</span></div>
-      <div style="min-width:0"><div class="ext-tit">${e.label}</div><div class="ext-meta">${tipoNome}</div></div>
+      <div style="min-width:0"><div class="ext-tit">${escHTML(e.label)}</div><div class="ext-meta">${tipoNome}</div></div>
       <div class="ext-valor-col"><div class="ext-valor ${e.tipo==='receita'?'receita':''}">${e.tipo==='receita'?'+':'−'} ${fmtR(e.val).replace(/^R\$\s?/,'')}</div>${selo}</div>
     </div>`;
   }).join('');
