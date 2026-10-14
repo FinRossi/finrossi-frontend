@@ -86,10 +86,10 @@ function aplicarAtalhos(){
 function renderAtalhosConfig(){
   const el = document.getElementById('cfg-atalhos');
   if(!el) return;
-  if(!atalhosTemAcesso()){
-    el.innerHTML = `<div class="atalhos-bloqueado">Escolher os atalhos da barra faz parte do plano Patrimônio.</div>`;
-    return;
-  }
+  // Seção inteira só aparece no plano que permite personalizar
+  const secao = document.getElementById('cfg-atalhos-secao');
+  if(secao) secao.style.display = atalhosTemAcesso() ? '' : 'none';
+  if(!atalhosTemAcesso()){ el.innerHTML = ''; return; }
   const atual = getAtalhos();
   const opcoes = Object.keys(ATALHOS_NOME).filter(_atalhoPermitido);
   el.innerHTML = `

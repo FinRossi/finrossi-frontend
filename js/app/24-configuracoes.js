@@ -216,7 +216,10 @@ function renderDashConfigCards(){
   const el = document.getElementById('cfg-dash-cards');
   if(!el) return;
   const cfg = getDashConfig();
-  el.innerHTML = DASH_CARDS_DEF.map(card=>`
+  // Só blocos que existem no plano do cliente
+  const PRECISA = { meta: 'metas' };
+  const cards = DASH_CARDS_DEF.filter(c => !PRECISA[c.id] || typeof verComoPlanoPermite !== 'function' || verComoPlanoPermite(PRECISA[c.id]));
+  el.innerHTML = cards.map(card=>`
     <label style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;gap:12px">
       <div>
         <div style="font-size:13px;font-weight:500">${card.label}</div>

@@ -52,7 +52,9 @@ function renderNavConfigCards(){
   const groups={menu:'Menu',controles:'Controles'};
   let html='';
   Object.entries(groups).forEach(([g,label])=>{
-    const items=NAV_ITEMS_DEF.filter(i=>i.group===g && !navOcultoNoPerfil(i.id));
+    // Só as telas que o plano libera (as outras aparecem no menu com cadeado, sem interruptor)
+    const items=NAV_ITEMS_DEF.filter(i=>i.group===g && !navOcultoNoPerfil(i.id) && verComoPlanoPermite(i.id));
+    if(!items.length) return;
     html+=`<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 6px">${label}</div>`;
     html+=items.map(item=>{
       const on=cfg[item.id]!==false;
