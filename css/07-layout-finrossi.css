@@ -256,3 +256,15 @@
 /* Aba Investimento (Lançamentos) fora do plano: mesmo cadeado do menu */
 .tab-btn.nav-bloqueado{opacity:.55;display:inline-flex;align-items:center;gap:6px}
 .tab-btn.nav-bloqueado::after{content:"";width:11px;height:11px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ── Cor do app clara (Patrimônio): destaque vira dourado escuro, então o texto
+   sobre ele passa a ser claro (botões, dia escolhido, botões com estilo no próprio HTML) */
+[data-cor-fundo="clara"] .btn.primary,
+[data-cor-fundo="clara"] .lanc-foto-bar .lanc-foto-principal,
+[data-cor-fundo="clara"] .dp-day.selected,
+[data-cor-fundo="clara"] .dash-widget-eye:hover,[data-cor-fundo="clara"] .dash-widget-handle:hover,
+[data-cor-fundo="clara"] [style*="background:var(--accent)"][style*="color:#0f0f0f"]{color:#f7f1e3!important}
+[data-cor-fundo="clara"] .btn.primary:hover{background:var(--accent-hover)}
+[data-cor-fundo="clara"] .ced-pos,[data-cor-fundo="clara"] .ext-valor.receita{color:#15803d}
+[data-cor-fundo="clara"] .ced-neg{color:#b91c1c}
+[data-cor-fundo="clara"]{--green:#15803d;--green-s:rgba(21,128,61,.12);--red:#b91c1c;--red-s:rgba(185,28,28,.1);--amber:#a16207}

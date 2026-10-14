@@ -758,23 +758,80 @@ function gerarTonalidades(hexBase){
 }
 
 
+// Cor personalizada (Patrimônio) = o FUNDO do app inteiro, como os temas Azul/Preto.
+// O dourado continua sendo o destaque em qualquer cor. Cor clara (ex.: dourado, bege) vira
+// um fundo claro no tom escolhido, com letras pretas e destaque num dourado escuro.
+const _VARS_COR_FUNDO = ['--bg','--surface','--surface2','--surface3','--surface4','--border','--border2',
+  '--text','--muted','--muted2','--accent','--accent-hover','--accent-light','--accent-dark','--accent-s'];
+
+function _luminancia(hex){
+  const c = [1,3,5].map(i => parseInt(hex.slice(i,i+2),16)/255).map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+  return 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
+}
+function gerarTemaPorCor(hex){
+  const [h, s] = hexParaHSL(hex);
+  if(_luminancia(hex) > 0.3){
+    const sat = Math.min(s, 60);
+    return { claro: true,
+      '--bg': hslParaHex(h, sat*0.8, 76), '--surface': hslParaHex(h, sat*0.65, 85), '--surface2': hslParaHex(h, sat*0.75, 71),
+      '--surface3': hslParaHex(h, sat*0.75, 65), '--surface4': hslParaHex(h, sat*0.7, 59),
+      '--border': 'rgba(0,0,0,0.10)', '--border2': 'rgba(0,0,0,0.18)',
+      '--text': '#15110a', '--muted': '#463d2c', '--muted2': '#6b604b',
+      '--accent': '#4a3608', '--accent-hover': '#3a2a05', '--accent-light': '#6b4f14', '--accent-dark': '#2a1e03', '--accent-s': 'rgba(74,54,8,0.12)' };
+  }
+  const sat = Math.min(s, 55);
+  return { claro: false,
+    '--bg': hslParaHex(h, sat*0.9, 9), '--surface': hslParaHex(h, sat*0.8, 13), '--surface2': hslParaHex(h, sat*0.7, 16.5),
+    '--surface3': hslParaHex(h, sat*0.6, 20.5), '--surface4': hslParaHex(h, sat*0.55, 24),
+    '--border': 'rgba(255,255,255,0.08)', '--border2': 'rgba(255,255,255,0.15)',
+    '--text': '#f0ede8', '--muted': hslParaHex(h, Math.min(sat, 12), 60), '--muted2': hslParaHex(h, Math.min(sat, 10), 40),
+    '--accent': '#C8A96E', '--accent-hover': '#D8BC8A', '--accent-light': '#E8C96D', '--accent-dark': '#8A6A1A', '--accent-s': 'rgba(200,169,110,0.12)' };
+}
+
+function _corPadraoAtiva(){ try{ return !localStorage.getItem('fin_cor_tema'); }catch(e){ return true; } }
+
 function aplicarCorTema(hex, persistir){
   if(persistir === undefined) persistir = true;
-  const t = gerarTonalidades(hex);
+  if(!hex || hex === 'padrao'){ limparCorTema(persistir); return; }
+  const tema = gerarTemaPorCor(hex);
   const root = document.documentElement;
-  root.style.setProperty('--accent', t.accent);
-  root.style.setProperty('--accent-hover', t.accentHover);
-  root.style.setProperty('--accent-light', t.accentLight);
-  root.style.setProperty('--accent-dark', t.accentDark);
-  root.style.setProperty('--accent-s', hexParaRgba(hex, 0.12));
-
+  _VARS_COR_FUNDO.forEach(v => root.style.setProperty(v, tema[v]));
+  root.setAttribute('data-cor-fundo', tema.claro ? 'clara' : 'escura');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', tema['--bg']);
   atualizarSeletorCoresUI(hex);
-
   if(persistir){
     localStorage.setItem('fin_cor_tema', hex);
     salvarCorTemaFirebase(hex);
   }
+  if(typeof refreshDash === 'function') try{ refreshDash(); }catch(e){}
 }
+
+// Volta ao tema escolhido (Escuro/Claro/Azul) — sem cor personalizada
+function limparCorTema(persistir){
+  const root = document.documentElement;
+  _VARS_COR_FUNDO.forEach(v => root.style.removeProperty(v));
+  root.removeAttribute('data-cor-fundo');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', '#0f0f0f');
+  atualizarSeletorCoresUI('padrao');
+  if(persistir !== false){
+    try{ localStorage.removeItem('fin_cor_tema'); }catch(e){}
+    salvarCorTemaFirebase(null);
+  }
+  if(typeof refreshDash === 'function') try{ refreshDash(); }catch(e){}
+}
+
+// Tema e cor não brigam: escolher um tema (ou o All Black) tira a cor personalizada
+(function(){
+  ['setTema','toggleAllBlack'].forEach(nome => {
+    const f = window[nome]; if(typeof f !== 'function') return;
+    window[nome] = function(){
+      if(!_corPadraoAtiva() && document.documentElement.hasAttribute('data-cor-fundo')) limparCorTema(true);
+      return f.apply(this, arguments);
+    };
+  });
+})();
 
 async function salvarCorTemaFirebase(hex){
   if(window._db && window._set && window._ref && window._firebaseUser){
@@ -787,6 +844,10 @@ let _corTemaCarregada = false;
 async function carregarCorTema(){
   let hex = null;
   try{ hex = localStorage.getItem('fin_cor_tema'); }catch(e){}
+  // Aplica na hora a cor salva no aparelho; a nuvem só corrige se for diferente
+  // (antes esperava até 4 s pelo banco e a cor aparecia atrasada)
+  const local = hex;
+  if(local) aplicarCorTema(local, false);
 
   if(window._db && window._ref && window._onValue && window._firebaseUser){
     try{
@@ -799,22 +860,23 @@ async function carregarCorTema(){
     }catch(e){ /* segue com o que tiver salvo local, se tiver */ }
   }
 
-  if(hex) aplicarCorTema(hex, false);
+  if(hex && hex !== local) aplicarCorTema(hex, false);
 }
 
 function escolherCorPaleta(hex){ aplicarCorTema(hex, true); }
 function escolherCorCustom(hex){ aplicarCorTema(hex, true); }
 
 function atualizarSeletorCoresUI(hexAtivo){
+  const ativo = (hexAtivo||'padrao').toLowerCase();
   document.querySelectorAll('.cor-paleta-item').forEach(el=>{
-    el.classList.toggle('cor-ativa', el.dataset.hex.toLowerCase()===hexAtivo.toLowerCase());
+    el.classList.toggle('cor-ativa', el.dataset.hex.toLowerCase()===ativo);
   });
   const picker = document.getElementById('cor-custom-picker');
-  if(picker) picker.value = hexAtivo;
+  if(picker && /^#[0-9a-f]{6}$/.test(ativo)) picker.value = ativo;
 }
 
 // Cores do Patrimônio: a cor padrão FinRossi, as cores que o cliente salvou e o seletor livre.
-const COR_PADRAO_FINROSSI = '#C8A96E';
+const COR_PADRAO_FINROSSI = 'padrao';   // sem cor personalizada: o tema escolhido (Escuro/Claro/Azul)
 const MAX_CORES_SALVAS = 6;
 let _coresSalvasNuvem = null;
 
@@ -836,7 +898,7 @@ function salvarCorAtual(){
   const avisar = (t, cls) => { if(msg){ msg.textContent = t; msg.className = 'msg ' + cls; setTimeout(()=>{ msg.textContent=''; msg.className='msg'; }, 2600); } };
   if(!/^#[0-9a-f]{6}$/.test(hex)) return;
   const lista = getCoresSalvas();
-  if(hex === COR_PADRAO_FINROSSI.toLowerCase() || lista.includes(hex)){ avisar('Essa cor já está salva', 'err'); return; }
+  if(lista.includes(hex)){ avisar('Essa cor já está salva', 'err'); return; }
   if(lista.length >= MAX_CORES_SALVAS){ avisar(`Você pode salvar até ${MAX_CORES_SALVAS} cores. Remova uma para salvar outra.`, 'err'); return; }
   _gravarCoresSalvas([...lista, hex]);
   aplicarCorTema(hex, true);
@@ -851,26 +913,27 @@ function removerCorSalva(hex){
 function renderCoresPatrimonio(){
   const wrap = document.getElementById('patrimonio-cores-wrap');
   if(!wrap) return;
-  const corAtual = (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || COR_PADRAO_FINROSSI);
+  let corAtual = COR_PADRAO_FINROSSI;
+  try{ corAtual = localStorage.getItem('fin_cor_tema') || COR_PADRAO_FINROSSI; }catch(e){}
   const salvas = getCoresSalvas();
   const amostra = (hex, nome, removivel) => `
     <div class="cor-amostra">
       <div class="cor-paleta-item" data-hex="${hex}" title="${nome}" role="button" tabindex="0" aria-label="Usar ${nome}"
-           onclick="escolherCorPaleta('${hex}')" onkeydown="if(event.key==='Enter')escolherCorPaleta('${hex}')" style="background:${hex}"></div>
+           onclick="escolherCorPaleta('${hex}')" onkeydown="if(event.key==='Enter')escolherCorPaleta('${hex}')" style="${hex === COR_PADRAO_FINROSSI ? 'background:#0f0f0f;box-shadow:inset 0 0 0 3px #0f0f0f,inset 0 0 0 4px #C8A96E' : 'background:' + hex}"></div>
       ${removivel ? `<button class="cor-remover" type="button" onclick="removerCorSalva('${hex}')" aria-label="Remover ${nome}" title="Remover">✕</button>` : ''}
     </div>`;
   wrap.innerHTML = `
     <label style="font-size:11px;color:var(--muted);display:block;margin:16px 0 10px">Cores</label>
     <div class="cores-caixa">
-      <div style="font-size:12px;font-weight:500;margin-bottom:2px">Cor de destaque do app</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Muda a identidade visual inteira, na hora</div>
+      <div style="font-size:12px;font-weight:500;margin-bottom:2px">Cor do app</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Pinta o fundo do app inteiro na cor escolhida. O dourado continua nos destaques; em cores claras, as letras ficam pretas.</div>
       <div class="cores-grade">
-        ${amostra(COR_PADRAO_FINROSSI, 'Dourado FinRossi', false)}
+        ${amostra(COR_PADRAO_FINROSSI, 'Padrão FinRossi', false)}
         ${salvas.map((hex, i) => amostra(hex, 'Minha cor ' + (i + 1), true)).join('')}
       </div>
       ${salvas.length ? '' : '<div style="font-size:11px;color:var(--muted);margin-top:8px">Escolha uma cor abaixo e toque em "Salvar cor" para guardá-la aqui.</div>'}
       <div class="cores-livre">
-        <input type="color" id="cor-custom-picker" value="${corAtual}" onchange="escolherCorCustom(this.value)" aria-label="Escolher outra cor">
+        <input type="color" id="cor-custom-picker" value="${/^#/.test(corAtual) ? corAtual : '#1f3a5f'}" onchange="escolherCorCustom(this.value)" aria-label="Escolher outra cor">
         <div style="flex:1;font-size:11.5px;color:var(--muted)">Escolha qualquer cor</div>
         <button class="btn sm" type="button" onclick="salvarCorAtual()">Salvar cor</button>
       </div>
