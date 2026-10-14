@@ -62,22 +62,63 @@ function rosetaGuillocheViva(){
 // Valor sobe de zero até o número real (só na primeira abertura; respeita "reduzir movimento").
 // O dashboard é redesenhado algumas vezes ao abrir (dados locais, depois a nuvem): a contagem
 // continua no elemento novo, pelo id, e mira sempre o valor mais recente.
-let _cedConta = null;
-function cedContando(){ return !!_cedConta; }
-function contarValorCedula(id, alvo, ms){
-  const el = document.getElementById(id);
-  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ if(el) el.innerHTML = valorCedula(alvo); return; }
-  if(_cedConta){ _cedConta.alvo = alvo; _cedConta.id = id; return; }
-  _cedConta = { t0: performance.now(), dur: ms || 1400, alvo, id };
+// Vários valores podem contar ao mesmo tempo (patrimônio, receitas, despesas, saldo), cada um
+// do valor anterior ("de") até o novo ("alvo").
+const _cedContas = {};
+let _cedLoop = false;
+function _cedSemMovimento(){ return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; }
+function _cedInterp(c, agora){
+  const k = Math.min(1, (agora - c.t0) / c.dur);
+  const suave = 1 - Math.pow(1 - k, 3);
+  return { k, v: k < 1 ? Math.round((c.de + (c.alvo - c.de) * suave) * 100) / 100 : c.alvo };
+}
+function cedContando(id){ return id ? !!_cedContas[id] : Object.keys(_cedContas).length > 0; }
+function cedValorAtual(id){ const c = _cedContas[id]; return c ? _cedInterp(c, performance.now()).v : null; }
+function contarValorCedula(id, alvo, ms, de){
+  if(_cedSemMovimento()){ const el = document.getElementById(id); if(el) el.innerHTML = valorCedula(alvo); return; }
+  if(_cedContas[id]){ _cedContas[id].alvo = alvo; return; }
+  _cedContas[id] = { t0: performance.now(), dur: ms || 1400, de: de || 0, alvo };
+  if(_cedLoop) return;
+  _cedLoop = true;
   const passo = agora => {
-    const c = _cedConta; if(!c) return;
-    const k = Math.min(1, (agora - c.t0) / c.dur);
-    const suave = 1 - Math.pow(1 - k, 3);
-    const alvoEl = document.getElementById(c.id);
-    if(alvoEl) alvoEl.innerHTML = valorCedula(k < 1 ? Math.round(c.alvo * suave * 100) / 100 : c.alvo);
-    if(k < 1) requestAnimationFrame(passo); else _cedConta = null;
+    Object.keys(_cedContas).forEach(i => {
+      const { k, v } = _cedInterp(_cedContas[i], agora);
+      const el = document.getElementById(i);
+      if(el) el.innerHTML = valorCedula(v);
+      if(k >= 1) delete _cedContas[i];
+    });
+    if(Object.keys(_cedContas).length) requestAnimationFrame(passo); else _cedLoop = false;
   };
   requestAnimationFrame(passo);
+}
+
+// Últimos valores que o cliente VIU no dashboard (por perfil e mês). Quando ele volta ao
+// dashboard depois de lançar algo — ou abre o app de novo — os números andam do que ele viu
+// até o valor atual, com um selo da diferença: a sensação de ver o dinheiro se mexer.
+function cedVistos(chave){
+  try{ return (JSON.parse(localStorage.getItem('fin_ced_vistos') || '{}'))[chave] || null; }catch(e){ return null; }
+}
+function cedGuardarVistos(chave, valores){
+  try{
+    const tudo = JSON.parse(localStorage.getItem('fin_ced_vistos') || '{}');
+    tudo[chave] = valores;
+    localStorage.setItem('fin_ced_vistos', JSON.stringify(tudo));
+  }catch(e){}
+}
+// Selo "+ R$ 150,00" que aparece ao lado do valor e some sozinho (sobrevive aos redesenhos)
+const _cedDeltas = {};
+const CED_DELTA_MS = 3600;
+function cedMarcarDelta(id, diferenca, bomSubir){
+  if(!diferenca || _cedSemMovimento()) return;
+  const bom = bomSubir ? diferenca > 0 : diferenca < 0;
+  _cedDeltas[id] = { txt: `${diferenca > 0 ? '+' : '−'} ${fmtR(Math.abs(diferenca))}`, cls: bom ? 'pos' : 'neg', ate: performance.now() + CED_DELTA_MS };
+}
+function cedDeltaHTML(id){
+  const d = _cedDeltas[id];
+  if(!d) return '';
+  const resta = d.ate - performance.now();
+  if(resta <= 0){ delete _cedDeltas[id]; return ''; }
+  return `<span class="ced-delta ${d.cls}" style="animation-delay:-${Math.round(CED_DELTA_MS - resta)}ms">${d.txt}</span>`;
 }
 
 // Valor monetário com o "R$" pequeno, como numa cédula

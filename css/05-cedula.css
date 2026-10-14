@@ -113,3 +113,13 @@
 .ced-brilho.extra::after{animation:ced-brilho-extra 1.1s cubic-bezier(.3,.6,.3,1)}
 @keyframes ced-brilho-extra{0%{left:-40%;opacity:1}100%{left:120%;opacity:1}}
 @media(prefers-reduced-motion:reduce){.ced-brilho.extra::after{animation:none}}
+
+/* Diferença desde a última visita: "+ R$ 150,00" ao lado do valor, some sozinho */
+.ced-valor-linha{display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative;z-index:1}
+.ced-delta{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:4px 9px;border-radius:5px;white-space:nowrap;
+  font-variant-numeric:tabular-nums;animation:ced-delta 3.6s ease forwards}
+.ced-item .ced-delta{font-size:11.5px;padding:3px 7px}
+.ced-delta.pos{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid color-mix(in srgb,var(--green) 35%,transparent)}
+.ced-delta.neg{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid color-mix(in srgb,var(--red) 35%,transparent)}
+@keyframes ced-delta{0%{opacity:0;transform:translateY(6px)}10%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
+@media(max-width:767px){.ced-item .ced-valor-linha{gap:8px;justify-content:flex-end}}

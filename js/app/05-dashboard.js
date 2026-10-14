@@ -146,26 +146,47 @@ function refreshDash(){
       return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'} ${String(Math.abs(v)).replace('.', ',')}%</span><span class="ced-sub">no mês</span>`;
     };
     const pat = totalInv + saldo;
+
+    // Valores em tempo real: andam do último valor que o cliente viu até o atual.
+    // Só conta quando o dashboard está na tela — lançar com ele escondido guarda a
+    // surpresa para quando o cliente voltar.
+    const secDash = document.getElementById('sec-dashboard'), telaApp = document.getElementById('tela-app');
+    const visivel = secDash && !secDash.classList.contains('section-hidden') && (!telaApp || telaApp.style.display !== 'none');
+    const chaveVistos = cp + '|' + mes;
+    const atuais = { pat, rec, des, sal: saldo };
+    const vistos = visivel ? cedVistos(chaveVistos) : null;
+    const BOM_SUBIR = { pat: true, rec: true, des: false, sal: true };
+    const inicio = {};
+    Object.keys(atuais).forEach(k => {
+      const id = 'ced-valor-' + k;
+      if(cedContando(id)) { inicio[k] = cedValorAtual(id); return; }
+      if(vistos && typeof vistos[k] === 'number' && Math.abs(vistos[k] - atuais[k]) >= 0.005){
+        inicio[k] = vistos[k]; cedMarcarDelta(id, atuais[k] - vistos[k], BOM_SUBIR[k]);
+      } else if(visivel && anima && !vistos && k === 'pat') inicio[k] = 0;   // primeira vez: patrimônio sobe do zero
+    });
+    const mostra = k => valorCedula(inicio[k] !== undefined ? inicio[k] : atuais[k]);
+
     kpiEl.innerHTML = `
       <div class="ced-painel"><div class="ced-painel-int">
         ${rosetaGuillocheViva().replace('class="ced-roseta ced-roseta-viva"', anima ? 'class="ced-roseta ced-roseta-viva ced-anima"' : 'class="ced-roseta ced-roseta-viva"')}
         <div class="ced-brilho" aria-hidden="true"></div>
         <div class="ced-serie">${serieCedula(mes)}</div>
         <div class="ced-rotulo">Patrimônio líquido</div>
-        <div class="ced-valor" id="ced-valor-pat">${valorCedula((anima || cedContando()) ? 0 : pat)}</div>
+        <div class="ced-valor-linha"><div class="ced-valor" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
         <div class="ced-var">${varTxt(varPct(pat, totalInv + saldoAnt), false)}</div>
       </div></div>
       <div class="ced-extrato">
-        ${[['Receitas', rec, varPct(rec, recAnt), false], ['Despesas', des, varPct(des, desAnt), true], ['Saldo disponível', saldo, varPct(saldo, saldoAnt), false]]
-          .map(([rotulo, v, p, inv]) => `
+        ${[['Receitas', 'rec', varPct(rec, recAnt), false], ['Despesas', 'des', varPct(des, desAnt), true], ['Saldo disponível', 'sal', varPct(saldo, saldoAnt), false]]
+          .map(([rotulo, k, p, inv]) => `
           <div class="ced-item">
             <div class="ced-rotulo">${rotulo}</div>
-            <div class="ced-valor">${valorCedula(v)}</div>
+            <div class="ced-valor-linha"><div class="ced-valor" id="ced-valor-${k}">${mostra(k)}</div>${cedDeltaHTML('ced-valor-' + k)}</div>
             <div class="ced-var">${varTxt(p, inv)}</div>
           </div>`).join('')}
       </div>`;
 
-    if(anima || cedContando()) contarValorCedula('ced-valor-pat', pat, 1400);
+    Object.keys(inicio).forEach(k => contarValorCedula('ced-valor-' + k, atuais[k], 1400, inicio[k]));
+    if(visivel) cedGuardarVistos(chaveVistos, atuais);
 
     // Renderiza sparklines via canvas
     setTimeout(()=>{
