@@ -110,3 +110,68 @@
 @media(max-width:359px){
   .pt-aba svg{display:none}
 }
+
+/* ═══ Relatórios (Patrimônio) — folha no padrão Cédula, também usada para gerar o PDF ═══ */
+.rel-controles{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.rel-controles select{height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font:13px 'DM Sans',sans-serif;outline:none;min-width:220px}
+.rel-controles select:focus{border-color:var(--accent)}
+.rel-folha{display:flex;flex-direction:column;gap:12px;max-width:900px}
+.rel-bloco{background:var(--surface);border:1px solid var(--ced-gravura-fina);border-radius:8px;padding:20px 22px}
+.rel-tit{font-family:var(--ced-serif);font-weight:500;font-size:19px;letter-spacing:-.2px;color:var(--text);margin:0 0 14px}
+.rel-capa{position:relative;overflow:hidden;min-height:150px;border:1px solid var(--ced-gravura);box-shadow:inset 0 0 0 5px var(--surface),inset 0 0 0 6px var(--ced-gravura-fina)}
+.rel-roseta{position:absolute;right:-60px;top:50%;width:260px;height:260px;transform:translateY(-50%);color:var(--accent);opacity:.45;pointer-events:none}
+.rel-roseta svg{position:static;width:100%;height:100%;transform:none;opacity:1}
+.rel-capa-txt{position:relative;padding:6px 4px}
+.rel-serie{font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;font-variant-numeric:tabular-nums}
+.rel-capa-tipo{font-size:13px;color:var(--muted)}
+.rel-capa-periodo{font-family:var(--ced-serif);font-weight:500;font-size:34px;letter-spacing:-.6px;line-height:1.1;color:var(--text);margin:2px 0 8px}
+.rel-capa-dono{font-size:13px;color:var(--accent)}
+.rel-resumo{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ced-gravura-fina)}
+.rel-resumo>div{padding:12px 14px 4px;border-left:1px solid var(--ced-gravura-fina);display:flex;flex-direction:column;gap:3px;min-width:0}
+.rel-resumo>div:first-child{border-left:none;padding-left:0}
+.rel-resumo span{font-size:12px;color:var(--muted)}
+.rel-resumo b{font-family:var(--ced-serif);font-weight:500;font-size:22px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
+.rel-resumo b.pos{color:var(--green)} .rel-resumo b.neg{color:var(--red)}
+.rel-var{font-size:11.5px;color:var(--muted)}
+.rel-var.bom{color:var(--green)} .rel-var.ruim{color:var(--red)}
+.rel-recs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rel-recs li{font-size:13.5px;line-height:1.55;color:var(--text);padding:2px 0 2px 14px;border-left:2px solid var(--accent)}
+.rel-recs li.alerta{border-left-color:var(--red)} .rel-recs li.ok{border-left-color:var(--green)}
+.rel-cats{display:flex;flex-direction:column;gap:10px}
+.rel-cat{display:grid;grid-template-columns:150px 1fr 170px;align-items:center;gap:14px}
+.rel-cat-nome{font-size:13.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rel-cat-barra{height:6px;border-radius:3px;background:var(--surface3);overflow:hidden}
+.rel-cat-barra i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.rel-cat-val{font-family:var(--ced-serif);font-weight:500;font-size:16px;text-align:right;color:var(--text);font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
+.rel-cat-val small{display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)}
+.rel-linha{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.rel-linha:last-child{border-bottom:none}
+.rel-data{font-family:var(--ced-serif);font-weight:500;font-size:16px;color:var(--muted);font-variant-numeric:lining-nums}
+.rel-nome{font-size:13.5px;color:var(--text);min-width:0}
+.rel-nome small{display:block;font-size:11.5px;color:var(--muted)}
+.rel-linha b{font-family:var(--ced-serif);font-weight:500;font-size:16px;color:var(--text);white-space:nowrap}
+.rel-duas{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.rel-score{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rel-score b{font-family:var(--ced-serif);font-weight:500;font-size:44px;line-height:1;color:var(--accent)}
+.rel-score span{font-size:13px;color:var(--muted)}
+.rel-fator{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--ced-gravura-fina)}
+.rel-fator b{font-family:var(--ced-serif);font-weight:500;font-size:16px;color:var(--text)}
+.rel-nota{font-size:12px;color:var(--muted);margin-top:8px}
+.rel-meta{padding:8px 0}
+.rel-meta-top{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--text);margin-bottom:6px}
+.rel-meta-top span:last-child{color:var(--muted);font-size:12.5px}
+.rel-meta-sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+.rel-rodape{font-size:11.5px;color:var(--muted);background:none;border:none;padding:4px 2px}
+/* No PDF a folha tem sempre a largura do computador */
+.rel-pdf .rel-resumo{grid-template-columns:repeat(4,1fr)!important}
+.rel-pdf .rel-duas{grid-template-columns:1fr 1fr!important}
+@media(max-width:767px){
+  .rel-folha:not(.rel-pdf) .rel-resumo{grid-template-columns:1fr 1fr}
+  .rel-folha:not(.rel-pdf) .rel-resumo>div:nth-child(3){border-left:none;padding-left:0}
+  .rel-folha:not(.rel-pdf) .rel-duas{grid-template-columns:1fr}
+  .rel-folha:not(.rel-pdf) .rel-cat{grid-template-columns:1fr auto}
+  .rel-folha:not(.rel-pdf) .rel-cat .rel-cat-barra{grid-column:1 / -1;grid-row:2}
+  .rel-bloco{padding:16px}
+  .rel-capa-periodo{font-size:28px}
+  .rel-controles select{flex:1;min-width:0}
+}

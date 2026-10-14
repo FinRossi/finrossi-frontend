@@ -6,7 +6,7 @@ const NAV_TO_LIMITE = {
   investimentos:'investimentos', metas:'metas', objetivos:'metas',
   renda:'renda', cartoes:'cartoes', assinaturas:'assinaturas',
   recorrentes:'assinaturas', calendario:'calendario', notas:'calendario',
-  score:'score'
+  score:'score', relatorios:'relatorios'
 };
 
 function verComoPlanoPermite(name){

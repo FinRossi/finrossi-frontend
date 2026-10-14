@@ -228,7 +228,7 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura'];
+const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura'];
 function goTo(name){
   if(_verComoPlano && !verComoPlanoPermite(name)){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
@@ -241,7 +241,7 @@ function goTo(name){
     const oc=b.getAttribute('onclick');
     if(oc) b.classList.toggle('active',oc.includes("'"+name+"'"));
   });
-  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura};
+  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura};
   if(fn[name]) fn[name]();
   if(name==='lancamentos' && typeof atualizarBotaoFoto==='function') atualizarBotaoFoto();
 }

@@ -8,6 +8,7 @@ const NAV_PREVIEW = [
   {id:'objetivos',         icon:'✓', label:'Objetivos'},
   {id:'renda',             icon:'$', label:'Renda Passiva'},
   {id:'score',             icon:'♥', label:'Score de Saúde'},
+  {id:'relatorios',        icon:'▤', label:'Relatórios'},
   {id:'cartoes',           icon:'▭', label:'Cartões'},
   {id:'assinaturas',       icon:'◇', label:'Assinaturas'},
   {id:'recorrentes',       icon:'↻', label:'Recorrentes'},
@@ -22,7 +23,7 @@ const PERMS_TABLE = [
   {label:'Investimentos',            g:false,  s:true,  e:true,  c:true},
   {label:'Metas financeiras',        g:false,  s:false, e:true,  c:true},
   {label:'Objetivos',                g:false,  s:false, e:true,  c:true},
-  {label:'Renda Passiva',            g:false,  s:false, e:false, c:true},
+  {label:'Renda Passiva',            g:false,  s:false, e:true,  c:true},
   {label:'Cartões de crédito',       g:false,  s:false, e:true,  c:true},
   {label:'Assinaturas',              g:false,  s:false, e:true,  c:true},
   {label:'Contas recorrentes',       g:false,  s:false, e:true,  c:true},
@@ -95,6 +96,7 @@ function renderPreview(){
       {label:'Calendário e Notas', ok: cfg.limites.calendario},
       {label:'Renda Passiva', ok: cfg.limites.renda},
       {label:'Score de Saúde Financeira', ok: cfg.limites.score},
+      {label:'Relatórios semanais e mensais', ok: cfg.limites.relatorios},
     ];
     perms.innerHTML = items.map(i=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface2);border-radius:6px">

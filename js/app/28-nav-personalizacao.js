@@ -7,6 +7,7 @@ var NAV_ITEMS_DEF=[
   {id:'objetivos',    label:'Objetivos',    group:'menu',removable:true},
   {id:'renda',        label:'Renda Passiva',group:'menu',removable:true},
   {id:'score',        label:'Score de Saúde',group:'menu',removable:true},
+  {id:'relatorios',   label:'Relatórios',   group:'menu',removable:true},
   {id:'cartoes',      label:'Cartões',      group:'controles',removable:true},
   {id:'assinaturas',  label:'Assinaturas',  group:'controles',removable:true},
   {id:'recorrentes',  label:'Recorrentes',  group:'controles',removable:true},
@@ -19,7 +20,7 @@ function getNavConfig(){
   const def={};NAV_ITEMS_DEF.forEach(i=>def[i.id]=true);return def;
 }
 // Itens que não fazem sentido no perfil do negócio (FinRossi) — continuam no Pessoal e para clientes
-const NAV_OCULTOS_FINROSSI=['renda','manual'];
+const NAV_OCULTOS_FINROSSI=['renda','manual','relatorios'];
 function navOcultoNoPerfil(id){ return cp==='finrossi' && NAV_OCULTOS_FINROSSI.includes(id); }
 
 function aplicarNavConfig(){
