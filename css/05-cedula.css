@@ -104,3 +104,12 @@
   .ced-roseta-viva .ced-camada,.ced-brilho::before{animation:none}
   .ced-brilho{display:none}
 }
+
+/* Toque/clique no painel: uma passada extra de brilho (independente da de 9 s) */
+#dash-kpi-cards .ced-painel{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ced-brilho::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:28%;opacity:0;
+  background:linear-gradient(100deg,transparent 0%,color-mix(in srgb,var(--accent) 14%,transparent) 40%,color-mix(in srgb,#fff 16%,transparent) 50%,color-mix(in srgb,var(--accent) 14%,transparent) 60%,transparent 100%);
+  transform:skewX(-14deg)}
+.ced-brilho.extra::after{animation:ced-brilho-extra 1.1s cubic-bezier(.3,.6,.3,1)}
+@keyframes ced-brilho-extra{0%{left:-40%;opacity:1}100%{left:120%;opacity:1}}
+@media(prefers-reduced-motion:reduce){.ced-brilho.extra::after{animation:none}}

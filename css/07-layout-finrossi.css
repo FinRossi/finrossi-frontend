@@ -206,3 +206,12 @@
 .mobile-profile-opt>svg{color:var(--accent);flex-shrink:0}
 .pwa-aviso{margin-top:10px;font-size:12px;line-height:1.55;color:var(--muted)}
 .pwa-aviso b{color:var(--text);font-weight:500}
+
+/* ── Configurações: nunca maior que a tela; cabeçalho e abas fixos, só o conteúdo rola ── */
+#modal-config>div{max-height:calc(100dvh - 40px);display:flex;flex-direction:column}
+#modal-config>div>div:first-child,#modal-config>div>div:nth-child(2){flex-shrink:0}
+#modal-config [id^="cfg-pane-"]{max-height:none!important;overflow-y:auto!important;flex:1 1 auto;min-height:0;overscroll-behavior:contain}
+@media(max-width:767px){
+  #modal-config{padding:12px!important;align-items:flex-end!important}
+  #modal-config>div{max-height:calc(100dvh - 24px);border-radius:14px!important}
+}

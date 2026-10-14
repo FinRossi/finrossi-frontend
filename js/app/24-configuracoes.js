@@ -256,3 +256,11 @@ function isDashCardVisible(id){
   return getDashConfig()[id] !== false;
 }
 
+
+// Fechar Configurações tocando fora da janela ou com Esc (antes só pelo ✕ do topo)
+(function(){
+  const m = document.getElementById('modal-config');
+  if(!m) return;
+  m.addEventListener('click', e => { if(e.target === m) fecharConfiguracoes(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && m.style.display !== 'none') fecharConfiguracoes(); });
+})();

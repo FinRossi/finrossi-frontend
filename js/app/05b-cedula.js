@@ -91,3 +91,17 @@ function serieCedula(mes){
   const [yr, mo] = mes.split('-');
   return `FR-${mo}${yr.slice(2)}`;
 }
+
+// Clique/toque no painel do patrimônio: passa a faixa de brilho na hora
+function brilharPainel(){
+  const b = document.querySelector('#dash-kpi-cards .ced-brilho');
+  if(!b) return;
+  b.classList.remove('extra');
+  void b.offsetWidth;            // reinicia a animação mesmo com cliques seguidos
+  b.classList.add('extra');
+  clearTimeout(b._fimBrilho);
+  b._fimBrilho = setTimeout(() => b.classList.remove('extra'), 1200);
+}
+document.addEventListener('click', e => {
+  if(e.target.closest && e.target.closest('#dash-kpi-cards .ced-painel')) brilharPainel();
+});
