@@ -1,5 +1,6 @@
 // js/app/11-modal-export.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── MODAL & EXPORT ──────────────────────────────────────────────────────────
+const XLSX_URL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
 
@@ -39,13 +40,18 @@ function exportarExcel(){
     </div>`;
   document.body.appendChild(overlay);
 
-  document.getElementById('btn-exp-confirm').onclick=()=>{
+  document.getElementById('btn-exp-confirm').onclick=async()=>{
     const expLanc=document.getElementById('exp-lanc').checked;
     const expInv=document.getElementById('exp-inv').checked;
     if(!expLanc&&!expInv){alert('Selecione ao menos uma opção.');return;}
     overlay.remove();
 
-    if(typeof XLSX==='undefined'){alert('Biblioteca de exportação não carregada. Recarregue a página.');return;}
+    // A biblioteca do Excel (~200 KB) só é baixada quando alguém exporta
+    if(typeof XLSX==='undefined'){
+      try{
+        await new Promise((res,rej)=>{const s=document.createElement('script');s.src=XLSX_URL;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+      }catch(e){alert('Não consegui preparar a planilha. Verifique a internet e tente de novo.');return;}
+    }
     const wb=XLSX.utils.book_new();
     if(expLanc&&lancs.length){
       const rows=[...lancs].sort((a,b)=>a.data.localeCompare(b.data)).map((l,i)=>({
