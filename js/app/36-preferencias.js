@@ -82,6 +82,7 @@ async function carregarPreferenciasNuvem(){
     if(cfg.menu) localStorage.setItem('fin_nav_cfg_' + p, JSON.stringify(cfg.menu));
     if(cfg.blocos) localStorage.setItem('fin_dash_cfg_' + p, JSON.stringify(cfg.blocos));
     if(cfg.layout) localStorage.setItem('fin_dash_config_' + p, JSON.stringify(cfg.layout));
+    if(cfg.passosDispensados) localStorage.setItem('fin_passos_ok_' + p, '1');
   });
   if(typeof aplicarNavConfig === 'function') aplicarNavConfig();
   const atual = (v.perfis || {})[_prefPerfil()];

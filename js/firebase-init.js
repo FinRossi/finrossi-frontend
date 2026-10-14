@@ -122,9 +122,14 @@
             try{ onValue(ref(db, caminho), s => fim(s.val()), () => fim(null), { onlyOnce: true }); }catch(e){ fim(null); }
             setTimeout(() => fim(null), 3000);
           });
-          const [role, plano] = await Promise.all([ler(`usuarios/${user.uid}/role`), ler(`usuarios/${user.uid}/plano`)]);
+          const [role, plano, trialFim, status] = await Promise.all([
+            ler(`usuarios/${user.uid}/role`), ler(`usuarios/${user.uid}/plano`),
+            ler(`usuarios/${user.uid}/trialFim`), ler(`usuarios/${user.uid}/status`),
+          ]);
           window._userRole = role || 'cliente';
           window._userPlano = plano || 'gratuito';
+          window._userTrialFim = trialFim || null;   // fim do período de teste (aviso no dashboard)
+          window._userStatus = status || null;
         }
         _userRole = window._userRole;
         _userPlano = window._userPlano;

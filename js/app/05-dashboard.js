@@ -155,6 +155,7 @@ function refreshDash(){
     // receitas/despesas/saldo como faixa de extrato. Mesmos valores e variações de antes.
     const anima = !window._cedAnimou; window._cedAnimou = true; // roseta anima só na 1ª abertura
     const varTxt = (v, invertido) => {
+      if(parseFloat(v) === 0) return `<span class="ced-sub">sem mudança no mês</span>`;
       const subiu = varSubiu(v);
       const bom = invertido ? !subiu : subiu; // despesas: gastar menos é bom
       return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'}${varRotulo(v)}</span><span class="ced-sub">${subiu ? 'subiu' : 'caiu'} no mês</span>`;
@@ -247,10 +248,10 @@ function refreshDash(){
   if(evoBadge){
     const v=varPct(saldo,saldoAnt);
     if(v!==null){
-      const pos=varSubiu(v);
-      evoBadge.textContent=`${pos?'↑':'↓'}${varRotulo(v)||(pos?' subiu':' caiu')}`;
-      evoBadge.style.background=pos?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)';
-      evoBadge.style.color=pos?'var(--green)':'var(--red)';
+      const pos=varSubiu(v), igual=parseFloat(v)===0;
+      evoBadge.textContent=igual?'sem mudança':`${pos?'↑':'↓'}${varRotulo(v)||(pos?' subiu':' caiu')}`;
+      evoBadge.style.background=igual?'var(--surface2)':pos?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)';
+      evoBadge.style.color=igual?'var(--muted)':pos?'var(--green)':'var(--red)';
     }
   }
   const catTotEl=document.getElementById('dash-cat-total');
