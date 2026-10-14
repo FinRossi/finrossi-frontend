@@ -530,7 +530,7 @@ function populateDashMetaSel(){
   const metas=pd().metas, sel=document.getElementById('dash-meta-sel');
   if(!sel) return;
   const cur=sel.value;
-  sel.innerHTML='<option value="">— Selecione uma meta —</option>'+metas.map(m=>`<option value="${m.id}" ${m.id===cur?'selected':''}>${m.icone||'🎯'} ${m.nome} — ${fmtR0(m.valor)}</option>`).join('');
+  sel.innerHTML='<option value="">Selecione uma meta</option>'+metas.map(m=>`<option value="${m.id}" ${m.id===cur?'selected':''}>${m.icone?m.icone+' ':''}${m.nome}, ${fmtR0(m.valor)}</option>`).join('');
 }
 
 function renderDashMeta(){
@@ -555,7 +555,7 @@ function renderDashMeta(){
       <span>Falta: <strong style="color:var(--amber)">${fmtR(falta)}</strong></span>
     </div>
     <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden"><div style="width:${pct.toFixed(1)}%;height:100%;background:${cor};border-radius:4px"></div></div>
-    <div style="text-align:center;margin-top:4px;font-size:13px;font-weight:500">${pct.toFixed(1)}% — ${meta.icone||'🎯'} ${meta.nome}</div>`;
+    <div style="text-align:center;margin-top:4px;font-size:13px;font-weight:500">${pct.toFixed(1).replace('.',',')}% de ${meta.icone?meta.icone+' ':''}${meta.nome}</div>`;
 }
 
 let _dashCartaoSelId=null;

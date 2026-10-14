@@ -4,11 +4,11 @@
 // Criar/alterar/desativar acessos é validado também no servidor (só o Master consegue).
 
 const ACESSO_INFO = {
-  master:  ['🔑','var(--accent)','Master', 'Acesso total + controla os acessos da equipe'],
-  socio:   ['👑','var(--accent)','Sócio',  'Perfis Pessoal e FinRossi, clientes e preview — sem mexer em acessos'],
-  admin:   ['👔','var(--purple)','Admin',  'Somente gestão de clientes'],
-  dev:     ['💻','var(--blue)',  'Dev',    'Somente painel técnico / clientes'],
-  cliente: ['👤','var(--muted)', 'Cliente','Sai da equipe e passa a usar o app conforme o plano'],
+  master:  ['','var(--accent)','Master', 'Acesso total + controla os acessos da equipe'],
+  socio:   ['','var(--accent)','Sócio',  'Perfis Pessoal e FinRossi, clientes e preview — sem mexer em acessos'],
+  admin:   ['','var(--muted)','Admin',  'Somente gestão de clientes'],
+  dev:     ['','var(--muted)',  'Dev',    'Somente painel técnico / clientes'],
+  cliente: ['','var(--muted)', 'Cliente','Sai da equipe e passa a usar o app conforme o plano'],
 };
 
 let _sociosCache = [];
@@ -32,7 +32,7 @@ async function renderSocios(){
       _adminToken='';
       localStorage.removeItem('fin_admin_token');
       goTo('dashboard');
-      setTimeout(()=>alert('❌ Senha admin incorreta. Tente novamente.'),100);
+      setTimeout(()=>alert('Senha de administrador incorreta. Tente novamente.'),100);
       return;
     }
     const data=await res.json();
@@ -49,10 +49,10 @@ async function renderSocios(){
 
     const conta=r=>equipe.filter(c=>c.role===r).length;
     document.getElementById('socios-metrics').innerHTML=`
-      <div class="mc"><div class="mc-label">🔑 Master</div><div class="mc-val">${conta('master')}</div><div class="mc-sub">controla acessos</div></div>
-      <div class="mc"><div class="mc-label">👑 Sócios</div><div class="mc-val">${conta('socio')}</div></div>
-      <div class="mc"><div class="mc-label">👔 Admin</div><div class="mc-val">${conta('admin')}</div></div>
-      <div class="mc"><div class="mc-label">💻 Dev</div><div class="mc-val">${conta('dev')}</div></div>
+      <div class="mc"><div class="mc-label">Master</div><div class="mc-val">${conta('master')}</div><div class="mc-sub">controla acessos</div></div>
+      <div class="mc"><div class="mc-label">Sócios</div><div class="mc-val">${conta('socio')}</div></div>
+      <div class="mc"><div class="mc-label">Admin</div><div class="mc-val">${conta('admin')}</div></div>
+      <div class="mc"><div class="mc-label">Dev</div><div class="mc-val">${conta('dev')}</div></div>
     `;
 
     const STATUS_CORES={ativo:'var(--green)',trial:'var(--amber)',inativo:'var(--red)',pendente:'var(--amber)'};
@@ -76,7 +76,7 @@ async function renderSocios(){
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[st]||'var(--muted)'}18;color:${STATUS_CORES[st]||'var(--muted)'}">${_escSocio(st)}</span></td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${c._dono?'<span style="font-size:11px;color:var(--muted)">Protegido</span>':`<div style="display:flex;gap:4px;justify-content:center">
-            <button class="btn xs" onclick="abrirAlterarAcesso('${_escSocio(c.uid)}')" title="Alterar acesso">🔑</button>
+            <button class="btn xs" onclick="abrirAlterarAcesso('${_escSocio(c.uid)}')" title="Alterar acesso" aria-label="Alterar acesso"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3"/><path d="M16 7l3 3"/><path d="M14 9l2 2"/></svg></button>
             ${st==='inativo'
               ?`<button class="btn xs" onclick="reativarAcesso('${_escSocio(c.uid)}')" style="color:var(--green);border-color:var(--green)" title="Reativar">↺</button>`
               :`<button class="btn danger xs" onclick="desativarAcesso('${_escSocio(c.uid)}')" title="Desativar">✕</button>`}

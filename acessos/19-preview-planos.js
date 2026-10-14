@@ -2,8 +2,8 @@
 const NAV_PREVIEW = [
   {id:'dashboard',         icon:'▦', label:'Dashboard'},
   {id:'lancamentos',       icon:'+', label:'Lançamentos'},
-  {id:'investimentos',     icon:'⚡',label:'Investimentos'},
-  {id:'historico',         icon:'⏱', label:'Histórico'},
+  {id:'investimentos',     icon:'·',label:'Investimentos'},
+  {id:'historico',         icon:'·', label:'Histórico'},
   {id:'metas',             icon:'◎', label:'Metas'},
   {id:'objetivos',         icon:'✓', label:'Objetivos'},
   {id:'renda',             icon:'$', label:'Renda Passiva'},
@@ -14,7 +14,7 @@ const NAV_PREVIEW = [
   {id:'recorrentes',       icon:'↻', label:'Recorrentes'},
   {id:'calendario',        icon:'▦', label:'Calendário'},
   {id:'notas',             icon:'▤', label:'Notas'},
-  {id:'minha-assinatura',  icon:'💳', label:'Minha Assinatura'},
+  {id:'minha-assinatura',  icon:'·', label:'Minha Assinatura'},
 ];
 
 const PERMS_TABLE = [
@@ -64,10 +64,10 @@ function renderPreview(){
   // Descrição
   const desc = document.getElementById('preview-plano-desc');
   if(desc) desc.innerHTML=`<div class="card" style="border-left:3px solid ${cfg.cor};padding:14px 18px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:24px">${plano==='gratuito'?'🆓':plano==='essencial'?'⚡':plano==='evolucao'?'✨':'👑'}</div>
+    <div style="font-size:24px"></div>
     <div><div style="font-size:14px;font-weight:500;color:${cfg.cor};margin-bottom:3px">Plano ${cfg.label} — ${cfg.preco}</div>
     <div style="font-size:13px;color:var(--muted)">${cfg.desc}</div>
-    ${cfg.dias?`<div style="font-size:12px;margin-top:4px;color:var(--amber)">⏱ Expira em ${cfg.dias} dias após o cadastro</div>`:''}</div>
+    ${cfg.dias?`<div style="font-size:12px;margin-top:4px;color:var(--amber)">Expira em ${cfg.dias} dias após o cadastro</div>`:''}</div>
   </div>`;
 
   // Sidebar simulada
@@ -86,7 +86,7 @@ function renderPreview(){
   // Permissões
   const perms = document.getElementById('preview-permissions');
   if(perms){
-    const edicaoLabel = {nenhuma:'❌ Somente visualização',visualizacao:'👁 Somente visualização',observacao:'📝 Pode adicionar observações',completa:'✏️ Edição completa pelo consultor'};
+    const edicaoLabel = {nenhuma:'Somente visualização',visualizacao:'Somente visualização',observacao:'Pode adicionar observações',completa:'Edição completa pelo consultor'};
     const items = [
       {label:'Lançamentos', ok: cfg.limites.lancamentos, detail: cfg.limites.lancamentos===20?'limite de 20':'ilimitados'},
       {label:'Investimentos', ok: cfg.limites.investimentos},
@@ -101,7 +101,7 @@ function renderPreview(){
     perms.innerHTML = items.map(i=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface2);border-radius:6px">
         <span style="font-size:13px">${i.label}${i.detail?` <span style="font-size:11px;color:var(--muted)">(${i.detail})</span>`:''}</span>
-        <span style="font-size:13px">${i.ok?'✅':'❌'}</span>
+        <span style="font-size:13px">${i.ok?'<span style="color:var(--green);display:inline-flex"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"20 6 9 17 4 12\"/></svg></span>':'<span style="color:var(--muted2)">—</span>'}</span>
       </div>`).join('')+
       `<div style="margin-top:10px;padding:10px;background:var(--accent-s);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text)">
         <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Nível de edição</div>

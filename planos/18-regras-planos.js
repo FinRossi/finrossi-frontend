@@ -17,13 +17,13 @@ const PLANOS_CONFIG = {
     label: 'Evolução', preco: 'R$ 24,90/mês', cor: 'var(--green)', dias: null,
     limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
     edicao: 'observacao',
-    desc: 'Tudo do Essencial + personalização: dashboard editável, temas, cores e categorias personalizadas, e calculadora de renda passiva.'
+    desc: 'Tudo do Essencial + metas, objetivos, cartões, assinaturas, contas recorrentes, calendário, notas e calculadora de renda passiva.'
   },
   patrimonio: {
     label: 'Patrimônio', preco: 'R$ 49,90/mês', cor: 'var(--accent)', dias: null,
     limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: true, personalizacao: true, foto: true, relatorios: true, 'minha-assinatura': true },
     edicao: 'completa',
-    desc: 'Tudo do Evolução + inteligência financeira: score de saúde, insights e projeções futuras.'
+    desc: 'Tudo do Evolução + saúde do patrimônio, relatórios em PDF, lançar por foto, app personalizável e sessão mensal com o consultor.'
   }
 };
 

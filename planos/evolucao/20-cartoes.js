@@ -2,6 +2,14 @@
 // ─── CARTÕES DE CRÉDITO ──────────────────────────────────────────────────────
 function getCartoes(){return pd().cartoes||[];}
 async function saveCartoes(){lsSave(cp,'cartoes');fbSave(cp,'cartoes');}
+// Bandeiras do cartão (a mesma arte na prévia do formulário e na lista)
+const CARTAO_BANDEIRAS = {
+  visa: '<svg width="44" height="14" viewBox="0 0 44 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="14" fill="white" letter-spacing="-1">VISA</text></svg>',
+  master: '<svg width="36" height="22" viewBox="0 0 36 22"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg>',
+  elo: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="13" fill="white">elo</text></svg>',
+  amex: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="11" fill="white">AMEX</text></svg>',
+  hipercard: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="10" fill="white">Hiper</text></svg>',
+};
 
 function populateCartaoSelect(){
   const cartoes=getCartoes();
@@ -40,11 +48,13 @@ function openModalCartao(id){
       document.getElementById('cartao-fecha').value=c.fecha||'';
       document.getElementById('cartao-cor').value=c.cor||'#C8A96E';
       document.getElementById('cartao-modelo').value=c.modelo||'preto';
+      document.getElementById('cartao-bandeira').value=c.bandeira||'outra';
     }
   } else {
     ['cartao-nome','cartao-final','cartao-limite','cartao-venc','cartao-fecha'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('cartao-cor').value='#C8A96E';
     document.getElementById('cartao-modelo').value='preto';
+    document.getElementById('cartao-bandeira').value='master';
   }
   document.getElementById('modal-cartao').classList.add('open');
   atualizarPreviewCartao();
@@ -59,10 +69,11 @@ async function salvarCartao(){
   const fecha=parseInt(document.getElementById('cartao-fecha').value)||0;
   const cor=document.getElementById('cartao-cor').value;
   const modelo=document.getElementById('cartao-modelo').value;
+  const bandeira=document.getElementById('cartao-bandeira').value;
   if(!nome){showMsg('msg-cartao','Informe o nome','err');return}
   if(!final||final.length!==4){showMsg('msg-cartao','Informe os 4 dígitos finais','err');return}
   const id=document.getElementById('cartao-edit-id').value;
-  const obj={id:id||uid(),nome,banco,final,limite,venc,fecha,cor,modelo};
+  const obj={id:id||uid(),nome,banco,final,limite,venc,fecha,cor,modelo,bandeira};
   if(id){const i=pd().cartoes.findIndex(c=>c.id===id);if(i>=0)pd().cartoes[i]=obj;}
   else{if(!pd().cartoes)pd().cartoes=[];pd().cartoes.push(obj);}
   await saveCartoes();
@@ -90,7 +101,7 @@ function cartaoVisualHTML(c, w, h){
   const final = c.final || '0000';
   const banco = c.banco || 'FinRossi';
   const nome = (c.nome || '').toUpperCase();
-  const bandeira = `<svg width="${Math.round(w*0.15)}" height="${Math.round(h*0.12)}" viewBox="0 0 36 22" style="flex-shrink:0"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg>`;
+  const bandeira = `<div style="flex-shrink:0;transform:scale(${(w/300).toFixed(2)});transform-origin:top right">${CARTAO_BANDEIRAS[c.bandeira]||''}</div>`;
   const chip = `<svg width="${Math.round(w*0.15)}" height="${Math.round(h*0.16)}" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/></svg>`;
   const bgByModelo = {
     preto:       `background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid ${cor}55`,
@@ -141,16 +152,13 @@ function renderCartoes(){
   if(!cartoes.length){
     if(hdrBtn) hdrBtn.innerHTML='';
     el.innerHTML=`
-      <div class="card" style="text-align:center;padding:56px 24px;margin-bottom:18px;border-style:dashed">
-        <div style="font-size:48px;margin-bottom:16px">💳</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:10px">Nenhum cartão cadastrado ainda</div>
-        <p style="font-size:13px;color:var(--muted);max-width:400px;margin:0 auto 24px;line-height:1.8">
-          Cadastre seus cartões para controlar fatura, limite disponível e ver automaticamente quais despesas foram feitas em cada um.
-        </p>
-        <button class="btn primary" onclick="openModalCartao()" style="font-size:14px;padding:11px 28px">+ Cadastrar primeiro cartão</button>
+      <div class="card fr-vazio" style="margin-bottom:18px">
+        <b>Nenhum cartão cadastrado</b>
+        <p>Cadastre seus cartões para acompanhar a fatura, o limite disponível e as despesas feitas em cada um.</p>
+        <button class="btn primary" onclick="openModalCartao()">+ Novo cartão</button>
       </div>
       <div class="card" style="margin-bottom:18px">
-        <h3><span class="dot" style="background:var(--accent)"></span>Como funciona</h3>
+        <h3>Como funciona</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:8px">
           ${[['1','Cadastre o cartão','Informe nome, banco, 4 dígitos finais, limite e dia de vencimento.'],
              ['2','Lance as despesas','Em Lançamentos, adicione uma despesa e selecione o cartão. Entra na fatura automaticamente.'],
@@ -178,13 +186,6 @@ function renderCartoes(){
   const gridCols = 'repeat(auto-fit,minmax(280px,300px))';
   const gridMaxW = '956px';
 
-  const BANDEIRAS = {
-    visa: '<svg width="44" height="14" viewBox="0 0 44 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="14" fill="white" letter-spacing="-1">VISA</text></svg>',
-    master: '<svg width="36" height="22" viewBox="0 0 36 22"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg>',
-    elo: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="900" font-size="13" fill="white">elo</text></svg>',
-    amex: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="11" fill="white">AMEX</text></svg>',
-    hipercard: '<svg width="36" height="14" viewBox="0 0 36 14"><text x="0" y="12" font-family="Arial" font-weight="700" font-size="10" fill="white">Hiper</text></svg>',
-  };
   const CHIP = '<svg width="34" height="26" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/><rect x="11" y="8" width="12" height="10" fill="#B8881A" opacity=".7"/></svg>';
 
   const gridHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;max-width:${gridMaxW}">
@@ -194,10 +195,10 @@ function renderCartoes(){
       const gastos=lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0);
       const pct=c.limite>0?Math.min(100,(gastos/c.limite)*100):0;
       const disponivel=Math.max(0,c.limite-gastos);
-      const corS=pct>=90?'var(--red)':pct>=70?'var(--amber)':'var(--green)';
+      const corS=pct>=90?'var(--red)':pct>=70?'var(--accent)':'var(--green)';
       const cor=c.cor||'#C8A96E';
       const modelo=CARTAO_MODELOS[c.modelo]?c.modelo:'preto';
-      const bandSVG=BANDEIRAS[(c.bandeira||'visa').toLowerCase()]||BANDEIRAS['visa'];
+      const bandSVG=CARTAO_BANDEIRAS[(c.bandeira||'').toLowerCase()]||'';
       const MODELO_BG_FULL={
         preto:       `background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid ${cor}55`,
         solido:      `background:linear-gradient(135deg,${cor}ee 0%,${cor}99 50%,#1a1a1a 100%)`,
@@ -218,8 +219,8 @@ function renderCartoes(){
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative">
             <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${c.banco}</div>
             <div style="display:flex;gap:6px">
-              <button class="btn xs" onclick="openModalCartao('${c.id}')" style="background:rgba(255,255,255,.15);border:none;color:white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-              <button class="btn danger xs" onclick="remCartao('${c.id}')" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
+              <button class="btn xs" onclick="openModalCartao('${c.id}')" title="Editar" aria-label="Editar cartão" style="background:rgba(255,255,255,.15);border:none;color:white">${ICO_EDITAR}</button>
+              <button class="btn danger xs" onclick="remCartao('${c.id}')" title="Excluir" aria-label="Excluir cartão" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
             </div>
           </div>
           <div style="margin-bottom:16px;position:relative">${CHIP}</div>
@@ -232,27 +233,14 @@ function renderCartoes(){
             <div>${bandSVG}</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Fatura atual</div>
-            <div style="font-size:18px;font-weight:700;color:var(--red)">${fmtR(gastos)}</div>
-          </div>
-          <div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Disponível</div>
-            <div style="font-size:18px;font-weight:700;color:var(--green)">${fmtR(disponivel)}</div>
-          </div>
+        <div class="cartao-extrato">
+          <div><span>Fatura atual</span><b>${fmtR(gastos)}</b></div>
+          <div><span>Disponível</span><b class="pos">${fmtR(disponivel)}</b></div>
         </div>
-        ${c.limite>0?`<div style="background:var(--surface2);border-radius:12px;padding:12px 14px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
-            <span style="color:var(--muted)">Limite: ${fmtR(c.limite)}</span>
-            <span style="color:${corS};font-weight:600">${pct.toFixed(0)}% usado</span>
-          </div>
-          <div style="background:var(--surface3);border-radius:6px;height:6px;overflow:hidden">
-            <div style="width:${pct.toFixed(1)}%;height:100%;background:${corS};border-radius:6px;transition:width .6s ease"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:6px">
-            <span>Venc. dia ${c.venc}</span>${c.fecha?`<span>Fecha dia ${c.fecha}</span>`:''}
-          </div>
+        ${c.limite>0?`<div class="cartao-limite">
+          <div class="prog-meta"><span>Limite de ${fmtR(c.limite)}</span><strong style="color:${corS}">${pct.toFixed(0)}% usado</strong></div>
+          <div class="prog-track"><div class="prog-fill" style="width:${pct.toFixed(1)}%;background:${corS}"></div></div>
+          <div class="cartao-datas"><span>Vence dia ${c.venc}</span>${c.fecha?`<span>Fecha dia ${c.fecha}</span>`:''}</div>
         </div>`:''}</div>`;
     }).join('')}
   </div>
@@ -262,23 +250,19 @@ function renderCartoes(){
 
   // Linhas de gastos do mês agrupados por cartão (estava faltando — causava erro e travava o render)
   const gastosCartao = lancs.filter(l=>l.cartaoId).sort((a,b)=>b.data.localeCompare(a.data));
-  const rowsHTML = gastosCartao.length ? `<div style="display:flex;flex-direction:column;gap:8px">
-    ${gastosCartao.map(l=>{
+  const rowsHTML = gastosCartao.length ? gastosCartao.map(l=>{
       const cartao = cartoes.find(c=>c.id===l.cartaoId);
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm)">
-        <div style="min-width:0">
-          <div style="font-size:13px;color:var(--text)">${l.desc}</div>
-          <div style="font-size:11px;color:var(--muted)">${l.cat} · ${cartao?`${cartao.nome} ••${cartao.final}`:'Cartão removido'} · ${l.data.split('-').reverse().join('/')}</div>
-        </div>
-        <div style="font-size:13px;font-weight:600;color:var(--red);white-space:nowrap;margin-left:12px">${fmtR(l.val)}</div>
+      return `<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
+        <div class="ext-dia"><b>${l.data.slice(8,10)}</b><span>${MESES_CURTOS[+l.data.slice(5,7)-1]}</span></div>
+        <div style="min-width:0"><div class="ext-tit">${l.desc}</div><div class="ext-meta">${l.cat}, ${cartao?`${cartao.nome} final ${cartao.final}`:'cartão removido'}</div></div>
+        <div class="ext-valor">− ${fmtR(l.val).replace(/^R\$\s?/,'')}</div>
       </div>`;
-    }).join('')}
-  </div>` : '';
+    }).join('') : '';
 
   el.innerHTML=gridHTML+`
     <div class="card card-full" style="margin-bottom:20px">
-      <h3><span class="dot" style="background:var(--blue)"></span>Gastos por cartão — ${MONTHS[parseInt(mes.split('-')[1])-1]}</h3>
-      <div id="cartoes-gastos-inner">${rowsHTML||'<p class="empty">Nenhum gasto com cartão este mês</p>'}</div>
+      <h3>Gastos com cartão em ${MONTHS[parseInt(mes.split('-')[1])-1].toLowerCase()}</h3>
+      <div id="cartoes-gastos-inner">${rowsHTML||'<p class="empty" style="text-align:left;padding:8px 0">Nenhuma despesa no cartão este mês. Ao lançar uma despesa, escolha o cartão usado.</p>'}</div>
     </div>
     <div class="grid2">
       <div class="card"><h3><span class="dot" style="background:var(--purple)"></span>Distribuição de gastos</h3>
@@ -292,13 +276,13 @@ function renderCartoes(){
   const ctxD=document.getElementById('c-cartao-dist');
   if(ctxD){
     const vals=cartoes.map(c=>lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0));
-    charts['cartao-dist']=new Chart(ctxD,{type:'doughnut',data:{labels:cartoes.map(c=>`${c.nome} ••${c.final}`),datasets:[{data:vals,backgroundColor:cartoes.map(c=>c.cor),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:11},padding:6,boxWidth:10}}}}});
+    charts['cartao-dist']=new Chart(ctxD,{type:'doughnut',data:{labels:cartoes.map(c=>`${c.nome} final ${c.final}`),datasets:[{data:vals,backgroundColor:cartoes.map((c,i)=>/^#/.test(c.cor||'')?c.cor:PALETTE[i%PALETTE.length]),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:11},padding:6,boxWidth:10}}}}});
   }
   destroyChart('cartao-limite');
   const ctxL=document.getElementById('c-cartao-limite');
   if(ctxL){
     const com=cartoes.filter(c=>c.limite>0);
-    charts['cartao-limite']=new Chart(ctxL,{type:'bar',data:{labels:com.map(c=>`${c.nome} ••${c.final}`),datasets:[
+    charts['cartao-limite']=new Chart(ctxL,{type:'bar',data:{labels:com.map(c=>`${c.nome} final ${c.final}`),datasets:[
       {label:'Fatura',data:com.map(c=>lancs.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0)),backgroundColor:'rgba(248,113,113,0.7)',borderRadius:4},
       {label:'Limite',data:com.map(c=>c.limite),backgroundColor:'rgba(200,169,110,0.3)',borderRadius:4}
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:10}}},scales:{x:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#888'},grid:{color:'rgba(255,255,255,0.04)'}}}}});

@@ -90,7 +90,7 @@ window._abrirComBoasVindas = function(nome, callback){
 
   const hora = new Date().getHours();
   const saudacao = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
-  const frases = ['Suas finanças estão te esperando ✨','Vamos organizar o seu dia 💛','Controle total nas suas mãos 📊','Cada real conta. Vamos lá! 💎'];
+  const frases = ['Suas finanças estão te esperando.','Vamos organizar o seu dia.','Controle total nas suas mãos.','Cada real conta. Vamos lá.'];
 
   set('bv-saudacao', saudacao+',');
   set('bv-nome', nome.split(' ')[0]);

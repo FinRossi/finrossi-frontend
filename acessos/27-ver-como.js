@@ -75,7 +75,7 @@ function mostrarBannerVerComo(){
     banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:var(--accent);color:#0f0f0f;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;font-weight:600;font-family:\'DM Sans\',sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.3)';
     document.body.appendChild(banner);
   }
-  banner.innerHTML = `👁 Visualizando como: ${cfg?cfg.label:_verComoPlano} <button onclick="sairVerComo()" style="background:#0f0f0f;color:var(--accent);border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;margin-left:8px">Sair da visualização</button>`;
+  banner.innerHTML = `Visualizando como: ${cfg?cfg.label:_verComoPlano} <button onclick="sairVerComo()" style="background:#0f0f0f;color:var(--accent);border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;margin-left:8px">Sair da visualização</button>`;
   banner.style.display = 'flex';
 }
 

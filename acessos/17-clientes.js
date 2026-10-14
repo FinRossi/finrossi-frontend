@@ -16,7 +16,7 @@ function getAdminToken(){
   // Tenta pegar do localStorage primeiro
   const saved=localStorage.getItem('fin_admin_token');
   if(saved){_adminToken=saved;return _adminToken;}
-  const t = prompt('🔐 Senha de administrador (ADMIN_SECRET):');
+  const t = prompt('Senha de administrador (ADMIN_SECRET):');
   if(!t){goTo('dashboard');return null;}
   _adminToken = t;
   localStorage.setItem('fin_admin_token', t);
@@ -121,7 +121,7 @@ async function renderClientes(){
       _adminToken='';
       localStorage.removeItem('fin_admin_token');
       goTo('dashboard');
-      setTimeout(()=>alert('❌ Senha admin incorreta. Tente novamente.'),100);
+      setTimeout(()=>alert('Senha de administrador incorreta. Tente novamente.'),100);
       return;
     }
 
@@ -166,7 +166,7 @@ async function renderClientes(){
 
     const PLANO_CORES={gratuito:'var(--muted)',essencial:'var(--blue)',evolucao:'var(--green)',patrimonio:'var(--accent)'};
     const STATUS_CORES={ativo:'var(--green)',trial:'var(--amber)',inativo:'var(--red)',pendente:'var(--amber)'};
-    const ROLE_BADGE={master:['🔑','var(--accent)','Master'],socio:['👑','var(--accent)','Sócio'],admin:['👔','var(--purple)','Admin'],dev:['💻','var(--blue)','Dev'],cliente:['👤','var(--muted)','Cliente']};
+    const ROLE_BADGE={master:['','var(--accent)','Master'],socio:['','var(--accent)','Sócio'],admin:['','var(--purple)','Admin'],dev:['','var(--blue)','Dev'],cliente:['','var(--muted)','Cliente']};
     const ROLES_INTERNOS_TBL=ROLES_EQUIPE;
 
     tabela.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -186,10 +186,10 @@ async function renderClientes(){
         return`<tr style="border-bottom:1px solid var(--border);${interno?'background:rgba(200,169,110,0.04)':''}">
           <td style="padding:10px;font-weight:${interno?500:400}">${c.nome||'—'}</td>
           <td style="padding:10px;color:var(--muted);font-size:12px">${c.email}</td>
-          <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${rb[1]}18;color:${rb[1]}">${rb[0]} ${rb[2]}</span></td>
+          <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${rb[1]}18;color:${rb[1]}">${rb[2]}</span></td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">—</span>':`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${c.plano||'—'}</span>`}</td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[c.status]||'var(--muted)'}18;color:${STATUS_CORES[c.status]||'var(--muted)'}">${c.status||'—'}</span></td>
-          <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'🏢 Interno':c.origem==='teste'?'🎁 Teste':c.origem==='trial'?'⏱ Trial':'💳 Pagante'}</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'Interno':c.origem==='teste'?'Teste':c.origem==='trial'?'Trial':'Pagante'}</td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">Equipe</span>':`<div style="display:flex;gap:4px;justify-content:center">
             <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>

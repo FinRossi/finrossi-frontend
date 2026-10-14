@@ -65,7 +65,7 @@ function setupPerfilUI(){
     if(container) container.prepend(sbEquipe);
   }
   if(sbEquipe){
-    const ROLE_LABEL={admin:'👔 Admin',dev:'💻 Dev'};
+    const ROLE_LABEL={admin:'Admin',dev:'Dev'};
     sbEquipe.style.display=(role==='admin'||role==='dev')?'block':'none';
     sbEquipe.innerHTML=`<div style="padding:10px 10px 14px">
       <div style="font-size:13px;font-weight:500;color:var(--text)">${ROLE_LABEL[role]||role}</div>
@@ -145,7 +145,7 @@ function confirmarSenhaFinRossi(){
   fetch(`${BACKEND_URL}/admin/clientes`,{headers:{'x-admin-token':senha}})
     .then(res=>{
       if(res.status===401){
-        if(msg){msg.textContent='❌ Senha incorreta. Tente novamente.';msg.style.display='block';}
+        if(msg){msg.textContent='Senha incorreta. Tente novamente.';msg.style.display='block';}
         if(inp){inp.value='';inp.focus();}
         return;
       }
@@ -155,7 +155,7 @@ function confirmarSenhaFinRossi(){
       fecharModalSenhaFinRossi();
       _setProfileFinRossi();
     }).catch(()=>{
-      if(msg){msg.textContent='⚠ Erro de conexão com o servidor.';msg.style.display='block';}
+      if(msg){msg.textContent='Não foi possível falar com o servidor. Tente de novo em instantes.';msg.style.display='block';}
     });
 }
 

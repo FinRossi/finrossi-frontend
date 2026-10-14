@@ -48,32 +48,22 @@ function renderAlertasVencimento(){
   const alertas = getVencimentosProximos(5);
   if(!alertas.length){ el.innerHTML=''; return; }
 
+  // Mesmo formato de extrato das outras listas: dia | conta | valor + quando vence
+  const TIPO_NOME = { cartao:'Fatura do cartão', assinatura:'Assinatura', recorrente:'Conta recorrente' };
   const itens = alertas.map(a=>{
-    const urgente = a.diasFaltam <= 1;
-    const cor = urgente ? 'var(--red)' : a.diasFaltam <= 3 ? 'var(--amber)' : 'var(--blue)';
-    const label = a.diasFaltam === 0 ? 'Hoje!' : a.diasFaltam === 1 ? 'Amanhã' : `Em ${a.diasFaltam} dias`;
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:${urgente?'rgba(248,113,113,.06)':'rgba(251,191,36,.06)'};border-radius:9px;border-left:3px solid ${cor}">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">${a.tipo==='cartao'?'💳':a.tipo==='assinatura'?'🔄':'📋'}</span>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:var(--text)">${a.nome}</div>
-          <div style="font-size:11px;color:var(--muted)">${a.cat} · dia ${a.dia}</div>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:12px;font-weight:600;color:${cor}">${label}</div>
-        ${a.val?`<div style="font-size:11px;color:var(--muted)">${fmtR(a.val)}</div>`:''}
-      </div>
+    const selo = a.diasFaltam === 0 ? '<span class="fr-selo alerta">Vence hoje</span>'
+      : a.diasFaltam === 1 ? '<span class="fr-selo alerta">Vence amanhã</span>'
+      : `<span class="fr-selo destaque">Em ${a.diasFaltam} dias</span>`;
+    return `<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
+      <div class="ext-dia"><b>${String(a.dia).padStart(2,'0')}</b><span>dia</span></div>
+      <div style="min-width:0"><div class="ext-tit">${a.nome}</div><div class="ext-meta">${TIPO_NOME[a.tipo]||a.cat}</div></div>
+      <div class="ext-valor-col">${a.val?`<div class="ext-valor">${fmtR(a.val)}</div>`:''}${selo}</div>
     </div>`;
   }).join('');
 
-  el.innerHTML=`<div class="card" style="padding:16px 18px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <span style="font-size:14px">🔔</span>
-      <span style="font-size:13px;font-weight:600;color:var(--text)">Vencimentos próximos</span>
-      <span style="background:var(--red-s);color:var(--red);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600">${alertas.length}</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px">${itens}</div>
+  el.innerHTML=`<div class="card" style="margin-bottom:16px">
+    <h3>Vencimentos próximos</h3>
+    ${itens}
   </div>`;
 }
 
@@ -123,7 +113,7 @@ async function solicitarPermissaoNotificacoes(){
 }
 
 function mostrarNotificacaoTeste(){
-  new Notification('FinRossi 🔔', {
+  new Notification('FinRossi', {
     body: 'Notificações ativadas! Você será avisado sobre vencimentos.',
     icon: '/img/icon-192.png?v=3',
     badge: '/img/favicon-32.png?v=3'
@@ -142,7 +132,7 @@ function agendarNotificacoes(){
       : `${a.nome} vence em ${a.diasFaltam} dias (dia ${a.dia})`;
     // Mostra imediatamente se há alertas urgentes
     if(a.diasFaltam <= 1){
-      new Notification('FinRossi — Vencimento próximo 🔔', {
+      new Notification('FinRossi: vencimento próximo', {
         body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''),
         icon: '/img/icon-192.png?v=3',
         badge: '/img/favicon-32.png?v=3',

@@ -10,13 +10,14 @@ function openModalMeta(id){
       document.getElementById('meta-valor').value=m.valor;
       document.getElementById('meta-investido').value=m.investido||0;
       document.getElementById('meta-icone').value=m.icone||'';
-      document.getElementById('meta-cor').value=m.cor||'#4ade80';
+      document.getElementById('meta-cor').value=m.cor||'#C8A96E';
     }
   } else {
     document.getElementById('meta-nome').value='';
     document.getElementById('meta-valor').value='';
     document.getElementById('meta-investido').value='';
-    document.getElementById('meta-icone').value='🎯';
+    document.getElementById('meta-icone').value='';
+    document.getElementById('meta-cor').value='#C8A96E';
   }
   document.getElementById('modal-meta').classList.add('open');
 }
@@ -27,7 +28,7 @@ async function salvarMeta(){
   if(!nome){showMsg('msg-meta','Informe o nome','err');return}
   if(!valor||valor<=0){showMsg('msg-meta','Valor alvo inválido','err');return}
   const id=document.getElementById('meta-edit-id').value;
-  const icone=document.getElementById('meta-icone').value||'🎯';
+  const icone=document.getElementById('meta-icone').value.trim();
   const cor=document.getElementById('meta-cor').value;
   if(id){const i=pd().metas.findIndex(m=>m.id===id);if(i>=0)pd().metas[i]={...pd().metas[i],nome,valor,investido,icone,cor}}
   else{pd().metas.push({id:uid(),nome,valor,investido,icone,cor})}

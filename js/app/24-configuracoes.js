@@ -77,7 +77,7 @@ function atualizarStatusNotificacoesConfig(nStatus, nBtn){
       nStatus.textContent='Ativo';
       nStatus.style.background='rgba(74,222,128,.1)';
       nStatus.style.color='var(--green)';
-      nBtn.textContent='🔕 Desativar notificações';
+      nBtn.textContent='Desativar notificações';
       nBtn.style.background='var(--surface3)';
       nBtn.style.color='var(--text)';
     } else {
@@ -89,7 +89,7 @@ function atualizarStatusNotificacoesConfig(nStatus, nBtn){
       nBtn.style.color='#0f0f0f';
     }
   } else if(Notification.permission==='denied'){
-    nStatus.textContent='🚫 Bloqueado';
+    nStatus.textContent='Bloqueado';
     nStatus.style.background='rgba(248,113,113,.1)';
     nStatus.style.color='var(--red)';
     nBtn.textContent='Habilitar nas configurações do navegador';

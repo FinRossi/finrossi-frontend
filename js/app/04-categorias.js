@@ -71,7 +71,7 @@ function abrirGerenciarCats(tipo){
     ...extras.filter(n=>!padrao.includes(n)).map(n=>({nome:n, ativa:!desativadas.includes(n), padrao:false}))
   ];
 
-  document.getElementById('cats-modal-title').textContent = tipo==='despesa' ? '🏷️ Categorias de Despesa' : '🏷️ Categorias de Receita';
+  document.getElementById('cats-modal-title').textContent = tipo==='despesa' ? 'Categorias de Despesa' : 'Categorias de Receita';
   document.getElementById('cats-nova').value = '';
   document.getElementById('cats-msg').textContent = '';
   renderCatsLista();

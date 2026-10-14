@@ -4,10 +4,10 @@ async function renderMinhaAssinatura(){
   const el = document.getElementById('assinatura-content');
   if(!el) return;
 
-  el.innerHTML=`<div style="text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div>Carregando...</div></div>`;
+  el.innerHTML='<p class="empty">Carregando sua assinatura…</p>';
 
   const uid = window._firebaseUser?.uid;
-  if(!uid){ el.innerHTML='<p class="empty">Usuário não autenticado.</p>'; return; }
+  if(!uid){ el.innerHTML='<p class="empty">Entre na sua conta para ver a assinatura.</p>'; return; }
 
   // Busca dados do usuário no Firebase — com timeout de segurança,
   // pra nunca travar em "Carregando..." caso o Firebase não responda
@@ -24,128 +24,106 @@ async function renderMinhaAssinatura(){
     }
   }catch(e){ console.warn('renderMinhaAssinatura:', e); }
 
-  const PLANO_INFO = {
-    gratuito:    {label:'Gratuito',    cor:'var(--muted)',   icone:'🆓', preco:'R$ 0,00',    desc:'Acesso por 30 dias, até 20 lançamentos'},
-    essencial:     {label:'Essencial',     cor:'var(--blue)',    icone:'⚡', preco:'R$ 9,90/mês',desc:'Lançamentos ilimitados + investimentos'},
-    evolucao:   {label:'Evolução',   cor:'var(--green)',   icone:'⭐', preco:'R$ 24,90/mês',desc:'Acesso completo ao app'},
-    patrimonio: {label:'Patrimônio', cor:'var(--accent)',  icone:'💎', preco:'R$ 49,90/mês',desc:'Tudo + suporte prioritário'},
-  };
-
-  const STATUS_INFO = {
-    ativo:   {label:'Ativo',    cor:'var(--green)',  bg:'var(--green-s)',  icone:'✅'},
-    trial:   {label:'Trial',   cor:'var(--amber)',  bg:'var(--amber-s)',  icone:'⏱'},
-    inativo: {label:'Inativo', cor:'var(--red)',    bg:'var(--red-s)',    icone:'❌'},
-  };
-
-  const plano   = dadosUsuario?.plano  || _userPlano || 'gratuito';
-  const status  = dadosUsuario?.status || 'trial';
+  // "Ver como" mostra o plano simulado
+  const planoSimulado = (typeof _verComoPlano!=='undefined' && _verComoPlano) || null;
+  const plano   = planoSimulado || dadosUsuario?.plano || _userPlano || 'gratuito';
+  const status  = dadosUsuario?.status || (plano==='gratuito' ? 'trial' : 'ativo');
   const origem  = dadosUsuario?.origem || 'trial';
-  const dataCad = dadosUsuario?.dataCadastro?.slice(0,10) || '—';
+  const dataCad = dadosUsuario?.dataCadastro ? dadosUsuario.dataCadastro.slice(0,10).split('-').reverse().join('/') : '—';
   const trialFim = dadosUsuario?.trialFim?.slice(0,10);
+  const cfg = (typeof PLANOS_CONFIG!=='undefined' && PLANOS_CONFIG[plano]) || { label: plano, preco: '', limites: {} };
+  const lim = cfg.limites || {};
 
-  const pi = PLANO_INFO[plano]  || PLANO_INFO.gratuito;
-  const si = STATUS_INFO[status] || STATUS_INFO.inativo;
+  const STATUS = {
+    ativo:   '<span class="fr-selo ok">Ativa</span>',
+    trial:   '<span class="fr-selo destaque">Período de teste</span>',
+    inativo: '<span class="fr-selo alerta">Inativa</span>',
+  };
+  const ORIGEM = { pagante: 'Assinatura paga', trial: 'Período de teste' };
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // Calcula dias restantes no trial
-  let trialInfo = '';
+  // Dias restantes no período de teste
+  let aviso = '';
   if(status==='trial' && trialFim){
     const dias = Math.ceil((new Date(trialFim)-new Date()) / 86400000);
-    trialInfo = dias > 0
-      ? `<div style="margin-top:8px;font-size:13px;color:var(--amber)">⏱ ${dias} dia${dias!==1?'s':''} restante${dias!==1?'s':''} no período gratuito</div>`
-      : `<div style="margin-top:8px;font-size:13px;color:var(--red)">⚠ Período gratuito encerrado — escolha um plano abaixo</div>`;
+    aviso = dias > 0
+      ? `<div class="ma-aviso">Faltam ${dias} ${dias===1?'dia':'dias'} do período de teste.</div>`
+      : `<div class="ma-aviso alerta">O período de teste terminou. Escolha um plano para continuar usando tudo.</div>`;
   }
 
+  // O que o plano inclui — lido das regras dos planos (sempre igual ao que o app libera)
+  const RECURSOS = [
+    ['Lançamentos', lim.lancamentos===true ? 'ilimitados' : (lim.lancamentos ? `até ${lim.lancamentos}` : false)],
+    ['Investimentos', !!lim.investimentos],
+    ['Metas e objetivos', !!lim.metas],
+    ['Cartões de crédito', !!lim.cartoes],
+    ['Assinaturas e contas recorrentes', !!lim.assinaturas],
+    ['Calendário financeiro e notas', !!lim.calendario],
+    ['Calculadora de renda passiva', !!lim.renda],
+    ['Saúde do patrimônio', !!lim.score],
+    ['Relatórios semanais e mensais em PDF', !!lim.relatorios],
+    ['Lançar por foto e anexos', !!lim.foto],
+    ['App personalizável', !!lim.personalizacao],
+    ['Sessão mensal com o consultor e atendimento prioritário', plano==='patrimonio'],
+  ];
+  const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  const pago = plano!=='gratuito' && origem==='pagante';
+  const nome = window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '—';
+  const email = window._firebaseUser?.email || '';
+  const assuntoCancelar = encodeURIComponent('Cancelar assinatura FinRossi');
+  const corpoCancelar = encodeURIComponent(`Olá, quero cancelar minha assinatura do FinRossi.\n\nNome: ${nome}\nE-mail da conta: ${email}\nPlano: ${cfg.label}\n`);
+
   el.innerHTML = `
-    <!-- Card principal do plano -->
-    <div class="card card-full" style="margin-bottom:20px;border-color:${pi.cor}44;background:linear-gradient(135deg,${pi.cor}08,transparent)">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div style="display:flex;align-items:center;gap:16px">
-          <div style="font-size:40px">${pi.icone}</div>
-          <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Plano atual</div>
-            <div style="font-size:22px;font-family:'DM Serif Display',serif;color:${pi.cor}">${pi.label}</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:2px">${pi.desc}</div>
-            ${trialInfo}
-          </div>
+    <div class="ced-painel" style="margin-bottom:16px"><div class="ced-painel-int ma-painel">
+      <div class="ced-rotulo">Plano atual</div>
+      <div class="ma-plano">${esc(cfg.label)}</div>
+      <div class="ma-linha">${cfg.preco?`<span class="ma-preco">${esc(cfg.preco)}</span>`:''}${STATUS[status]||STATUS.inativo}</div>
+      ${cfg.desc?`<p class="ma-desc">${esc(cfg.desc)}</p>`:''}
+      ${aviso}
+    </div></div>
+
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <h3>Sua conta</h3>
+        <div class="fr-dados">
+          <div><span>Nome</span><b>${esc(nome)}</b></div>
+          <div><span>E-mail</span><b>${esc(email||'—')}</b></div>
+          <div><span>Cliente desde</span><b>${dataCad}</b></div>
+          <div><span>Forma de acesso</span><b>${ORIGEM[origem]||'Teste gratuito'}</b></div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:20px;font-weight:600;color:${pi.cor}">${pi.preco}</div>
-          <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:${si.bg};color:${si.cor};font-size:12px;font-weight:500">
-            ${si.icone} ${si.label}
-          </div>
-        </div>
+      </div>
+      <div class="card">
+        <h3>O que o seu plano inclui</h3>
+        <ul class="ma-recursos">
+          ${RECURSOS.map(([rotulo, ok]) => `<li class="${ok?'':'fora'}">${ok?ICO_OK:'<i></i>'}<span>${rotulo}${typeof ok==='string'?`<small>, ${ok}</small>`:''}</span></li>`).join('')}
+        </ul>
       </div>
     </div>
 
-    <!-- Informações da conta -->
-    <div class="grid2" style="margin-bottom:20px">
-      <div class="card">
-        <h3><span class="dot" style="background:var(--blue)"></span>Informações da conta</h3>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="color:var(--muted)">Nome</span>
-            <span>${window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '—'}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="color:var(--muted)">Email</span>
-            <span>${window._firebaseUser?.email || '—'}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="color:var(--muted)">Cadastro</span>
-            <span>${dataCad}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0">
-            <span style="color:var(--muted)">Origem</span>
-            <span>${origem==='pagante'?'💳 Pagante':origem==='trial'?'⏱ Trial':'🎁 Teste gratuito'}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3><span class="dot" style="background:var(--green)"></span>O que está incluído</h3>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
-          ${[
-            ['Lançamentos', plano==='gratuito'?'Até 20':'Ilimitados', true],
-            ['Investimentos', plano==='gratuito'?false:true, plano!=='gratuito'],
-            ['Metas e Objetivos', ['evolucao','patrimonio'].includes(plano), ['evolucao','patrimonio'].includes(plano)],
-            ['Cartões e Assinaturas', ['evolucao','patrimonio'].includes(plano), ['evolucao','patrimonio'].includes(plano)],
-            ['Calendário e Notas', ['evolucao','patrimonio'].includes(plano), ['evolucao','patrimonio'].includes(plano)],
-            ['Suporte prioritário', plano==='patrimonio', plano==='patrimonio'],
-            ['Relatórios semanais e mensais', plano==='patrimonio', plano==='patrimonio'],
-            ['Saúde do patrimônio', plano==='patrimonio', plano==='patrimonio'],
-            ['App personalizável', plano==='patrimonio', plano==='patrimonio'],
-          ].map(([label, detalhe, ok])=>`
-            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
-              <span style="color:${ok?'var(--text)':'var(--muted2)'}">${label}</span>
-              <span>${ok?(typeof detalhe==='string'?`<span style="color:var(--muted);font-size:12px">${detalhe}</span>`:'✅'):'—'}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>
-
-    <!-- Upgrade / Suporte -->
     ${plano!=='patrimonio'?`
-    <div class="card card-full" style="margin-bottom:20px;border-color:rgba(200,169,110,0.2);background:rgba(200,169,110,0.04)">
-      <h3><span class="dot" style="background:var(--accent)"></span>Quer mais recursos?</h3>
-      <p style="font-size:13px;color:var(--muted);margin:8px 0 16px;line-height:1.7">
-        Faça upgrade do seu plano para desbloquear metas, cartões, calendário financeiro, 
-        suporte prioritário e muito mais.
-      </p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        ${plano==='gratuito'||plano==='essencial'?`<a href="https://finrossi.com.br/landing/#planos" target="_blank" class="btn primary" style="text-decoration:none">⚡ Ver planos disponíveis</a>`:''}
-        <a href="mailto:finrossiapp@gmail.com?subject=Upgrade de plano FinRossi" class="btn" style="text-decoration:none">✉ Falar com suporte</a>
+    <div class="card card-full" style="margin-bottom:16px">
+      <h3>Quer mais recursos?</h3>
+      <p class="fr-card-sub" style="margin:-6px 0 14px">Os planos acima liberam ${plano==='gratuito'?'lançamentos ilimitados, investimentos, metas, cartões':'relatórios em PDF, saúde do patrimônio, lançar por foto'} e mais.</p>
+      <div class="btn-row">
+        <a href="https://finrossi.com.br/landing/#planos" target="_blank" rel="noopener" class="btn primary" style="text-decoration:none">Ver planos</a>
+        <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Mudar de plano FinRossi')}" class="btn" style="text-decoration:none">Falar com o suporte</a>
       </div>
     </div>`:''}
 
-    <!-- Suporte -->
     <div class="card card-full">
-      <h3><span class="dot" style="background:var(--purple)"></span>Precisa de ajuda?</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
-        <a href="mailto:finrossiapp@gmail.com?subject=Suporte FinRossi" class="btn" style="text-decoration:none;font-size:13px">✉ Enviar e-mail</a>
-        <a href="https://finrossi.com.br/landing/legal/termos.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">📄 Termos de Uso</a>
-        <a href="https://finrossi.com.br/landing/legal/privacidade.html" target="_blank" class="btn" style="text-decoration:none;font-size:13px">🔒 Privacidade</a>
-        ${plano==='patrimonio'?`<a href="mailto:finrossiapp@gmail.com?subject=Agendamento sessão FinRossi" class="btn primary" style="text-decoration:none;font-size:13px">📅 Agendar sessão</a>`:''}
+      <h3>Ajuda e documentos</h3>
+      <div class="btn-row" style="flex-wrap:wrap">
+        <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Suporte FinRossi')}" class="btn" style="text-decoration:none">Enviar e-mail ao suporte</a>
+        ${plano==='patrimonio'?`<a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Agendar sessão FinRossi')}" class="btn primary" style="text-decoration:none">Agendar sessão</a>`:''}
+        <a href="https://finrossi.com.br/landing/legal/termos.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Termos de uso</a>
+        <a href="https://finrossi.com.br/landing/legal/privacidade.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Privacidade</a>
+        <a href="https://finrossi.com.br/landing/legal/contrato.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Contrato</a>
       </div>
+      ${pago?`<div class="ma-cancelar">
+        <div><b>Cancelar assinatura</b><span>Abre um e-mail pronto para o suporte com os dados da sua conta.</span></div>
+        <a href="mailto:finrossiapp@gmail.com?subject=${assuntoCancelar}&body=${corpoCancelar}" class="btn danger" style="text-decoration:none">Pedir cancelamento</a>
+      </div>`:''}
     </div>
   `;
 }
