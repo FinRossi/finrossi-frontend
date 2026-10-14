@@ -33,7 +33,7 @@ function abrirConfiguracoes(){
     renderNavConfigCards();
 
     const badge = el('cfg-nav-perfil-badge');
-    if(badge) badge.textContent = cp==='finrossi' ? '💼 FinRossi' : '👤 Pessoal';
+    if(badge) badge.textContent = cp==='finrossi' ? 'FinRossi' : 'Pessoal';
 
     const dCount = el('cfg-cats-desp-count');
     const rCount = el('cfg-cats-rec-count');
@@ -74,7 +74,7 @@ function atualizarStatusNotificacoesConfig(nStatus, nBtn){
   } else if(Notification.permission==='granted'){
     const ativo = localStorage.getItem('fin_notif_ok') !== '0';
     if(ativo){
-      nStatus.textContent='✅ Ativo';
+      nStatus.textContent='Ativo';
       nStatus.style.background='rgba(74,222,128,.1)';
       nStatus.style.color='var(--green)';
       nBtn.textContent='🔕 Desativar notificações';
@@ -84,7 +84,7 @@ function atualizarStatusNotificacoesConfig(nStatus, nBtn){
       nStatus.textContent='Desativado';
       nStatus.style.background='var(--surface3)';
       nStatus.style.color='var(--muted)';
-      nBtn.textContent='🔔 Reativar notificações';
+      nBtn.textContent='Reativar notificações';
       nBtn.style.background='var(--accent)';
       nBtn.style.color='#0f0f0f';
     }
@@ -92,12 +92,12 @@ function atualizarStatusNotificacoesConfig(nStatus, nBtn){
     nStatus.textContent='🚫 Bloqueado';
     nStatus.style.background='rgba(248,113,113,.1)';
     nStatus.style.color='var(--red)';
-    nBtn.textContent='⚙️ Habilitar nas configurações do navegador';
+    nBtn.textContent='Habilitar nas configurações do navegador';
     nBtn.style.background='var(--surface3)';
     nBtn.style.color='var(--muted)';
   } else {
     nStatus.textContent='Desativado';
-    nBtn.textContent='🔔 Ativar notificações';
+    nBtn.textContent='Ativar notificações';
     nBtn.style.background='var(--accent)';
     nBtn.style.color='#0f0f0f';
   }

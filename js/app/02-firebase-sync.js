@@ -26,6 +26,7 @@ function initFB(){
                 if(val[t]!==undefined){DATA[p][t]=Array.isArray(val[t])?val[t]:Object.values(val[t]||{});lsSave(p,t);}
               });
               if(val.categorias) DATA[p].categorias=val.categorias;
+              if(val.rendaPassiva){ DATA[p].rendaPassiva=val.rendaPassiva; lsSave(p,'rendaPassiva'); }
             }
             if(p===cp) refreshAll();
           }catch(e){console.warn('snap err',e)}
@@ -48,6 +49,7 @@ function initFB(){
               }
             });
             if(val.categorias) DATA[uid].categorias=val.categorias;
+            if(val.rendaPassiva){ DATA[uid].rendaPassiva=val.rendaPassiva; lsSave(uid,'rendaPassiva'); }
           }
           refreshAll();
         }catch(e){console.warn('snap err cliente',e)}

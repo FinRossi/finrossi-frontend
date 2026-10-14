@@ -18,7 +18,7 @@
   color:var(--text);margin:0 0 14px;display:flex;align-items:center;gap:8px;
   font-variant-numeric:lining-nums tabular-nums;
 }
-.rp-scenario h4{font-size:17px}
+.rp-scenario h4{font-size:17px;display:block}
 .card h3 .dot,.rp-scenario h4 .dot{display:none}
 .fr-card-sub{font-size:12.5px;color:var(--muted);margin:-8px 0 14px}
 
@@ -118,3 +118,36 @@
   #pwa-fab{bottom:84px!important;right:14px!important}
   #pwa-fab>div:first-child{display:none!important}
 }
+
+/* ── Renda Passiva: rendas salvas pelo cliente ────────────────────────────── */
+.rp-alvos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.rp-alvo{border:1px solid var(--ced-gravura-fina);border-radius:8px;padding:12px 14px;background:var(--surface2)}
+.rp-alvo-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.rp-alvo-valor{font-family:var(--ced-serif);font-weight:500;font-size:20px;color:var(--text);font-variant-numeric:lining-nums tabular-nums}
+.rp-alvo-valor small{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted)}
+.rp-alvo-sub{font-size:12px;color:var(--muted);margin-top:6px}
+.rp-add{display:flex;gap:8px;flex-wrap:wrap}
+.rp-add input{flex:1;min-width:180px;max-width:320px;height:40px;padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font:14px 'DM Sans',sans-serif;outline:none}
+.rp-add input:focus{border-color:var(--accent)}
+.rp-link{background:none;border:none;padding:6px 0 0;color:var(--accent);font:12px 'DM Sans',sans-serif;cursor:pointer;text-align:left}
+.rp-link:hover{text-decoration:underline}
+@media(max-width:767px){.rp-add input{max-width:none}.rp-add .btn{flex:1;justify-content:center}}
+
+/* ── Janelas de instalação do app (Android/Chrome e iPhone) ───────────────── */
+.pwa-janela{position:fixed;bottom:24px;right:24px;z-index:9998;width:calc(100vw - 32px);max-width:360px;
+  background:var(--surface);border:1px solid var(--ced-gravura);border-radius:10px;padding:16px;
+  box-shadow:inset 0 0 0 4px var(--surface),inset 0 0 0 5px var(--ced-gravura-fina),0 16px 40px rgba(0,0,0,.55);animation:slidePWA .3s ease}
+.pwa-cab{display:flex;align-items:center;gap:12px}
+.pwa-ico{width:44px;height:44px;border-radius:10px;background:#0f0f0f;border:1px solid var(--accent);display:grid;place-items:center;flex-shrink:0;overflow:hidden}
+.pwa-ico img{display:block;border-radius:6px}
+.pwa-txt{flex:1;min-width:0}
+.pwa-txt b{display:block;font-family:var(--ced-serif);font-weight:500;font-size:19px;letter-spacing:-.2px;color:var(--text);line-height:1.15}
+.pwa-txt span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+.pwa-fechar{align-self:flex-start;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:4px}
+.pwa-fechar:hover{color:var(--text);background:var(--surface2)}
+.pwa-acoes{display:flex;gap:8px;margin-top:14px}
+.pwa-acoes .btn{flex:1;justify-content:center;height:40px}
+.pwa-passos{margin:14px 0 0;padding:12px 14px 12px 32px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.9}
+.pwa-passos b{color:var(--text);font-weight:500}
+.pwa-passos svg{width:15px;height:15px;vertical-align:-3px;color:var(--accent)}
+@media(max-width:767px){.pwa-janela{right:16px;left:16px;bottom:84px;width:auto;max-width:none}}

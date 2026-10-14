@@ -53,7 +53,7 @@ async function enviarResetSenha(){
     });
 
     // Sucesso
-    msgEl.innerHTML = '✅ Email enviado!<br><span style="font-size:12px;opacity:.8">Verifique sua caixa de entrada e spam. O link expira em 1 hora.</span>';
+    msgEl.innerHTML = 'E-mail enviado<br><span style="font-size:12px;opacity:.8">Verifique sua caixa de entrada e spam. O link expira em 1 hora.</span>';
     msgEl.style.display = 'block';
     msgEl.style.background = 'rgba(74,222,128,0.08)';
     msgEl.style.border = '1px solid rgba(74,222,128,0.2)';
@@ -283,7 +283,7 @@ async function atualizarStatusPWAConfig(){
     console.warn('[PWA] erro ao verificar status:', e);
   }
   if(instalado){
-    statusEl.textContent='✅ Instalado';
+    statusEl.textContent='Instalado';
     statusEl.style.background='var(--green-s)';
     statusEl.style.color='var(--green)';
     btnEl.style.display='none';
