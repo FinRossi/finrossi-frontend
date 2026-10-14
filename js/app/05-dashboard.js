@@ -106,10 +106,14 @@ function refreshDash(){
   const desAnt=doAnt.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const saldoAnt=recAnt-desAnt;
 
+  // Variação em relação ao mês anterior. Sem base (mês anterior zerado): só o sentido,
+  // 'N+' subiu / 'N-' caiu. Base negativa: divide pelo valor absoluto para a seta não inverter.
   const varPct=(atual,ant)=>{
-    if(!ant) return '0.0';
-    return ((atual-ant)/ant*100).toFixed(1);
+    if(!ant) return atual>0?'N+':atual<0?'N-':'0.0';
+    return ((atual-ant)/Math.abs(ant)*100).toFixed(1);
   };
+  const varSubiu=v=>v==='N+'||(v!=='N-'&&parseFloat(v)>=0);
+  const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${String(Math.abs(parseFloat(v))).replace('.', ',')}%`;
 
   // Sparkline mini — últimos 6 meses de dados
   const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].sort().slice(-6);
@@ -151,9 +155,9 @@ function refreshDash(){
     // receitas/despesas/saldo como faixa de extrato. Mesmos valores e variações de antes.
     const anima = !window._cedAnimou; window._cedAnimou = true; // roseta anima só na 1ª abertura
     const varTxt = (v, invertido) => {
-      const subiu = parseFloat(v) >= 0;
+      const subiu = varSubiu(v);
       const bom = invertido ? !subiu : subiu; // despesas: gastar menos é bom
-      return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'} ${String(Math.abs(v)).replace('.', ',')}%</span><span class="ced-sub">no mês</span>`;
+      return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'}${varRotulo(v)}</span><span class="ced-sub">${subiu ? 'subiu' : 'caiu'} no mês</span>`;
     };
     const pat = totalInv + saldo;
 
@@ -182,7 +186,7 @@ function refreshDash(){
         <div class="ced-brilho" aria-hidden="true"></div>
         <div class="ced-serie">${serieCedula(mes)}</div>
         <div class="ced-rotulo">Patrimônio líquido</div>
-        <div class="ced-valor-linha"><div class="ced-valor" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
+        <div class="ced-valor-linha"><div class="ced-valor${pat<0?' ced-negativo':''}" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
         <div class="ced-var">${varTxt(varPct(pat, totalInv + saldoAnt), false)}</div>
       </div></div>
       <div class="ced-extrato">
@@ -190,7 +194,7 @@ function refreshDash(){
           .map(([rotulo, k, p, inv]) => `
           <div class="ced-item">
             <div class="ced-rotulo">${rotulo}</div>
-            <div class="ced-valor-linha"><div class="ced-valor" id="ced-valor-${k}">${mostra(k)}</div>${cedDeltaHTML('ced-valor-' + k)}</div>
+            <div class="ced-valor-linha"><div class="ced-valor${atuais[k]<0?' ced-negativo':''}" id="ced-valor-${k}">${mostra(k)}</div>${cedDeltaHTML('ced-valor-' + k)}</div>
             <div class="ced-var">${varTxt(p, inv)}</div>
           </div>`).join('')}
       </div>`;
@@ -238,13 +242,13 @@ function refreshDash(){
 
   // Atualiza totais dos gráficos principais
   const evoTotEl=document.getElementById('dash-evo-total');
-  if(evoTotEl) evoTotEl.textContent=fmtR(saldo);
+  if(evoTotEl){ evoTotEl.textContent=fmtR(saldo); evoTotEl.classList.toggle('ced-negativo', saldo<0); }
   const evoBadge=document.getElementById('dash-evo-badge');
   if(evoBadge){
     const v=varPct(saldo,saldoAnt);
     if(v!==null){
-      const pos=parseFloat(v)>=0;
-      evoBadge.textContent=`${pos?'↑':'↓'} ${Math.abs(v)}%`;
+      const pos=varSubiu(v);
+      evoBadge.textContent=`${pos?'↑':'↓'}${varRotulo(v)||(pos?' subiu':' caiu')}`;
       evoBadge.style.background=pos?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)';
       evoBadge.style.color=pos?'var(--green)':'var(--red)';
     }
@@ -505,6 +509,8 @@ function renderTodosMeses(){
 
   if(!meses.length){container.innerHTML='';return;}
 
+  // Valor sem o "R$" repetido em cada célula (o cabeçalho já diz que é dinheiro): cabe no celular
+  const num = v => fmtR(v).replace(/^R\$\s?/, '');
   const rows=meses.map(m=>{
     const doM=lancs.filter(l=>l.data.startsWith(m));
     const rec=doM.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
@@ -512,35 +518,24 @@ function renderTodosMeses(){
     const saldo=rec-des;
     const qtd=doM.length;
     const ativo=m===mesSel;
-    return`<tr onclick="filtrarMes('${m}')" style="cursor:pointer;${ativo?'background:var(--green-s);':''}" class="mes-row">
-      <td style="padding:9px 10px;font-weight:${ativo?'600':'400'};color:${ativo?'var(--green)':'var(--text)'}">
-        ${mesLbl(m+'-01')}${m===mesAtual?' <span style="font-size:10px;background:var(--green-s);color:var(--green);padding:1px 6px;border-radius:10px">atual</span>':''}
-      </td>
-      <td style="padding:9px 10px;color:var(--green);text-align:right">${fmtR(rec)}</td>
-      <td style="padding:9px 10px;color:var(--red);text-align:right">${fmtR(des)}</td>
-      <td style="padding:9px 10px;color:${saldo>=0?'var(--green)':'var(--red)'};text-align:right;font-weight:500">${fmtR(saldo)}</td>
-      <td class="col-qtd-lancs" style="padding:9px 10px;color:var(--muted);text-align:center;font-size:12px">${qtd}</td>
-      <td style="padding:9px 10px;text-align:center">
-        <span style="font-size:11px;color:var(--muted)">→</span>
-      </td>
+    return`<tr onclick="filtrarMes('${m}')" class="mes-row${ativo?' ativo':''}">
+      <td class="tm-mes">${mesLbl(m+'-01')}${m===mesAtual?' <span class="fr-selo destaque">atual</span>':''}</td>
+      <td class="tm-val pos">${num(rec)}</td>
+      <td class="tm-val">${num(des)}</td>
+      <td class="tm-val tm-saldo${saldo<0?' neg':''}">${saldo<0?'−':''}${num(Math.abs(saldo))}</td>
+      <td class="col-qtd-lancs tm-qtd">${qtd}</td>
     </tr>`;
   }).join('');
 
   container.innerHTML=`
     <div class="card card-full" style="margin-bottom:16px">
-      <h3 style="font-size:13px;font-weight:500"><span class="dot" style="background:var(--teal)"></span>Todos os meses <span style="color:var(--muted);font-weight:400;font-size:11px">— clique para filtrar</span></h3>
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead>
-            <tr style="border-bottom:1px solid var(--border)">
-              <th style="text-align:left;padding:6px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Mês</th>
-              <th style="text-align:right;padding:6px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Receitas</th>
-              <th style="text-align:right;padding:6px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Despesas</th>
-              <th style="text-align:right;padding:6px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Saldo</th>
-              <th class="col-qtd-lancs" style="text-align:center;padding:6px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Lançamentos</th>
-              <th style="width:30px"></th>
-            </tr>
-          </thead>
+      <h3>Todos os meses</h3>
+      <p class="fr-card-sub">Valores em reais. Toque num mês para ver o dashboard dele.</p>
+      <div class="tm-wrap">
+        <table class="tm-tabela">
+          <thead><tr>
+            <th class="tm-mes">Mês</th><th class="tm-val">Receitas</th><th class="tm-val">Despesas</th><th class="tm-val">Saldo</th><th class="col-qtd-lancs tm-qtd">Lançamentos</th>
+          </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
