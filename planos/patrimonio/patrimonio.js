@@ -541,8 +541,9 @@ function initPersonalizacaoDashboard(){
   if(!wrap) return;
   const permitido = patrimonioTemAcesso();
   wrap.style.display = permitido ? 'block' : 'none';
-  if(!permitido || _dashConfigCarregada) return;
-  _dashConfigCarregada = true;
+  // Uma vez por perfil (trocar Pessoal/FinRossi aplica a organização do outro)
+  if(!permitido || _dashConfigCarregada === cp) return;
+  _dashConfigCarregada = cp;
   carregarConfigDashboard();
 }
 
@@ -655,34 +656,29 @@ async function salvarConfigDashboard(){
     ordem: widgets.map(w=>w.dataset.widgetId),
     ocultos: widgets.filter(w=>w.classList.contains('dash-widget-oculto')).map(w=>w.dataset.widgetId)
   };
-  localStorage.setItem('fin_dash_config', JSON.stringify(config));
-  if(window._db && window._set && window._ref && window._firebaseUser){
-    try{ await window._set(window._ref(window._db, `usuarios/${window._firebaseUser.uid}/dashboardConfig`), config); }
-    catch(e){ console.warn('salvarConfigDashboard:', e); }
-  }
+  // Por perfil (Pessoal e FinRossi não dividem mais a mesma organização); a nuvem fica com
+  // js/app/36-preferencias.js (usuarios/<uid>/preferencias/perfis/<perfil>/layout)
+  localStorage.setItem('fin_dash_config_' + cp, JSON.stringify(config));
+  if(typeof prefSalvarLayout === 'function') prefSalvarLayout(config);
 }
 
 async function carregarConfigDashboard(){
+  // Aplica na hora o que está no aparelho (antes esperava até 4 s pelo banco).
+  // A versão da nuvem chega por js/app/36-preferencias.js e é aplicada quando vier.
   let config = null;
-  try{ const raw = localStorage.getItem('fin_dash_config'); if(raw) config = JSON.parse(raw); }catch(e){}
-
-  if(window._db && window._ref && window._onValue && window._firebaseUser){
-    try{
-      const snap = await new Promise((res,rej)=>{
-        const t = setTimeout(()=>rej(new Error('timeout')), 4000);
-        window._onValue(window._ref(window._db,`usuarios/${window._firebaseUser.uid}/dashboardConfig`), s=>{ clearTimeout(t); res(s); }, {onlyOnce:true});
-      });
-      const remoto = snap.val();
-      if(remoto){ config = remoto; localStorage.setItem('fin_dash_config', JSON.stringify(remoto)); }
-    }catch(e){ /* segue com o que tiver salvo local */ }
-  }
-
+  try{
+    const raw = localStorage.getItem('fin_dash_config_' + cp) || localStorage.getItem('fin_dash_config');
+    if(raw) config = JSON.parse(raw);
+  }catch(e){}
   aplicarConfigDashboard(config);
 }
 
 function aplicarConfigDashboard(config){
   const grid = document.getElementById('dash-widgets-grid');
-  if(!grid || !config) return;
+  if(!grid) return;
+  // Guarda a ordem original na primeira vez; sem organização salva, volta a ela
+  if(!grid._ordemPadrao) grid._ordemPadrao = [...grid.querySelectorAll('.dash-widget')].map(w => w.dataset.widgetId);
+  if(!config) config = { ordem: grid._ordemPadrao, ocultos: [] };
   if(Array.isArray(config.ordem)){
     config.ordem.forEach(id=>{
       const el = grid.querySelector(`[data-widget-id="${id}"]`);
