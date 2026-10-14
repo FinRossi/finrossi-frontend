@@ -31,6 +31,7 @@ function abrirConfiguracoes(){
 
     renderDashConfigCards();
     renderNavConfigCards();
+    if(typeof renderAtalhosConfig==='function') renderAtalhosConfig();
 
     const badge = el('cfg-nav-perfil-badge');
     if(badge) badge.textContent = cp==='finrossi' ? 'FinRossi' : 'Pessoal';

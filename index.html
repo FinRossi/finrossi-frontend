@@ -48,7 +48,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=5">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=7">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=8">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=5">
 </head>
 <body>
@@ -1168,6 +1168,19 @@
   </ol>
 </div>
 
+<!-- Ajuda para instalar quando o navegador não mostra o aviso automático -->
+<div id="pwa-ajuda" class="pwa-janela" style="display:none">
+  <div class="pwa-cab">
+    <div class="pwa-txt"><b>Instalar o FinRossi</b><span>Pelo menu do navegador, em dois toques</span></div>
+    <button class="pwa-fechar" type="button" onclick="fecharAjudaInstalar()" aria-label="Fechar">✕</button>
+  </div>
+  <ol class="pwa-passos">
+    <li>Toque no menu do navegador <b>(os três pontos no canto)</b></li>
+    <li>Escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b></li>
+  </ol>
+  <p class="pwa-aviso" id="pwa-ajuda-seguro" hidden>Para instalar, abra o app pelo endereço seguro <b>finrossi.com.br</b>. Pelo endereço de teste (sem o cadeado), os celulares não oferecem a instalação.</p>
+</div>
+
 <!-- BOTÃO FLUTUANTE INSTALAR (aparece após fechar o banner) -->
 <div id="pwa-fab" style="display:none;position:fixed;bottom:90px;right:20px;z-index:9997;flex-direction:column;align-items:flex-end;gap:6px" onclick="abrirPWAManual()">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--muted);white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.3)">Instalar app</div>
@@ -1375,6 +1388,13 @@
       </div>
       <div id="cfg-nav-cards"></div>
 
+      <div style="height:1px;background:var(--border);margin:18px 0"></div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:500">Barra de atalhos</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:3px">As 4 telas da barra de baixo no celular. No computador, elas sobem para o topo do menu lateral.</div>
+      </div>
+      <div id="cfg-atalhos"></div>
+
       <button onclick="salvarDashConfig()" style="width:100%;margin-top:16px;background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Salvar preferências</button>
       <div id="cfg-msg-dash" style="font-size:12px;text-align:center;margin-top:8px;min-height:16px"></div>
     </div>
@@ -1479,6 +1499,15 @@
       <div class="mobile-profile-opt" id="mnav-item-manual" onclick="goTo('manual');closeMobileMoreForce()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         <div><div class="po-name">Manual</div><div class="po-sub">Como usar o FinRossi</div></div>
+      </div>
+    </div>
+
+    <!-- Instalar o app (some quando já está instalado) -->
+    <div id="mnav-instalar-wrap" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+      <h4>Aplicativo</h4>
+      <div class="mobile-profile-opt" id="mnav-instalar-opt" onclick="instalarPeloMenu()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
+        <div><div class="po-name">Instalar o app</div><div class="po-sub">Abra o FinRossi direto da tela inicial</div></div>
       </div>
     </div>
 
@@ -2002,7 +2031,7 @@
 <script src="js/app/21-manual-render.js?v=2"></script>
 <script src="js/app/22-mobile-nav.js?v=1"></script>
 <script src="js/app/23-tema.js?v=1"></script>
-<script src="js/app/24-configuracoes.js?v=3"></script>
+<script src="js/app/24-configuracoes.js?v=4"></script>
 <script src="js/app/25-minha-assinatura.js?v=3"></script>
 <script src="js/app/26-cursor-fx.js?v=1"></script>
 <script src="acessos/27-ver-como.js?v=5"></script>
@@ -2011,6 +2040,7 @@
 <script src="js/app/30-date-picker.js?v=1"></script>
 <script src="js/app/31-reset-senha.js?v=3"></script>
 <script src="js/app/32-notificacoes.js?v=2"></script>
+<script src="js/app/34-barra-atalhos.js?v=1"></script>
 <script src="js/app/33-pwa-init.js?v=1"></script>
 </body>
 </html>
