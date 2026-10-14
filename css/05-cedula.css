@@ -81,3 +81,26 @@
 .ced-seg button{padding:6px 10px;font-size:12.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
 .ced-seg button:hover{color:var(--text)}
 .ced-seg button.ativo{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── Movimento do painel principal ──────────────────────────────────────────
+   Roseta viva: as camadas giram devagar em sentidos opostos (como o torno que grava
+   o guilhoché). Brilho: uma faixa dourada atravessa o painel de tempos em tempos,
+   como a faixa holográfica de uma cédula. Tudo para com "reduzir movimento". */
+.ced-roseta-viva .ced-camada{position:absolute;inset:0;width:100%;height:100%;will-change:transform}
+.ced-roseta-viva .ced-camada-1{animation:ced-girar 140s linear infinite}
+.ced-roseta-viva .ced-camada-2{animation:ced-girar 95s linear infinite reverse}
+.ced-roseta-viva .ced-camada-3{animation:ced-girar 60s linear infinite}
+.ced-roseta-viva .ced-camada-0{animation:ced-pulsar 6s ease-in-out infinite}
+@keyframes ced-girar{to{transform:rotate(360deg)}}
+@keyframes ced-pulsar{0%,100%{opacity:.7}50%{opacity:1}}
+.ced-brilho{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:3px}
+.ced-brilho::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:28%;
+  background:linear-gradient(100deg,transparent 0%,color-mix(in srgb,var(--accent) 9%,transparent) 40%,color-mix(in srgb,#fff 10%,transparent) 50%,color-mix(in srgb,var(--accent) 9%,transparent) 60%,transparent 100%);
+  transform:skewX(-14deg);animation:ced-brilho 9s ease-in-out 2.2s infinite}
+@keyframes ced-brilho{0%{left:-40%}22%{left:120%}100%{left:120%}}
+.ced-painel-int .ced-rotulo,.ced-painel-int .ced-valor,.ced-painel-int .ced-var{position:relative;z-index:1}
+.ced-painel-int .ced-serie{z-index:1}
+@media(prefers-reduced-motion:reduce){
+  .ced-roseta-viva .ced-camada,.ced-brilho::before{animation:none}
+  .ced-brilho{display:none}
+}

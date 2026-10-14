@@ -148,10 +148,11 @@ function refreshDash(){
     const pat = totalInv + saldo;
     kpiEl.innerHTML = `
       <div class="ced-painel"><div class="ced-painel-int">
-        ${rosetaGuillocheSVG().replace('class="ced-roseta"', anima ? 'class="ced-roseta ced-anima"' : 'class="ced-roseta"')}
+        ${rosetaGuillocheViva().replace('class="ced-roseta ced-roseta-viva"', anima ? 'class="ced-roseta ced-roseta-viva ced-anima"' : 'class="ced-roseta ced-roseta-viva"')}
+        <div class="ced-brilho" aria-hidden="true"></div>
         <div class="ced-serie">${serieCedula(mes)}</div>
         <div class="ced-rotulo">Patrimônio líquido</div>
-        <div class="ced-valor">${valorCedula(pat)}</div>
+        <div class="ced-valor" id="ced-valor-pat">${valorCedula((anima || cedContando()) ? 0 : pat)}</div>
         <div class="ced-var">${varTxt(varPct(pat, totalInv + saldoAnt), false)}</div>
       </div></div>
       <div class="ced-extrato">
@@ -163,6 +164,8 @@ function refreshDash(){
             <div class="ced-var">${varTxt(p, inv)}</div>
           </div>`).join('')}
       </div>`;
+
+    if(anima || cedContando()) contarValorCedula('ced-valor-pat', pat, 1400);
 
     // Renderiza sparklines via canvas
     setTimeout(()=>{
