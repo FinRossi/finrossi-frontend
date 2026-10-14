@@ -425,7 +425,7 @@ function refreshDash(){
             legend:{display:false},
             tooltip:{
               callbacks:{
-                label:(ctx)=>`${ctx.label}: ${fmtR(ctx.raw)} (${totalCat>0?Math.round(ctx.raw/totalCat*100):0}%)`
+                label:(ctx)=>{ const vis=catTotalVisivel(ctx.chart); return `${ctx.label}: ${fmtR(ctx.raw)} (${vis>0?Math.round(ctx.raw/vis*100):0}%)`; }
               }
             }
           }
@@ -441,27 +441,21 @@ function refreshDash(){
             ctx.font="500 22px 'Bodoni Moda',Georgia,serif";
             const corTxt=getComputedStyle(document.documentElement);   // segue a cor do texto do tema
             ctx.fillStyle=corTxt.getPropertyValue('--text').trim()||'#f0ede8';
-            ctx.fillText(fmtR(totalCat).replace('R$\u00a0','R$ '), cx, cy-8);
+            ctx.fillText(fmtR(catTotalVisivel(chart)).replace('R$\u00a0','R$ '), cx, cy-8);
             ctx.font="12px 'DM Sans',Arial";
             ctx.fillStyle=corTxt.getPropertyValue('--muted').trim()||'#777';
-            ctx.fillText('Total', cx, cy+12);
+            ctx.fillText(catRotuloCentro(chart), cx, cy+12);
             ctx.restore();
           }
         }]
       });
 
-      // Legenda HTML própria — porcentagens sempre alinhadas em coluna reta
-      const legendEl=document.getElementById('cat-legend');
-      if(legendEl){
-        legendEl.innerHTML=cL.map((label,i)=>{
-          const pct=totalCat>0?Math.round(cV[i]/totalCat*100):0;
-          return `<div onclick="toggleCatSlice(${i})" data-cat-idx="${i}" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <span style="width:8px;height:8px;border-radius:50%;background:${CAT_COLORS[i]};flex-shrink:0"></span>
-            <span style="font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span>
-            <span style="font-size:12px;color:var(--text);font-variant-numeric:tabular-nums;text-align:right;min-width:34px">${pct}%</span>
-          </div>`;
-        }).join('');
-      }
+      // Categorias que o cliente tirou do gráfico continuam fora ao redesenhar
+      charts['cat'].$cat={cL,cV,cores:CAT_COLORS};
+      const ocultas=_catOcultas[_catModo]||new Set();
+      cL.forEach((label,i)=>{ if(ocultas.has(label)) charts['cat'].toggleDataVisibility(i); });
+      if(ocultas.size) charts['cat'].update('none');
+      renderLegendaCat(charts['cat']);
     }
   }
 
@@ -643,3 +637,37 @@ function renderDashCartaoWidget(){
     </div>`;
 }
 
+
+// ── Gráfico de categorias: tirar/voltar categorias mostrando o valor que saiu ──
+const _catOcultas = {};   // por modo (despesa/receita): nomes das categorias tiradas do gráfico
+function catTotalVisivel(chart){
+  const d = chart?.$cat; if(!d) return 0;
+  return d.cV.reduce((s, v, i) => s + (chart.getDataVisibility(i) ? v : 0), 0);
+}
+function catRotuloCentro(chart){
+  const d = chart?.$cat; if(!d) return 'Total';
+  const fora = d.cL.filter((_, i) => !chart.getDataVisibility(i));
+  if(!fora.length) return 'Total';
+  return fora.length === 1 ? `sem ${fora[0]}` : `sem ${fora.length} categorias`;
+}
+function renderLegendaCat(chart){
+  const el = document.getElementById('cat-legend');
+  const d = chart?.$cat;
+  if(!el || !d) return;
+  const vis = catTotalVisivel(chart);
+  let foraTotal = 0;
+  const linhas = d.cL.map((label, i) => {
+    const visivel = chart.getDataVisibility(i);
+    if(!visivel) foraTotal += d.cV[i];
+    const pct = visivel && vis > 0 ? Math.round(d.cV[i] / vis * 100) + '%' : 'fora';
+    return `<div class="cat-leg${visivel ? '' : ' fora'}" onclick="toggleCatSlice(${i})" data-cat-idx="${i}" role="button" tabindex="0" title="${visivel ? 'Tirar do gráfico' : 'Voltar ao gráfico'}">
+      <span class="cat-leg-cor" style="background:${d.cores[i]}"></span>
+      <span class="cat-leg-nome">${label}</span>
+      <span class="cat-leg-val">${fmtR(d.cV[i])}</span>
+      <span class="cat-leg-pct">${pct}</span>
+    </div>`;
+  }).join('');
+  el.innerHTML = linhas + (foraTotal > 0
+    ? `<div class="cat-leg-fora"><span>Fora do gráfico</span><b>${fmtR(foraTotal)}</b></div>`
+    : `<div class="cat-leg-dica">Toque numa categoria para tirar do gráfico</div>`);
+}

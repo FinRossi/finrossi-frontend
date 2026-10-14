@@ -92,11 +92,14 @@ function initCursorFx(){
 function toggleCatSlice(idx){
   const chart=charts['cat'];
   if(!chart) return;
-  const meta=chart.getDatasetMeta(0);
-  const item=meta.data[idx];
-  item.hidden=!item.hidden;
+  // Tira/volta a categoria, guarda a escolha e redesenha centro e legenda com o valor que saiu
+  chart.toggleDataVisibility(idx);
   chart.update();
-  const row=document.querySelector(`#cat-legend [data-cat-idx="${idx}"]`);
-  if(row) row.style.opacity=item.hidden?'.4':'1';
+  const nome = chart.$cat && chart.$cat.cL[idx];
+  if(nome && typeof _catOcultas !== 'undefined'){
+    const s = _catOcultas[_catModo] || (_catOcultas[_catModo] = new Set());
+    chart.getDataVisibility(idx) ? s.delete(nome) : s.add(nome);
+  }
+  if(typeof renderLegendaCat === 'function') renderLegendaCat(chart);
 }
 

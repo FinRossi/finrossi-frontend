@@ -46,16 +46,18 @@ function _relPeriodos(tipo){
   const hoje = new Date();
   const lista = [];
   if(tipo === 'semanal'){
+    // Só as duas últimas semanas; outras datas ficam em "Personalizado"
     let seg = _relSegunda(hoje);
-    for(let i=0;i<12;i++){
+    for(let i=0;i<2;i++){
       const ini = _relIso(seg), fim = _relSoma(ini, 6);
-      lista.push({ ini, fim, rotulo: (i===0?'Esta semana, ':'')+_relRotuloSemana(ini, fim) });
+      lista.push({ ini, fim, rotulo: (i===0?'Esta semana, ':'Semana passada, ')+_relRotuloSemana(ini, fim) });
       seg.setDate(seg.getDate()-7);
     }
   } else {
+    // Só os meses que têm lançamento (sem nenhum ainda: o mês atual)
     const meses = new Set();
-    for(let i=0;i<12;i++){ const d = new Date(hoje.getFullYear(), hoje.getMonth()-i, 1); meses.add(_relIso(d).slice(0,7)); }
     (pd().lancs||[]).forEach(l => { if(l.data) meses.add(l.data.slice(0,7)); });
+    if(!meses.size) meses.add(_relIso(hoje).slice(0,7));
     [...meses].sort().reverse().forEach(m => {
       const [y,mo] = m.split('-').map(Number);
       const fim = _relIso(new Date(y, mo, 0));
@@ -65,13 +67,16 @@ function _relPeriodos(tipo){
   return lista;
 }
 
+function _relDias(p){ return Math.round((_relDia(p.fim) - _relDia(p.ini)) / 86400000) + 1; }
 function _relAnterior(p, tipo){
   if(tipo === 'semanal') return { ini: _relSoma(p.ini, -7), fim: _relSoma(p.fim, -7) };
+  if(tipo === 'personalizado'){ const n = _relDias(p); return { ini: _relSoma(p.ini, -n), fim: _relSoma(p.ini, -1) }; }
   const d = _relDia(p.ini); const a = new Date(d.getFullYear(), d.getMonth()-1, 1);
   return { ini: _relIso(a), fim: _relIso(new Date(a.getFullYear(), a.getMonth()+1, 0)) };
 }
 function _relSeguinte(p, tipo){
   if(tipo === 'semanal') return { ini: _relSoma(p.ini, 7), fim: _relSoma(p.fim, 7) };
+  if(tipo === 'personalizado'){ const n = _relDias(p); return { ini: _relSoma(p.fim, 1), fim: _relSoma(p.fim, n) }; }
   const d = _relDia(p.ini); const a = new Date(d.getFullYear(), d.getMonth()+1, 1);
   return { ini: _relIso(a), fim: _relIso(new Date(a.getFullYear(), a.getMonth()+1, 0)) };
 }
@@ -129,7 +134,7 @@ function calcularRelatorio(p, tipo){
 function _relRecomendacoes(r){
   const out = [];
   const { atual, prev, categorias, aportes, proximos } = r;
-  const periodo = r.tipo==='semanal' ? 'na semana' : 'no mês';
+  const periodo = r.tipo==='semanal' ? 'na semana' : r.tipo==='personalizado' ? 'no período' : 'no mês';
   if(atual.rec>0 && atual.poupanca!==null){
     if(atual.poupanca < 0) out.push({ tom:'alerta', texto:`As despesas passaram as receitas em ${fmtR(-atual.saldo)} ${periodo}. Vale revisar os maiores gastos abaixo.` });
     else if(atual.poupanca < .1) out.push({ tom:'alerta', texto:`Você guardou ${_relPct(atual.poupanca)} da renda ${periodo}. Uma meta saudável é guardar pelo menos 10%.` });
@@ -158,7 +163,18 @@ function _relVar(atual, antes, inverter){
 function setRelTipo(tipo){
   _relTipo = tipo;
   document.querySelectorAll('#rel-tipo button').forEach(b => b.classList.toggle('ativo', b.dataset.tipo===tipo));
-  _relPreencherPeriodos();
+  const personal = tipo === 'personalizado';
+  document.getElementById('rel-periodo').hidden = personal;
+  const datas = document.getElementById('rel-datas');
+  if(datas){
+    datas.hidden = !personal;
+    if(personal && !document.getElementById('rel-ini').value){
+      const hoje = _relIso(new Date());
+      document.getElementById('rel-ini').value = _relSoma(hoje, -29);
+      document.getElementById('rel-fim').value = hoje;
+    }
+  }
+  if(!personal) _relPreencherPeriodos();
   renderRelatorio();
 }
 
@@ -168,12 +184,22 @@ function _relPreencherPeriodos(){
   sel.innerHTML = lista.map((p,i) => `<option value="${p.ini}|${p.fim}"${i===0?' selected':''}>${p.rotulo}</option>`).join('');
 }
 
+function _relRotuloDatas(ini, fim){
+  const f = iso => _relDia(iso).toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' }).replace(/\./g,'');
+  return `${f(ini)} a ${f(fim)}`;
+}
 function _relPeriodoAtual(){
+  if(_relTipo === 'personalizado'){
+    let ini = document.getElementById('rel-ini').value, fim = document.getElementById('rel-fim').value;
+    if(!ini || !fim){ const h = _relIso(new Date()); ini = ini || _relSoma(h, -29); fim = fim || h; }
+    if(ini > fim){ [ini, fim] = [fim, ini]; document.getElementById('rel-ini').value = ini; document.getElementById('rel-fim').value = fim; }   // datas trocadas: corrige sozinho
+    return { ini, fim, rotulo: _relRotuloDatas(ini, fim) };
+  }
   const sel = document.getElementById('rel-periodo');
   if(!sel.value) _relPreencherPeriodos();
   const [ini, fim] = sel.value.split('|');
   const opt = sel.options[sel.selectedIndex];
-  return { ini, fim, rotulo: opt ? opt.textContent.replace(/^Esta semana, /,'') : '' };
+  return { ini, fim, rotulo: opt ? opt.textContent.replace(/^(Esta semana|Semana passada), /,'') : '' };
 }
 
 function _relDono(){
@@ -191,7 +217,7 @@ function renderRelatorio(){
     return;
   }
   const sel = document.getElementById('rel-periodo');
-  if(!sel.options.length) _relPreencherPeriodos();
+  if(_relTipo !== 'personalizado' && !sel.options.length) _relPreencherPeriodos();
   const p = _relPeriodoAtual();
   const r = calcularRelatorio(p, _relTipo);
   folha.innerHTML = _relHTML(r);
@@ -199,7 +225,7 @@ function renderRelatorio(){
 
 function _relHTML(r){
   const { atual, prev } = r;
-  const titulo = r.tipo==='semanal' ? 'Relatório semanal' : 'Relatório mensal';
+  const titulo = r.tipo==='semanal' ? 'Relatório semanal' : r.tipo==='personalizado' ? 'Relatório do período' : 'Relatório mensal';
   const serie = typeof serieCedula==='function' ? serieCedula(r.p.ini.slice(0,7)) : '';
   const gerado = new Date();
   const geradoTxt = `Gerado em ${gerado.toLocaleDateString('pt-BR')} às ${gerado.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
@@ -318,6 +344,7 @@ function _relCarregarLibs(){
 
 function _relNomeArquivo(){
   const p = _relPeriodoAtual();
+  if(_relTipo==='personalizado') return `FinRossi-relatorio-${p.ini}-a-${p.fim}.pdf`;
   return _relTipo==='semanal' ? `FinRossi-relatorio-semanal-${p.ini}.pdf` : `FinRossi-relatorio-mensal-${p.ini.slice(0,7)}.pdf`;
 }
 

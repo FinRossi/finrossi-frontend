@@ -37,7 +37,7 @@
 <script src="planos/patrimonio/patrimonio.js?v=6" defer></script>
 <script src="planos/patrimonio/lancamento-foto.js?v=6" defer></script>
 <script src="planos/patrimonio/anexos.js?v=2" defer></script>
-<script src="planos/patrimonio/relatorios.js?v=3" defer></script>
+<script src="planos/patrimonio/relatorios.js?v=5" defer></script>
 
 <!-- Firebase SDK -->
 <script type="module" src="js/firebase-init.js?v=2"></script>
@@ -48,8 +48,8 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=8">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=17">
-<link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=5">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=18">
+<link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
 
@@ -842,8 +842,13 @@
     <div class="ced-seg" id="rel-tipo" role="tablist" aria-label="Tipo de relatório">
       <button type="button" class="ativo" data-tipo="mensal" onclick="setRelTipo('mensal')">Mensal</button>
       <button type="button" data-tipo="semanal" onclick="setRelTipo('semanal')">Semanal</button>
+      <button type="button" data-tipo="personalizado" onclick="setRelTipo('personalizado')">Personalizado</button>
     </div>
     <select id="rel-periodo" onchange="renderRelatorio()" aria-label="Período do relatório"></select>
+    <div class="rel-datas" id="rel-datas" hidden>
+      <label>De <input type="date" id="rel-ini" onchange="renderRelatorio()"></label>
+      <label>Até <input type="date" id="rel-fim" onchange="renderRelatorio()"></label>
+    </div>
   </div>
   <div class="msg" id="msg-rel" style="margin-bottom:10px"></div>
   <div id="rel-folha" class="rel-folha"></div>
@@ -2011,7 +2016,7 @@
 <script src="js/app/02-firebase-sync.js?v=2"></script>
 <script src="acessos/03-perfil-roles.js?v=7"></script>
 <script src="js/app/04-categorias.js?v=2"></script>
-<script src="js/app/05-dashboard.js?v=12"></script>
+<script src="js/app/05-dashboard.js?v=13"></script>
 <script src="js/app/05b-cedula.js?v=6"></script>
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
 <script src="js/app/06-lancamentos.js?v=2"></script>
@@ -2035,7 +2040,7 @@
 <script src="js/app/23-tema.js?v=1"></script>
 <script src="js/app/24-configuracoes.js?v=6"></script>
 <script src="js/app/25-minha-assinatura.js?v=3"></script>
-<script src="js/app/26-cursor-fx.js?v=1"></script>
+<script src="js/app/26-cursor-fx.js?v=2"></script>
 <script src="acessos/27-ver-como.js?v=5"></script>
 <script src="js/app/28-nav-personalizacao.js?v=6"></script>
 <script src="js/app/29-login.js?v=2"></script>

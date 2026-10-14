@@ -321,3 +321,18 @@
   .tm-tabela .fr-selo{display:none}
 }
 @media(max-width:767px){.tm-tabela{min-width:0!important;width:100%}}
+
+/* ── Legenda do gráfico de categorias: valor de cada uma e o que ficou de fora ── */
+#cat-legend{display:flex;flex-direction:column;gap:2px}
+.cat-leg{display:grid;grid-template-columns:8px minmax(0,1fr) auto 38px;align-items:center;gap:8px;padding:5px 4px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text);font-variant-numeric:tabular-nums}
+.cat-leg:hover{background:var(--surface2)}
+.cat-leg-cor{width:8px;height:8px;border-radius:50%}
+.cat-leg-nome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-leg-val{color:var(--muted);white-space:nowrap}
+.cat-leg-pct{text-align:right}
+.cat-leg.fora{opacity:.5}
+.cat-leg.fora .cat-leg-nome{text-decoration:line-through}
+.cat-leg.fora .cat-leg-pct{font-size:11px;color:var(--muted)}
+.cat-leg-fora{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;padding:8px 4px 0;border-top:1px solid var(--ced-gravura-fina);font-size:12px;color:var(--muted)}
+.cat-leg-fora b{font-family:var(--ced-serif);font-weight:500;font-size:16px;color:var(--text)}
+.cat-leg-dica{margin-top:6px;padding:0 4px;font-size:11px;color:var(--muted2)}
