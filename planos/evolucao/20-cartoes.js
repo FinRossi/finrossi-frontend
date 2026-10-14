@@ -129,7 +129,7 @@ function cartaoVisualHTML(c, w, h){
     <div style="position:absolute;bottom:${pad}px;left:${pad}px;right:${pad}px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
       <div style="min-width:0">
         <div style="font-size:${Math.round(w*0.028)}px;letter-spacing:1px;color:${subByModelo[modelo]};text-transform:uppercase;margin-bottom:2px">Titular</div>
-        <div style="font-size:${Math.round(w*0.05)}px;font-weight:700;color:${textByModelo[modelo]};text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome||'—'}</div>
+        <div style="font-size:${Math.round(w*0.05)}px;font-weight:700;color:${textByModelo[modelo]};text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome||'<span style="opacity:.45">SEU NOME</span>'}</div>
       </div>
     </div>
   </div>`;

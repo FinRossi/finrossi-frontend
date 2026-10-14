@@ -48,7 +48,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=8">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=13">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=15">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=5">
 </head>
 <body>
@@ -1872,7 +1872,7 @@
       </div>
     </div>
     <div class="form-row">
-      <div class="field"><label>Número final (4 dígitos)</label><input id="cartao-final" type="text" placeholder="1234" maxlength="4" oninput="atualizarPreviewCartao()"></div>
+      <div class="field"><label>Número final (4 dígitos)</label><input id="cartao-final" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="1234" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4);atualizarPreviewCartao()"></div>
       <div class="field"><label>Bandeira</label>
         <select id="cartao-bandeira" onchange="atualizarPreviewCartao()">
           <option value="master">Mastercard</option><option value="visa">Visa</option><option value="elo">Elo</option>
@@ -1882,8 +1882,8 @@
     </div>
     <div class="form-row tri">
       <div class="field"><label>Limite (R$)</label><input id="cartao-limite" type="text" inputmode="decimal" placeholder="0,00" class="currency-input" oninput="maskCurrency(this)"></div>
-      <div class="field"><label>Vencimento (dia)</label><input id="cartao-venc" type="number" placeholder="10" min="1" max="31"></div>
-      <div class="field"><label>Fechamento (dia)</label><input id="cartao-fecha" type="number" placeholder="3" min="1" max="31"></div>
+      <div class="field"><label>Vencimento (dia)</label><input id="cartao-venc" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="10" oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)"></div>
+      <div class="field"><label>Fechamento (dia)</label><input id="cartao-fecha" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="3" oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)"></div>
     </div>
     <div class="form-row">
       <div class="field"><label>Modelo</label>
@@ -2011,7 +2011,7 @@
 <script src="js/app/02-firebase-sync.js?v=2"></script>
 <script src="acessos/03-perfil-roles.js?v=7"></script>
 <script src="js/app/04-categorias.js?v=2"></script>
-<script src="js/app/05-dashboard.js?v=9"></script>
+<script src="js/app/05-dashboard.js?v=11"></script>
 <script src="js/app/05b-cedula.js?v=6"></script>
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
 <script src="js/app/06-lancamentos.js?v=2"></script>
@@ -2029,20 +2029,20 @@
 <script src="acessos/17b-socios.js?v=2"></script>
 <script src="planos/18-regras-planos.js?v=5"></script>
 <script src="acessos/19-preview-planos.js?v=6"></script>
-<script src="planos/evolucao/20-cartoes.js?v=3"></script>
+<script src="planos/evolucao/20-cartoes.js?v=4"></script>
 <script src="js/app/21-manual-render.js?v=2"></script>
-<script src="js/app/22-mobile-nav.js?v=1"></script>
+<script src="js/app/22-mobile-nav.js?v=2"></script>
 <script src="js/app/23-tema.js?v=1"></script>
 <script src="js/app/24-configuracoes.js?v=6"></script>
 <script src="js/app/25-minha-assinatura.js?v=3"></script>
 <script src="js/app/26-cursor-fx.js?v=1"></script>
 <script src="acessos/27-ver-como.js?v=5"></script>
-<script src="js/app/28-nav-personalizacao.js?v=5"></script>
+<script src="js/app/28-nav-personalizacao.js?v=6"></script>
 <script src="js/app/29-login.js?v=2"></script>
 <script src="js/app/30-date-picker.js?v=1"></script>
 <script src="js/app/31-reset-senha.js?v=3"></script>
 <script src="js/app/32-notificacoes.js?v=2"></script>
-<script src="js/app/34-barra-atalhos.js?v=2"></script>
+<script src="js/app/34-barra-atalhos.js?v=4"></script>
 <script src="js/app/35-planos-bloqueio.js?v=2"></script>
 <script src="js/app/33-pwa-init.js?v=1"></script>
 </body>

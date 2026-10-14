@@ -35,10 +35,7 @@ function updateMobileNav(section){
     if(mtxt) mtxt.textContent = sb.classList.contains('ok') ? 'Sync' : 'Local';
   }
   // Atualiza título mobile
-  const t = document.getElementById('mob-dash-title');
-  const s = document.getElementById('mob-dash-sub');
-  if(t) t.textContent = PNAMES[cp];
-  if(s) s.textContent = document.getElementById('dash-sub')?.textContent || '';
+  if(typeof atualizarCabecalhoDash === 'function') atualizarCabecalhoDash();
 }
 
 function openMobileMore(){
@@ -73,8 +70,7 @@ window.setProfile = function(p){
   _origSetProfile(p);
   // Atualiza visual mobile depois (pode ter sido bloqueado pela senha)
   setTimeout(()=>{
-    const t = document.getElementById('mob-dash-title');
-    if(t) t.textContent = PNAMES[cp];
+    if(typeof atualizarCabecalhoDash === 'function') atualizarCabecalhoDash();
     ['pessoal','finrossi'].forEach(id=>{
       const el = document.getElementById('mp-'+id);
       if(el) el.classList.toggle('active', id===cp);

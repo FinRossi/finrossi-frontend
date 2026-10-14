@@ -268,3 +268,16 @@
 [data-cor-fundo="clara"] .ced-pos,[data-cor-fundo="clara"] .ext-valor.receita{color:#15803d}
 [data-cor-fundo="clara"] .ced-neg{color:#b91c1c}
 [data-cor-fundo="clara"]{--green:#15803d;--green-s:rgba(21,128,61,.12);--red:#b91c1c;--red-s:rgba(185,28,28,.1);--amber:#a16207}
+
+/* Barra de atalhos em Configurações: as caixas de escolha não passam da largura (celular) */
+.atalhos-pos{min-width:0}
+.atalhos-pos select{width:100%;min-width:0;max-width:100%}
+#modal-config [id^="cfg-pane-"]{overflow-x:hidden!important}
+
+/* Início no celular: controles numa linha em cima; saudação, nome e data com a largura toda */
+#mob-top-dashboard{flex-wrap:wrap;align-items:flex-start}
+#mob-top-dashboard .mobile-header-actions{order:1;margin-left:auto}
+#mob-top-dashboard>div:first-child{order:2;flex:1 0 100%;margin-top:10px;min-width:0}
+#mob-dash-saudacao{font-size:12.5px!important}
+#mob-dash-title{font-family:var(--ced-serif)!important;font-weight:500;font-size:28px!important;line-height:1.1;margin:2px 0}
+#mob-dash-sub{font-size:12px!important}

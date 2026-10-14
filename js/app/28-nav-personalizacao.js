@@ -105,6 +105,7 @@ async function salvarNome(){
   }
 
   // Atualiza UI
+  if(typeof atualizarCabecalhoDash === 'function') atualizarCabecalhoDash();
   const inicial = nome[0].toUpperCase();
   document.getElementById('cfg-nome-display').textContent = nome;
   document.getElementById('user-nome').textContent = nome;

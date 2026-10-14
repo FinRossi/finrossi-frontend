@@ -62,24 +62,34 @@ function setCatModo(modo){
   refreshDash();
 }
 
+// Cabeçalho do início: "Bom dia" / nome da pessoa / data completa com hora (atualiza sozinho)
+function nomeDaPessoa(){
+  const n = (window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '').trim();
+  if(n) return n.split(/\s+/).slice(0,2).join(' ');
+  const email = window._firebaseUser?.email || '';
+  return email ? email.split('@')[0] : PNAMES[cp] || '';
+}
+function atualizarCabecalhoDash(){
+  const agora=new Date(), hora=agora.getHours();
+  const saud=hora>=5&&hora<12?'Bom dia':hora>=12&&hora<18?'Boa tarde':'Boa noite';
+  const perfil = cp==='finrossi' ? ', perfil FinRossi' : '';
+  const data = agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const horaTxt = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const dataCompleta = `${data.charAt(0).toUpperCase()+data.slice(1)}, ${horaTxt}`;
+  const set=(id,txt)=>{ const e=document.getElementById(id); if(e && e.textContent!==txt) e.textContent=txt; };
+  set('dash-saudacao', saud + perfil); set('mob-dash-saudacao', saud + perfil);
+  set('dash-title', nomeDaPessoa()); set('mob-dash-title', nomeDaPessoa());
+  set('dash-sub', dataCompleta); set('mob-dash-sub', dataCompleta);
+}
+// Relógio: acerta no começo de cada minuto
+(function relogioCabecalho(){
+  try{ atualizarCabecalhoDash(); }catch(e){}
+  setTimeout(relogioCabecalho, 60000 - (Date.now() % 60000) + 50);
+})();
+
 function refreshDash(){
   const {lancs,invs}=pd(), mes=getMesFiltro();
-  document.getElementById('dash-title').textContent=PNAMES[cp];
-  const [yr,mo]=mes.split('-');
-  const mesNome=MONTHS[+mo-1]+' de '+yr;
-  document.getElementById('dash-sub').textContent=mesNome;
-  const mobTitle=document.getElementById('mob-dash-title');if(mobTitle)mobTitle.textContent=PNAMES[cp];
-  const mobSub=document.getElementById('mob-dash-sub');if(mobSub)mobSub.textContent=mesNome;
-
-  // Saudação
-  const hora=new Date().getHours();
-  const saud=hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
-  const nomeUser = window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '';
-  const primeiroNome = nomeUser ? ', ' + nomeUser.split(' ')[0] : '';
-  const saudEl=document.getElementById('dash-saudacao');
-  if(saudEl) saudEl.textContent=saud + primeiroNome;
-  const saudMobEl=document.getElementById('mob-dash-saudacao');
-  if(saudMobEl) saudMobEl.textContent=saud + primeiroNome;
+  atualizarCabecalhoDash();
 
   populateMesFiltro();
   const doMes=lancs.filter(l=>l.data.startsWith(mes));

@@ -201,3 +201,16 @@ window.addEventListener('resize', atualizarInstalarCelular);
 setTimeout(atualizarInstalarCelular, 4500);
 
 aplicarAtalhos();
+
+// No celular, a janela "Instalar o FinRossi" não abre mais sozinha dentro do app: ela ficava
+// por cima do botão "Adicionar" de Lançamentos e o toque caía nela (o lançamento não era feito).
+// Quem quiser instalar usa o botão flutuante ou "Instalar o app" no menu Mais.
+if(typeof mostrarPWABanner === 'function'){
+  const _mostrarPWABannerOrig = mostrarPWABanner;
+  window.mostrarPWABanner = mostrarPWABanner = async function(){
+    const celular = typeof isMobile === 'function' ? isMobile() : innerWidth <= 767;
+    // no celular nunca abre sozinha (a tela de login já tem o próprio cartão de instalar)
+    if(celular){ atualizarInstalarCelular(); return; }
+    return _mostrarPWABannerOrig.apply(this, arguments);
+  };
+}
