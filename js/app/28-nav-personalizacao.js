@@ -28,14 +28,16 @@ function aplicarNavConfig(){
   NAV_ITEMS_DEF.forEach(item=>{
     const usuarioQuer = cfg[item.id]!==false;
     const planoPermite = verComoPlanoPermite(item.id);
-    const visivel = (usuarioQuer && planoPermite && !navOcultoNoPerfil(item.id)) ? '' : 'none';
+    // Telas que o plano não libera continuam no menu, com cadeado: tocar mostra o plano que libera
+    const visivel = (usuarioQuer && !navOcultoNoPerfil(item.id)) ? '' : 'none';
+    const bloqueado = !planoPermite;
 
     const el=document.getElementById('nav-'+item.id);
-    if(el && item.removable) el.style.display = visivel;
+    if(el && item.removable){ el.style.display = visivel; el.classList.toggle('nav-bloqueado', bloqueado); }
 
     // Mesma regra vale pro item equivalente no menu mobile ("Mais")
     const elMobile=document.getElementById('mnav-item-'+item.id);
-    if(elMobile) elMobile.style.display = visivel;
+    if(elMobile){ elMobile.style.display = visivel; elMobile.classList.toggle('nav-bloqueado', bloqueado); }
   });
 
   // A barra fixa inferior do mobile só tem 5 espaços — "Metas" é plano-dependente,

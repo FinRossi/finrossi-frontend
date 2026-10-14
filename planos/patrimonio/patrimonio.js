@@ -757,23 +757,6 @@ function gerarTonalidades(hexBase){
   };
 }
 
-const PALETA_CORES_PATRIMONIO = [
-  {nome:'Dourado Premium', hex:'#C8A96E'},
-  {nome:'Azul Royal',      hex:'#4169E1'},
-  {nome:'Azul Petróleo',   hex:'#0B5563'},
-  {nome:'Verde Esmeralda', hex:'#10B981'},
-  {nome:'Verde Lima',      hex:'#84CC16'},
-  {nome:'Roxo',            hex:'#8B5CF6'},
-  {nome:'Roxo Escuro',     hex:'#5B21B6'},
-  {nome:'Vermelho',        hex:'#EF4444'},
-  {nome:'Coral',           hex:'#FF6B6B'},
-  {nome:'Laranja',         hex:'#F97316'},
-  {nome:'Amarelo Ouro',    hex:'#F59E0B'},
-  {nome:'Rosa',            hex:'#EC4899'},
-  {nome:'Turquesa',        hex:'#14B8A6'},
-  {nome:'Cinza',           hex:'#6B7280'},
-  {nome:'Preto',           hex:'#18181B'},
-];
 
 function aplicarCorTema(hex, persistir){
   if(persistir === undefined) persistir = true;
@@ -830,38 +813,91 @@ function atualizarSeletorCoresUI(hexAtivo){
   if(picker) picker.value = hexAtivo;
 }
 
+// Cores do Patrimônio: a cor padrão FinRossi, as cores que o cliente salvou e o seletor livre.
+const COR_PADRAO_FINROSSI = '#C8A96E';
+const MAX_CORES_SALVAS = 6;
+let _coresSalvasNuvem = null;
+
+function getCoresSalvas(){
+  if(Array.isArray(_coresSalvasNuvem)) return _coresSalvasNuvem;
+  try{ const v = JSON.parse(localStorage.getItem('fin_cores_salvas') || '[]'); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+}
+function _gravarCoresSalvas(lista){
+  _coresSalvasNuvem = lista;
+  try{ localStorage.setItem('fin_cores_salvas', JSON.stringify(lista)); }catch(e){}
+  if(window._db && window._set && window._ref && window._firebaseUser){
+    window._set(window._ref(window._db, `usuarios/${window._firebaseUser.uid}/coresSalvas`), lista.length ? lista : null).catch(()=>{});
+  }
+}
+function salvarCorAtual(){
+  const picker = document.getElementById('cor-custom-picker');
+  const hex = (picker ? picker.value : '').toLowerCase();
+  const msg = document.getElementById('msg-cores');
+  const avisar = (t, cls) => { if(msg){ msg.textContent = t; msg.className = 'msg ' + cls; setTimeout(()=>{ msg.textContent=''; msg.className='msg'; }, 2600); } };
+  if(!/^#[0-9a-f]{6}$/.test(hex)) return;
+  const lista = getCoresSalvas();
+  if(hex === COR_PADRAO_FINROSSI.toLowerCase() || lista.includes(hex)){ avisar('Essa cor já está salva', 'err'); return; }
+  if(lista.length >= MAX_CORES_SALVAS){ avisar(`Você pode salvar até ${MAX_CORES_SALVAS} cores. Remova uma para salvar outra.`, 'err'); return; }
+  _gravarCoresSalvas([...lista, hex]);
+  aplicarCorTema(hex, true);
+  renderCoresPatrimonio();
+  avisar('Cor salva', 'ok');
+}
+function removerCorSalva(hex){
+  _gravarCoresSalvas(getCoresSalvas().filter(c => c !== hex));
+  renderCoresPatrimonio();
+}
+
+function renderCoresPatrimonio(){
+  const wrap = document.getElementById('patrimonio-cores-wrap');
+  if(!wrap) return;
+  const corAtual = (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || COR_PADRAO_FINROSSI);
+  const salvas = getCoresSalvas();
+  const amostra = (hex, nome, removivel) => `
+    <div class="cor-amostra">
+      <div class="cor-paleta-item" data-hex="${hex}" title="${nome}" role="button" tabindex="0" aria-label="Usar ${nome}"
+           onclick="escolherCorPaleta('${hex}')" onkeydown="if(event.key==='Enter')escolherCorPaleta('${hex}')" style="background:${hex}"></div>
+      ${removivel ? `<button class="cor-remover" type="button" onclick="removerCorSalva('${hex}')" aria-label="Remover ${nome}" title="Remover">✕</button>` : ''}
+    </div>`;
+  wrap.innerHTML = `
+    <label style="font-size:11px;color:var(--muted);display:block;margin:16px 0 10px">Cores</label>
+    <div class="cores-caixa">
+      <div style="font-size:12px;font-weight:500;margin-bottom:2px">Cor de destaque do app</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Muda a identidade visual inteira, na hora</div>
+      <div class="cores-grade">
+        ${amostra(COR_PADRAO_FINROSSI, 'Dourado FinRossi', false)}
+        ${salvas.map((hex, i) => amostra(hex, 'Minha cor ' + (i + 1), true)).join('')}
+      </div>
+      ${salvas.length ? '' : '<div style="font-size:11px;color:var(--muted);margin-top:8px">Escolha uma cor abaixo e toque em "Salvar cor" para guardá-la aqui.</div>'}
+      <div class="cores-livre">
+        <input type="color" id="cor-custom-picker" value="${corAtual}" onchange="escolherCorCustom(this.value)" aria-label="Escolher outra cor">
+        <div style="flex:1;font-size:11.5px;color:var(--muted)">Escolha qualquer cor</div>
+        <button class="btn sm" type="button" onclick="salvarCorAtual()">Salvar cor</button>
+      </div>
+      <div class="msg" id="msg-cores" style="margin-top:6px"></div>
+    </div>`;
+  atualizarSeletorCoresUI(corAtual);
+}
+
 function initPatrimonioCores(){
   const wrap = document.getElementById('patrimonio-cores-wrap');
   if(!wrap) return;
   const permitido = patrimonioTemAcesso();
   wrap.style.display = permitido ? 'block' : 'none';
   if(!permitido) return;
-
-  if(!wrap.dataset.montado){
-    wrap.dataset.montado = '1';
-    const corAtual = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#C8A96E';
-    wrap.innerHTML = `
-      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin:16px 0 10px">Cores</label>
-      <div style="background:var(--surface2);border-radius:10px;padding:12px">
-        <div style="font-size:12px;font-weight:500;margin-bottom:2px">Cor de destaque do app</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Muda a identidade visual inteira, na hora</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
-          ${PALETA_CORES_PATRIMONIO.map(c=>`
-            <div class="cor-paleta-item" data-hex="${c.hex}" title="${c.nome}" onclick="escolherCorPaleta('${c.hex}')"
-                 style="width:100%;aspect-ratio:1;border-radius:9px;background:${c.hex};cursor:pointer;border:2px solid transparent;transition:transform .12s"></div>
-          `).join('')}
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-          <input type="color" id="cor-custom-picker" value="${corAtual}" onchange="escolherCorCustom(this.value)"
-                 style="width:38px;height:38px;border-radius:8px;border:1px solid var(--border2);background:none;cursor:pointer;padding:0">
-          <div style="font-size:11px;color:var(--muted)">Ou escolha qualquer cor personalizada</div>
-        </div>
-      </div>`;
-  }
-  atualizarSeletorCoresUI(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+  renderCoresPatrimonio();
 
   if(!_corTemaCarregada){
     _corTemaCarregada = true;
     carregarCorTema();
+    // Cores salvas na nuvem (para valer em outro aparelho)
+    if(window._db && window._ref && window._onValue && window._firebaseUser){
+      try{
+        window._onValue(window._ref(window._db, `usuarios/${window._firebaseUser.uid}/coresSalvas`), s => {
+          const v = s.val();
+          if(v){ _coresSalvasNuvem = Array.isArray(v) ? v : Object.values(v); try{ localStorage.setItem('fin_cores_salvas', JSON.stringify(_coresSalvasNuvem)); }catch(e){} renderCoresPatrimonio(); }
+        }, { onlyOnce: true });
+      }catch(e){}
+    }
   }
 }

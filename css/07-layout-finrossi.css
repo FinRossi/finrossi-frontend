@@ -215,3 +215,44 @@
   #modal-config{padding:12px!important;align-items:flex-end!important}
   #modal-config>div{max-height:calc(100dvh - 24px);border-radius:14px!important}
 }
+
+/* ── Cores do Patrimônio: padrão + cores salvas + seletor livre ───────────── */
+.cores-caixa{background:var(--surface2);border-radius:10px;padding:12px}
+.cores-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cor-amostra{position:relative}
+.cor-amostra .cor-paleta-item{width:100%;aspect-ratio:1;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:transform .12s}
+.cor-remover{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:9px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.cor-remover:hover{color:var(--red);border-color:var(--red)}
+.cores-livre{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.cores-livre input[type=color]{width:38px;height:38px;border-radius:8px;border:1px solid var(--border2);background:none;cursor:pointer;padding:0;flex-shrink:0}
+@media(max-width:767px){.cores-grade{grid-template-columns:repeat(5,1fr)}}
+
+/* ── Telas fora do plano: no menu, com cadeado ────────────────────────────── */
+.nav-item.nav-bloqueado,.mobile-profile-opt.nav-bloqueado{opacity:.55}
+.nav-item.nav-bloqueado:hover,.mobile-profile-opt.nav-bloqueado:hover{opacity:.85}
+.nav-item.nav-bloqueado::after,.mobile-profile-opt.nav-bloqueado::after{content:"";width:12px;height:12px;margin-left:auto;flex-shrink:0;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat}
+.sidebar.collapsed .nav-item.nav-bloqueado::after{display:none}
+
+/* Janela "disponível no plano X" */
+.plano-modal{max-width:420px;width:calc(100vw - 32px);text-align:left}
+.plano-cadeado{width:44px;height:44px;border-radius:10px;border:1px solid var(--ced-gravura);display:grid;place-items:center;color:var(--accent);margin-bottom:14px}
+.plano-cadeado svg{width:22px;height:22px}
+.plano-texto{font-size:13.5px;color:var(--muted);line-height:1.6;margin:6px 0 16px}
+.plano-oferta{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--ced-gravura-fina);border-radius:8px;margin-bottom:16px;font-size:12.5px;color:var(--muted)}
+.plano-oferta b{font-family:var(--ced-serif);font-weight:500;font-size:20px;color:var(--text)}
+.plano-oferta em{font-style:normal;color:var(--accent);margin-left:auto;font-size:13px}
+
+/* Contador do plano Gratuito em Lançamentos */
+.limite-lanc{border:1px solid var(--ced-gravura-fina);border-radius:8px;padding:12px 14px;margin-bottom:16px;background:var(--surface)}
+.limite-topo{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.limite-topo b{font-family:var(--ced-serif);font-weight:500;font-size:17px;color:var(--text)}
+.limite-lanc .prog-fill{background:var(--accent)}
+.limite-lanc.alerta .prog-fill{background:var(--red)}
+.limite-pe{font-size:12px;color:var(--muted);margin-top:8px}
+.limite-pe a{color:var(--accent);margin-left:6px}
+
+/* Aba Investimento (Lançamentos) fora do plano: mesmo cadeado do menu */
+.tab-btn.nav-bloqueado{opacity:.55;display:inline-flex;align-items:center;gap:6px}
+.tab-btn.nav-bloqueado::after{content:"";width:11px;height:11px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 018 0v4'/%3E%3C/svg%3E") center/contain no-repeat}
