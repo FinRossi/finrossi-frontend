@@ -40,7 +40,7 @@ async function renderMinhaAssinatura(){
     inativo: '<span class="fr-selo alerta">Inativa</span>',
   };
   const ORIGEM = { pagante: 'Assinatura paga', trial: 'Período de teste' };
-  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc = escHTML;
 
   // Dias restantes no período de teste
   let aviso = '';

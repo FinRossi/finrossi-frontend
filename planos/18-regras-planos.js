@@ -27,3 +27,15 @@ const PLANOS_CONFIG = {
   }
 };
 
+// Regra única: o plano em uso libera este recurso? (chave de PLANOS_CONFIG.limites)
+// "Ver como" vale o plano simulado; a equipe sem simular tem tudo; cliente vale o plano dele.
+function planoLibera(chave){
+  if(typeof _verComoPlano!=='undefined' && _verComoPlano){
+    const cfg = PLANOS_CONFIG[_verComoPlano];
+    return !!(cfg && cfg.limites && cfg.limites[chave]);
+  }
+  if(typeof isEquipe==='function' && isEquipe()) return true;
+  const plano = (typeof _userPlano!=='undefined' && _userPlano) || 'gratuito';
+  const cfg = PLANOS_CONFIG[plano];
+  return !!(cfg && cfg.limites && cfg.limites[chave]);
+}

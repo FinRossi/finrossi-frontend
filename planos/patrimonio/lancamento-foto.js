@@ -5,16 +5,7 @@
 
 const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
 
-function fotoTemAcesso(){
-  if(typeof _verComoPlano!=='undefined' && _verComoPlano){
-    const cfg = PLANOS_CONFIG[_verComoPlano];
-    return !!(cfg && cfg.limites && cfg.limites.foto);
-  }
-  if(typeof isEquipe==='function' && isEquipe()) return true;
-  const plano = (typeof _userPlano!=='undefined' && _userPlano) || 'gratuito';
-  const cfg = PLANOS_CONFIG[plano];
-  return !!(cfg && cfg.limites && cfg.limites.foto);
-}
+function fotoTemAcesso(){ return planoLibera('foto'); }
 
 function atualizarBotaoFoto(){
   const el = document.getElementById('lanc-foto-wrap');

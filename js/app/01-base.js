@@ -18,6 +18,8 @@ const curMes=()=>new Date().toISOString().slice(0,7);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const pd=()=>{if(!DATA[cp])DATA[cp]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};return DATA[cp];};
 
+// Texto digitado pelo usuário nunca entra cru no HTML (protege contra código escondido num texto)
+function escHTML(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function showMsg(id,txt,cls){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.className='msg '+cls;setTimeout(()=>{el.textContent='';el.className='msg'},2800)}
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
 

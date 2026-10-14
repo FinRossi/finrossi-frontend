@@ -12,21 +12,10 @@ const REL_LIBS = [
 const REL_MESES_DE = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 let _relTipo = 'mensal';
 
-function relatorioTemAcesso(){
-  if(typeof _verComoPlano!=='undefined' && _verComoPlano){
-    const cfg = PLANOS_CONFIG[_verComoPlano];
-    return !!(cfg && cfg.limites && cfg.limites.relatorios);
-  }
-  if(typeof isEquipe==='function' && isEquipe()) return true;
-  const plano = (typeof _userPlano!=='undefined' && _userPlano) || 'gratuito';
-  const cfg = PLANOS_CONFIG[plano];
-  return !!(cfg && cfg.limites && cfg.limites.relatorios);
-}
+function relatorioTemAcesso(){ return planoLibera('relatorios'); }
 
 // Texto digitado pelo usuário nunca entra cru no HTML
-function _relEsc(s){
-  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function _relEsc(s){ return escHTML(s); }
 
 // ── Datas (sempre no fuso local) ────────────────────────────────────────────
 function _relIso(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }

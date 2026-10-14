@@ -10,21 +10,9 @@ const NAV_TO_LIMITE = {
 };
 
 function verComoPlanoPermite(name){
-  // Sócio simulando um plano (Ver como) — vale a simulação
-  if(_verComoPlano){
-    const key = NAV_TO_LIMITE[name];
-    if(!key) return true;
-    const cfg = PLANOS_CONFIG[_verComoPlano];
-    return !!(cfg && cfg.limites && cfg.limites[key]);
-  }
-  // Sócio/admin/dev sem simular nada — acesso total, sempre
-  if(isEquipe()) return true;
-  // Cliente de verdade — vale o plano real dele
+  // Telas sem regra (Dashboard, Lançamentos, Histórico...) sempre abrem; as outras seguem o plano
   const key = NAV_TO_LIMITE[name];
-  if(!key) return true;
-  const planoReal = _userPlano || 'gratuito';
-  const cfg = PLANOS_CONFIG[planoReal];
-  return !!(cfg && cfg.limites && cfg.limites[key]);
+  return !key || planoLibera(key);
 }
 
 function ativarVerComo(plano){

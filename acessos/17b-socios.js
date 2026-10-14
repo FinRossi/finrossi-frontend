@@ -13,9 +13,7 @@ const ACESSO_INFO = {
 
 let _sociosCache = [];
 
-function _escSocio(s){
-  return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function _escSocio(s){ return escHTML(s); }
 
 async function renderSocios(){
   const tabela=document.getElementById('socios-tabela');
@@ -27,7 +25,7 @@ async function renderSocios(){
   tabela.innerHTML='<p style="color:var(--muted);font-size:13px;padding:12px">Carregando acessos...</p>';
 
   try{
-    const res=await fetch(`${BACKEND_URL}/admin/clientes`,{headers:await adminHeaders(token)});
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes`,{headers:await adminHeaders(token)});
     if(res.status===401){
       _adminToken='';
       localStorage.removeItem('fin_admin_token');
@@ -84,7 +82,7 @@ async function renderSocios(){
         </tr>`;}).join('')}</tbody>
     </table></div>`;
   }catch(e){
-    tabela.innerHTML=`<p style="color:var(--red);font-size:13px;padding:12px">Erro ao carregar acessos: ${_escSocio(e.message)}</p>`;
+    tabela.innerHTML=erroServidorHTML(e.message, 'renderSocios()');
   }
 }
 
@@ -123,7 +121,7 @@ async function salvarAlterarAcesso(){
   const msg=document.getElementById('msg-aa');
   msg.textContent='Salvando...'; msg.style.color='var(--muted)';
   try{
-    const res=await fetch(`${BACKEND_URL}/admin/clientes/${encodeURIComponent(uid)}/role`,{
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes/${encodeURIComponent(uid)}/role`,{
       method:'POST', headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body:JSON.stringify({role})
     });
@@ -141,10 +139,10 @@ async function _mudarStatusAcesso(uid, acao, pergunta){
   const token=getAdminToken();
   if(!token) return;
   try{
-    const res=await fetch(`${BACKEND_URL}/admin/clientes/${encodeURIComponent(uid)}/${acao}`,{method:'POST',headers:await adminHeaders(token)});
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes/${encodeURIComponent(uid)}/${acao}`,{method:'POST',headers:await adminHeaders(token)});
     if(!res.ok){ const d=await res.json().catch(()=>({})); alert(d.erro||'Erro ao alterar acesso'); }
     renderSocios();
-  }catch(e){ alert('Erro de conexão com o backend'); }
+  }catch(e){ alert(e.message || 'Não foi possível falar com o servidor.'); }
 }
 function desativarAcesso(uid){ return _mudarStatusAcesso(uid,'desativar','Desativar este acesso? A pessoa não conseguirá mais entrar.'); }
 function reativarAcesso(uid){ return _mudarStatusAcesso(uid,'reativar','Reativar este acesso?'); }

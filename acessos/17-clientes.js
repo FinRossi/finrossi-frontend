@@ -36,6 +36,22 @@ async function adminHeaders(token, extra){
 
 const ROLES_EQUIPE = ['master','socio','admin','dev'];
 
+// Chamada ao servidor com tempo limite e mensagem clara (antes: "Failed to fetch",
+// "Unexpected token" ou "Carregando..." para sempre quando o servidor estava fora do ar)
+async function fetchBackend(url, opcoes){
+  const ctrl = new AbortController(); const limite = setTimeout(() => ctrl.abort(), 12000);
+  let res;
+  try{ res = await fetch(url, { ...(opcoes || {}), signal: ctrl.signal }); }
+  catch(e){ throw new Error(e && e.name === 'AbortError' ? 'O servidor demorou para responder. Tente de novo em instantes.' : 'Não foi possível falar com o servidor. Ele pode estar fora do ar.'); }
+  finally{ clearTimeout(limite); }
+  const jsonOriginal = res.json.bind(res);
+  res.json = async () => { try{ return await jsonOriginal(); }catch(e){ throw new Error('O servidor respondeu de um jeito inesperado. Ele pode estar fora do ar ou em manutenção.'); } };
+  return res;
+}
+function erroServidorHTML(msg, tentarDeNovo){
+  return `<div class="fr-vazio"><b>Servidor indisponível</b><p>${escHTML(msg)}</p>${tentarDeNovo ? `<button class="btn" type="button" onclick="${tentarDeNovo}">Tentar de novo</button>` : ''}</div>`;
+}
+
 // Só o Master pode escolher um acesso de equipe ao cadastrar
 function limitarRolesNovoUsuario(){
   const sel=document.getElementById('nc-role');
@@ -84,7 +100,7 @@ async function cadastrarNovoCliente(){
   msg.style.color='var(--muted)';
 
   try{
-    const res=await fetch(`${BACKEND_URL}/admin/clientes/teste`,{
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes/teste`,{
       method:'POST',
       headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body:JSON.stringify({nome,email,senha,plano,origem,role})
@@ -113,7 +129,7 @@ async function renderClientes(){
   tabela.innerHTML='<p style="color:var(--muted);font-size:13px;padding:12px">Carregando clientes...</p>';
 
   try{
-    const res=await fetch(`${BACKEND_URL}/admin/clientes`,{
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes`,{
       headers:await adminHeaders(token)
     });
     
@@ -192,7 +208,7 @@ async function renderClientes(){
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'Interno':c.origem==='teste'?'Teste':c.origem==='trial'?'Trial':'Pagante'}</td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">Equipe</span>':`<div style="display:flex;gap:4px;justify-content:center">
-            <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
+            <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar">${ICO_EDITAR}</button>
             ${c.status==='inativo'
               ?`<button class="btn xs" onclick="reativarCliente('${c.uid}')" style="color:var(--green);border-color:var(--green)">↺</button>`
               :`<button class="btn danger xs" onclick="desativarCliente('${c.uid}')">✕</button>`}
@@ -201,7 +217,7 @@ async function renderClientes(){
     </table></div>`;
 
   }catch(e){
-    tabela.innerHTML=`<p style="color:var(--red);font-size:13px;padding:12px">Erro ao carregar clientes: ${e.message}</p>`;
+    tabela.innerHTML=erroServidorHTML(e.message, 'renderClientes()');
   }
 }
 
@@ -213,7 +229,7 @@ async function editarCliente(uid){
   if(!token) return;
 
   try{
-    const res = await fetch(`${BACKEND_URL}/admin/clientes`, {headers:await adminHeaders(token)});
+    const res = await fetchBackend(`${BACKEND_URL}/admin/clientes`, {headers:await adminHeaders(token)});
     const data = await res.json();
     const c = (data.clientes||[]).find(x=>x.uid===uid);
     if(!c){ alert('Cliente não encontrado'); return; }
@@ -304,16 +320,16 @@ async function salvarEdicaoCliente(){
 
   try{
     // Atualiza plano
-    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/plano`,{
+    await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/plano`,{
       method:'POST', headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body: JSON.stringify({plano})
     });
     // Atualiza status
     const endpoint = status==='inativo' ? 'desativar' : 'reativar';
     if(status==='inativo'){
-      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
+      await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
     } else if(_clienteEditando?.status === 'inativo'){
-      await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
+      await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
     }
     // Salva campos extras diretamente no Firebase
     if(window._db && window._ref && window._set){
@@ -375,7 +391,7 @@ async function desativarCliente(uid){
   const token=getAdminToken();
   if(!token) return;
   try{
-    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
+    await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
     renderClientes();
   }catch(e){alert('Erro ao desativar');}
 }
@@ -385,7 +401,7 @@ async function reativarCliente(uid){
   const token=getAdminToken();
   if(!token) return;
   try{
-    await fetch(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
+    await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/reativar`,{method:'POST',headers:await adminHeaders(token)});
     renderClientes();
   }catch(e){alert('Erro ao reativar');}
 }

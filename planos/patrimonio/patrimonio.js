@@ -521,16 +521,7 @@ function renderScore(){
 // 6) Recomendações inteligentes
 
 // ─── PERSONALIZAÇÃO DO DASHBOARD (arrastar, esconder, salvar na nuvem) ───────
-function patrimonioTemAcesso(){
-  if(typeof _verComoPlano!=='undefined' && _verComoPlano){
-    const cfg = PLANOS_CONFIG[_verComoPlano];
-    return !!(cfg && cfg.limites && cfg.limites.personalizacao);
-  }
-  if(typeof isEquipe==='function' && isEquipe()) return true;
-  const plano = (typeof _userPlano!=='undefined' && _userPlano) || 'gratuito';
-  const cfg = PLANOS_CONFIG[plano];
-  return !!(cfg && cfg.limites && cfg.limites.personalizacao);
-}
+function patrimonioTemAcesso(){ return planoLibera('personalizacao'); }
 
 let _dashPersonalizando = false;
 let _dashConfigCarregada = false;

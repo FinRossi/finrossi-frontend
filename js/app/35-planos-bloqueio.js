@@ -62,12 +62,15 @@ function mostrarPlanoNecessario(tela){
   _janelaPlano(info.nome, info.texto, planoQueLibera(tela));
 }
 
-// Menu: tela bloqueada abre a janela em vez da tela
+// Menu: tela bloqueada abre a janela em vez da tela; abrir Lançamentos atualiza o contador
+// do Gratuito (um gancho só no goTo)
 (function(){
   const _goToAntes = window.goTo;
   window.goTo = function(nome){
     if(telaBloqueada(nome)){ mostrarPlanoNecessario(nome); return; }
-    return _goToAntes.apply(this, arguments);
+    const r = _goToAntes.apply(this, arguments);
+    if(nome === 'lancamentos') atualizarContadorLimite();
+    return r;
   };
 })();
 
@@ -139,8 +142,6 @@ function atualizarContadorLimite(){
 })();
 // Ao abrir Lançamentos, ao trocar de plano ou de perfil
 (function(){
-  const _goTo = window.goTo;
-  window.goTo = function(nome){ const r = _goTo.apply(this, arguments); if(nome === 'lancamentos') atualizarContadorLimite(); return r; };
   if(typeof aplicarNavConfig === 'function'){
     const _anc = aplicarNavConfig;
     window.aplicarNavConfig = aplicarNavConfig = function(){ const r = _anc.apply(this, arguments); atualizarContadorLimite(); return r; };
