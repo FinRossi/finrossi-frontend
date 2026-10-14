@@ -61,7 +61,9 @@ function initFB(){
 document.addEventListener('fbReady', () => {
   initTema();   // aplica tema salvo antes de renderizar
   lsLoad();
-  refreshAll();
+  // Se a entrada já montou e mostrou o app, não redesenha tudo de novo (os gráficos
+  // repetiam a animação logo depois de aparecer); os dados da nuvem redesenham quando chegarem
+  if(document.getElementById('tela-app')?.style.display !== 'flex') refreshAll();
   initFB();
 });
 

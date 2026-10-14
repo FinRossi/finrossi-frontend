@@ -336,3 +336,8 @@
 .cat-leg-fora{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;padding:8px 4px 0;border-top:1px solid var(--ced-gravura-fina);font-size:12px;color:var(--muted)}
 .cat-leg-fora b{font-family:var(--ced-serif);font-weight:500;font-size:16px;color:var(--text)}
 .cat-leg-dica{margin-top:6px;padding:0 4px;font-size:11px;color:var(--muted2)}
+
+/* Entrada no app: aparece com um fade curto depois de montado */
+#tela-app{transition:opacity .45s ease}
+#tela-app.app-entrando{opacity:0}
+@media(prefers-reduced-motion:reduce){#tela-app{transition:none}}

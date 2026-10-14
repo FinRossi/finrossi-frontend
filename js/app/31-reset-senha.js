@@ -89,7 +89,7 @@ window._abrirComBoasVindas = function(nome, callback){
   const fade = (id, v) => { const el=document.getElementById(id); if(el){ el.style.opacity=v; el.style.transform=v==='1'?'translateY(0)':'translateY(20px)'; } };
 
   const hora = new Date().getHours();
-  const saudacao = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
+  const saudacao = hora>=5&&hora<12?'Bom dia':hora>=12&&hora<18?'Boa tarde':'Boa noite';
   const frases = ['Suas finanças estão te esperando.','Vamos organizar o seu dia.','Controle total nas suas mãos.','Cada real conta. Vamos lá.'];
 
   set('bv-saudacao', saudacao+',');
@@ -125,15 +125,20 @@ window._abrirComBoasVindas = function(nome, callback){
   setTimeout(()=>{ if(progressBar)progressBar.style.width='100%'; if(loadTxt)loadTxt.style.opacity='1'; },1600);
 
   // Saída
+  // Saída cruzada: o app começa a aparecer por baixo enquanto a boas-vindas some
+  // (antes ficava um instante de tela preta entre as duas)
+  let jaChamou = false;
+  const chamar = () => { if(!jaChamou){ jaChamou = true; if(callback) callback(); } };
   const sair = () => {
     if(animId) cancelAnimationFrame(animId);
     tela.style.transition='opacity .5s ease';
     tela.style.opacity='0';
-    setTimeout(()=>{ tela.style.display='none'; tela.style.opacity='1'; tela.style.transition=''; if(callback)callback(); },500);
+    chamar();
+    setTimeout(()=>{ tela.style.display='none'; tela.style.opacity='1'; tela.style.transition=''; },500);
   };
   setTimeout(sair, 2800);
   // Segurança total
-  setTimeout(()=>{ if(tela.style.display!=='none'){ tela.style.display='none'; if(callback)callback(); } },5000);
+  setTimeout(()=>{ if(tela.style.display!=='none'){ tela.style.display='none'; } chamar(); },5000);
 };
 var _pwaPrompt = null;
 var _deferredPromptLogin = null;

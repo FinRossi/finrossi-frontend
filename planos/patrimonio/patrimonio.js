@@ -793,6 +793,8 @@ function aplicarCorTema(hex, persistir){
   const root = document.documentElement;
   _VARS_COR_FUNDO.forEach(v => root.style.setProperty(v, tema[v]));
   root.setAttribute('data-cor-fundo', tema.claro ? 'clara' : 'escura');
+  // Guarda as cores prontas para o topo da página aplicar já na abertura (sem piscar)
+  try{ const vars = {}; _VARS_COR_FUNDO.forEach(v => vars[v] = tema[v]); localStorage.setItem('fin_cor_vars', JSON.stringify({ vars, claro: tema.claro })); }catch(e){}
   const meta = document.querySelector('meta[name="theme-color"]');
   if(meta) meta.setAttribute('content', tema['--bg']);
   atualizarSeletorCoresUI(hex);
@@ -808,6 +810,7 @@ function limparCorTema(persistir){
   const root = document.documentElement;
   _VARS_COR_FUNDO.forEach(v => root.style.removeProperty(v));
   root.removeAttribute('data-cor-fundo');
+  if(persistir !== false) try{ localStorage.removeItem('fin_cor_vars'); }catch(e){}
   const meta = document.querySelector('meta[name="theme-color"]');
   if(meta) meta.setAttribute('content', '#0f0f0f');
   atualizarSeletorCoresUI('padrao');
@@ -943,7 +946,8 @@ function initPatrimonioCores(){
   if(!wrap) return;
   const permitido = patrimonioTemAcesso();
   wrap.style.display = permitido ? 'block' : 'none';
-  if(!permitido) return;
+  // Plano sem personalização (ex.: deixou de ser Patrimônio): tira a cor aplicada na abertura
+  if(!permitido){ if(document.documentElement.hasAttribute('data-cor-fundo')) limparCorTema(false); return; }
   renderCoresPatrimonio();
 
   if(!_corTemaCarregada){

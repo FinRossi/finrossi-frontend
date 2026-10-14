@@ -18,34 +18,60 @@
     }, 550);
   };
 
-  const irParaLogin = () => { sairDoLoadingComZoom(() => { show('tela-login','flex'); hide('tela-app'); }); };
-  const irParaApp   = (nome) => {
-    hide('loading');
+  // ── Entrada no app: uma sequência só ──────────────────────────────────────
+  // 1) monta o app inteiro por trás (perfil, menu, tema, cor, categorias, dashboard)
+  // 2) só então revela, com a transição certa para cada caso
+  // Antes o app aparecia primeiro e se montava na frente do usuário (menu piscando,
+  // dashboard redesenhando, cor chegando atrasada) — era o "corte" na entrada.
+  let entrouNoApp = false;
+  const tentar = fn => { try{ fn(); }catch(e){ console.warn('[Entrada]', e && e.message); } };
+  const prepararApp = () => {
+    tentar(() => initTema());
+    tentar(() => lsLoad());
+    tentar(() => setupPerfilUI());
+    tentar(() => initSidebar());
+    tentar(() => { loadCategorias(); populateCatSelects(); });
+    tentar(() => refreshAll());
+    tentar(() => { if(typeof initPatrimonioCores === 'function') initPatrimonioCores(); });
+  };
+  // App entra com um fade curto (classe tira a opacidade em seguida)
+  const revelarApp = () => {
+    hide('tela-login');
+    const app = document.getElementById('tela-app');
+    if(!app) return;
+    app.classList.add('app-entrando');
+    show('tela-app','flex');
+    requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove('app-entrando')));
+  };
 
-    // Decide ANTES se a tela de boas-vindas vai aparecer — ela já tem sua
-    // própria entrada em sequência, então não precisa da explosão por cima
+  const irParaLogin = () => {
+    entrouNoApp = false;    // saiu da conta: a próxima entrada roda a sequência de novo
+    sairDoLoadingComZoom(() => { show('tela-login','flex'); hide('tela-app'); });
+  };
+  const irParaApp = (nome) => {
+    if(entrouNoApp) return;   // nunca roda duas vezes (evita duas transições seguidas)
+    entrouNoApp = true;
+
     const INTERVALO_BOAS_VINDAS_MS = 30 * 60 * 1000; // 30 minutos — ajuste aqui se quiser mudar
     const ultimoAcesso = parseInt(localStorage.getItem('fin_ultimo_acesso_ts') || '0', 10);
-    const vaiMostrarBoasVindas = !!nome && (Date.now() - ultimoAcesso) >= INTERVALO_BOAS_VINDAS_MS;
+    const vaiMostrarBoasVindas = !!nome && (Date.now() - ultimoAcesso) >= INTERVALO_BOAS_VINDAS_MS && typeof window._abrirComBoasVindas === 'function';
     localStorage.setItem('fin_ultimo_acesso_ts', String(Date.now()));
 
-    const trocarTela = () => {
-      hide('tela-login');
-      if(vaiMostrarBoasVindas){
-        // Delega para função global (definida no script principal)
-        window._abrirComBoasVindas(nome, () => show('tela-app','flex'));
-      } else {
-        show('tela-app','flex');
-      }
-    };
+    prepararApp();
+    const loadingVisivel = document.getElementById('loading')?.style.display !== 'none';
 
     if(vaiMostrarBoasVindas){
-      // A tela de boas-vindas é a transição — sem explosão por cima dela
-      trocarTela();
+      // Boas-vindas por cima; o carregamento sai por baixo dela; depois o app entra com fade
+      window._abrirComBoasVindas(nome, revelarApp);
+      setTimeout(() => { hide('loading'); hide('tela-login'); }, 250);
+    } else if(loadingVisivel){
+      // Já estava logado (abriu o app): o logo do carregamento cresce e o app aparece por baixo
+      sairDoLoadingComZoom(revelarApp);
     } else if(typeof window.irisTransition === 'function'){
-      window.irisTransition(trocarTela);
+      // Acabou de entrar pela tela de login: explosão dourada
+      window.irisTransition(revelarApp);
     } else {
-      trocarTela();
+      revelarApp();
     }
   };
 
@@ -89,32 +115,26 @@
           window._userRole = 'master'; // dono: nível Master (acima de Sócio)
           window._userPlano = 'patrimonio';
         } else {
-          try{
-            const snap = await new Promise((res,rej) => {
-              const u = onValue(ref(db,`usuarios/${user.uid}/role`), s=>{ u(); res(s); }, {onlyOnce:true});
-              setTimeout(()=>rej(), 3000);
-            });
-            window._userRole = snap.val() || 'cliente';
-          }catch(e){ window._userRole = 'cliente'; }
-          try{
-            const snapP = await new Promise((res,rej) => {
-              const u = onValue(ref(db,`usuarios/${user.uid}/plano`), s=>{ u(); res(s); }, {onlyOnce:true});
-              setTimeout(()=>rej(), 3000);
-            });
-            window._userPlano = snapP.val() || 'gratuito';
-          }catch(e){ window._userPlano = 'gratuito'; }
+          // Cargo e plano lidos ao mesmo tempo; erro do banco (ex.: fora do ar) responde na hora
+          // em vez de esperar 3 s + 3 s
+          const ler = caminho => new Promise(res => {
+            let feito = false; const fim = v => { if(!feito){ feito = true; res(v); } };
+            try{ onValue(ref(db, caminho), s => fim(s.val()), () => fim(null), { onlyOnce: true }); }catch(e){ fim(null); }
+            setTimeout(() => fim(null), 3000);
+          });
+          const [role, plano] = await Promise.all([ler(`usuarios/${user.uid}/role`), ler(`usuarios/${user.uid}/plano`)]);
+          window._userRole = role || 'cliente';
+          window._userPlano = plano || 'gratuito';
         }
         _userRole = window._userRole;
         _userPlano = window._userPlano;
-        const nome = user.displayName || user.email?.split('@')[0] || '';
-        irParaApp(nome);
         const nEl = document.getElementById('user-nome');
         if(nEl) nEl.textContent = user.displayName || user.email;
-        setTimeout(()=>setupPerfilUI(), 100);
-        setTimeout(()=>{initSidebar();initCursorFx();}, 150);
-        setTimeout(()=>initAvatar(), 300);
-        setTimeout(()=>iniciarSistemaNotificacoes(), 1000);
-        setTimeout(()=>{ loadCategorias(); populateCatSelects(); }, 200);
+        const nome = user.displayName || user.email?.split('@')[0] || '';
+        irParaApp(nome);
+        setTimeout(()=>{ try{ initCursorFx(); }catch(e){} }, 150);
+        setTimeout(()=>{ try{ initAvatar(); }catch(e){} }, 300);
+        setTimeout(()=>{ try{ iniciarSistemaNotificacoes(); }catch(e){} }, 1000);
       } else {
         irParaLogin();
         const btn = document.getElementById('btn-login');
