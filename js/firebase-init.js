@@ -3,19 +3,41 @@
   const show = (id, d='block') => { const el=document.getElementById(id); if(el) el.style.display=d; };
   const hide = (id) => { const el=document.getElementById(id); if(el) el.style.display='none'; };
 
-  // Faz o logo da tela de carregamento crescer em direção à tela (como se o
-  // app estivesse vindo até você), depois revela o próximo passo
-  const sairDoLoadingComZoom = (proximoPasso) => {
+  // Carregamento → login: o logo do carregamento sobe até o lugar dele na tela de login,
+  // enquanto o nome e a rodinha somem e o login aparece por baixo (~0,6 s).
+  // Antes era um zoom com desfoque na tela cheia, que travava no celular.
+  const sairDoLoadingParaLogin = () => {
     const loadingEl = document.getElementById('loading');
-    if(!loadingEl || loadingEl.style.display==='none'){ proximoPasso(); return; }
-    loadingEl.classList.add('loading-zoom-out');
-    // Revela a próxima tela um pouco antes do zoom terminar — as duas se
-    // sobrepõem, em vez de uma esperar a outra (evita a sensação de travar)
-    setTimeout(() => { proximoPasso(); }, 320);
+    const logoCarr = document.getElementById('loading-logo');
+    const login = document.getElementById('tela-login');
+    const logoLogin = document.getElementById('login-logo-img');
+    const mostrarLogin = () => { show('tela-login','flex'); hide('tela-app'); };
+    if(!loadingEl || loadingEl.style.display==='none'){ mostrarLogin(); return; }
+    const semMovimento = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!logoCarr || !login || !logoLogin || semMovimento){ hide('loading'); mostrarLogin(); return; }
+
+    login.classList.remove('logo-chegou');
+    login.classList.add('via-logo');          // login sem o fade padrão; o logo dele espera o viajante
+    mostrarLogin();
+    const de = logoCarr.getBoundingClientRect(), para = logoLogin.getBoundingClientRect();
+    const viajante = logoCarr.cloneNode(true);
+    viajante.removeAttribute('id');
+    viajante.style.cssText = `position:fixed;left:${de.left}px;top:${de.top}px;width:${de.width}px;height:${de.height}px;margin:0;`
+      + 'border-radius:10px;opacity:1;animation:none;z-index:1000;transform-origin:0 0;transition:transform .56s cubic-bezier(.65,0,.25,1)';
+    document.body.appendChild(viajante);
+    logoCarr.style.visibility = 'hidden';
+    loadingEl.style.transition = 'opacity .3s ease';
+    void viajante.offsetHeight;
+    requestAnimationFrame(() => {
+      loadingEl.style.opacity = '0';          // nome e rodinha somem, o login aparece por baixo
+      viajante.style.transform = `translate(${para.left - de.left}px,${para.top - de.top}px) scale(${para.width / de.width})`;
+    });
     setTimeout(() => {
+      login.classList.add('logo-chegou');     // o logo do login aparece no lugar exato do viajante
+      viajante.remove();
       hide('loading');
-      loadingEl.classList.remove('loading-zoom-out');
-    }, 550);
+      loadingEl.style.opacity = ''; loadingEl.style.transition = ''; logoCarr.style.visibility = '';
+    }, 600);
   };
 
   // ── Entrada no app: uma sequência só ──────────────────────────────────────
@@ -46,7 +68,7 @@
 
   const irParaLogin = () => {
     entrouNoApp = false;    // saiu da conta: a próxima entrada roda a sequência de novo
-    sairDoLoadingComZoom(() => { show('tela-login','flex'); hide('tela-app'); });
+    sairDoLoadingParaLogin();
   };
   const irParaApp = (nome) => {
     if(entrouNoApp) return;   // nunca roda duas vezes (evita duas transições seguidas)
@@ -58,20 +80,15 @@
     localStorage.setItem('fin_ultimo_acesso_ts', String(Date.now()));
 
     prepararApp();
-    const loadingVisivel = document.getElementById('loading')?.style.display !== 'none';
 
+    // Toda entrada no app passa pelo Cofre (29-login.js): pelo botão Entrar ou abrindo já logado.
+    // O Cofre cobre a tela, monta o próximo passo por baixo e se abre mostrando ele.
+    const cofre = typeof window.irisTransition === 'function' ? window.irisTransition : (cb => cb());
     if(vaiMostrarBoasVindas){
-      // Boas-vindas por cima; o carregamento sai por baixo dela; depois o app entra com fade
-      window._abrirComBoasVindas(nome, revelarApp);
-      setTimeout(() => { hide('loading'); hide('tela-login'); }, 250);
-    } else if(loadingVisivel){
-      // Já estava logado (abriu o app): o logo do carregamento cresce e o app aparece por baixo
-      sairDoLoadingComZoom(revelarApp);
-    } else if(typeof window.irisTransition === 'function'){
-      // Acabou de entrar pela tela de login: explosão dourada
-      window.irisTransition(revelarApp);
+      // Na vez das boas-vindas (regra dos 30 min), o Cofre se abre mostrando elas; depois o app entra com fade
+      cofre(() => { hide('loading'); hide('tela-login'); window._abrirComBoasVindas(nome, revelarApp); });
     } else {
-      revelarApp();
+      cofre(() => { hide('loading'); revelarApp(); });
     }
   };
 
@@ -88,9 +105,17 @@
   }, 6000);
 
   try {
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, set, onValue } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
-    const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    // As três partes baixam ao mesmo tempo (antes uma esperava a outra terminar).
+    // O index.html já pede esses arquivos com antecedência (modulepreload).
+    const [
+      { initializeApp },
+      { getDatabase, ref, set, onValue },
+      { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    ] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+    ]);
 
     const app = initializeApp({
       apiKey: "AIzaSyC6WIL7R0ZkL4Yr3TuBqyZ_VVji3HmhSuE",

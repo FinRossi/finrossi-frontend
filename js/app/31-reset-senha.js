@@ -140,6 +140,15 @@ window._abrirComBoasVindas = function(nome, callback){
   // Segurança total
   setTimeout(()=>{ if(tela.style.display!=='none'){ tela.style.display='none'; } chamar(); },5000);
 };
+// iPhone/iPad. O iPad (iPadOS 13+) se apresenta como Mac — por isso também conta Mac com tela de toque
+function _ehIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+// Link aberto dentro de outro app (Instagram, Facebook, WhatsApp, TikTok...): esses navegadores não instalam o app
+function _navegadorInterno(){
+  return /Instagram|FBAN|FBAV|FB_IAB|WhatsApp|Line\/|TikTok|musical_ly|Snapchat|LinkedInApp/i.test(navigator.userAgent);
+}
+
 var _pwaPrompt = null;
 var _deferredPromptLogin = null;
 
@@ -156,10 +165,29 @@ window.addEventListener('beforeinstallprompt', e => {
   }, 2000);
 });
 
+// Instalou por qualquer caminho (nosso botão ou o menu do navegador): para de oferecer a instalação
+window.addEventListener('appinstalled', () => {
+  _pwaPrompt = null;
+  _deferredPromptLogin = null;
+  localStorage.setItem('fin_pwa_instalado', '1');
+  if(window._db && window._set && window._ref && window._firebaseUser){
+    try{ window._set(window._ref(window._db,`usuarios/${window._firebaseUser.uid}/pwaInstalado`), true); }catch(e){}
+  }
+  ['pwa-banner','ios-banner','pwa-ajuda','login-pwa-card','pwa-fab'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+  if(typeof atualizarStatusPWAConfig === 'function') atualizarStatusPWAConfig();
+  if(typeof atualizarInstalarCelular === 'function') atualizarInstalarCelular();
+});
+
 async function instalarPWALogin() {
   if (!_deferredPromptLogin) {
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (isIOS) {
+    if (_navegadorInterno() && typeof mostrarAjudaInstalar === 'function') {
+      document.getElementById('login-pwa-card').style.display = 'none';
+      mostrarAjudaInstalar();
+      return;
+    }
+    if (_ehIOS()) {
       document.getElementById('login-pwa-card').style.display = 'none';
       document.getElementById('ios-banner').style.display = 'block';
     }
@@ -214,11 +242,14 @@ async function mostrarPWABanner(){
   if(await _pwaJaInstalou()) return;
   if(!_pwaDeveMostrarAgora()) return;
 
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
+  const isIOS = _ehIOS() && !window.navigator.standalone;
   if(_pwaPrompt){
     document.getElementById('pwa-banner').style.display='block';
     const fab = document.getElementById('pwa-fab');
     if(fab) fab.style.display='flex';
+  } else if(_navegadorInterno()){
+    // Dentro do Instagram/WhatsApp: explica como abrir no navegador de verdade
+    if(typeof mostrarAjudaInstalar === 'function') mostrarAjudaInstalar();
   } else if(isIOS){
     document.getElementById('ios-banner').style.display='block';
   }
@@ -271,9 +302,10 @@ async function abrirPWAManual(){
   if(await _pwaJaInstalou()) return;
   if(_pwaPrompt){
     document.getElementById('pwa-banner').style.display='block';
-  } else {
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if(isIOS) document.getElementById('ios-banner').style.display='block';
+  } else if(_navegadorInterno() && typeof mostrarAjudaInstalar === 'function'){
+    mostrarAjudaInstalar();
+  } else if(_ehIOS()){
+    document.getElementById('ios-banner').style.display='block';
   }
 }
 
@@ -323,10 +355,12 @@ async function instalarPWAConfig(){
     atualizarStatusPWAConfig();
     return;
   }
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isIOS=_ehIOS();
   if(msg){
-    msg.textContent = isIOS
-      ? 'No iPhone: toque em Compartilhar (□↑) e depois "Adicionar à Tela de Início".'
+    msg.textContent = _navegadorInterno()
+      ? 'Você abriu o link dentro de outro app. Toque no menu (⋯) e escolha "Abrir no navegador" para instalar.'
+      : isIOS
+      ? 'No iPhone/iPad: toque em Compartilhar (□↑) e depois "Adicionar à Tela de Início".'
       : 'Seu navegador ainda não liberou a instalação automática. Tente pelo Chrome ou Edge.';
     msg.style.color='var(--amber)';
   }

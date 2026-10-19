@@ -16,50 +16,26 @@ function validarEmail(email){
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 }
 
-// ─── Transição "íris" ao entrar no app (contrai e explode a partir do centro) ──
+// ─── Transição "Cofre" ao entrar no app ──────────────────────────────────────
+// As duas metades cobrem o login, um fio dourado corta a tela ao meio e as metades
+// se abrem como a porta de um cofre, revelando o app (~1,1 s).
+// O nome irisTransition foi mantido porque firebase-init.js chama window.irisTransition.
 function irisTransition(callback){
   const wrap = document.getElementById('portal-transition-app');
-  const flash = document.getElementById('portal-flash-app');
-  const circle = document.getElementById('portal-circle-app');
-  if(!wrap || !circle){ callback(); return; }
+  if(!wrap || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){ callback(); return; }
 
-  // Cobre a tela inteira de verdade — calcula a distância até o canto mais longe
-  const maxDist = Math.hypot(window.innerWidth/2, window.innerHeight/2);
-  const scaleTarget = (maxDist * 2.4) / 20;
-
+  wrap.classList.remove('cobrir','riscar','abrir');
   wrap.style.display = 'block';
-  circle.style.transition = 'none';
-  circle.style.transform = 'translate(-50%,-50%) scale(0)';
-  circle.style.opacity = '0';
-  if(flash){
-    flash.style.transition = 'none';
-    flash.style.transform = 'translate(-50%,-50%) scale(0)';
-    flash.style.opacity = '0';
-  }
-  void circle.offsetHeight;
+  void wrap.offsetHeight;
 
-  // 1) Flash rápido — um clarão dourado no centro
-  requestAnimationFrame(()=>{
-    if(flash){
-      flash.style.transition = 'transform .25s ease-out,opacity .25s ease-out';
-      flash.style.transform = 'translate(-50%,-50%) scale(1.5)';
-      flash.style.opacity = '1';
-    }
-  });
-
-  // 2) Explosão dourada cobrindo a tela inteira
-  setTimeout(()=>{
-    if(flash) flash.style.opacity = '0';
-    circle.style.transition = 'transform .55s cubic-bezier(.3,0,.4,1),opacity .55s ease';
-    circle.style.opacity = '1';
-    circle.style.transform = `translate(-50%,-50%) scale(${scaleTarget})`;
-    callback();
-    setTimeout(()=>{ circle.style.opacity = '0'; }, 350);
-  }, 200);
-
+  wrap.classList.add('cobrir');                               // 1) metades cobrem o login
+  setTimeout(()=>wrap.classList.add('riscar'), 160);          // 2) fio dourado corta a tela
+  setTimeout(()=>callback(), 420);                            // app monta por baixo das metades
+  setTimeout(()=>wrap.classList.add('abrir'), 620);           // 3) metades se abrem
   setTimeout(()=>{
     wrap.style.display = 'none';
-  }, 900);
+    wrap.classList.remove('cobrir','riscar','abrir');
+  }, 1200);
 }
 
 async function fazerLogin(){

@@ -107,7 +107,7 @@ async function renderMinhaAssinatura(){
       <h3>Quer mais recursos?</h3>
       <p class="fr-card-sub" style="margin:-6px 0 14px">Os planos acima liberam ${plano==='gratuito'?'lançamentos ilimitados, investimentos, metas, cartões':'relatórios em PDF, saúde do patrimônio, lançar por foto'} e mais.</p>
       <div class="btn-row">
-        <a href="https://finrossi.com.br/landing/#planos" target="_blank" rel="noopener" class="btn primary" style="text-decoration:none">Ver planos</a>
+        <a href="landing/#planos" target="_blank" rel="noopener" class="btn primary" style="text-decoration:none">Ver planos</a>
         <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Mudar de plano FinRossi')}" class="btn" style="text-decoration:none">Falar com o suporte</a>
       </div>
     </div>`:''}
@@ -117,9 +117,9 @@ async function renderMinhaAssinatura(){
       <div class="btn-row" style="flex-wrap:wrap">
         <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Suporte FinRossi')}" class="btn" style="text-decoration:none">Enviar e-mail ao suporte</a>
         ${plano==='patrimonio'?`<a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Agendar sessão FinRossi')}" class="btn primary" style="text-decoration:none">Agendar sessão</a>`:''}
-        <a href="https://finrossi.com.br/landing/legal/termos.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Termos de uso</a>
-        <a href="https://finrossi.com.br/landing/legal/privacidade.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Privacidade</a>
-        <a href="https://finrossi.com.br/landing/legal/contrato.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Contrato</a>
+        <a href="landing/legal/termos.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Termos de uso</a>
+        <a href="landing/legal/privacidade.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Privacidade</a>
+        <a href="landing/legal/contrato.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Contrato</a>
       </div>
       ${pago?`<div class="ma-cancelar">
         <div><b>Cancelar assinatura</b><span>Abre um e-mail pronto para o suporte com os dados da sua conta.</span></div>

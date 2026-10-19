@@ -64,8 +64,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(14px + env(safe
 .nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:var(--text)}
 .nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-login{color:var(--text);padding:9px 16px;border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color .2s}
-.nav-login:hover{color:var(--gold-light)}
+.nav-login{color:var(--gold-light);padding:8px 16px;border:1px solid var(--gold);border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.nav-login:hover{color:var(--gold-light);border-color:var(--gold-light);background:var(--gold-s)}
 .nav-cta{background:var(--gold);color:#0a0a0a;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s,transform .2s}
 .nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
 
@@ -74,10 +74,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(14px + env(safe
 .btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 36px rgba(201,168,76,0.28)}
 .btn-primary svg{transition:transform .2s}
 .btn-primary:hover svg{transform:translateX(3px)}
-.btn-link{color:var(--text);font-size:15px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:15px 6px;border-bottom:1px solid transparent;transition:border-color .2s,color .2s}
-.btn-link:hover{color:var(--gold-light)}
-.btn-secondary{background:transparent;color:var(--text);padding:15px 24px;border-radius:12px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--border2);display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,color .2s}
-.btn-secondary:hover{border-color:var(--gold);color:var(--gold-light)}
+/* "Já tenho conta": mesma borda dourada do Entrar do menu */
+.btn-secondary{background:transparent;color:var(--gold-light);padding:15px 24px;border-radius:12px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--gold);display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,color .2s,background .2s}
+.btn-secondary:hover{border-color:var(--gold-light);color:var(--gold-light);background:var(--gold-s)}
 
 /* ── HERO: texto + o app ─────────────────────────────── */
 .hero{position:relative;overflow:hidden;padding:calc(120px + env(safe-area-inset-top,0px)) 0 90px;min-height:100vh;min-height:100svh;display:flex;align-items:center}
@@ -281,8 +280,8 @@ footer strong{color:var(--gold);font-weight:500}
   .nav-login{padding:8px 10px;font-size:13px}
   .nav-cta{padding:8px 13px;font-size:13px}
   .hero h1{letter-spacing:-1px}
-  .hero-acoes{gap:6px 18px}
-  .hero-acoes .btn-primary{width:100%;justify-content:center}
+  .hero-acoes{gap:10px 18px}
+  .hero-acoes .btn-primary,.hero-acoes .btn-secondary{width:100%;justify-content:center}
   .celular{width:250px}
   .tela{padding:46px 13px 0;gap:8px}
   .fl-alerta{left:-4px;top:-8px;transform-origin:left;font-size:11px}
@@ -354,7 +353,13 @@ body.modal-aberto{overflow:hidden}
   .hero-roseta{width:460px;height:460px}
   .cta-roseta{width:320px;height:320px;right:-110px}
 }
-@media(prefers-reduced-motion:reduce){.hero-roseta.ced-anima{animation:none}}
+/* Rosetas girando devagar, sem parar. Gira só o desenho (svg), numa camada própria: leve no celular
+   e sem brigar com a animação de entrada da roseta do topo */
+.roseta-alvo svg{animation:roseta-gira 90s linear infinite;will-change:transform}
+.app-roseta svg{animation-duration:40s}
+.cta-roseta svg{animation-duration:120s;animation-direction:reverse}
+@keyframes roseta-gira{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hero-roseta.ced-anima{animation:none}.roseta-alvo svg{animation:none}}
 </style>
 </head>
 <body>
@@ -371,7 +376,7 @@ body.modal-aberto{overflow:hidden}
     <a href="#faq">Dúvidas</a>
   </div>
   <div class="nav-actions">
-    <a href="https://finrossi.com.br/" class="nav-login" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">Entrar</a>
+    <a href="../" class="nav-login" onclick="irParaApp(event)">Entrar</a>
     <a href="#planos" class="nav-cta" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">Testar grátis</a>
   </div>
 </nav>
@@ -387,7 +392,7 @@ body.modal-aberto{overflow:hidden}
         <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
           Começar grátis
                   </a>
-        <a href="https://finrossi.com.br/" class="btn-link">Já tenho conta</a>
+        <a href="../" class="btn-secondary" onclick="irParaApp(event)">Já tenho conta</a>
       </div>
       <div class="hero-confianca">
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>R$0 para começar</span>
@@ -767,7 +772,7 @@ body.modal-aberto{overflow:hidden}
         <a href="#planos" class="btn-primary" onclick="event.preventDefault();portalTransition(event,()=>{document.getElementById('planos').scrollIntoView({behavior:'smooth'})})">
           Criar conta grátis
                   </a>
-        <a href="https://finrossi.com.br/" class="btn-secondary" onclick="event.preventDefault();portalTransitionCenter(()=>{window.location.href='https://finrossi.com.br/'})">Já tenho conta</a>
+        <a href="../" class="btn-secondary" onclick="irParaApp(event)">Já tenho conta</a>
       </div>
     </div>
   </div>
@@ -864,10 +869,6 @@ function portalTransition(e, callback){
     circle.classList.remove('go');
     circle.style.opacity = '0';
   }, 650);
-}
-
-function portalTransitionCenter(callback){
-  portalTransition({clientX: window.innerWidth/2, clientY: window.innerHeight/2}, callback);
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -1064,9 +1065,53 @@ function showModalMsg(texto, tipo){
   el.style.color = tipo==='err' ? '#f87171' : '#4ade80';
 }
 
-function irParaApp(){
-  window.location.href = 'https://finrossi.com.br/';
+// ─── Entrar no app: o logo do menu viaja até o centro e o app continua dali ──
+// O logo para exatamente onde fica o logo da tela de carregamento do app, que segue com ele
+// até a tela de login (js/firebase-init.js). Antes era o círculo dourado + a página inteira
+// ampliada, que travava no celular e piscava a landing de volta antes de trocar de página.
+const LOGO_APP = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAIAAABKGoy8AAAFOUlEQVR4nO2XbYhUZRTHz8tzZ2ZnZ8bdWnXD0NTAQJMSClEwaUs/WZb1IZAIytKUyKKIssJWoUAwysovBYZ9yF400sTKMrWkwnWhyEqrNfF91d2Z2Zm593mec/owropSzt30QzQ/LvPCnXvP/znn/5w5F6BOnTp16tT5z4GxL8Dar1LVuLf/F8RdCiIaJsTYKRhYOEgG3JRNiCoCQn8W+6OfuRsilCuutxhWvzKhl9hprFUcIoBCcy759uKpI67IiqIJjDGGmYmJiZGQiIkYiRAREMuh++NA/pOte976oPNEb3kA+moVR4QiOm508/rl0yMHVVUmCJiZmYmImIkNMSNW64hElAiYkqar6/iC9o0btu6Jq49iLcV7LVWcdRJZsU4jK2Hkw8iFViInkfVhVH31lciVQ5vvC090F1oHpz967e472sZ4UaYYRjKxxBlDQy9vFAVj2BiDRMzMxjAxGQPGADEgAwKASujzxdAQlPrCwODK56bt2n1o36F8tQi1hIvhOVVoaUrdefMoVSUiPE31MxERASAiKmA6ZdomXjX1huH5QhlUwsi2NKdeWd3x+LItzOS9XExxA2PR3MnPPjSxJ19WL4Zh/5HC5HvfLVVcdakXJJ7nECEwdM6RCPjsIzDETIEhIlyy8uuvvv8znWTnXCW0LYMSw1uzAFBj54vnOVWw7sIVIUSrGhgCgC3f7ZtyfatzXlVSCWrKJqDmetUqjhBFddSw3LKFk0SRuOo6ImJiJiIk9gLpdHDoWGnu8x8X+kIAENEhlzU471VVVbzT0PoaI8YQBwigkGlM3DpxuFdiw8x8ardygMSqSAkWgen3r84Xw0TAkfXDhmZmTBmZL1QAlBB6i9HBo30ANRkujjgAABDRYsWLKjEwAxIoKJKCojGUkmDm/DWff/NbVVlrS3r10ulNmaC3UBHVhgT+uPf4kRPlahEuvjhETATGKxEbYmI2uUwKiAAQmO57ct2m7XtTSVMJ3XVjBq9qnza8NXOyt4ygNrK5huQ7G/cAABJAbbWNJw5AiUiBidgYtg7XfrG3WIoa08GmbXtXretMBFwJ3YybRq1c1JZK0ImeEoKWQzu4Oblh+/712/cRofe1/oPFzRwRBwAsgJls+sPPfrnrkTWnzzJhZP2jsycsnjexXInyhTKCivghzckdPxx9bPmOuPNd3MwBGaNKKIhIpXJEhIZJRKs7ZsXTbXNmjT12vOisUxURXw7d+5t/X/JmR7FkETGWvtieIzIiCCAgngBE1KN4r0QIAIFBG9kwtIRqrW9IUOfPJ5969Vvon2viJSLWrwGgfyBSUBE5Y2xVVdX5Szdv6zgwqNFEkUXQfF9047iWhfeMhTMD6aUUB6AqXkVU5OwaqQIiOi8Ptm8+3F0MGK3zoNLTGz48a8zUCa3ex5uXBiJOpYr33qkKAEC/QhFlxv2Hiwte2m4YRbz33jrXV7Ltc8YPG9zgRSlOAgcmzov31fdzznqvhnHLzoMvrupsyiSiyIFquWKzDfzCA+MDQ4Ax6htPnKraU7gosqcyd54+Znz9vZ/Wftk1qNGUypEX6e6pXDsyO2/maBHF2p8NYoljwlxjkEubbANnsklrPZzndAUQUUR45o2du7t6WnJBgiGTolLZzr7lytsmtYqe2toXpOZWogAAJwvhmk9/tdYBgLX+5dW7AEDOS58qEGGhZJ9Y0TH39qtLFSuiznlQuGZEbktnd75U67x5qfg7b9XuudjNp9oOtPpUIfDP8wXiWTOvAmC1HcaNWadOnTp16tT5H/AX48yytTtDw+wAAAAASUVORK5CYII=';
+// Altura do grupo centralizado da tela de carregamento (logo 52 + nome + rodinha), medida no app
+const ALTURA_GRUPO_CARREGAMENTO = 153;
+
+function irParaApp(e){
+  if(e && e.preventDefault) e.preventDefault();
+  const destino = new URL('../', location.href).href;   // o app fica na raiz do site (funciona também no teste local)
+  const origem = document.querySelector('.nav-logo img');
+  if(document.getElementById('logo-viajante')) return;   // já está indo
+  if(!origem || window.matchMedia('(prefers-reduced-motion:reduce)').matches){ location.href = destino; return; }
+  const r = origem.getBoundingClientRect();
+  if(!r.width){ location.href = destino; return; }   // logo escondido nesta largura de tela
+  // Altura da tela agora: o app usa para compensar a barra de endereço do celular, que pode
+  // aparecer ou sumir entre uma página e outra (sem isso o logo dava um pulinho na chegada)
+  try{ sessionStorage.setItem('fin_veio_landing', JSON.stringify({ h: window.innerHeight })); }catch(err){}
+
+  const veu = document.createElement('div');
+  veu.id = 'veu-entrar';
+  veu.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#080808;opacity:0;transition:opacity .38s ease';
+  const logo = document.createElement('div');
+  logo.id = 'logo-viajante';
+  logo.style.cssText = `position:fixed;left:0;top:0;width:52px;height:52px;z-index:99999;transform-origin:0 0;border-radius:10px;overflow:hidden;
+    transform:translate(${r.left}px,${r.top}px) scale(${r.width / 52});transition:transform .62s cubic-bezier(.65,0,.25,1)`;
+  // O ícone da landing (com moldura) vira o logo do app (sem moldura) durante a viagem.
+  // Só o logo do app faz fade, por cima do ícone que fica inteiro: se os dois fizessem fade juntos,
+  // no meio do caminho ficariam semitransparentes e o logo "piscaria" (chegava a 44% de opacidade).
+  logo.innerHTML = `<img src="${origem.src}" alt="" style="position:absolute;inset:0;width:100%;height:100%">`
+                 + `<img src="${LOGO_APP}" alt="" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s ease">`;
+  document.body.append(veu, logo);
+
+  const x = (window.innerWidth - 52) / 2, y = (window.innerHeight - ALTURA_GRUPO_CARREGAMENTO) / 2;
+  void logo.offsetHeight;
+  requestAnimationFrame(() => {
+    veu.style.opacity = '1';
+    logo.style.transform = `translate(${x}px,${y}px) scale(1)`;
+    logo.querySelectorAll('img')[1].style.opacity = '1';
+  });
+  setTimeout(() => { location.href = destino; }, 650);
 }
+// Voltou para a landing pelo botão do navegador: tira o véu e o logo que ficaram na tela
+window.addEventListener('pageshow', ev => {
+  if(ev.persisted) ['veu-entrar','logo-viajante'].forEach(id => { const el = document.getElementById(id); if(el) el.remove(); });
+});
 
 // Fecha modal ao clicar fora
 document.addEventListener('click', e=>{

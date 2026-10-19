@@ -34,3 +34,6 @@ sw.js / manifest.json       PWA
 4. Separar por pasta é organização: quem bloqueia acesso é `PLANOS_CONFIG` + `verComoPlanoPermite()` (`acessos/27-ver-como.js`).
    Acessos de equipe: só o **Master** (o dono) cria/altera — conferido também no servidor.
 5. Ao alterar um CSS/JS, aumente o `?v=` da tag no `index.html` para os navegadores baixarem a versão nova.
+6. O `sw.js` guarda no aparelho, na instalação, tudo que o `index.html` carrega (lê as tags sozinho — não há lista para manter).
+   Ao mudar o próprio `sw.js`, aumente o `CACHE_NAME`. A versão nova não recarrega o app no meio do uso:
+   aparece o aviso "Nova versão" (ou troca sozinha se o app acabou de abrir).

@@ -170,19 +170,28 @@ function atualizarInstalarCelular(){
 function instalarPeloMenu(){
   if(typeof closeMobileMoreForce === 'function') closeMobileMoreForce();
   if(typeof _pwaPrompt !== 'undefined' && _pwaPrompt){ document.getElementById('pwa-banner').style.display = 'block'; atualizarInstalarCelular(); return; }
-  const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(iOS){ document.getElementById('ios-banner').style.display = 'block'; atualizarInstalarCelular(); return; }
+  const interno = typeof _navegadorInterno === 'function' && _navegadorInterno();
+  const iOS = typeof _ehIOS === 'function' ? _ehIOS() : /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(iOS && !interno){ document.getElementById('ios-banner').style.display = 'block'; atualizarInstalarCelular(); return; }
   mostrarAjudaInstalar();
 }
 function mostrarAjudaInstalar(){
   const j = document.getElementById('pwa-ajuda'); if(!j) return;
+  // Dentro do Instagram/WhatsApp: em vez dos passos do menu, explica como abrir no navegador
+  const interno = typeof _navegadorInterno === 'function' && _navegadorInterno();
+  const passos = document.getElementById('pwa-ajuda-passos');
+  const avisoInterno = document.getElementById('pwa-ajuda-inapp');
+  if(passos) passos.hidden = interno;
+  if(avisoInterno) avisoInterno.hidden = !interno;
   const aviso = document.getElementById('pwa-ajuda-seguro');
-  if(aviso) aviso.hidden = window.isSecureContext !== false;
+  if(aviso) aviso.hidden = interno || window.isSecureContext !== false;
   j.style.display = 'block';
   atualizarInstalarCelular();
 }
 function fecharAjudaInstalar(){
   const j = document.getElementById('pwa-ajuda'); if(j) j.style.display = 'none';
+  // Mesma regra dos outros avisos: só volta a aparecer sozinho daqui a 3 h
+  localStorage.setItem('fin_pwa_ultimo_aviso', String(Date.now()));
   atualizarInstalarCelular();
 }
 // O botão flutuante e o "Ver como" usam o mesmo caminho (antes, sem o aviso automático do

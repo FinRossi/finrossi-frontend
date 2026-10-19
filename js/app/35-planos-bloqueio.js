@@ -51,7 +51,7 @@ function _janelaPlano(titulo, texto, plano){
     <p class="plano-texto">${texto}</p>
     <div class="plano-oferta"><span>Disponível a partir do plano</span><b>${cfg.label || plano}</b>${cfg.preco ? `<em>${cfg.preco}</em>` : ''}</div>
     <div class="btn-row">
-      <a class="btn primary" href="https://finrossi.com.br/landing/#planos" target="_blank" rel="noopener" style="text-decoration:none">Ver planos</a>
+      <a class="btn primary" href="landing/#planos" target="_blank" rel="noopener" style="text-decoration:none">Ver planos</a>
       <button class="btn" type="button" onclick="closeModal('modal-plano')">Agora não</button>
     </div>
   </div>`;
@@ -123,7 +123,7 @@ function atualizarContadorLimite(){
     <div class="limite-topo"><span>Plano Gratuito</span><b>${usados} de ${lim} lançamentos</b></div>
     <div class="prog-track"><div class="prog-fill" style="width:${(pct*100).toFixed(1)}%"></div></div>
     <div class="limite-pe">${resta > 0 ? `${resta === 1 ? 'Resta 1 lançamento' : `Restam ${resta} lançamentos`} no período de teste.` : 'Você usou todos os lançamentos do período de teste.'}
-      <a href="https://finrossi.com.br/landing/#planos" target="_blank" rel="noopener">Ver planos</a></div>`;
+      <a href="landing/#planos" target="_blank" rel="noopener">Ver planos</a></div>`;
 }
 (function(){
   if(typeof addLanc !== 'function') return;

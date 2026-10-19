@@ -490,8 +490,6 @@ function refreshDash(){
   if(typeof initPersonalizacaoDashboard==='function') initPersonalizacaoDashboard();
   if(typeof initPatrimonioCores==='function') initPatrimonioCores();
 }
-  const lancs=pd().lancs;
-  const doMes=lancs.filter(l=>l.data.startsWith(mes));
 function renderTodosMeses(){
   const lancs=pd().lancs;
   const mesAtual=curMes();

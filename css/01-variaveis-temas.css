@@ -41,17 +41,21 @@
 #loading-spinner{animation:loadingFadeIn .5s ease forwards;animation-delay:1.1s}
 @keyframes loadingFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes loadingFadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* Veio do "Entrar" da landing: o logo já está no centro (chegou viajando), o resto entra como sempre */
+#loading.veio-landing #loading-logo{animation:none;opacity:1!important}   /* !important: vence o opacity:0 escrito na tag */
 
 /* Entrada suave da tela de login */
 #tela-login{animation:loginFadeIn .4s ease both}
 @keyframes loginFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 
-/* Tela de carregamento "vindo até você" antes de revelar login ou app */
-.loading-zoom-out{animation:loadingZoomOut .55s ease-in forwards}
-@keyframes loadingZoomOut{
-  0%{transform:scale(1);filter:blur(0px);opacity:1}
-  100%{transform:scale(2.2);filter:blur(7px);opacity:0}
-}
+/* Carregamento → login: o logo sobe até o lugar dele no login e o resto da tela aparece por baixo
+   (firebase-init.js). Substitui o zoom com desfoque, que travava no celular. */
+#tela-login.via-logo{animation:none}
+#tela-login.via-logo:not(.logo-chegou) #login-logo-img{opacity:0}
+#tela-login.via-logo > div > *{animation:loginSobe .42s .18s ease both}
+#tela-login.via-logo > div > :first-child{animation-name:loginSoAparece}
+@keyframes loginSobe{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes loginSoAparece{from{opacity:0}to{opacity:1}}
 
 /* Transição "íris" ao entrar no app (login bem-sucedido) */
 
