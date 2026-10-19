@@ -964,7 +964,14 @@ function abrirModalCadastro(plano, periodo){
     document.querySelector(isAnual ? '#metodo-pix input' : '#metodo-cartao input').checked = true;
   }
 
-  ['modal-nome','modal-email','modal-senha'].forEach(id=>document.getElementById(id).value='');
+  ['modal-nome','modal-email','modal-senha','modal-whats'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-consent').checked = false;
+  _cadastroConcluido = false; _leadEnviado = false;
+  // Cupom do link do e-mail: só nos planos mensais pagos
+  const cupomEl = document.getElementById('modal-cupom');
+  const comCupom = CUPOM_LINK && !isGratuito && !isAnual;
+  cupomEl.style.display = comCupom ? 'block' : 'none';
+  if(comCupom) cupomEl.textContent = `🎁 Cupom ${CUPOM_LINK} aplicado: desconto no primeiro mês (aparece na fatura).`;
   document.getElementById('modal-msg').style.display='none';
   document.getElementById('modal-form').style.display='block';
   document.getElementById('modal-sucesso').style.display='none';
@@ -980,9 +987,35 @@ function abrirModalCadastro(plano, periodo){
 }
 
 function fecharModal(){
+  enviarLeadSeDesistiu();
   document.getElementById('modal-cadastro').classList.remove('open');
   document.body.classList.remove('modal-aberto');
 }
+
+// ─── Régua de relacionamento: WhatsApp, autorização, cupom e "desistiu no meio" ───
+// Cupom vindo do link do e-mail (finrossi.com.br/landing/?cupom=FINROSSI20). O servidor confere se vale.
+const CUPOM_LINK = (() => { const c = (new URLSearchParams(location.search).get('cupom') || '').trim().toUpperCase(); return /^[A-Z0-9]{3,20}$/.test(c) ? c : ''; })();
+let _cadastroConcluido = false, _leadEnviado = false;
+
+// (11) 98765-4321
+function mascaraWhats(el){
+  const d = el.value.replace(/\D/g,'').slice(0,11);
+  el.value = d.length <= 2 ? (d ? '('+d : '') : d.length <= 6 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d.length <= 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+}
+
+// Fechou o cadastro sem concluir: guarda nome e email só se a pessoa marcou a autorização de contato.
+// O servidor manda um único e-mail 1 hora depois ("quer terminar seu cadastro?") e apaga o contato em 30 dias.
+function enviarLeadSeDesistiu(){
+  if(_cadastroConcluido || _leadEnviado) return;
+  const consent = document.getElementById('modal-consent');
+  const email = (document.getElementById('modal-email').value || '').trim();
+  if(!consent || !consent.checked || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
+  _leadEnviado = true;
+  const corpo = JSON.stringify({ nome: document.getElementById('modal-nome').value.trim(), email, plano: document.getElementById('modal-plano-input').value, consentimento: true });
+  try{ fetch(BACKEND_URL + '/lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: corpo, keepalive: true }).catch(()=>{}); }catch(e){}
+}
+// Saiu da página com o cadastro aberto
+window.addEventListener('pagehide', () => { if(document.getElementById('modal-cadastro')?.classList.contains('open')) enviarLeadSeDesistiu(); });
 
 async function confirmarCadastro(){
   const nome   = document.getElementById('modal-nome').value.trim();
@@ -999,6 +1032,10 @@ async function confirmarCadastro(){
   if(!nome||!email||!senha){ showModalMsg('Preencha todos os campos.','err'); return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showModalMsg('Email inválido — verifique o formato.','err'); return; }
   if(senha.length < 6){ showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
+  const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
+  if(telefone && (telefone.length < 10 || telefone.length > 11)){ showModalMsg('WhatsApp inválido — use DDD + número.','err'); return; }
+  const consentimento = document.getElementById('modal-consent').checked;
+  const contato = { telefone, consentimento };
 
   btn.textContent='Criando conta...'; btn.disabled=true;
 
@@ -1007,19 +1044,21 @@ async function confirmarCadastro(){
 
     if(plano === 'gratuito'){
       endpoint = '/cadastrar';
-      body = {nome, email, senha};
+      body = {nome, email, senha, ...contato};
     } else if(periodo === 'anual'){
       endpoint = '/assinar-anual';
-      body = {nome, email, senha, plano};
+      body = {nome, email, senha, plano, ...contato};
     } else {
       endpoint = '/assinar';
-      body = {nome, email, senha, plano, metodoPagamento: metodo};
+      body = {nome, email, senha, plano, metodoPagamento: metodo, ...contato, ...(CUPOM_LINK ? { cupom: CUPOM_LINK } : {})};
     }
 
     const res  = await fetch(BACKEND_URL+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const data = await res.json();
+    let data = {};
+    try{ data = await res.json(); }catch(e){}
 
     if(!res.ok){ showModalMsg(data.erro||'Erro ao criar conta.','err'); btn.textContent='Criar conta'; btn.disabled=false; return; }
+    _cadastroConcluido = true;   // não conta como "desistiu no meio"
 
     // Anual com Pix — mostra QR Code
     if(periodo==='anual' && data.pix){
@@ -1041,6 +1080,12 @@ async function confirmarCadastro(){
     document.getElementById('modal-sucesso-plano').textContent =
       plano==='gratuito' ? 'Gratuito — 30 dias' :
       PLANO_NOME[plano]+(periodo==='anual'?' Anual':' Mensal');
+    // Plano mensal: mostra o link da fatura para pagar já
+    const pagar = document.getElementById('modal-sucesso-pagar');
+    const link = /^https:\/\//.test(data.linkPagamento || '') ? data.linkPagamento : '';
+    pagar.style.display = link ? 'block' : 'none';
+    document.getElementById('modal-sucesso-rotulo').textContent = plano==='gratuito' ? 'Plano ativado:' : 'Plano escolhido:';
+    if(link) document.getElementById('modal-link-pagar').href = link;
 
   }catch(e){
     showModalMsg('Erro de conexão. Tente novamente.','err');
@@ -1242,6 +1287,20 @@ if(window.matchMedia('(pointer:fine)').matches){
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
             onkeydown="if(event.key==='Enter')confirmarCadastro()">
         </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">WhatsApp <span style="text-transform:none;letter-spacing:0;color:#555">(opcional)</span></label>
+          <input id="modal-whats" type="tel" placeholder="(11) 98765-4321" autocomplete="tel-national" inputmode="tel" maxlength="16"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
+            onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+            oninput="mascaraWhats(this)">
+        </div>
+        <!-- Autorização de contato (LGPD): sem ela, só recebe avisos da conta e de pagamento -->
+        <label for="modal-consent" style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;cursor:pointer;font-size:12.5px;color:#999;line-height:1.5">
+          <input id="modal-consent" type="checkbox" style="accent-color:#C8A96E;margin-top:3px;flex-shrink:0;width:16px;height:16px">
+          <span>Quero receber dicas, lembretes e ofertas do FinRossi por e-mail e WhatsApp. Posso cancelar quando quiser.</span>
+        </label>
+        <!-- Cupom vindo do link do e-mail (ex.: ?cupom=FINROSSI20) -->
+        <div id="modal-cupom" style="display:none;margin-bottom:16px;padding:10px 12px;border-radius:9px;background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.3);font-size:13px;color:#E8C560"></div>
 
         <!-- Métodos de pagamento -->
         <div id="modal-metodos" style="margin-bottom:16px">
@@ -1291,8 +1350,14 @@ if(window.matchMedia('(pointer:fine)').matches){
       <div id="modal-sucesso" style="display:none;text-align:center;padding:10px 0">
         <div style="font-size:48px;margin-bottom:16px">🎉</div>
         <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:10px;color:#f0ede8">Conta criada!</div>
-        <div style="font-size:13px;color:#888;margin-bottom:6px">Plano ativado:</div>
+        <div style="font-size:13px;color:#888;margin-bottom:6px" id="modal-sucesso-rotulo">Plano ativado:</div>
         <div style="font-size:15px;font-weight:500;color:#C8A96E;margin-bottom:24px" id="modal-sucesso-plano">—</div>
+        <!-- Plano mensal: o pagamento é feito na fatura da Asaas (antes a pessoa não recebia o link aqui) -->
+        <div id="modal-sucesso-pagar" style="display:none;margin-bottom:12px">
+          <a id="modal-link-pagar" href="#" target="_blank" rel="noopener"
+            style="display:block;width:100%;background:#C8A96E;color:#0f0f0f;border-radius:9px;padding:13px;font-size:15px;font-weight:600;text-decoration:none;margin-bottom:8px">Pagar agora →</a>
+          <div style="font-size:12px;color:#777">Seu plano é liberado assim que o pagamento for confirmado. O link também vai por e-mail.</div>
+        </div>
         <button onclick="irParaApp()"
           style="width:100%;background:#C8A96E;color:#0f0f0f;border:none;border-radius:9px;padding:13px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer"
           onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Acessar o FinRossi →</button>

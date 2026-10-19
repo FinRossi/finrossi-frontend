@@ -174,6 +174,8 @@ async function renderClientes(){
       <div class="mc"><div class="mc-label">Equipe interna</div><div class="mc-val blue">${equipeInterna.length}</div><div class="mc-sub">fora das métricas</div></div>
     `;
 
+    renderWhatsHoje(clientesReais);
+
     if(!lista.length){
       tabela.innerHTML='<p class="empty">Nenhum cliente encontrado</p>';
       return;
@@ -207,6 +209,7 @@ async function renderClientes(){
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'Interno':c.origem==='teste'?'Teste':c.origem==='trial'?'Trial':'Pagante'}</td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">Equipe</span>':`<div style="display:flex;gap:4px;justify-content:center">
+            ${linkWhats(c, 'geral') ? `<a class="btn xs" href="${escHTML(linkWhats(c, 'geral'))}" target="_blank" rel="noopener" title="Chamar no WhatsApp${c.consentimentoContato ? '' : ' (sem autorização de contato: só para assuntos da conta)'}" style="text-decoration:none;color:#4fbf7f;border-color:#4fbf7f">WhatsApp</a>` : ''}
             <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar">${ICO_EDITAR}</button>
             ${c.status==='inativo'
               ?`<button class="btn xs" onclick="reativarCliente('${c.uid}')" style="color:var(--green);border-color:var(--green)">↺</button>`
@@ -218,6 +221,56 @@ async function renderClientes(){
   }catch(e){
     tabela.innerHTML=erroServidorHTML(e.message, 'renderClientes()');
   }
+}
+
+// ─── WHATSAPP (régua de relacionamento) ───────────────────────────────────────
+// Enquanto o FinRossi não tem número próprio, a régua (backend/regua.js) cria tarefas em
+// usuarios/<uid>/reguaWhats/<etapa>; aqui elas viram "WhatsApp para hoje", com a mensagem pronta.
+// O botão abre a conversa no WhatsApp de quem está usando o painel e marca a tarefa como feita.
+const MSG_WHATS = {
+  pendente_d1: n => `Oi, ${n}! Tudo bem? Aqui é do FinRossi 👋 Vimos que você começou a assinatura, mas o pagamento não foi concluído. Ficou alguma dúvida ou deu algum problema no cartão? Se quiser, mandamos o link para finalizar.`,
+  teste_d25:   n => `Oi, ${n}! Aqui é do FinRossi 👋 Seu teste grátis termina em poucos dias. Quer ajuda para escolher o plano que mais combina com você? Seus dados continuam guardados em qualquer plano.`,
+  recusado_d3: n => `Oi, ${n}! Aqui é do FinRossi 👋 A cobrança da sua assinatura não foi aprovada. Quer ajuda para atualizar a forma de pagamento? Nenhum dado seu é apagado.`,
+  sumido_30:   n => `Oi, ${n}, tudo bem? Aqui é do FinRossi 👋 Faz um tempinho que você não abre o app. Podemos ajudar em alguma coisa?`,
+  geral:       n => `Oi, ${n}! Aqui é do FinRossi 👋`,
+};
+const MOTIVO_WHATS = { pendente_d1: 'Pagamento pendente', teste_d25: 'Teste grátis acabando', recusado_d3: 'Pagamento recusado', sumido_30: 'Sumido há 30 dias' };
+const etapaBase = chave => String(chave).replace(/_pay_[A-Za-z0-9]+$/, '');
+function linkWhats(c, chave){
+  const tel = String(c.telefone || '').replace(/\D/g, '');
+  if(tel.length < 12) return '';
+  const nome = String(c.nome || '').trim().split(/\s+/)[0] || '';
+  const msg = (MSG_WHATS[etapaBase(chave)] || MSG_WHATS.geral)(nome);
+  return `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+}
+function renderWhatsHoje(clientes){
+  const tabela = document.getElementById('clientes-tabela');
+  if(!tabela) return;
+  let box = document.getElementById('clientes-whats');
+  if(!box){ box = document.createElement('div'); box.id = 'clientes-whats'; tabela.parentNode.insertBefore(box, tabela); }
+  const tarefas = [];
+  clientes.forEach(c => Object.entries(c.reguaWhats || {}).forEach(([chave, t]) => {
+    if(t && !t.feitoEm && linkWhats(c, chave)) tarefas.push({ c, chave, criadoEm: t.criadoEm || '' });
+  }));
+  tarefas.sort((a, b) => String(a.criadoEm).localeCompare(String(b.criadoEm)));
+  if(!tarefas.length){ box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:4px">WhatsApp para hoje <span class="fr-selo destaque">${tarefas.length}</span></h3>
+    <p class="fr-card-sub">Clientes que a régua indicou para um contato pessoal. A mensagem já vai escrita; ajuste se quiser antes de enviar.</p>
+    ${tarefas.map(({ c, chave }) => `<div class="ext-linha" style="grid-template-columns:1fr auto">
+      <div style="min-width:0"><div class="ext-tit">${escHTML(c.nome || c.email)}</div><div class="ext-meta">${escHTML(MOTIVO_WHATS[etapaBase(chave)] || 'Contato')}</div></div>
+      <a class="btn xs" href="${escHTML(linkWhats(c, chave))}" target="_blank" rel="noopener" style="text-decoration:none;color:#4fbf7f;border-color:#4fbf7f"
+        onclick="marcarWhatsFeito('${escHTML(c.uid)}','${escHTML(chave)}')">Abrir WhatsApp</a>
+    </div>`).join('')}
+  </div>`;
+}
+async function marcarWhatsFeito(uid, chave){
+  if(!/^[A-Za-z0-9_]+$/.test(uid) || !/^[A-Za-z0-9_]+$/.test(chave)) return;
+  try{
+    if(window._db && window._ref && window._set)
+      await window._set(window._ref(window._db, `usuarios/${uid}/reguaWhats/${chave}/feitoEm`), new Date().toISOString());
+  }catch(e){ console.warn('[WhatsApp] não marcou como feito:', e && e.message); }
+  setTimeout(() => { try{ renderClientes(); }catch(e){} }, 1500);
 }
 
 // ─── EDITAR CLIENTE ───────────────────────────────────────────────────────────
