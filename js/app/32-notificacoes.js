@@ -104,7 +104,7 @@ function mostrarNotificacaoTeste(){
   new Notification('FinRossi', {
     body: 'Notificações ativadas! Você será avisado sobre vencimentos.',
     icon: '/img/icon-192.png?v=5',
-    badge: '/img/favicon-32.png?v=5'
+    badge: '/img/favicon-32.png?v=6'
   });
 }
 
@@ -123,7 +123,7 @@ function agendarNotificacoes(){
       new Notification('FinRossi: vencimento próximo', {
         body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''),
         icon: '/img/icon-192.png?v=5',
-        badge: '/img/favicon-32.png?v=5',
+        badge: '/img/favicon-32.png?v=6',
         tag: `venc-${a.nome}-${a.dia}`,
         renotify: false
       });
