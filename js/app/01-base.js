@@ -5,7 +5,7 @@ const PALETTE=['#E8C560','#C8A96E','#D4B896','#B8935A','#9A8560','#6A5838','#6B7
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let cp='pessoal', charts={}, fbOk=false;
 let _cartaoPage=0;
-let _db,_ref,_set,_get,_onValue,_remove,_push;
+let _db,_ref,_set,_onValue;
 
 // Dados em memória (sincronizados do Firebase ou localStorage)
 let DATA={pessoal:{lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]},finrossi:{lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]}};

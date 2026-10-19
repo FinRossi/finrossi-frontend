@@ -1,9 +1,18 @@
 // planos/evolucao/14-notas.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
+// Cores dos cartões de nota (tinham sido apagadas junto com funções duplicadas — a tela de Notas quebrava)
+const NOTA_CORES={
+  default:{bg:'var(--surface)',border:'var(--border)',dot:'var(--muted)'},
+  green:{bg:'rgba(74,222,128,0.06)',border:'rgba(74,222,128,0.25)',dot:'var(--green)'},
+  blue:{bg:'rgba(96,165,250,0.06)',border:'rgba(96,165,250,0.25)',dot:'var(--blue)'},
+  amber:{bg:'rgba(251,191,36,0.06)',border:'rgba(251,191,36,0.25)',dot:'var(--amber)'},
+  red:{bg:'rgba(248,113,113,0.06)',border:'rgba(248,113,113,0.25)',dot:'var(--red)'},
+  purple:{bg:'rgba(192,132,252,0.06)',border:'rgba(192,132,252,0.25)',dot:'var(--purple)'},
+};
 function getNotas(){return pd().notas||[];}
 async function saveNotas(){
   if(!pd().notas)pd().notas=[];
-  lsSave(cp,'notas'); fbSave(cp,'notas');
-  if(fbOk)try{await _set(_ref(_db,`financeiro/${cp}/notas`),pd().notas)}catch(e){}
+  lsSave(cp,'notas');
+  await fbSave(cp,'notas');   // fbSave já grava no caminho certo (cliente ou perfil); antes gravava duas vezes
 }
 
 function addNota(){
@@ -34,13 +43,6 @@ function abrirEditNota(id){
   document.getElementById('modal-nota').classList.add('open');
 }
 
-async function salvarEditNota(){
-  const id=document.getElementById('nota-edit-id').value;
-  const notas=getNotas();const i=notas.findIndex(n=>n.id===id);
-  if(i>=0)notas[i]={...notas[i],titulo:document.getElementById('nota-edit-titulo').value.trim()||'Sem título',texto:document.getElementById('nota-edit-texto').value.trim(),cat:document.getElementById('nota-edit-cat').value,cor:document.getElementById('nota-edit-cor').value,editada:hoje()};
-  await saveNotas();closeModal('modal-nota');renderNotas();
-}
-
 async function remNota(id){
   if(!confirm('Excluir esta nota?'))return;
   pd().notas=getNotas().filter(n=>n.id!==id);renderNotas();saveNotas();
@@ -59,7 +61,7 @@ function renderNotas(){
     ?'<p class="empty" style="grid-column:1/-1">Nenhuma nota encontrada. Ajuste a busca ou a categoria.</p>'
     :'<div class="card fr-vazio" style="grid-column:1/-1"><b>Nenhuma nota ainda</b><p>Escreva no formulário acima para guardar ideias, combinados e lembretes.</p></div>';return}
   grid.innerHTML=notas.map(n=>{
-    const c=NOTA_CORES[n.cor||'default'];
+    const c=NOTA_CORES[n.cor]||NOTA_CORES.default;   // cor desconhecida não quebra a tela
     const preview=n.texto.length>120?n.texto.slice(0,120)+'...':n.texto;
     return`<div style="background:${c.bg};border:1px solid ${c.border};border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">

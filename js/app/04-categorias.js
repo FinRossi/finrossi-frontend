@@ -126,9 +126,6 @@ function adicionarCategoria(){
   renderCatsLista();
 }
 
-function removerCategoria(cat){ /* legado */ }
-function removerCatByIdx(idx){ removerCat(parseInt(idx)); }
-
 function salvarCategorias(){
   const perfil = pd();
   if(!perfil.categorias) perfil.categorias = {despesa:[],receita:[]};

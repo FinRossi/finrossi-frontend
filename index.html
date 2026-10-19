@@ -15,9 +15,9 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js">
 <!-- Ícone oficial (logo do carregamento e do login): baixa logo no começo para não aparecer atrasado -->
-<link rel="preload" as="image" href="img/icon-192.png?v=3">
+<link rel="preload" as="image" href="img/icon-192.png?v=4">
 <!-- PWA -->
-<link rel="manifest" href="manifest.json?v=3">
+<link rel="manifest" href="manifest.json?v=4">
 <!-- Aplica tema ANTES do render para evitar flash de cor errada -->
 <script>
 (function(){
@@ -35,10 +35,10 @@
   }catch(e){}
 })();
 </script>
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
-<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png?v=3">
-<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png?v=3">
-<link rel="apple-touch-icon" sizes="180x180" href="img/icon-192.png?v=3">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=4">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png?v=4">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png?v=4">
 <meta name="theme-color" content="#0f0f0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +48,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 
 <!-- Funcionalidades exclusivas por plano — mantidas fora do arquivo principal -->
-<script src="planos/patrimonio/patrimonio.js?v=10" defer></script>
+<script src="planos/patrimonio/patrimonio.js?v=11" defer></script>
 <script src="planos/patrimonio/lancamento-foto.js?v=7" defer></script>
 <script src="planos/patrimonio/anexos.js?v=2" defer></script>
 <script src="planos/patrimonio/relatorios.js?v=6" defer></script>
@@ -69,7 +69,7 @@
 
 <!-- LOADING -->
 <div id="loading" style="position:fixed;inset:0;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999">
-  <img src="img/icon-192.png?v=3" id="loading-logo" width="52" height="52" alt="FinRossi" style="opacity:0">
+  <img src="img/icon-192.png?v=4" id="loading-logo" width="52" height="52" alt="FinRossi" style="opacity:0">
   <div id="loading-texto" style="font-family:'DM Serif Display',serif;font-size:18px;color:#e8c96d;margin-top:10px;letter-spacing:1px;opacity:0;transform:translateY(6px)">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></div>
   <div id="loading-spinner" style="width:32px;height:32px;border:3px solid #222;border-top-color:#4ade80;border-radius:50%;animation:spin .8s linear infinite;opacity:0"></div>
 </div>
@@ -103,7 +103,7 @@ try{
   <!-- Conteúdo central -->
   <div style="position:relative;text-align:center;z-index:2">
     <!-- Logo pulsando -->
-    <div id="bv-logo" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:40px;opacity:0;transform:translateY(-10px);transition:all .6s ease"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAEsUlEQVR4nO2Xa4gWVRjHn8uZmXfXddd2zbRQrAipULDES2pRVNSGRfRFxIowIQ2Eii5SiESQIIna5UsRFlrq9qEksOhLRkmWkmIrhZUWu6vr7rr7vvPeZs6c5+nDbGVutPOaC314/zDDXM6Z85vnPJdzAOqqq6666vp/C2trjXh+h3/6gCqo6gUzZaappTEhMtNYjwKT2xobc6wKiAiptdLTOYcqDIXVgaHKH8+wJmtlAiJCEZ0/c9K2dbcokPHYM4Y9w8zMTEREjMxEBEgAEJbtsZ8H3vnwyHsfHwUArIUpk1VTx5k+uamlyVcAQkRCwmEzIRExEzHSMFxbS+MdC67asemBPW8sbW1pUNWRvvefgFI5USL0DHmGDBMRMhEzGiZmMoYMExMCQCVK8mFloL+w5PZrOjbdnwsMImREqgkIylUpVZJS1RUrtliOi2VbLNmwbItlG5ZsWLaFslXQ1gk5RGWE3p7B2xZMW7PsBhElyjYb2YFyATeP80X+sv/wxTm3CNAyPnjovllPPDinUomcc4ahuzecv/z9UsUiwqi+VFuUZde6VQtfWDmv72xRRQKf2h//6NvOXiZ0MgrRhaSKfxEipJ701geHzwyEhGptwqhXTBoHkOn3TZZhCFFUr7+69e6bplVjYcY0uBApPYtCEJihQvTm7kMiCghONLZJzmcRJ44QsoZ9NiACcTDnukkbn745DG0QeERMTGQ8YA8AgQkCb9mqnU4k8LkaufZF0y+dkOsfrABAbN3p/jIAZKHKBASAABpbCQvxYDHxI2AWBQJyADERTWjJLV/TsWtvp+9xNXKLZl++/rF5+bCq4hil+0z52IlBAJAM6TEjEAAAEQaBF1j0PQ+JmpoajO+BAvj85It7d+3tDHyOYrf0rhlbnlnsnFSrNortxJbg7S9O5otxFo+uDQgRiZkYkNjP+fsOdh3/9WxDg3fo+55Xt39DhFHs1q6Y+/zKuUOFclSNrU2aG83x3/Kv7+5ExAwwNQMRG48Y2fOsg4fXftTdW0hfEWHON1ufu3X5PTN6+4viEhHX1uyfPBWufGnfQL6aVsOLD4TsISoiJTbxDDET03Dh7HhlyZ0LpnadyoOKSxwhbP/kp43vHunpK2WngdryECGwAURQARVVdU4SJyKaOPl0/4lKJRJx4lzinM/41eFTPX0lz1B2mtqAEABAERRA1LnhpwppMdm647tte461jvei2KpoWI5fXn3jnGsn2kTSinvxgQAAVEScc07E/ZlVFEBVifDZzfu/Pnq6qcHYJInjxNpkw+rZrc2+qNJYLD8UFETSSRH5W05JrytRsnrDl0NhxAjiXFiyU1pz61fMBADErFWzFiBRl9jEJkmSWGvPy7siyownugtPbT7ge2gTp+L6BiuLZk58pP3KdC11kYGYgA0GBgKPGgIe6arOqWH87EDXlp2dreMNqPgG8mH0aPv0xbPanGSauExhn448WIg6fzzTP1ge1+B9frDrdH955GLZOSXC1zp+uOySYMbUpmIptokQ6L0Lpxz9pZAvjr4kqsH/8ZxdWZZIJkJVQABRNYwAkLgx26yNavzMUTWi44W1HvttaV111VVXXXVl1O/jV1bVHUNCQAAAAABJRU5ErkJggg==" width="48" height="48" alt="FinRossi" style="border-radius:10px"><span style="font-family:'DM Serif Display',serif;font-size:20px;color:rgba(200,169,110,.7)">Fin<span style="font-weight:300;color:rgba(240,237,232,.5)">Rossi</span></span></div>
+    <div id="bv-logo" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:40px;opacity:0;transform:translateY(-10px);transition:all .6s ease"><img src="img/icon-192.png?v=4" width="48" height="48" alt="FinRossi"><span style="font-family:'DM Serif Display',serif;font-size:20px;color:rgba(200,169,110,.7)">Fin<span style="font-weight:300;color:rgba(240,237,232,.5)">Rossi</span></span></div>
 
     <!-- Saudação -->
     <div id="bv-saudacao" style="font-size:13px;color:#555;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;opacity:0;transition:all .5s ease"></div>
@@ -158,7 +158,7 @@ try{
   <div style="width:100%;max-width:380px">
     <!-- Logo -->
     <div style="text-align:center;margin-bottom:40px">
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px"><img id="login-logo-img" src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi"><span style="font-family:'DM Serif Display',serif;font-size:34px;color:#e8c96d;letter-spacing:-1px">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px"><img id="login-logo-img" src="img/icon-192.png?v=4" width="56" height="56" alt="FinRossi"><span style="font-family:'DM Serif Display',serif;font-size:34px;color:#e8c96d;letter-spacing:-1px">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></span></div>
       <div style="font-size:13px;color:#666;margin-top:6px">Controle financeiro pessoal simples e inteligente</div>
     </div>
 
@@ -208,7 +208,7 @@ try{
     <!-- Card instalar app na tela de login -->
     <div id="login-pwa-card" style="margin-top:16px;background:#111;border:1px solid rgba(200,169,110,.2);border-radius:14px;padding:14px 16px;display:none">
       <div style="display:flex;align-items:center;gap:12px">
-        <img src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi" style="display:block;flex-shrink:0">
+        <img src="img/icon-192.png?v=4" width="56" height="56" alt="FinRossi" style="display:block;flex-shrink:0">
         <div style="flex:1">
           <div style="font-family:var(--ced-serif,'Bodoni Moda',serif);font-size:18px;font-weight:500;color:#f0ede8">Instalar o FinRossi</div>
           <div style="font-size:11px;color:#666;margin-top:2px">Acesso rápido na tela inicial</div>
@@ -267,7 +267,7 @@ try{
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
   <div style="width:46px;height:46px;border-radius:11px;padding:1px;background:linear-gradient(135deg,#e8c96d,#8a6a1a);flex-shrink:0">
-  <img id="sb-logo-symbol" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAsCAIAAACR5s1WAAAEOElEQVR4nO2XW4hVZRTH1+Xb5zK3nDErI+dhJMkuJlZQBkVl0ouQkRgIGT0ZjhYEEYaihA+V4IupdJFuFARFUg9CEhF2Uol0Rh+cNBTxMg565szxuC9nf2utHo6liczZMj5UnN/D97BZ39r/vdZ/fXtvgBYtWrT4D4DZ45CaB5uBmU1M0vWACCmD3MvJGp0LaEbvDYQIeAkAaKyAAIBe9NRI7exoCABMKJq1JK5pBDOK2LJnZr7x4pxaJPl8EAQBO2bniIjZETMSAZIZjFaT0v4TG7aV9gyezK6DMoq9qbtYTyWqS5T4MPFhnIZxGiUS1iVMJIwljH1S10ldhWefuvOnz5YuW3yfqHG2vjSvRINCnqf0FHN5X8jnyLFjx86xc+QccABIAKapVi/Uo3LNMWxZM//kmbFvfzySpR7NRTTMXjowEgSHokScY6S/YCZiRAJCBJzeO+nR+3vj2CdJegFl7UsPff/LsaTuEWH8ibk2GzflhadnbVr1RBglaeo72tyC/u0//dbcHFk90RTHxIwffTP49c6h9gInSYqmM/u64e8JGmdv0+yNYk67uWNKd1HUEBtZsbGomXOcpjpwaDhwDKwHD48smtcn3ovn9gJneoCmEUzoxV5Zcu/yxbMqNZ/LOSJm59gFiAyIhc7i869+NTg0jAji7eHZU6M4BQBVPVeJAQBgwsZsoAqiKIpipEo+BRBFsJ7J7f1rvvt0+4BzVE/l5SWzH5lza2UsQtBaWN83dBagiSszikAAIyYXOA6AmIv5fLGjAIZQCN7c+MO7n+8lQu91/Yq5K56bVR6L0tR3FLk0MHzwjzIh6sRHtAEhsnNEUCgUjp6s7vh5IHB89MToxo93A0BHMdi6et7Cx/tOj1R96gOGJJX12/apGhM2PTazikB27HKG1tbV9snW0lvv77oojvD23u4P1j45544bT49UVaSQw6TuV75T2jd0lrKd3JkrQQzsEFNQIwTH5ByJGIB9uG7+A3dNOX6qgmYBw+Dhcv/bu46dOk/UvBEXk2cUgYRADAhgYqpe1HsV1dTr2i2lSjVyaCK+nsrkrsAak5yZ7IcVgqmpgoqZNi41Wr5z9/F1W/d0tbs0lThOb+kpbH7twba8A4OMUjKLMAMVVW8il387qZpj3PzlgS92HO7uDFLvz1XCGbd1rlp6t5pRNhVZRZipiRcv3nsRuXQdQNQI8fVNew8cKRdzJKIj5XDB3KmLHpuW8W2evRKKJqDCaIH7R14zAIRamK7cUKpdSBjNTMtj8fKF0+/p62pIvD4i4sSPnY+juH5iuPrrwTMAcEVTmPH349XV7+2PE1+tJZXzSbVW7184vbszMGji06wmntSZby8GZhAlfrQaXz0Xopn1dOWZwAxELeewGvookavGT4hxHuuaJvPSruw3RsBGA8b/s7hCx7/hL6RFixYt/j/8CeOxKel9yUC5AAAAAElFTkSuQmCC" width="44" height="44" alt="FR" style="flex-shrink:0;border-radius:10px;display:block">
+  <img id="sb-logo-symbol" src="img/icon-192.png?v=4" width="44" height="44" alt="FinRossi" style="flex-shrink:0;display:block">
   </div>
   <div class="sb-logo-marca">
   <span id="sb-logo-text" style="font-family:'DM Serif Display',serif;font-size:25px;letter-spacing:-.3px;white-space:nowrap;display:inline-flex;align-items:baseline;gap:0"><span style="color:var(--text);font-weight:400;display:inline">Fin</span><span style="color:var(--accent);font-weight:700;display:inline">Rossi</span></span>
@@ -1194,7 +1194,7 @@ try{
 <!-- PWA INSTALL BANNER (Android/Chrome) -->
 <div id="pwa-banner" class="pwa-janela" style="display:none">
   <div class="pwa-cab">
-    <div class="pwa-ico"><img src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi"></div>
+    <div class="pwa-ico"><img src="img/icon-192.png?v=4" width="56" height="56" alt="FinRossi"></div>
     <div class="pwa-txt"><b>Instalar o FinRossi</b><span>Abra direto da tela inicial, como um aplicativo</span></div>
     <button class="pwa-fechar" type="button" onclick="fecharPWABanner()" aria-label="Fechar">✕</button>
   </div>
@@ -1207,7 +1207,7 @@ try{
 <!-- iOS INSTALL HINT (Safari) -->
 <div id="ios-banner" class="pwa-janela" style="display:none">
   <div class="pwa-cab">
-    <div class="pwa-ico"><img src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi"></div>
+    <div class="pwa-ico"><img src="img/icon-192.png?v=4" width="56" height="56" alt="FinRossi"></div>
     <div class="pwa-txt"><b>Instalar o FinRossi</b><span>No iPhone, são dois toques no Safari</span></div>
     <button class="pwa-fechar" type="button" onclick="fecharIOSBanner()" aria-label="Fechar">✕</button>
   </div>
@@ -1234,7 +1234,7 @@ try{
 <!-- BOTÃO FLUTUANTE INSTALAR (aparece após fechar o banner) -->
 <div id="pwa-fab" style="display:none;position:fixed;bottom:90px;right:20px;z-index:9997;flex-direction:column;align-items:flex-end;gap:6px" onclick="abrirPWAManual()">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--muted);white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.3)">Instalar app</div>
-  <img src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi" style="display:block;cursor:pointer;filter:drop-shadow(0 4px 14px rgba(200,169,110,.45))">
+  <img src="img/icon-192.png?v=4" width="56" height="56" alt="FinRossi" style="display:block;cursor:pointer;filter:drop-shadow(0 4px 14px rgba(200,169,110,.45))">
 </div>
 
 <!-- ── MODAL CONFIGURAÇÕES ─────────────────────────────────────────────────── -->
@@ -2057,11 +2057,11 @@ try{
 
 <!-- Scripts do app — carregados em ordem numérica; 33-pwa-init.js roda a inicialização e deve ser o último -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous"></script>
-<script src="js/app/01-base.js?v=3"></script>
+<script src="js/app/01-base.js?v=4"></script>
 <script src="js/app/02-firebase-sync.js?v=3"></script>
-<script src="acessos/03-perfil-roles.js?v=8"></script>
-<script src="js/app/04-categorias.js?v=3"></script>
-<script src="js/app/05-dashboard.js?v=16"></script>
+<script src="acessos/03-perfil-roles.js?v=9"></script>
+<script src="js/app/04-categorias.js?v=4"></script>
+<script src="js/app/05-dashboard.js?v=17"></script>
 <script src="js/app/05b-cedula.js?v=6"></script>
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
 <script src="js/app/06-lancamentos.js?v=3"></script>
@@ -2070,28 +2070,26 @@ try{
 <script src="planos/evolucao/09-metas-objetivos.js?v=6"></script>
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
 <script src="js/app/11-modal-export.js?v=2"></script>
-<script src="planos/evolucao/12-recorrentes.js?v=1"></script>
-<script src="planos/evolucao/13-calendario-navegacao.js?v=1"></script>
-<script src="planos/evolucao/14-notas.js?v=4"></script>
+<script src="planos/evolucao/14-notas.js?v=6"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=8"></script>
+<script src="acessos/17-clientes.js?v=9"></script>
 <script src="acessos/17b-socios.js?v=3"></script>
 <script src="planos/18-regras-planos.js?v=6"></script>
-<script src="acessos/19-preview-planos.js?v=6"></script>
+<script src="acessos/19-preview-planos.js?v=7"></script>
 <script src="planos/evolucao/20-cartoes.js?v=5"></script>
 <script src="js/app/21-manual-render.js?v=2"></script>
 <script src="js/app/22-mobile-nav.js?v=2"></script>
 <script src="js/app/23-tema.js?v=2"></script>
-<script src="js/app/24-configuracoes.js?v=6"></script>
+<script src="js/app/24-configuracoes.js?v=7"></script>
 <script src="js/app/25-minha-assinatura.js?v=6"></script>
 <script src="js/app/26-cursor-fx.js?v=2"></script>
 <script src="acessos/27-ver-como.js?v=6"></script>
 <script src="js/app/28-nav-personalizacao.js?v=6"></script>
-<script src="js/app/29-login.js?v=3"></script>
+<script src="js/app/29-login.js?v=4"></script>
 <script src="js/app/30-date-picker.js?v=1"></script>
 <script src="js/app/31-reset-senha.js?v=6"></script>
-<script src="js/app/32-notificacoes.js?v=3"></script>
+<script src="js/app/32-notificacoes.js?v=4"></script>
 <script src="js/app/34-barra-atalhos.js?v=5"></script>
 <script src="js/app/35-planos-bloqueio.js?v=4"></script>
 <script src="js/app/36-preferencias.js?v=5"></script>

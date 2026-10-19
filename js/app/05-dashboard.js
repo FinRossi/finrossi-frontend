@@ -18,14 +18,6 @@ function renderComparativo(lancs,mes){
 
   if(!doAnt.length){document.getElementById('dash-comparativo').innerHTML='';return}
 
-  function seta(atual,ant){
-    const diff=atual-ant;
-    const pct=ant>0?((diff/ant)*100).toFixed(1):0;
-    const up=diff>=0;
-    const cor=up?'var(--green)':'var(--red)';
-    return`<span style="font-size:11px;color:${cor};margin-left:6px">${up?'▲':'▼'} ${Math.abs(pct)}%</span>`;
-  }
-
   const linha = (rotulo, ant, atual, invertido) => {
     const diff = atual - ant;
     const pct = ant > 0 ? ((diff / ant) * 100).toFixed(1) : 0;
@@ -256,6 +248,9 @@ function refreshDash(){
   }
   const catTotEl=document.getElementById('dash-cat-total');
   if(catTotEl) catTotEl.textContent=fmtR(des);
+
+  // Comparativo com o mês anterior (a chamada tinha sido apagada por engano junto com a troca de logos)
+  renderComparativo(lancs,mes);
 
   // Parcelas
   const parcelas=lancs.filter(l=>l.parcelado&&l.tipo==='despesa');

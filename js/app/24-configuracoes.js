@@ -255,10 +255,6 @@ function salvarDashConfig(){
   if(msg){msg.textContent='✓ Preferências salvas!';msg.style.color='var(--green)';setTimeout(()=>msg.textContent='',2000);}
 }
 
-function isDashCardVisible(id){
-  return getDashConfig()[id] !== false;
-}
-
 
 // Fechar Configurações tocando fora da janela ou com Esc (antes só pelo ✕ do topo)
 (function(){

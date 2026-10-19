@@ -127,5 +127,4 @@ function renderPreview(){
   }
 }
 
-function goToPreview(){ goTo('preview'); }
 

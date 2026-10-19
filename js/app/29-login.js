@@ -108,7 +108,6 @@ async function fazerLogout(){
   window._userPlano = null;
   window._firebaseUser = null;
   finrossiAutenticado = false;
-  rossiAutenticado = false;
   _adminToken = null;
 
   // Limpa dados em memória

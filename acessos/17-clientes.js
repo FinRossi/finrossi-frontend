@@ -5,7 +5,6 @@
 const BACKEND_URL = /(^|\.)finrossi\.com\.br$|\.github\.io$/.test(location.hostname)
   ? 'https://finrossi-backend-production.up.railway.app'
   : 'http://' + (location.hostname || 'localhost') + ':3000';
-const ADMIN_TOKEN = ''; // Deixe em branco — será pedido se necessário
 
 var _adminToken = localStorage.getItem('fin_admin_token')||'';
 

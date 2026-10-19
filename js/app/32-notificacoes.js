@@ -67,18 +67,6 @@ function renderAlertasVencimento(){
   </div>`;
 }
 
-// ── FASE 2: Email automático (via backend Railway) ────────
-async function enviarAlertasEmail(){
-  const token = await getAdminToken();
-  if(!token) return;
-  try{
-    await fetch(BACKEND_URL+'/admin/email/alertas-vencimento',{
-      method:'POST', headers:{'x-admin-token':token,'Content-Type':'application/json'}
-    });
-    console.log('[Notif] Alertas de email disparados');
-  }catch(e){ console.warn('[Notif] Erro email:', e.message); }
-}
-
 // ── FASE 3: Push Notifications ────────────────────────────
 async function solicitarPermissaoNotificacoes(){
   if(!('Notification' in window)){
@@ -115,8 +103,8 @@ async function solicitarPermissaoNotificacoes(){
 function mostrarNotificacaoTeste(){
   new Notification('FinRossi', {
     body: 'Notificações ativadas! Você será avisado sobre vencimentos.',
-    icon: '/img/icon-192.png?v=3',
-    badge: '/img/favicon-32.png?v=3'
+    icon: '/img/icon-192.png?v=4',
+    badge: '/img/favicon-32.png?v=4'
   });
 }
 
@@ -134,8 +122,8 @@ function agendarNotificacoes(){
     if(a.diasFaltam <= 1){
       new Notification('FinRossi: vencimento próximo', {
         body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''),
-        icon: '/img/icon-192.png?v=3',
-        badge: '/img/favicon-32.png?v=3',
+        icon: '/img/icon-192.png?v=4',
+        badge: '/img/favicon-32.png?v=4',
         tag: `venc-${a.nome}-${a.dia}`,
         renotify: false
       });

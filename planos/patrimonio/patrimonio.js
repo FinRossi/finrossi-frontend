@@ -724,25 +724,11 @@ function hslParaHex(h,s,l){
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function ajustarLuminosidade(hex, deltaPontos){
-  const [h,s,l] = hexParaHSL(hex);
-  const novoL = Math.max(4, Math.min(96, l+deltaPontos));
-  return hslParaHex(h, s, novoL);
-}
-
 function hexParaRgba(hex, alpha){
   const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-function gerarTonalidades(hexBase){
-  return {
-    accent: hexBase,
-    accentHover: ajustarLuminosidade(hexBase, 9),
-    accentLight: ajustarLuminosidade(hexBase, 22),
-    accentDark: ajustarLuminosidade(hexBase, -20),
-  };
-}
 
 
 // Cor personalizada (Patrimônio) = o FUNDO do app inteiro, como os temas Azul/Preto.

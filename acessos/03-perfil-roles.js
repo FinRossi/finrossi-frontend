@@ -1,45 +1,19 @@
 // acessos/03-perfil-roles.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── PROFILE & NAV ───────────────────────────────────────────────────────────
-// Senha do perfil admin (Rossi & Moraes)
-const ADMIN_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // "password" — TROQUE ABAIXO
 // ─── ROLES ────────────────────────────────────────────────────────────────────
-const ADMIN_EMAIL = 'lucasrossi2100@gmail.com';
-
-// Role do usuário logado (atualizado após login via Firebase)
+// Role do usuário logado (atualizado após login via Firebase — js/firebase-init.js)
 let _userRole = null; // 'master' | 'socio' | 'admin' | 'dev' | 'cliente' | null
 let _userPlano = null; // plano real do cliente logado: 'gratuito' | 'essencial' | 'evolucao' | 'patrimonio' | null
-
-// Busca role do Firebase para o usuário logado
-async function fetchUserRole(uid){
-  if(!uid) return null;
-  try{
-    const f=window._firebase;
-    if(!f||!f.firebaseOk) return 'master'; // modo local = acesso total
-    const snap = await new Promise(res=>f.onValue(f.ref(f.db,`usuarios/${uid}/role`),res,{onlyOnce:true}));
-    return snap.val()||'cliente';
-  }catch(e){return 'cliente';}
-}
 
 // Helpers de role
 // Master (o dono) está acima do Sócio: tem tudo que o Sócio tem + controla os acessos da equipe
 function isMaster(){ return _userRole==='master'; }
-function isSocio(){ return _userRole==='socio' || isMaster() || !window._firebaseUser; }
 function isEquipe(){ return ['master','socio','admin','dev'].includes(_userRole); }
 function isAdmin(){ // mantém compatibilidade — true para sócio e master (acesso total)
   const f=window._firebase;
   if(!f||!f.firebaseOk) return true;
   return _userRole==='socio' || isMaster();
 }
-
-// Permissões por área
-const ROLE_PERMS = {
-  master:  {pessoal:true,  finrossi:true,  clientes:true,  financeiro:true, acessos:true},
-  socio:   {pessoal:true,  finrossi:true,  clientes:true,  financeiro:true},
-  admin:   {pessoal:false, finrossi:false, clientes:true,  financeiro:false},
-  dev:     {pessoal:false, finrossi:false, clientes:true,  financeiro:false},
-  cliente: {pessoal:true,  finrossi:false, clientes:false, financeiro:false},
-};
-function canAccess(area){ return (ROLE_PERMS[_userRole]||ROLE_PERMS.cliente)[area]||false; }
 
 function setupPerfilUI(){
   const role = _userRole||'cliente';
@@ -80,9 +54,9 @@ function setupPerfilUI(){
   if(mobPerfis) mobPerfis.style.display = (socio||admin||dev) ? '' : 'none';
   if(mobAssin)  mobAssin.style.display  = role==='cliente' ? '' : 'none';
 
-  // Preview só para sócio
+  // Preview dos planos: só para sócio/master e só no perfil FinRossi (no Pessoal não aparece)
   const navPreview=document.getElementById('nav-preview');
-  if(navPreview) navPreview.style.display=socio?'':'none';
+  if(navPreview) navPreview.style.display=(socio && cp==='finrossi')?'':'none';
   const verComoWrap=document.getElementById('cfg-vercomo-wrap');
   if(verComoWrap) verComoWrap.style.display=socio?'block':'none';
   if(role==='cliente'&&window._firebaseUser){
@@ -110,10 +84,6 @@ function setupPerfilUI(){
     setTimeout(()=>{ cp='finrossi'; goTo('clientes'); },200);
   }
 }
-
-let rossiAutenticado = false;
-
-function goToClientes(){ goTo('clientes'); }
 
 let finrossiAutenticado = false;
 
@@ -174,6 +144,8 @@ function _setProfileFinRossi(){
   if(navCli) navCli.style.display='flex';
   const navSoc=document.getElementById('nav-socios-item');
   if(navSoc) navSoc.style.display=isMaster()?'flex':'none';
+  const navPreview=document.getElementById('nav-preview');
+  if(navPreview) navPreview.style.display=(_userRole==='socio'||isMaster())?'':'none';
   const navRenda=document.getElementById('nav-renda');
   if(navRenda) navRenda.style.display='none';
   goTo('dashboard');
@@ -198,25 +170,14 @@ function setProfile(p){
   if(navCli) navCli.style.display='none';
   const navSoc=document.getElementById('nav-socios-item');
   if(navSoc) navSoc.style.display='none';
+  const navPreview=document.getElementById('nav-preview');
+  if(navPreview) navPreview.style.display='none';   // Preview dos planos fica só no FinRossi
   const navRenda=document.getElementById('nav-renda');
   if(navRenda) navRenda.style.display=p==='pessoal'?'flex':'none';
   const navEmp=document.getElementById('nav-empresas');
   if(navEmp) navEmp.style.display='none';
   goTo('dashboard');
   aplicarNavConfig();
-  refreshAll();
-}
-
-function _setProfileInterno(p){
-  cp=p;
-  document.querySelectorAll('.profile-btn').forEach(b=>{
-    const id=b.id.replace('pb-','');
-    b.classList.toggle('active', id===p);
-  });
-  // Renda Passiva só no pessoal
-  document.getElementById('nav-renda').style.display=p==='pessoal'?'flex':'none';
-  // Empresas só no rossi
-  rossiAutenticado=false;
   refreshAll();
 }
 
