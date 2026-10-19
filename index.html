@@ -14,6 +14,8 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js">
+<!-- Ícone oficial (logo do carregamento e do login): baixa logo no começo para não aparecer atrasado -->
+<link rel="preload" as="image" href="img/icon-192.png?v=3">
 <!-- PWA -->
 <link rel="manifest" href="manifest.json?v=3">
 <!-- Aplica tema ANTES do render para evitar flash de cor errada -->
@@ -52,9 +54,9 @@
 <script src="planos/patrimonio/relatorios.js?v=6" defer></script>
 
 <!-- Firebase SDK -->
-<script type="module" src="js/firebase-init.js?v=9"></script>
+<script type="module" src="js/firebase-init.js?v=10"></script>
 <!-- Estilos do app (ordem importa) -->
-<link rel="stylesheet" href="css/01-variaveis-temas.css?v=2">
+<link rel="stylesheet" href="css/01-variaveis-temas.css?v=3">
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
 <link rel="stylesheet" href="css/03-responsivo.css?v=1">
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
@@ -67,7 +69,7 @@
 
 <!-- LOADING -->
 <div id="loading" style="position:fixed;inset:0;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999">
-  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAIAAABKGoy8AAAFOUlEQVR4nO2XbYhUZRTHz8tzZ2ZnZ8bdWnXD0NTAQJMSClEwaUs/WZb1IZAIytKUyKKIssJWoUAwysovBYZ9yF400sTKMrWkwnWhyEqrNfF91d2Z2Zm593mec/owropSzt30QzQ/LvPCnXvP/znn/5w5F6BOnTp16tT5z4GxL8Dar1LVuLf/F8RdCiIaJsTYKRhYOEgG3JRNiCoCQn8W+6OfuRsilCuutxhWvzKhl9hprFUcIoBCcy759uKpI67IiqIJjDGGmYmJiZGQiIkYiRAREMuh++NA/pOte976oPNEb3kA+moVR4QiOm508/rl0yMHVVUmCJiZmYmImIkNMSNW64hElAiYkqar6/iC9o0btu6Jq49iLcV7LVWcdRJZsU4jK2Hkw8iFViInkfVhVH31lciVQ5vvC090F1oHpz967e472sZ4UaYYRjKxxBlDQy9vFAVj2BiDRMzMxjAxGQPGADEgAwKASujzxdAQlPrCwODK56bt2n1o36F8tQi1hIvhOVVoaUrdefMoVSUiPE31MxERASAiKmA6ZdomXjX1huH5QhlUwsi2NKdeWd3x+LItzOS9XExxA2PR3MnPPjSxJ19WL4Zh/5HC5HvfLVVcdakXJJ7nECEwdM6RCPjsIzDETIEhIlyy8uuvvv8znWTnXCW0LYMSw1uzAFBj54vnOVWw7sIVIUSrGhgCgC3f7ZtyfatzXlVSCWrKJqDmetUqjhBFddSw3LKFk0SRuOo6ImJiJiIk9gLpdHDoWGnu8x8X+kIAENEhlzU471VVVbzT0PoaI8YQBwigkGlM3DpxuFdiw8x8ardygMSqSAkWgen3r84Xw0TAkfXDhmZmTBmZL1QAlBB6i9HBo30ANRkujjgAABDRYsWLKjEwAxIoKJKCojGUkmDm/DWff/NbVVlrS3r10ulNmaC3UBHVhgT+uPf4kRPlahEuvjhETATGKxEbYmI2uUwKiAAQmO57ct2m7XtTSVMJ3XVjBq9qnza8NXOyt4ygNrK5huQ7G/cAABJAbbWNJw5AiUiBidgYtg7XfrG3WIoa08GmbXtXretMBFwJ3YybRq1c1JZK0ImeEoKWQzu4Oblh+/712/cRofe1/oPFzRwRBwAsgJls+sPPfrnrkTWnzzJhZP2jsycsnjexXInyhTKCivghzckdPxx9bPmOuPNd3MwBGaNKKIhIpXJEhIZJRKs7ZsXTbXNmjT12vOisUxURXw7d+5t/X/JmR7FkETGWvtieIzIiCCAgngBE1KN4r0QIAIFBG9kwtIRqrW9IUOfPJ5969Vvon2viJSLWrwGgfyBSUBE5Y2xVVdX5Szdv6zgwqNFEkUXQfF9047iWhfeMhTMD6aUUB6AqXkVU5OwaqQIiOi8Ptm8+3F0MGK3zoNLTGz48a8zUCa3ex5uXBiJOpYr33qkKAEC/QhFlxv2Hiwte2m4YRbz33jrXV7Ltc8YPG9zgRSlOAgcmzov31fdzznqvhnHLzoMvrupsyiSiyIFquWKzDfzCA+MDQ4Ax6htPnKraU7gosqcyd54+Znz9vZ/Wftk1qNGUypEX6e6pXDsyO2/maBHF2p8NYoljwlxjkEubbANnsklrPZzndAUQUUR45o2du7t6WnJBgiGTolLZzr7lytsmtYqe2toXpOZWogAAJwvhmk9/tdYBgLX+5dW7AEDOS58qEGGhZJ9Y0TH39qtLFSuiznlQuGZEbktnd75U67x5qfg7b9XuudjNp9oOtPpUIfDP8wXiWTOvAmC1HcaNWadOnTp16tT5H/AX48yytTtDw+wAAAAASUVORK5CYII=" id="loading-logo" width="52" height="52" alt="FinRossi" style="border-radius:10px;opacity:0">
+  <img src="img/icon-192.png?v=3" id="loading-logo" width="52" height="52" alt="FinRossi" style="opacity:0">
   <div id="loading-texto" style="font-family:'DM Serif Display',serif;font-size:18px;color:#e8c96d;margin-top:10px;letter-spacing:1px;opacity:0;transform:translateY(6px)">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></div>
   <div id="loading-spinner" style="width:32px;height:32px;border:3px solid #222;border-top-color:#4ade80;border-radius:50%;animation:spin .8s linear infinite;opacity:0"></div>
 </div>
@@ -156,7 +158,7 @@ try{
   <div style="width:100%;max-width:380px">
     <!-- Logo -->
     <div style="text-align:center;margin-bottom:40px">
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px"><img id="login-logo-img" src="data:image/png;base64,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" width="56" height="56" alt="FinRossi" style="border-radius:10px"><span style="font-family:'DM Serif Display',serif;font-size:34px;color:#e8c96d;letter-spacing:-1px">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px"><img id="login-logo-img" src="img/icon-192.png?v=3" width="56" height="56" alt="FinRossi"><span style="font-family:'DM Serif Display',serif;font-size:34px;color:#e8c96d;letter-spacing:-1px">Fin<span style="font-weight:300;color:#f0ede8">Rossi</span></span></div>
       <div style="font-size:13px;color:#666;margin-top:6px">Controle financeiro pessoal simples e inteligente</div>
     </div>
 

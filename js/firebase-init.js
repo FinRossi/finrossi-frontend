@@ -23,7 +23,7 @@
     const viajante = logoCarr.cloneNode(true);
     viajante.removeAttribute('id');
     viajante.style.cssText = `position:fixed;left:${de.left}px;top:${de.top}px;width:${de.width}px;height:${de.height}px;margin:0;`
-      + 'border-radius:10px;opacity:1;animation:none;z-index:1000;transform-origin:0 0;transition:transform .56s cubic-bezier(.65,0,.25,1)';
+      + 'opacity:1;animation:none;z-index:1000;transform-origin:0 0;transition:transform .56s cubic-bezier(.65,0,.25,1)';
     document.body.appendChild(viajante);
     logoCarr.style.visibility = 'hidden';
     loadingEl.style.transition = 'opacity .3s ease';

@@ -1069,7 +1069,6 @@ function showModalMsg(texto, tipo){
 // O logo para exatamente onde fica o logo da tela de carregamento do app, que segue com ele
 // até a tela de login (js/firebase-init.js). Antes era o círculo dourado + a página inteira
 // ampliada, que travava no celular e piscava a landing de volta antes de trocar de página.
-const LOGO_APP = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAIAAABKGoy8AAAFOUlEQVR4nO2XbYhUZRTHz8tzZ2ZnZ8bdWnXD0NTAQJMSClEwaUs/WZb1IZAIytKUyKKIssJWoUAwysovBYZ9yF400sTKMrWkwnWhyEqrNfF91d2Z2Zm593mec/owropSzt30QzQ/LvPCnXvP/znn/5w5F6BOnTp16tT5z4GxL8Dar1LVuLf/F8RdCiIaJsTYKRhYOEgG3JRNiCoCQn8W+6OfuRsilCuutxhWvzKhl9hprFUcIoBCcy759uKpI67IiqIJjDGGmYmJiZGQiIkYiRAREMuh++NA/pOte976oPNEb3kA+moVR4QiOm508/rl0yMHVVUmCJiZmYmImIkNMSNW64hElAiYkqar6/iC9o0btu6Jq49iLcV7LVWcdRJZsU4jK2Hkw8iFViInkfVhVH31lciVQ5vvC090F1oHpz967e472sZ4UaYYRjKxxBlDQy9vFAVj2BiDRMzMxjAxGQPGADEgAwKASujzxdAQlPrCwODK56bt2n1o36F8tQi1hIvhOVVoaUrdefMoVSUiPE31MxERASAiKmA6ZdomXjX1huH5QhlUwsi2NKdeWd3x+LItzOS9XExxA2PR3MnPPjSxJ19WL4Zh/5HC5HvfLVVcdakXJJ7nECEwdM6RCPjsIzDETIEhIlyy8uuvvv8znWTnXCW0LYMSw1uzAFBj54vnOVWw7sIVIUSrGhgCgC3f7ZtyfatzXlVSCWrKJqDmetUqjhBFddSw3LKFk0SRuOo6ImJiJiIk9gLpdHDoWGnu8x8X+kIAENEhlzU471VVVbzT0PoaI8YQBwigkGlM3DpxuFdiw8x8ardygMSqSAkWgen3r84Xw0TAkfXDhmZmTBmZL1QAlBB6i9HBo30ANRkujjgAABDRYsWLKjEwAxIoKJKCojGUkmDm/DWff/NbVVlrS3r10ulNmaC3UBHVhgT+uPf4kRPlahEuvjhETATGKxEbYmI2uUwKiAAQmO57ct2m7XtTSVMJ3XVjBq9qnza8NXOyt4ygNrK5huQ7G/cAABJAbbWNJw5AiUiBidgYtg7XfrG3WIoa08GmbXtXretMBFwJ3YybRq1c1JZK0ImeEoKWQzu4Oblh+/712/cRofe1/oPFzRwRBwAsgJls+sPPfrnrkTWnzzJhZP2jsycsnjexXInyhTKCivghzckdPxx9bPmOuPNd3MwBGaNKKIhIpXJEhIZJRKs7ZsXTbXNmjT12vOisUxURXw7d+5t/X/JmR7FkETGWvtieIzIiCCAgngBE1KN4r0QIAIFBG9kwtIRqrW9IUOfPJ5969Vvon2viJSLWrwGgfyBSUBE5Y2xVVdX5Szdv6zgwqNFEkUXQfF9047iWhfeMhTMD6aUUB6AqXkVU5OwaqQIiOi8Ptm8+3F0MGK3zoNLTGz48a8zUCa3ex5uXBiJOpYr33qkKAEC/QhFlxv2Hiwte2m4YRbz33jrXV7Ltc8YPG9zgRSlOAgcmzov31fdzznqvhnHLzoMvrupsyiSiyIFquWKzDfzCA+MDQ4Ax6htPnKraU7gosqcyd54+Znz9vZ/Wftk1qNGUypEX6e6pXDsyO2/maBHF2p8NYoljwlxjkEubbANnsklrPZzndAUQUUR45o2du7t6WnJBgiGTolLZzr7lytsmtYqe2toXpOZWogAAJwvhmk9/tdYBgLX+5dW7AEDOS58qEGGhZJ9Y0TH39qtLFSuiznlQuGZEbktnd75U67x5qfg7b9XuudjNp9oOtPpUIfDP8wXiWTOvAmC1HcaNWadOnTp16tT5H/AX48yytTtDw+wAAAAASUVORK5CYII=';
 // Altura do grupo centralizado da tela de carregamento (logo 52 + nome + rodinha), medida no app
 const ALTURA_GRUPO_CARREGAMENTO = 153;
 
@@ -1090,13 +1089,11 @@ function irParaApp(e){
   veu.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#080808;opacity:0;transition:opacity .38s ease';
   const logo = document.createElement('div');
   logo.id = 'logo-viajante';
-  logo.style.cssText = `position:fixed;left:0;top:0;width:52px;height:52px;z-index:99999;transform-origin:0 0;border-radius:10px;overflow:hidden;
+  logo.style.cssText = `position:fixed;left:0;top:0;width:52px;height:52px;z-index:99999;transform-origin:0 0;
     transform:translate(${r.left}px,${r.top}px) scale(${r.width / 52});transition:transform .62s cubic-bezier(.65,0,.25,1)`;
-  // O ícone da landing (com moldura) vira o logo do app (sem moldura) durante a viagem.
-  // Só o logo do app faz fade, por cima do ícone que fica inteiro: se os dois fizessem fade juntos,
-  // no meio do caminho ficariam semitransparentes e o logo "piscaria" (chegava a 44% de opacidade).
-  logo.innerHTML = `<img src="${origem.src}" alt="" style="position:absolute;inset:0;width:100%;height:100%">`
-                 + `<img src="${LOGO_APP}" alt="" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s ease">`;
+  // É o mesmo ícone oficial (com a moldura dourada) do começo ao fim: na landing, no carregamento
+  // e no login. Por isso não há troca de imagem no caminho (nada de fade nem "piscada").
+  logo.innerHTML = `<img src="${origem.src}" alt="" style="display:block;width:100%;height:100%">`;
   document.body.append(veu, logo);
 
   const x = (window.innerWidth - 52) / 2, y = (window.innerHeight - ALTURA_GRUPO_CARREGAMENTO) / 2;
@@ -1104,7 +1101,6 @@ function irParaApp(e){
   requestAnimationFrame(() => {
     veu.style.opacity = '1';
     logo.style.transform = `translate(${x}px,${y}px) scale(1)`;
-    logo.querySelectorAll('img')[1].style.opacity = '1';
   });
   setTimeout(() => { location.href = destino; }, 650);
 }

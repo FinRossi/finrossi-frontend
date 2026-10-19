@@ -46,6 +46,11 @@
 
 /* Entrada suave da tela de login */
 #tela-login{animation:loginFadeIn .4s ease both}
+/* Login com rolagem: quando o card "Instalar o FinRossi" aparece, o conteúdo fica mais alto que a
+   tela. Antes ele era centralizado sem rolagem e o topo (logo) saía cortado para cima. Agora fica
+   centralizado quando cabe (margin:auto) e rola quando não cabe. */
+#tela-login{overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:flex-start!important}
+#tela-login > div{margin:auto 0}
 @keyframes loginFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 
 /* Carregamento → login: o logo sobe até o lugar dele no login e o resto da tela aparece por baixo
