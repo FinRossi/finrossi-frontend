@@ -963,8 +963,9 @@ function abrirModalCadastro(plano, periodo){
     // Os ids ficam nos <label>; o radio é o <input> dentro deles
     document.querySelector(isAnual ? '#metodo-pix input' : '#metodo-cartao input').checked = true;
   }
+  atualizarCampoCpf();
 
-  ['modal-nome','modal-email','modal-senha','modal-whats'].forEach(id=>document.getElementById(id).value='');
+  ['modal-nome','modal-email','modal-senha','modal-whats','modal-cpf'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modal-consent').checked = false;
   _cadastroConcluido = false; _leadEnviado = false;
   // Cupom do link do e-mail: só nos planos mensais pagos
@@ -1003,6 +1004,24 @@ function mascaraWhats(el){
   el.value = d.length <= 2 ? (d ? '('+d : '') : d.length <= 6 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d.length <= 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
 }
 
+// 000.000.000-00 (CPF) ou 00.000.000/0000-00 (CNPJ)
+function mascaraDocumento(el){
+  const d = el.value.replace(/\D/g,'').slice(0,14);
+  el.value = d.length <= 11
+    ? d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2')
+    : d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/,'$1.$2.$3/$4-$5');
+}
+// O campo de CPF só aparece no boleto e no Pix (anual)
+function atualizarCampoCpf(){
+  const plano = document.getElementById('modal-plano-input').value;
+  const periodo = document.getElementById('modal-periodo-input').value;
+  const m = document.querySelector('input[name="metodo"]:checked');
+  const precisa = plano !== 'gratuito' && (periodo === 'anual' || (m && m.value === 'boleto'));
+  document.getElementById('modal-cpf-wrap').style.display = precisa ? 'block' : 'none';
+  return precisa;
+}
+document.addEventListener('change', e => { if(e.target && e.target.name === 'metodo') atualizarCampoCpf(); });
+
 // Fechou o cadastro sem concluir: guarda nome e email só se a pessoa marcou a autorização de contato.
 // O servidor manda um único e-mail 1 hora depois ("quer terminar seu cadastro?") e apaga o contato em 30 dias.
 function enviarLeadSeDesistiu(){
@@ -1036,6 +1055,8 @@ async function confirmarCadastro(){
   if(telefone && (telefone.length < 10 || telefone.length > 11)){ showModalMsg('WhatsApp inválido — use DDD + número.','err'); return; }
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
+  const cpf = atualizarCampoCpf() ? document.getElementById('modal-cpf').value.replace(/\D/g,'') : '';
+  if(atualizarCampoCpf() && cpf.length !== 11 && cpf.length !== 14){ showModalMsg('Informe seu CPF (ou CNPJ) — a Asaas exige no boleto e no Pix.','err'); return; }
 
   btn.textContent='Criando conta...'; btn.disabled=true;
 
@@ -1047,10 +1068,10 @@ async function confirmarCadastro(){
       body = {nome, email, senha, ...contato};
     } else if(periodo === 'anual'){
       endpoint = '/assinar-anual';
-      body = {nome, email, senha, plano, ...contato};
+      body = {nome, email, senha, plano, cpf, ...contato};
     } else {
       endpoint = '/assinar';
-      body = {nome, email, senha, plano, metodoPagamento: metodo, ...contato, ...(CUPOM_LINK ? { cupom: CUPOM_LINK } : {})};
+      body = {nome, email, senha, plano, metodoPagamento: metodo, ...(cpf ? { cpf } : {}), ...contato, ...(CUPOM_LINK ? { cupom: CUPOM_LINK } : {})};
     }
 
     const res  = await fetch(BACKEND_URL+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -1326,6 +1347,15 @@ if(window.matchMedia('(pointer:fine)').matches){
               ✓ Você receberá um QR Code Pix após o cadastro. Sua conta é ativada assim que o pagamento for confirmado.
             </div>
           </div>
+        </div>
+
+        <!-- CPF/CNPJ: a Asaas exige no boleto e no Pix (no cartão, a página de pagamento pede) -->
+        <div id="modal-cpf-wrap" style="display:none;margin-bottom:16px">
+          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">CPF ou CNPJ <span style="text-transform:none;letter-spacing:0;color:#555">(exigido no boleto e no Pix)</span></label>
+          <input id="modal-cpf" type="text" placeholder="000.000.000-00" inputmode="numeric" autocomplete="off" maxlength="18"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
+            onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+            oninput="mascaraDocumento(this)">
         </div>
 
         <div id="modal-msg" style="display:none;font-size:13px;padding:9px 12px;border-radius:8px;margin-bottom:12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2)"></div>

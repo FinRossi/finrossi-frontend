@@ -186,7 +186,7 @@ function verificarIntencaoAssinatura(){
 }
 
 function abrirEscolhaPlano(planoId, cupom){
-  _maEscolha = { plano: MA_PLANOS.some(p => p.id === planoId) ? planoId : 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: cupom || _maEscolha.cupom || '' };
+  _maEscolha = { plano: MA_PLANOS.some(p => p.id === planoId) ? planoId : 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: cupom || _maEscolha.cupom || '', cpf: _maEscolha.cpf || '' };
   let m = document.getElementById('modal-ma-plano');
   if(!m){
     m = document.createElement('div');
@@ -207,6 +207,7 @@ function desenharEscolhaPlano(){
     <div class="ma-grupo"><span>Plano</span><div class="ma-opcoes">${MA_PLANOS.map(p => opcao('plano', p.id, p.nome, e.plano === p.id)).join('')}</div></div>
     <div class="ma-grupo"><span>Cobrança</span><div class="ma-opcoes">${opcao('periodo', 'mensal', 'Mensal', !anual)}${opcao('periodo', 'anual', 'Anual · 20% off', anual)}</div></div>
     <div class="ma-grupo"><span>Pagamento</span><div class="ma-opcoes">${anual ? opcao('metodo', 'pix', 'Pix', true) : opcao('metodo', 'cartao', 'Cartão de crédito', e.metodo === 'cartao') + opcao('metodo', 'boleto', 'Boleto', e.metodo === 'boleto')}</div></div>
+    ${e.metodo !== 'cartao' ? `<div class="ma-grupo"><label for="ma-cpf">CPF ou CNPJ <small>(a Asaas exige no boleto e no Pix)</small></label><input id="ma-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="000.000.000-00" value="${escHTML(e.cpf || '')}" oninput="maMascaraDocumento(this);_maEscolha.cpf=this.value"></div>` : ''}
     ${anual ? '' : `<div class="ma-grupo"><label for="ma-cupom">Cupom <small>(opcional)</small></label><input id="ma-cupom" type="text" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ex.: FR20-7KQ2" value="${escHTML(e.cupom)}" oninput="_maEscolha.cupom=this.value.trim().toUpperCase()"></div>`}
     <div class="ma-resumo"><span>Total</span><b>${fmtR(preco)}${anual ? '/ano' : '/mês'}</b></div>
     ${!anual && e.cupom ? '<p class="ma-nota">O desconto do cupom aparece na primeira fatura.</p>' : ''}
@@ -214,6 +215,14 @@ function desenharEscolhaPlano(){
     <div id="ma-msg" class="msg"></div>
     <div class="btn-row"><button class="btn primary" id="btn-ma-confirmar" type="button" onclick="confirmarEscolhaPlano()">Continuar para o pagamento</button><button class="btn" type="button" onclick="closeModal('modal-ma-plano')">Voltar</button></div>
   </div>`;
+}
+
+// 000.000.000-00 (CPF) ou 00.000.000/0000-00 (CNPJ). O documento vai só para a Asaas.
+function maMascaraDocumento(el){
+  const d = el.value.replace(/\D/g, '').slice(0, 14);
+  el.value = d.length <= 11
+    ? d.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2')
+    : d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/, '$1.$2.$3/$4-$5');
 }
 
 async function maChamar(caminho, corpo){
@@ -229,10 +238,16 @@ async function maChamar(caminho, corpo){
 
 async function confirmarEscolhaPlano(){
   const btn = document.getElementById('btn-ma-confirmar'), msg = document.getElementById('ma-msg');
+  const e = _maEscolha;
+  const cpf = e.metodo !== 'cartao' ? String(e.cpf || '').replace(/\D/g, '') : '';
+  if(e.metodo !== 'cartao' && cpf.length !== 11 && cpf.length !== 14){
+    msg.textContent = 'Informe seu CPF (ou CNPJ) — a Asaas exige no boleto e no Pix.'; msg.className = 'msg err';
+    const campo = document.getElementById('ma-cpf'); if(campo) campo.focus();
+    return;
+  }
   btn.disabled = true; btn.textContent = 'Preparando o pagamento…'; msg.textContent = ''; msg.className = 'msg';
   try{
-    const e = _maEscolha;
-    const r = await maChamar('/minha-assinatura', { plano: e.plano, periodo: e.periodo, metodo: e.metodo, ...(e.periodo === 'mensal' && e.cupom ? { cupom: e.cupom } : {}) });
+    const r = await maChamar('/minha-assinatura', { plano: e.plano, periodo: e.periodo, metodo: e.metodo, ...(cpf ? { cpf } : {}), ...(e.periodo === 'mensal' && e.cupom ? { cupom: e.cupom } : {}) });
     const m = document.getElementById('modal-ma-plano');
     const nomePlano = (MA_PLANOS.find(p => p.id === r.plano) || {}).nome || r.plano;
     const link = /^https:\/\//.test(r.linkPagamento || '') ? r.linkPagamento : '';
