@@ -3,7 +3,7 @@
 // Site oficial (finrossi.com.br) usa o servidor do Railway; teste no computador
 // (localhost ou IP da rede, via "npm run local" no backend) usa o backend local na porta 3000.
 const BACKEND_URL = /(^|\.)finrossi\.com\.br$|\.github\.io$/.test(location.hostname)
-  ? 'https://finrossi-backend-production.up.railway.app'
+  ? 'https://finrossi-backend-production1.up.railway.app'
   : 'http://' + (location.hostname || 'localhost') + ':3000';
 
 var _adminToken = localStorage.getItem('fin_admin_token')||'';
