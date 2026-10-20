@@ -28,7 +28,7 @@ function _avisoTesteHTML(){
   if(plano !== 'gratuito') return '';
   const d = diasDeTeste();
   if(d === null || d > TESTE_AVISO_DIAS) return '';
-  const link = '<a class="btn primary sm" href="landing/#planos" target="_blank" rel="noopener" style="text-decoration:none">Ver planos</a>';
+  const link = '<button class="btn primary sm" type="button" onclick="abrirEscolhaPlano(\'evolucao\')">Ver planos</button>';
   if(d <= 0) return `<div class="aviso-teste fim"><div><b>Seu período de teste terminou</b><span>Seus lançamentos continuam salvos e visíveis. Escolha um plano para voltar a lançar.</span></div>${link}</div>`;
   return `<div class="aviso-teste"><div><b>${d === 1 ? 'Falta 1 dia' : `Faltam ${d} dias`} do seu período de teste</b><span>Escolha um plano para continuar lançando sem interrupção.</span></div>${link}</div>`;
 }

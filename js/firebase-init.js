@@ -162,6 +162,8 @@
         if(nEl) nEl.textContent = user.displayName || user.email;
         const nome = user.displayName || user.email?.split('@')[0] || '';
         irParaApp(nome);
+        // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
+        setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);
         // Último acesso (régua "cliente que sumiu" para na hora em que a pessoa volta): no máximo a cada 6 h
         try{
           const chaveAcesso = 'fin_ultimo_acesso_nuvem_' + user.uid;

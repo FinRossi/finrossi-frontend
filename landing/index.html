@@ -1057,6 +1057,13 @@ async function confirmarCadastro(){
     let data = {};
     try{ data = await res.json(); }catch(e){}
 
+    // Já tem conta: assinar ou trocar de plano é dentro do app, em "Minha assinatura"
+    if(res.status === 409){
+      const m = document.getElementById('modal-msg');
+      m.innerHTML = 'Você já tem uma conta com este e-mail. Para assinar ou mudar de plano, <a href="../?plano=' + encodeURIComponent(plano === 'gratuito' ? 'evolucao' : plano) + '" style="color:#E8C560;font-weight:600">entre no app e escolha em Minha assinatura →</a>';
+      m.style.display = 'block'; m.style.color = '#e9e4da';
+      btn.textContent='Criar conta'; btn.disabled=false; _cadastroConcluido = true; return;
+    }
     if(!res.ok){ showModalMsg(data.erro||'Erro ao criar conta.','err'); btn.textContent='Criar conta'; btn.disabled=false; return; }
     _cadastroConcluido = true;   // não conta como "desistiu no meio"
 

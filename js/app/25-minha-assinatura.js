@@ -38,6 +38,7 @@ async function renderMinhaAssinatura(){
     ativo:   '<span class="fr-selo ok">Ativa</span>',
     trial:   '<span class="fr-selo destaque">Período de teste</span>',
     inativo: '<span class="fr-selo alerta">Inativa</span>',
+    pendente: '<span class="fr-selo alerta">Aguardando pagamento</span>',
   };
   const ORIGEM = { pagante: 'Assinatura paga', trial: 'Período de teste' };
   const esc = escHTML;
@@ -71,8 +72,22 @@ async function renderMinhaAssinatura(){
   const pago = plano!=='gratuito' && origem==='pagante';
   const nome = window._firebaseUser?.displayName || localStorage.getItem('fin_nome_display') || '—';
   const email = window._firebaseUser?.email || '';
-  const assuntoCancelar = encodeURIComponent('Cancelar assinatura FinRossi');
-  const corpoCancelar = encodeURIComponent(`Olá, quero cancelar minha assinatura do FinRossi.\n\nNome: ${nome}\nE-mail da conta: ${email}\nPlano: ${cfg.label}\n`);
+  const ehEquipe = typeof isEquipe === 'function' && isEquipe();
+  // Situação da assinatura (gravada pelo servidor): troca aguardando pagamento ou cancelamento marcado
+  const dataBR = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '';
+  const solicitado = !planoSimulado && dadosUsuario?.planoSolicitado;
+  const planoAte = !planoSimulado && dadosUsuario?.planoAte;
+  _maSituacao = { plano, periodo: dadosUsuario?.periodo || 'mensal', pago, status };
+  let avisoAssinatura = '';
+  if(solicitado){
+    const cfgS = (typeof PLANOS_CONFIG!=='undefined' && PLANOS_CONFIG[solicitado]) || { label: solicitado };
+    avisoAssinatura = `<div class="card card-full ma-situacao" style="margin-bottom:16px"><b>Plano ${esc(cfgS.label)} ${dadosUsuario.periodoSolicitado==='anual'?'anual':'mensal'} aguardando pagamento.</b>
+      <span>Assim que o pagamento for confirmado, ele é liberado na hora. Se já pagou, pode levar alguns minutos.</span>
+      <div class="btn-row"><button class="btn primary sm" type="button" onclick="abrirEscolhaPlano('${esc(solicitado)}')">Ver forma de pagamento</button></div></div>`;
+  } else if(planoAte){
+    avisoAssinatura = `<div class="card card-full ma-situacao" style="margin-bottom:16px"><b>Assinatura cancelada.</b>
+      <span>Seu plano ${esc(cfg.label)} continua liberado até ${dataBR(planoAte)}. Depois disso a conta volta ao Gratuito, sem apagar nada. Mudou de ideia? É só assinar de novo.</span></div>`;
+  }
 
   el.innerHTML = `
     <div class="ced-painel" style="margin-bottom:16px"><div class="ced-painel-int ma-painel">
@@ -82,6 +97,7 @@ async function renderMinhaAssinatura(){
       ${cfg.desc?`<p class="ma-desc">${esc(cfg.desc)}</p>`:''}
       ${aviso}
     </div></div>
+    ${avisoAssinatura}
 
     <div class="grid2" style="margin-bottom:16px">
       <div class="card">
@@ -102,15 +118,22 @@ async function renderMinhaAssinatura(){
       </div>
     </div>
 
-    ${plano!=='patrimonio'?`
+    ${ehEquipe && !planoSimulado ? '' : `
     <div class="card card-full" style="margin-bottom:16px">
-      <h3>Quer mais recursos?</h3>
-      <p class="fr-card-sub" style="margin:-6px 0 14px">Os planos acima liberam ${plano==='gratuito'?'lançamentos ilimitados, investimentos, metas, cartões':'relatórios em PDF, saúde do patrimônio, lançar por foto'} e mais.</p>
-      <div class="btn-row">
-        <a href="landing/#planos" target="_blank" rel="noopener" class="btn primary" style="text-decoration:none">Ver planos</a>
-        <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Mudar de plano FinRossi')}" class="btn" style="text-decoration:none">Falar com o suporte</a>
+      <h3>${pago ? 'Mudar de plano' : 'Escolha seu plano'}</h3>
+      <p class="fr-card-sub" style="margin:-6px 0 14px">${pago ? 'Troque quando quiser. O plano novo começa assim que o pagamento for confirmado.' : 'Assine aqui mesmo, na sua conta. Seus dados continuam todos com você.'}</p>
+      <div class="ma-planos">
+        ${MA_PLANOS.map(p => {
+          const atual = pago && p.id === plano;
+          return `<div class="ma-plano-card${atual ? ' atual' : ''}${p.id==='evolucao' ? ' destaque' : ''}">
+            <div class="ma-plano-nome">${p.nome}${p.id==='evolucao' ? ' <span class="fr-selo destaque">mais escolhido</span>' : ''}</div>
+            <div class="ma-plano-preco">${fmtR(MA_PRECO.mensal[p.id])}<small>/mês</small></div>
+            <div class="ma-plano-desc">${p.desc}</div>
+            <button class="btn ${atual ? '' : 'primary'} sm" type="button" ${atual ? 'disabled' : ''} onclick="abrirEscolhaPlano('${p.id}')">${atual ? 'Seu plano' : pago ? 'Mudar para este' : 'Assinar'}</button>
+          </div>`;
+        }).join('')}
       </div>
-    </div>`:''}
+    </div>`}
 
     <div class="card card-full">
       <h3>Ajuda e documentos</h3>
@@ -121,14 +144,135 @@ async function renderMinhaAssinatura(){
         <a href="landing/legal/privacidade.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Privacidade</a>
         <a href="landing/legal/contrato.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Contrato</a>
       </div>
-      ${pago?`<div class="ma-cancelar">
-        <div><b>Cancelar assinatura</b><span>Abre um e-mail pronto para o suporte com os dados da sua conta.</span></div>
-        <a href="mailto:finrossiapp@gmail.com?subject=${assuntoCancelar}&body=${corpoCancelar}" class="btn danger" style="text-decoration:none">Pedir cancelamento</a>
+      ${(pago && !planoAte && !planoSimulado) || (status==='pendente' && !planoSimulado) ?`<div class="ma-cancelar">
+        <div><b>Cancelar assinatura</b><span>${status==='pendente' ? 'Desfaz a assinatura que ainda não foi paga.' : 'Para de cobrar. Seu plano continua liberado até o fim do período já pago, e nada é apagado.'}</span></div>
+        <button class="btn danger" type="button" id="btn-ma-cancelar" onclick="cancelarMinhaAssinatura()">Cancelar assinatura</button>
       </div>`:''}
     </div>
   `;
 }
 
+// ─── ASSINAR / TROCAR DE PLANO / CANCELAR (dentro do app) ────────────────────
+// Quem já tem conta assina aqui (antes o "Ver planos" levava ao cadastro da landing, que cria conta
+// nova e dava "Email já cadastrado"). O servidor (/minha-assinatura) confere o login, calcula o preço,
+// valida o cupom e devolve o link da fatura ou o Pix. O plano novo vale quando o pagamento é confirmado.
+const MA_PLANOS = [
+  { id: 'essencial',  nome: 'Essencial',  desc: 'Lançamentos ilimitados e investimentos.' },
+  { id: 'evolucao',   nome: 'Evolução',   desc: 'Metas, cartões, contas fixas, calendário e renda passiva.' },
+  { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e lançar por foto.' },
+];
+const MA_PRECO = { mensal: { essencial: 9.90, evolucao: 24.90, patrimonio: 49.90 }, anual: { essencial: 95.04, evolucao: 239.04, patrimonio: 479.04 } };
+let _maSituacao = { plano: 'gratuito', periodo: 'mensal', pago: false };
+let _maEscolha = { plano: 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: '' };
+
+// Link do e-mail (finrossi.com.br/?plano=evolucao&cupom=FR20-7KQ2): guarda a intenção antes do login
+// e tira os parâmetros do endereço. Depois do login, abre "Minha assinatura" com tudo aplicado.
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    const plano = q.get('plano'), cupom = (q.get('cupom') || '').trim().toUpperCase();
+    if(plano && MA_PLANOS.some(p => p.id === plano)){
+      sessionStorage.setItem('fin_intencao_assinatura', JSON.stringify({ plano, cupom: /^[A-Z0-9-]{3,30}$/.test(cupom) ? cupom : '' }));
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  }catch(e){}
+})();
+function verificarIntencaoAssinatura(){
+  let int = null;
+  try{ int = JSON.parse(sessionStorage.getItem('fin_intencao_assinatura') || 'null'); sessionStorage.removeItem('fin_intencao_assinatura'); }catch(e){}
+  if(!int || !window._firebaseUser || (typeof isEquipe === 'function' && isEquipe())) return;
+  goTo('minha-assinatura');
+  setTimeout(() => abrirEscolhaPlano(int.plano, int.cupom), 600);
+}
+
+function abrirEscolhaPlano(planoId, cupom){
+  _maEscolha = { plano: MA_PLANOS.some(p => p.id === planoId) ? planoId : 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: cupom || _maEscolha.cupom || '' };
+  let m = document.getElementById('modal-ma-plano');
+  if(!m){
+    m = document.createElement('div');
+    m.className = 'modal-overlay'; m.id = 'modal-ma-plano';
+    m.addEventListener('click', e => { if(e.target === m) closeModal('modal-ma-plano'); });
+    document.body.appendChild(m);
+  }
+  desenharEscolhaPlano();
+  m.classList.add('open');
+}
+function desenharEscolhaPlano(){
+  const m = document.getElementById('modal-ma-plano'); if(!m) return;
+  const e = _maEscolha, anual = e.periodo === 'anual';
+  const preco = MA_PRECO[e.periodo][e.plano];
+  const opcao = (grupo, valor, rotulo, ativo) => `<button type="button" class="ma-opcao${ativo ? ' ativa' : ''}" onclick="_maEscolha.${grupo}='${valor}';${grupo==='periodo' ? `_maEscolha.metodo='${valor==='anual' ? 'pix' : 'cartao'}';` : ''}desenharEscolhaPlano()">${rotulo}</button>`;
+  m.innerHTML = `<div class="modal ma-modal" role="dialog" aria-modal="true" aria-labelledby="ma-modal-tit">
+    <h3 id="ma-modal-tit">Assinar o FinRossi</h3>
+    <div class="ma-grupo"><span>Plano</span><div class="ma-opcoes">${MA_PLANOS.map(p => opcao('plano', p.id, p.nome, e.plano === p.id)).join('')}</div></div>
+    <div class="ma-grupo"><span>Cobrança</span><div class="ma-opcoes">${opcao('periodo', 'mensal', 'Mensal', !anual)}${opcao('periodo', 'anual', 'Anual · 20% off', anual)}</div></div>
+    <div class="ma-grupo"><span>Pagamento</span><div class="ma-opcoes">${anual ? opcao('metodo', 'pix', 'Pix', true) : opcao('metodo', 'cartao', 'Cartão de crédito', e.metodo === 'cartao') + opcao('metodo', 'boleto', 'Boleto', e.metodo === 'boleto')}</div></div>
+    ${anual ? '' : `<div class="ma-grupo"><label for="ma-cupom">Cupom <small>(opcional)</small></label><input id="ma-cupom" type="text" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ex.: FR20-7KQ2" value="${escHTML(e.cupom)}" oninput="_maEscolha.cupom=this.value.trim().toUpperCase()"></div>`}
+    <div class="ma-resumo"><span>Total</span><b>${fmtR(preco)}${anual ? '/ano' : '/mês'}</b></div>
+    ${!anual && e.cupom ? '<p class="ma-nota">O desconto do cupom aparece na primeira fatura.</p>' : ''}
+    ${anual ? '<p class="ma-nota">Pagamento único por Pix. O plano vale por 12 meses e não renova sozinho.</p>' : '<p class="ma-nota">Renova todo mês. Cancele quando quiser em Minha assinatura.</p>'}
+    <div id="ma-msg" class="msg"></div>
+    <div class="btn-row"><button class="btn primary" id="btn-ma-confirmar" type="button" onclick="confirmarEscolhaPlano()">Continuar para o pagamento</button><button class="btn" type="button" onclick="closeModal('modal-ma-plano')">Voltar</button></div>
+  </div>`;
+}
+
+async function maChamar(caminho, corpo){
+  const u = window._firebaseUser;
+  if(!u || !u.getIdToken) throw new Error('Entre na sua conta para continuar.');
+  const token = await u.getIdToken();
+  const res = await fetchBackend(`${BACKEND_URL}${caminho}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(corpo || {}) });
+  let data = {};
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok) throw new Error(data.erro || 'Não foi possível concluir agora. Tente de novo em instantes.');
+  return data;
+}
+
+async function confirmarEscolhaPlano(){
+  const btn = document.getElementById('btn-ma-confirmar'), msg = document.getElementById('ma-msg');
+  btn.disabled = true; btn.textContent = 'Preparando o pagamento…'; msg.textContent = ''; msg.className = 'msg';
+  try{
+    const e = _maEscolha;
+    const r = await maChamar('/minha-assinatura', { plano: e.plano, periodo: e.periodo, metodo: e.metodo, ...(e.periodo === 'mensal' && e.cupom ? { cupom: e.cupom } : {}) });
+    const m = document.getElementById('modal-ma-plano');
+    const nomePlano = (MA_PLANOS.find(p => p.id === r.plano) || {}).nome || r.plano;
+    const link = /^https:\/\//.test(r.linkPagamento || '') ? r.linkPagamento : '';
+    m.innerHTML = `<div class="modal ma-modal" role="dialog" aria-modal="true" aria-labelledby="ma-ok-tit">
+      <h3 id="ma-ok-tit">Falta só pagar</h3>
+      <p class="ma-nota">Plano <b>${escHTML(nomePlano)}</b> ${r.periodo === 'anual' ? 'anual' : 'mensal'}. Assim que o pagamento for confirmado, ele é liberado na hora e você recebe um e-mail.</p>
+      <div class="ma-resumo"><span>${r.valorPrimeiroMes ? '1º mês com cupom' : 'Valor'}</span><b>${fmtR(r.valorPrimeiroMes || r.valor)}${r.periodo === 'anual' ? '' : (r.valorPrimeiroMes ? `<small> depois ${fmtR(r.valor)}/mês</small>` : '/mês')}</b></div>
+      ${r.pix ? `${r.pix.qrCode ? `<img class="ma-qr" src="data:image/png;base64,${escHTML(r.pix.qrCode)}" alt="QR Code do Pix">` : ''}
+        <label class="ma-nota" for="ma-pix">Pix copia e cola</label><textarea id="ma-pix" class="ma-pix" readonly>${escHTML(r.pix.copiaEcola || '')}</textarea>
+        <div class="btn-row"><button class="btn primary" type="button" onclick="copiarPixMA(this)">Copiar código Pix</button></div>`
+      : link ? `<div class="btn-row"><a class="btn primary" href="${escHTML(link)}" target="_blank" rel="noopener" style="text-decoration:none">Pagar agora</a></div>`
+      : '<p class="ma-nota">A fatura também chega no seu e-mail.</p>'}
+      <div class="btn-row"><button class="btn" type="button" onclick="closeModal('modal-ma-plano');renderMinhaAssinatura()">Fechar</button></div>
+    </div>`;
+  }catch(err){
+    msg.textContent = err.message; msg.className = 'msg err';
+    btn.disabled = false; btn.textContent = 'Continuar para o pagamento';
+  }
+}
+function copiarPixMA(btn){
+  const t = document.getElementById('ma-pix'); if(!t) return;
+  const ok = () => { btn.textContent = 'Código copiado ✓'; };
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value).then(ok).catch(() => { t.select(); document.execCommand('copy'); ok(); });
+  else { t.select(); document.execCommand('copy'); ok(); }
+}
+
+async function cancelarMinhaAssinatura(){
+  const pendente = _maSituacao.status === 'pendente';
+  if(!confirm(pendente ? 'Desfazer a assinatura que ainda não foi paga?' : 'Cancelar a assinatura? Seu plano continua liberado até o fim do período já pago.')) return;
+  const btn = document.getElementById('btn-ma-cancelar');
+  if(btn){ btn.disabled = true; btn.textContent = 'Cancelando…'; }
+  try{
+    const r = await maChamar('/minha-assinatura/cancelar');
+    alert(r.planoAte ? `Assinatura cancelada. Seu plano continua liberado até ${new Date(r.planoAte).toLocaleDateString('pt-BR')}.` : 'Assinatura cancelada.');
+    renderMinhaAssinatura();
+  }catch(err){
+    alert(err.message);
+    if(btn){ btn.disabled = false; btn.textContent = 'Cancelar assinatura'; }
+  }
+}
 
 function toggleNavGroup(group){
   const items = document.getElementById('sb-group-'+group);
