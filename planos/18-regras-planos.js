@@ -3,13 +3,13 @@
 const PLANOS_CONFIG = {
   gratuito: {
     label: 'Gratuito', preco: 'R$ 0', cor: 'var(--muted)', dias: 30,
-    limites: { lancamentos: 20, investimentos: false, metas: false, cartoes: false, assinaturas: false, recorrentes: false, calendario: false, notas: false, renda: false, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
+    limites: { lancamentos: 20, investimentos: false, metas: false, cartoes: false, assinaturas: false, recorrentes: false, calendario: false, notas: true, renda: false, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
     edicao: 'nenhuma',
     desc: 'Acesso por 30 dias com até 20 lançamentos. Sem investimentos, metas ou controles avançados.'
   },
   essencial: {
     label: 'Essencial', preco: 'R$ 9,90/mês', cor: 'var(--blue)', dias: null,
-    limites: { lancamentos: true, investimentos: true, metas: false, cartoes: false, assinaturas: false, recorrentes: false, calendario: false, notas: false, renda: false, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
+    limites: { lancamentos: true, investimentos: true, metas: false, cartoes: false, assinaturas: false, recorrentes: false, calendario: false, notas: true, renda: false, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
     edicao: 'visualizacao',
     desc: 'O básico não deveria ser limitado: lançamentos ilimitados, gráficos e investimentos simples.'
   },
@@ -35,7 +35,10 @@ function planoLibera(chave){
     return !!(cfg && cfg.limites && cfg.limites[chave]);
   }
   if(typeof isEquipe==='function' && isEquipe()) return true;
-  const plano = (typeof _userPlano!=='undefined' && _userPlano) || 'gratuito';
+  // Pagamento pendente ou conta inativa: limites do Gratuito até pagar — igual às regras do banco
+  // (antes o app liberava e o banco recusava as gravações, que sumiam ao recarregar)
+  const semPagar = ['pendente','inativo'].includes(window._userStatus);
+  const plano = semPagar ? 'gratuito' : ((typeof _userPlano!=='undefined' && _userPlano) || 'gratuito');
   const cfg = PLANOS_CONFIG[plano];
   return !!(cfg && cfg.limites && cfg.limites[chave]);
 }
