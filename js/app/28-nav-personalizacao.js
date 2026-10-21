@@ -108,11 +108,12 @@ async function salvarNome(){
   if(typeof atualizarCabecalhoDash === 'function') atualizarCabecalhoDash();
   const inicial = nome[0].toUpperCase();
   document.getElementById('cfg-nome-display').textContent = nome;
-  document.getElementById('user-nome').textContent = nome;
+  // Rodapé do menu: no perfil FinRossi continua mostrando a empresa
+  if(typeof atualizarRodapePerfil === 'function') atualizarRodapePerfil(); else document.getElementById('user-nome').textContent = nome;
   // Só atualiza avatar com inicial se não tiver foto
   const fotoSalva = localStorage.getItem('fin_foto_'+cp);
   if(!fotoSalva){
-    document.getElementById('sb-avatar').textContent = inicial;
+    if(cp !== 'finrossi') document.getElementById('sb-avatar').textContent = inicial;
     document.getElementById('cfg-avatar')?.textContent && (document.getElementById('cfg-avatar').textContent = inicial);
   }
   // Atualiza preview no modal

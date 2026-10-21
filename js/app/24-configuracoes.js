@@ -231,16 +231,29 @@ function imgFoto(url, redonda){
   return `<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover${redonda?';border-radius:50%':''}">`;
 }
 
+// Quem aparece no rodapé do menu: no perfil FinRossi, a empresa; nos outros, a pessoa
+function identidadePerfil(){
+  if(cp === 'finrossi') return { nome:'FinRossi', sub:'Perfil da empresa', inicial:'F' };
+  const user = window._firebaseUser;
+  const nome = user?.displayName || localStorage.getItem('fin_nome_display') || user?.email?.split('@')[0] || 'Usuário';
+  return { nome, sub:'Minha conta', inicial:nome[0].toUpperCase() };
+}
+function atualizarRodapePerfil(){
+  const id = identidadePerfil();
+  const nomeEl = document.getElementById('user-nome');
+  if(nomeEl) nomeEl.textContent = id.nome;
+  const sub = document.querySelector('.sb-user-sub');
+  if(sub) sub.textContent = id.sub;
+}
+
 function aplicarFotoAvatar(dataUrl){
   const avatar = document.getElementById('sb-avatar');
   if(avatar){
     if(dataUrl){
       avatar.innerHTML=imgFoto(dataUrl, true);
     } else {
-      const user = window._firebaseUser;
-      const nome = user?.displayName || localStorage.getItem('fin_nome_display') || 'U';
       avatar.innerHTML = '';
-      avatar.textContent = nome[0].toUpperCase();
+      avatar.textContent = identidadePerfil().inicial;
     }
   }
 }
@@ -270,11 +283,8 @@ function initAvatar(){
     };
     tentar(0);
   }
-  // Atualiza nome na sidebar
-  const user = window._firebaseUser;
-  const nome = user?.displayName || localStorage.getItem('fin_nome_display') || user?.email?.split('@')[0] || '';
-  const nomeEl = document.getElementById('user-nome');
-  if(nomeEl && nome) nomeEl.textContent = nome;
+  // Nome no rodapé do menu: a empresa no perfil FinRossi, a pessoa nos outros
+  atualizarRodapePerfil();
 }
 
 // ─── Dashboard Config ─────────────────────────────────────────────────────────
