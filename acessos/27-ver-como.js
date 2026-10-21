@@ -5,7 +5,7 @@ let _verComoPlano = null;
 const NAV_TO_LIMITE = {
   investimentos:'investimentos', metas:'metas', objetivos:'metas',
   renda:'renda', cartoes:'cartoes', assinaturas:'assinaturas',
-  recorrentes:'assinaturas', calendario:'calendario', notas:'calendario',
+  recorrentes:'assinaturas', calendario:'calendario',   // Notas: liberadas em todos os planos (21/10/2026)
   score:'score', relatorios:'relatorios'
 };
 
