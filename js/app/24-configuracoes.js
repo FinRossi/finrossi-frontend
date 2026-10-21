@@ -12,8 +12,8 @@ function abrirConfiguracoes(){
     const preview = document.getElementById('cfg-foto-preview');
     if(preview){
       if(fotoSalva){
-        preview.innerHTML=`<img src="${fotoSalva}" style="width:100%;height:100%;object-fit:cover">`;
-        document.getElementById('sb-avatar').innerHTML=`<img src="${fotoSalva}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        preview.innerHTML=imgFoto(fotoSalva, false);
+        document.getElementById('sb-avatar').innerHTML=imgFoto(fotoSalva, true);
       } else {
         preview.textContent = inicial;
       }
@@ -152,11 +152,19 @@ function carregarFoto(event){
   reader.readAsDataURL(file);
 }
 
+// Foto de perfil: só aceita imagem embutida (data:image/...;base64). Antes o valor entrava direto
+// no HTML — uma "foto" adulterada no aparelho ou no banco podia carregar código na página.
+const FOTO_OK = /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+function imgFoto(url, redonda){
+  if(!FOTO_OK.test(String(url||''))) return '';
+  return `<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover${redonda?';border-radius:50%':''}">`;
+}
+
 function aplicarFotoAvatar(dataUrl){
   const avatar = document.getElementById('sb-avatar');
   if(avatar){
     if(dataUrl){
-      avatar.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      avatar.innerHTML=imgFoto(dataUrl, true);
     } else {
       const user = window._firebaseUser;
       const nome = user?.displayName || localStorage.getItem('fin_nome_display') || 'U';
@@ -179,7 +187,7 @@ function initAvatar(){
           localStorage.setItem('fin_foto_'+cp, url);
           aplicarFotoAvatar(url);
           const preview = document.getElementById('cfg-foto-preview');
-          if(preview) preview.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+          if(preview) preview.innerHTML=imgFoto(url, false);
         }
       },{onlyOnce:true});
     }catch(e){}
