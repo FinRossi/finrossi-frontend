@@ -120,36 +120,107 @@ function cfgTab(tab){
   if(tab==='aparencia') atualizarStatusPWAConfig();
 }
 
+// ─── Foto de perfil: escolher, ajustar (arrastar + zoom) e salvar ───────────
+// Cada perfil tem a sua foto: o cliente na conta dele; o Master uma para o Pessoal e outra para o
+// FinRossi (antes as duas dividiam a mesma foto na nuvem e a troca de perfil não trocava a foto).
+function caminhoFotoNuvem(perfil){
+  const uid = window._firebaseUser?.uid; if(!uid) return null;
+  const p = perfil || cp;
+  return (p === 'pessoal' || p === 'finrossi') ? `usuarios/${uid}/fotosPerfil/${p}` : `usuarios/${uid}/foto`;
+}
 function carregarFoto(event){
   const file = event.target.files[0];
+  event.target.value = '';                       // permite escolher a mesma foto de novo
   if(!file) return;
-  // Comprime para max 200KB antes de salvar
+  if(!/^image\//.test(file.type)){ alert('Escolha um arquivo de imagem.'); return; }
   const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const maxSize = 200;
-      let w = img.width, h = img.height;
-      if(w > h){ h = Math.round(h*maxSize/w); w = maxSize; }
-      else { w = Math.round(w*maxSize/h); h = maxSize; }
-      canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      // Salva
-      localStorage.setItem('fin_foto_'+cp, dataUrl);
-      // Salva no Firebase também
-      if(window._db && window._set && window._ref){
-        try{ window._set(window._ref(window._db,`usuarios/${window._firebaseUser?.uid}/foto`), dataUrl); }catch(e){}
-      }
-      // Atualiza UI
-      aplicarFotoAvatar(dataUrl);
-      const preview = document.getElementById('cfg-foto-preview');
-      if(preview) preview.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">`;
-    };
-    img.src = e.target.result;
-  };
+  reader.onload = e => abrirAjusteFoto(e.target.result);
   reader.readAsDataURL(file);
+}
+
+const _ajuste = { img:null, zoom:1, x:0, y:0, arrastando:null };
+const AJ_LADO = 260;                             // tamanho da área de ajuste na tela
+function abrirAjusteFoto(dataUrl){
+  const img = new Image();
+  img.onload = () => {
+    _ajuste.img = img; _ajuste.zoom = 1; _ajuste.x = 0; _ajuste.y = 0;
+    let m = document.getElementById('modal-ajuste-foto');
+    if(!m){
+      m = document.createElement('div');
+      m.className = 'modal-overlay'; m.id = 'modal-ajuste-foto';
+      m.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="aj-tit" style="max-width:340px;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <h3 id="aj-tit" style="margin:0">Ajustar foto</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--muted);text-align:center">Arraste para posicionar e use o zoom. O que está dentro do círculo é o que vai aparecer.</p>
+        <canvas id="aj-canvas" width="${AJ_LADO*2}" height="${AJ_LADO*2}" style="width:${AJ_LADO}px;height:${AJ_LADO}px;max-width:100%;border-radius:14px;touch-action:none;cursor:grab;background:#000"></canvas>
+        <label style="display:flex;align-items:center;gap:10px;width:100%;font-size:12px;color:var(--muted)">Zoom
+          <input id="aj-zoom" type="range" min="1" max="4" step="0.01" value="1" style="flex:1;accent-color:var(--accent)" oninput="_ajuste.zoom=parseFloat(this.value);ajusteLimitar();desenharAjuste()">
+        </label>
+        <div class="btn-row" style="width:100%"><button class="btn primary" type="button" onclick="salvarAjusteFoto()">Salvar foto</button><button class="btn" type="button" onclick="closeModal('modal-ajuste-foto')">Cancelar</button></div>
+      </div>`;
+      m.addEventListener('click', e => { if(e.target === m) closeModal('modal-ajuste-foto'); });
+      document.body.appendChild(m);
+      const cv = m.querySelector('#aj-canvas');
+      // Arrastar com o dedo ou o mouse (a distância na tela é convertida para a escala do desenho)
+      const fator = () => AJ_LADO / cv.getBoundingClientRect().width;
+      cv.addEventListener('pointerdown', e => { _ajuste.arrastando = { px:e.clientX, py:e.clientY, x:_ajuste.x, y:_ajuste.y }; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+      cv.addEventListener('pointermove', e => {
+        const a = _ajuste.arrastando; if(!a) return;
+        _ajuste.x = a.x + (e.clientX - a.px) * fator(); _ajuste.y = a.y + (e.clientY - a.py) * fator();
+        ajusteLimitar(); desenharAjuste();
+      });
+      const soltar = () => { _ajuste.arrastando = null; cv.style.cursor = 'grab'; };
+      cv.addEventListener('pointerup', soltar); cv.addEventListener('pointercancel', soltar);
+      cv.addEventListener('wheel', e => {
+        e.preventDefault();
+        _ajuste.zoom = Math.min(4, Math.max(1, _ajuste.zoom - e.deltaY * 0.002));
+        document.getElementById('aj-zoom').value = _ajuste.zoom; ajusteLimitar(); desenharAjuste();
+      }, { passive:false });
+    }
+    document.getElementById('aj-zoom').value = 1;
+    desenharAjuste();
+    m.classList.add('open');
+  };
+  img.onerror = () => alert('Não deu para abrir esta imagem. Tente outra (JPG ou PNG).');
+  img.src = dataUrl;
+}
+// Escala para a foto cobrir o quadrado inteiro (zoom 1 = o lado menor encosta na borda)
+function ajusteEscala(){ const i = _ajuste.img; return Math.max(AJ_LADO / i.width, AJ_LADO / i.height) * _ajuste.zoom; }
+// Não deixa aparecer área vazia: a foto sempre cobre o círculo
+function ajusteLimitar(){
+  const i = _ajuste.img, e = ajusteEscala();
+  const folgaX = Math.max(0, (i.width * e - AJ_LADO) / 2), folgaY = Math.max(0, (i.height * e - AJ_LADO) / 2);
+  _ajuste.x = Math.min(folgaX, Math.max(-folgaX, _ajuste.x));
+  _ajuste.y = Math.min(folgaY, Math.max(-folgaY, _ajuste.y));
+}
+function desenharFotoEm(ctx, lado){
+  const i = _ajuste.img, k = lado / AJ_LADO, e = ajusteEscala() * k;
+  const w = i.width * e, h = i.height * e;
+  ctx.drawImage(i, (lado - w) / 2 + _ajuste.x * k, (lado - h) / 2 + _ajuste.y * k, w, h);
+}
+function desenharAjuste(){
+  const cv = document.getElementById('aj-canvas'); if(!cv || !_ajuste.img) return;
+  const ctx = cv.getContext('2d'), L = cv.width;
+  ctx.clearRect(0, 0, L, L);
+  desenharFotoEm(ctx, L);
+  // Escurece o que fica fora do círculo (é cortado) e desenha a borda dourada
+  ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.55)';
+  ctx.beginPath(); ctx.rect(0, 0, L, L); ctx.arc(L/2, L/2, L/2 - 6, 0, Math.PI * 2, true); ctx.fill('evenodd'); ctx.restore();
+  ctx.beginPath(); ctx.arc(L/2, L/2, L/2 - 6, 0, Math.PI * 2); ctx.lineWidth = 3; ctx.strokeStyle = '#C8A96E'; ctx.stroke();
+}
+function salvarAjusteFoto(){
+  const out = document.createElement('canvas'); out.width = out.height = 256;
+  const ctx = out.getContext('2d'); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 256, 256);
+  desenharFotoEm(ctx, 256);
+  const dataUrl = out.toDataURL('image/jpeg', 0.86);
+  try{ localStorage.setItem('fin_foto_' + cp, dataUrl); }catch(e){}
+  const caminho = caminhoFotoNuvem();
+  if(caminho && window._db && window._set && window._ref){
+    window._set(window._ref(window._db, caminho), dataUrl).catch(e => console.warn('[Foto] Não salvou na nuvem:', e && e.message));
+  }
+  aplicarFotoAvatar(dataUrl);
+  const preview = document.getElementById('cfg-foto-preview');
+  if(preview) preview.innerHTML = imgFoto(dataUrl, false);
+  closeModal('modal-ajuste-foto');
 }
 
 // Foto de perfil: só aceita imagem embutida (data:image/...;base64). Antes o valor entrava direto
@@ -174,23 +245,30 @@ function aplicarFotoAvatar(dataUrl){
   }
 }
 
+// Foto do perfil em uso (chamada ao entrar e a cada troca de perfil)
 function initAvatar(){
-  const foto = localStorage.getItem('fin_foto_'+cp);
-  if(foto){
-    aplicarFotoAvatar(foto);
-  } else if(window._firebaseUser?.uid && window._db && window._ref && window._onValue){
-    // Tenta carregar foto do Firebase
-    try{
-      window._onValue(window._ref(window._db,`usuarios/${window._firebaseUser.uid}/foto`), snap=>{
-        const url = snap.val();
-        if(url){
-          localStorage.setItem('fin_foto_'+cp, url);
+  const perfil = cp;
+  const foto = localStorage.getItem('fin_foto_'+perfil);
+  aplicarFotoAvatar(FOTO_OK.test(foto || '') ? foto : null);   // sem foto: volta à inicial do nome
+  if(!foto && window._firebaseUser?.uid && window._db && window._ref && window._onValue){
+    // Busca na nuvem. O Pessoal do Master usava a foto antiga da conta (usuarios/<uid>/foto).
+    const caminhos = [caminhoFotoNuvem(perfil)];
+    if(perfil === 'pessoal') caminhos.push(`usuarios/${window._firebaseUser.uid}/foto`);
+    const tentar = i => {
+      if(i >= caminhos.length || !caminhos[i]) return;
+      try{
+        window._onValue(window._ref(window._db, caminhos[i]), snap=>{
+          const url = snap.val();
+          if(!FOTO_OK.test(url || '')) return tentar(i + 1);
+          try{ localStorage.setItem('fin_foto_'+perfil, url); }catch(e){}
+          if(cp !== perfil) return;               // trocou de perfil enquanto buscava
           aplicarFotoAvatar(url);
           const preview = document.getElementById('cfg-foto-preview');
           if(preview) preview.innerHTML=imgFoto(url, false);
-        }
-      },{onlyOnce:true});
-    }catch(e){}
+        }, () => tentar(i + 1), {onlyOnce:true});
+      }catch(e){}
+    };
+    tentar(0);
   }
   // Atualiza nome na sidebar
   const user = window._firebaseUser;

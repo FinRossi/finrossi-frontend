@@ -151,6 +151,7 @@ function _setProfileFinRossi(){
   goTo('dashboard');
   aplicarNavConfig();
   refreshAll();
+  try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
 }
 
 function setProfile(p){
@@ -179,6 +180,7 @@ function setProfile(p){
   goTo('dashboard');
   aplicarNavConfig();
   refreshAll();
+  try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
 }
 
 // Enter fecha modal senha FinRossi com Escape
