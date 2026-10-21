@@ -38,8 +38,47 @@ function irisTransition(callback){
   }, 1200);
 }
 
+// ─── Acesso Master: só pelo Google (verificação em duas etapas da conta Google) ───
+const EMAIL_MASTER = 'lucasrossi2100@gmail.com';
+const ehEmailMaster = v => String(v || '').trim().toLowerCase() === EMAIL_MASTER;
+// Digitou o e-mail do Master: aparece o botão do Google.
+// Etapa 1 (agora): senha e Google lado a lado, até o Lucas confirmar que o Google funciona.
+// Etapa 2: MASTER_SO_GOOGLE = true esconde a senha (e as regras do banco passam a exigir o Google).
+const MASTER_SO_GOOGLE = false;
+function atualizarLoginMaster(){
+  const master = ehEmailMaster(document.getElementById('login-email')?.value);
+  const g = document.getElementById('btn-login-google');
+  if(g) g.style.display = master ? 'flex' : 'none';
+  if(!MASTER_SO_GOOGLE) return;
+  const senhaBloco = document.getElementById('login-senha-bloco');
+  const btn = document.getElementById('btn-login');
+  if(senhaBloco) senhaBloco.style.display = master ? 'none' : '';
+  if(btn) btn.style.display = master ? 'none' : 'flex';
+}
+async function entrarComGoogle(){
+  const f = window._firebase, erroEl = document.getElementById('login-erro');
+  if(!f || !f.firebaseOk || !f.GoogleAuthProvider) return;
+  erroEl.style.display = 'none';
+  const provedor = new f.GoogleAuthProvider();
+  provedor.setCustomParameters({ login_hint: EMAIL_MASTER, prompt: 'select_account' });
+  try{
+    await f.signInWithPopup(f.auth, provedor);
+  }catch(e){
+    // Celular/app instalado sem janela pop-up: vai para a página do Google e volta
+    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/cancelled-popup-request'].includes(e.code)){
+      try{ await f.signInWithRedirect(f.auth, provedor); return; }catch(e2){ e = e2; }
+    }
+    if(e.code === 'auth/popup-closed-by-user') return;
+    erroEl.textContent = e.code === 'auth/operation-not-allowed'
+      ? 'O login com Google ainda não foi ligado no painel da Firebase.'
+      : 'Não deu para entrar com o Google agora. Tente de novo.';
+    erroEl.style.display = 'block';
+  }
+}
+
 async function fazerLogin(){
   const email=document.getElementById('login-email').value.trim();
+  if(MASTER_SO_GOOGLE && ehEmailMaster(email)){ atualizarLoginMaster(); entrarComGoogle(); return; }
   const senha=document.getElementById('login-senha').value;
   const erroEl=document.getElementById('login-erro');
   const btn=document.getElementById('btn-login');

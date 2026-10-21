@@ -110,7 +110,7 @@
     const [
       { initializeApp },
       { getDatabase, ref, set, onValue, runTransaction },
-      { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect }
     ] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"),
@@ -129,12 +129,24 @@
 
     const db = getDatabase(app);
     const auth = getAuth(app);
-    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, firebaseOk: true };
+    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, firebaseOk: true };
 
     onAuthStateChanged(auth, async (user) => {
       if(!iniciou){ iniciou = true; }
       window._firebaseUser = user;
 
+      // "Entrar com Google" é só do acesso Master (verificação em duas etapas da conta Google).
+      // Qualquer outra conta Google é desconectada na hora.
+      if(user && user.email !== 'lucasrossi2100@gmail.com'){
+        try{
+          if((await user.getIdTokenResult()).signInProvider === 'google.com'){
+            await signOut(auth);
+            const er = document.getElementById('login-erro');
+            if(er){ er.textContent = 'O login com Google é só para o administrador. Entre com seu e-mail e senha.'; er.style.display = 'block'; }
+            return;
+          }
+        }catch(e){}
+      }
       if(user){
         if(user.email === 'lucasrossi2100@gmail.com'){
           window._userRole = 'master'; // dono: nível Master (acima de Sócio)
