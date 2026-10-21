@@ -116,16 +116,33 @@ function _spfModal(modo, cfg){
     document.body.appendChild(m);
   }
   const criar = modo === 'criar';
-  m.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="spf-tit" style="max-width:380px;display:flex;flex-direction:column;gap:12px">
-    <h3 id="spf-tit" style="margin:0">${criar ? 'Criar a senha do perfil FinRossi' : 'Perfil FinRossi'}</h3>
-    <p style="margin:0;font-size:12.5px;color:var(--muted);line-height:1.5">${criar
-      ? 'Ela vai ser pedida toda vez que você entrar no perfil FinRossi. Use uma senha diferente da sua senha de login (mínimo 6 caracteres).'
-      : 'Digite a senha do perfil FinRossi.'}</p>
-    <input id="spf-senha" type="password" autocomplete="${criar ? 'new-password' : 'current-password'}" placeholder="Senha do perfil FinRossi" onkeydown="if(event.key==='Enter')${criar ? "document.getElementById('spf-senha2').focus()" : 'confirmarSenhaPerfilFR()'}">
-    ${criar ? `<input id="spf-senha2" type="password" autocomplete="new-password" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')criarSenhaPerfilFR()">` : ''}
-    <div id="spf-msg" class="msg"></div>
-    <div class="btn-row"><button class="btn primary" type="button" onclick="${criar ? 'criarSenhaPerfilFR()' : 'confirmarSenhaPerfilFR()'}">${criar ? 'Criar senha' : 'Entrar'}</button><button class="btn" type="button" onclick="closeModal('modal-senha-perfil-fr')">Cancelar</button></div>
-    ${criar ? '' : `<button type="button" onclick="esqueciSenhaPerfilFR()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;align-self:center">Esqueci a senha do perfil</button>`}
+  // Mesmo visual dos formulários do app: selo dourado, rótulo em caixa alta, campo escuro e olho
+  const campo = (id, rotulo, auto, enter) => `
+    <div class="field">
+      <label for="${id}">${rotulo}</label>
+      <div style="position:relative">
+        <input id="${id}" type="password" autocomplete="${auto}" placeholder="••••••••" style="width:100%;padding-right:42px" onkeydown="if(event.key==='Enter')${enter}">
+        <button type="button" id="${id}-olho" onclick="toggleSenha('${id}','${id}-olho')" aria-label="Mostrar ou esconder a senha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;line-height:0">${typeof ICONE_OLHO !== 'undefined' ? ICONE_OLHO : '👁'}</button>
+      </div>
+    </div>`;
+  m.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="spf-tit" style="max-width:400px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div aria-hidden="true" style="width:42px;height:42px;flex-shrink:0;border-radius:50%;border:1px solid var(--accent);background:var(--accent-s);display:flex;align-items:center;justify-content:center;color:var(--accent)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+      </div>
+      <div>
+        <h3 id="spf-tit" style="margin:0">${criar ? 'Criar senha do perfil' : 'Perfil FinRossi'}</h3>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${criar ? 'Perfil FinRossi' : 'Área protegida'}</div>
+      </div>
+    </div>
+    <p style="margin:0;font-size:12.5px;color:var(--muted);line-height:1.6">${criar
+      ? 'Ela vai ser pedida toda vez que você entrar no perfil FinRossi. Use uma senha diferente da senha de login, com pelo menos 6 caracteres.'
+      : 'Digite a senha do perfil FinRossi para continuar.'}</p>
+    ${campo('spf-senha', criar ? 'Nova senha' : 'Senha', criar ? 'new-password' : 'current-password', criar ? "document.getElementById('spf-senha2').focus()" : 'confirmarSenhaPerfilFR()')}
+    ${criar ? campo('spf-senha2', 'Repita a senha', 'new-password', 'criarSenhaPerfilFR()') : ''}
+    <div id="spf-msg" class="msg" style="margin-top:0;min-height:0"></div>
+    <div class="btn-row" style="margin-top:2px"><button class="btn primary" type="button" onclick="${criar ? 'criarSenhaPerfilFR()' : 'confirmarSenhaPerfilFR()'}">${criar ? 'Criar senha' : 'Entrar'}</button><button class="btn" type="button" onclick="closeModal('modal-senha-perfil-fr')">Cancelar</button></div>
+    ${criar ? '' : `<button type="button" onclick="esqueciSenhaPerfilFR()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;align-self:center;font-family:inherit">Esqueci a senha do perfil</button>`}
   </div>`;
   m._cfg = cfg || null;
   m.classList.add('open');
