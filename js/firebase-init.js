@@ -109,7 +109,7 @@
     // O index.html já pede esses arquivos com antecedência (modulepreload).
     const [
       { initializeApp },
-      { getDatabase, ref, set, onValue },
+      { getDatabase, ref, set, onValue, runTransaction },
       { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     ] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
@@ -129,7 +129,7 @@
 
     const db = getDatabase(app);
     const auth = getAuth(app);
-    window._firebase = { db, ref, set, onValue, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, firebaseOk: true };
+    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, firebaseOk: true };
 
     onAuthStateChanged(auth, async (user) => {
       if(!iniciou){ iniciou = true; }

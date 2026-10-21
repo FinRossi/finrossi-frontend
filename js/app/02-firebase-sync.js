@@ -45,9 +45,94 @@ function juntarAparelhoENuvem(perfil, val, base){
   Promise.all(gravacoes)
     .then(() => {
       try{ localStorage.setItem(chaveJuntado(perfil), new Date().toISOString()); }catch(e){}
+      TIPOS_SYNC.forEach(t => lembrarIds(perfil, t, DATA[perfil][t]));   // a partir daqui vale a sincronização item a item
       if(total) console.info(`[Sync] ${total} registro(s) que estavam só neste aparelho foram enviados para a nuvem (${perfil}).`);
     })
     .catch(e => console.warn('[Sync] Não deu para juntar com a nuvem agora; tenta de novo na próxima abertura.', e && e.message));
+}
+
+// ─── Sincronização item a item (F6) ──────────────────────────────────────────
+// Antes cada gravação trocava a lista inteira na nuvem pela do aparelho, e cada aviso da nuvem
+// trocava a do aparelho pela da nuvem: com dois aparelhos abertos (ou lançando sem internet e
+// recarregando) um lançamento sumia. Agora o aparelho lembra quais itens a nuvem tinha da última
+// vez que viu ("conhecidos") e junta item por item:
+//   • está nos dois                      → fica (versão do aparelho ao gravar; da nuvem ao receber)
+//   • só no aparelho e não era conhecido → criado aqui → fica e sobe
+//   • só no aparelho e era conhecido     → apagado em outro aparelho → sai
+//   • só na nuvem e não era conhecido    → criado em outro aparelho → fica
+//   • só na nuvem e era conhecido        → apagado aqui → sai
+const chaveIds = (p, t) => `fin_ids_nuvem_${p}_${t}`;
+const listaDe = v => (Array.isArray(v) ? v : Object.values(v || {})).filter(Boolean);
+function idsConhecidos(p, t){
+  try{ return new Set(JSON.parse(localStorage.getItem(chaveIds(p, t)) || '[]')); }catch(e){ return new Set(); }
+}
+function lembrarIds(p, t, lista){
+  try{ localStorage.setItem(chaveIds(p, t), JSON.stringify(listaDe(lista).filter(x => x.id != null).map(x => String(x.id)))); }catch(e){}
+}
+function juntarComNuvem(local, nuvem, conhecidos, preferir){
+  const N = new Map(listaDe(nuvem).filter(x => x.id != null).map(x => [String(x.id), x]));
+  const vistos = new Set(), r = [];
+  listaDe(local).forEach(x => {
+    if(x.id == null){ r.push(x); return; }               // itens antigos sem id: ficam como estão
+    const id = String(x.id); vistos.add(id);
+    if(N.has(id)) r.push(preferir === 'local' ? x : N.get(id));
+    else if(!conhecidos.has(id)) r.push(x);
+  });
+  N.forEach((x, id) => { if(!vistos.has(id) && !conhecidos.has(id)) r.push(x); });
+  return r;
+}
+const mesmosIds = (a, b) => {
+  const ia = listaDe(a).filter(x => x.id != null).map(x => String(x.id)).sort().join('|');
+  const ib = listaDe(b).filter(x => x.id != null).map(x => String(x.id)).sort().join('|');
+  return ia === ib;
+};
+// Chegou a lista da nuvem: junta com o aparelho e, se o aparelho tinha algo a mais/a menos, sobe
+function sincronizarLista(perfil, tipo, nuvem, base){
+  const juntada = juntarComNuvem(DATA[perfil][tipo], nuvem, idsConhecidos(perfil, tipo), 'nuvem');
+  lembrarIds(perfil, tipo, nuvem);                       // o que a nuvem tem agora (confirmado)
+  DATA[perfil][tipo] = juntada; lsSave(perfil, tipo);
+  if(!mesmosIds(juntada, nuvem)){
+    gravarLista(perfil, tipo, `${base}/${tipo}`)
+      .catch(e => console.warn('[Sync] Não subiu agora; tenta de novo na próxima mudança.', e && e.message));
+  }
+}
+// Lê um caminho uma vez (sem internet: undefined depois de 4 s)
+function lerUmaVez(caminho){
+  return new Promise(res => {
+    let feito = false; const fim = v => { if(!feito){ feito = true; res(v); } };
+    try{ _onValue(_ref(_db, caminho), s => fim(s.val()), () => fim(undefined), { onlyOnce: true }); }catch(e){ fim(undefined); }
+    setTimeout(() => fim(undefined), 4000);
+  });
+}
+// Gravar uma lista: junta com o que está na nuvem agora (preferindo a edição deste aparelho).
+// Com transação, ler + juntar + gravar é uma coisa só: se outro aparelho gravar no meio, a
+// Firebase repete a junção com a versão nova — dois aparelhos gravando juntos não se atropelam.
+async function gravarLista(perfil, tipo, caminho){
+  const tx = window._firebase && window._firebase.runTransaction;
+  if(tx){
+    const conhecidos = idsConhecidos(perfil, tipo);
+    const r = await tx(_ref(_db, caminho), atual => {
+      const lista = juntarComNuvem(DATA[perfil][tipo], atual, conhecidos, 'local');
+      return lista.length ? lista : null;
+    }, { applyLocally: false });   // sem resultado provisório: só o que a nuvem confirmou
+    if(r && r.committed){
+      // Junta (não substitui): o que foi lançado aqui enquanto esta gravação andava continua
+      // no aparelho e sobe na própria gravação
+      const confirmada = r.snapshot.val();
+      DATA[perfil][tipo] = juntarComNuvem(DATA[perfil][tipo], confirmada, conhecidos, 'local');
+      lsSave(perfil, tipo);
+      lembrarIds(perfil, tipo, confirmada);
+    }
+    return;
+  }
+  const nuvem = await lerUmaVez(caminho);
+  if(nuvem !== undefined){
+    DATA[perfil][tipo] = juntarComNuvem(DATA[perfil][tipo], nuvem, idsConhecidos(perfil, tipo), 'local');
+    lsSave(perfil, tipo);
+  }
+  const lista = DATA[perfil][tipo] || [];
+  await _set(_ref(_db, caminho), lista.length ? lista : null);
+  lembrarIds(perfil, tipo, lista);
 }
 
 // ─── FIREBASE INIT ────────────────────────────────────────────────────────────
@@ -73,10 +158,8 @@ function initFB(){
           try{
             const val=snap.val();
             if(precisaJuntar(p)){ juntarAparelhoENuvem(p, val||{}, `financeiro/${p}`); if(p===cp) refreshAll(); return; }
+            TIPOS.forEach(t=>sincronizarLista(p, t, (val||{})[t], `financeiro/${p}`));   // item a item (F6)
             if(val){
-              TIPOS.forEach(t=>{
-                if(val[t]!==undefined){DATA[p][t]=Array.isArray(val[t])?val[t]:Object.values(val[t]||{});lsSave(p,t);}
-              });
               if(val.categorias) DATA[p].categorias=val.categorias;
               if(val.rendaPassiva){ DATA[p].rendaPassiva=val.rendaPassiva; lsSave(p,'rendaPassiva'); }
             }
@@ -94,13 +177,8 @@ function initFB(){
         try{
           const val=snap.val();
           if(precisaJuntar(uid)){ juntarAparelhoENuvem(uid, val||{}, `financeiro/${uid}`); refreshAll(); return; }
+          TIPOS.forEach(t=>sincronizarLista(uid, t, (val||{})[t], `financeiro/${uid}`));   // item a item (F6)
           if(val){
-            TIPOS.forEach(t=>{
-              if(val[t]!==undefined){
-                DATA[uid][t]=Array.isArray(val[t])?val[t]:Object.values(val[t]||{});
-                try{localStorage.setItem(`fin3_${uid}_${t}`,JSON.stringify(DATA[uid][t]));}catch{}
-              }
-            });
             if(val.categorias) DATA[uid].categorias=val.categorias;
             if(val.rendaPassiva){ DATA[uid].rendaPassiva=val.rendaPassiva; lsSave(uid,'rendaPassiva'); }
           }

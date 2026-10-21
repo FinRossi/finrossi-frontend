@@ -53,8 +53,9 @@ async function fbSave(profile,type){
     const savePath = (role==='cliente' && window._firebaseUser?.uid)
       ? `financeiro/${window._firebaseUser.uid}/${type}`
       : `financeiro/${profile}/${type}`;
-    const data = DATA[profile][type];
-    await _set(_ref(_db, savePath), data||null);
+    // Listas: junta item a item com a nuvem (02-firebase-sync.js). Configurações (ex.: rendaPassiva): grava direto.
+    if(Array.isArray(DATA[profile][type]) && TIPOS_SYNC.includes(type)) await gravarLista(profile, type, savePath);
+    else await _set(_ref(_db, savePath), DATA[profile][type] || null);
   }catch(e){console.warn('fbSave err',e)}
 }
 
@@ -73,7 +74,7 @@ async function saveCollection(type){
       const savePath = (role==='cliente' && window._firebaseUser?.uid)
         ? `financeiro/${window._firebaseUser.uid}/${type}`
         : `financeiro/${cp}/${type}`;
-      await _set(_ref(_db, savePath), DATA[cp][type] || null);
+      await gravarLista(cp, type, savePath);   // junta item a item com a nuvem (02-firebase-sync.js)
       // Atualiza badge
       const sb = document.getElementById('sync-badge');
       if(sb){ sb.className='sync-badge ok'; sb.innerHTML='<span class="sync-dot"></span><span class="nav-text">Sincronizado</span>'; }
