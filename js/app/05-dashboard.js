@@ -87,7 +87,6 @@ function refreshDash(){
   const doMes=lancs.filter(l=>l.data.startsWith(mes));
   const rec=doMes.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const des=doMes.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
-  const totalInv=invs.reduce((a,b)=>a+b.val,0);
   const saldo=rec-des;
 
   // Mês anterior para variação %
@@ -105,6 +104,17 @@ function refreshDash(){
     return ((atual-ant)/Math.abs(ant)*100).toFixed(1);
   };
   const varSubiu=v=>v==='N+'||(v!=='N-'&&parseFloat(v)>=0);
+
+  // Patrimônio no fim de um mês = tudo que sobrou (receitas − despesas) desde o primeiro
+  // lançamento até aquele mês + investimentos aplicados até ele. Antes o gráfico mostrava só
+  // o saldo de cada mês, sem investimentos e sem acumular.
+  const patrimonioAte = m => {
+    const lim = m + '-31';
+    const caixa = lancs.reduce((a,l) => l.data <= lim ? a + (l.tipo==='receita' ? l.val : l.tipo==='despesa' ? -l.val : 0) : a, 0);
+    const aplicado = invs.reduce((a,i) => (!i.data || i.data <= lim) ? a + (Number(i.val) || 0) : a, 0);
+    return caixa + aplicado;
+  };
+  const pat = patrimonioAte(mes), patAnt = patrimonioAte(mesAnt);
   const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${String(Math.abs(parseFloat(v))).replace('.', ',')}%`;
 
   // Sparkline mini — últimos 6 meses de dados
@@ -115,7 +125,7 @@ function refreshDash(){
   const sparkRec=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='receita').reduce((a,b)=>a+b.val,0));
   const sparkDes=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='despesa').reduce((a,b)=>a+b.val,0));
   const sparkSal=mesUniq.map((m,i)=>sparkRec[i]-sparkDes[i]);
-  const sparkInv=mesUniq.map(()=>totalInv); // investimentos não variam por mês neste modelo
+  const sparkPat=mesUniq.map(patrimonioAte);
 
   const mkSpark=(id,data,color)=>`<canvas id="spark-${id}" width="120" height="40" style="position:absolute;bottom:12px;right:12px" data-spark='${JSON.stringify(data)}' data-color='${color}'></canvas>`;
 
@@ -131,11 +141,8 @@ function refreshDash(){
   const ICON_TRENDING_DOWN  = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 10,13 14,9 21,17"/><polyline points="21,10 21,17 14,17"/></svg>`;
   const ICON_WALLET    = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 000 4h4v-4Z"/></svg>`;
 
-  const totalInvAnt = invs.reduce((a,b)=>a+b.val,0); // investimentos não variam mês a mês por ora
-  const saldoAcumAnt = saldoAnt; // usa saldo do mês anterior como comparativo
-
   const kpiCards=[
-    {id:'inv', label:'Patrimônio líquido', val:fmtR(totalInv+saldo), var:varPct(totalInv+saldo, totalInv+saldoAnt), spark:sparkInv, color:'#C8A96E', icon:ICON_CHART_UP},
+    {id:'inv', label:'Patrimônio líquido', val:fmtR(pat), var:varPct(pat, patAnt), spark:sparkPat, color:'#C8A96E', icon:ICON_CHART_UP},
     {id:'rec', label:'Receitas', val:fmtR(rec), var:varPct(rec,recAnt), spark:sparkRec, color:'#4ade80', icon:ICON_CASH},
     {id:'des', label:'Despesas', val:fmtR(des), var:varPct(des,desAnt), spark:sparkDes, color:'#f87171', icon:ICON_TRENDING_DOWN},
     {id:'sal', label:'Saldo disponível', val:fmtR(saldo), var:varPct(saldo,saldoAnt), spark:sparkSal, color:'#C8A96E', icon:ICON_WALLET},
@@ -152,7 +159,6 @@ function refreshDash(){
       const bom = invertido ? !subiu : subiu; // despesas: gastar menos é bom
       return `<span class="${bom ? 'ced-pos' : 'ced-neg'}">${subiu ? '↑' : '↓'}${varRotulo(v)}</span><span class="ced-sub">${subiu ? 'subiu' : 'caiu'} no mês</span>`;
     };
-    const pat = totalInv + saldo;
 
     // Valores em tempo real: andam do último valor que o cliente viu até o atual.
     // Só conta quando o dashboard está na tela — lançar com ele escondido guarda a
@@ -180,7 +186,7 @@ function refreshDash(){
         <div class="ced-serie">${serieCedula(mes)}</div>
         <div class="ced-rotulo">Patrimônio líquido</div>
         <div class="ced-valor-linha"><div class="ced-valor${pat<0?' ced-negativo':''}" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
-        <div class="ced-var">${varTxt(varPct(pat, totalInv + saldoAnt), false)}</div>
+        <div class="ced-var">${varTxt(varPct(pat, patAnt), false)}</div>
       </div></div>
       <div class="ced-extrato">
         ${[['Receitas', 'rec', varPct(rec, recAnt), false], ['Despesas', 'des', varPct(des, desAnt), true], ['Saldo disponível', 'sal', varPct(saldo, saldoAnt), false]]
@@ -235,10 +241,10 @@ function refreshDash(){
 
   // Atualiza totais dos gráficos principais
   const evoTotEl=document.getElementById('dash-evo-total');
-  if(evoTotEl){ evoTotEl.textContent=fmtR(saldo); evoTotEl.classList.toggle('ced-negativo', saldo<0); }
+  if(evoTotEl){ evoTotEl.textContent=fmtR(pat); evoTotEl.classList.toggle('ced-negativo', pat<0); }
   const evoBadge=document.getElementById('dash-evo-badge');
   if(evoBadge){
-    const v=varPct(saldo,saldoAnt);
+    const v=varPct(pat,patAnt);
     if(v!==null){
       const pos=varSubiu(v), igual=parseFloat(v)===0;
       evoBadge.textContent=igual?'sem mudança':`${pos?'↑':'↓'}${varRotulo(v)||(pos?' subiu':' caiu')}`;
@@ -294,9 +300,8 @@ function refreshDash(){
   } else { parcSec.innerHTML=''; }
 
   // ── Gráfico evolução (linha dourada área preenchida) ──
-  const evoR=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='receita').reduce((a,b)=>a+b.val,0));
-  const evoD=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='despesa').reduce((a,b)=>a+b.val,0));
-  const evoS=mesUniq.map((m,i)=>evoR[i]-evoD[i]);
+  const evoR=sparkRec, evoD=sparkDes;   // usados também no gráfico Receitas × Despesas
+  const evoS=sparkPat;   // patrimônio acumulado + investimentos em cada mês
 
   destroyChart('evo');
   const ctxE=document.getElementById('c-evo');
