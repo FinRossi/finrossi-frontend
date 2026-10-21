@@ -6,26 +6,20 @@ const BACKEND_URL = /(^|\.)finrossi\.com\.br$|\.github\.io$/.test(location.hostn
   ? 'https://finrossi-backend-production1.up.railway.app'
   : 'http://' + (location.hostname || 'localhost') + ':3000';
 
-var _adminToken = localStorage.getItem('fin_admin_token')||'';
-
+// A equipe entra no servidor pelo próprio login (o servidor lê o cargo no banco). Antes havia uma
+// senha admin compartilhada (ADMIN_SECRET), pedida num prompt e salva no navegador: acabou (B3).
+var _adminToken = null;
+try{ localStorage.removeItem('fin_admin_token'); }catch(e){}   // apaga a senha antiga que ficou salva
 function getAdminToken(){
-  // Master não precisa da senha: o login dele vai junto em adminHeaders() e o servidor aceita
-  if(isMaster() && window._firebaseUser) return _adminToken || 'login-master';
-  if(_adminToken) return _adminToken;
-  // Tenta pegar do localStorage primeiro
-  const saved=localStorage.getItem('fin_admin_token');
-  if(saved){_adminToken=saved;return _adminToken;}
-  const t = prompt('Senha de administrador (ADMIN_SECRET):');
-  if(!t){goTo('dashboard');return null;}
-  _adminToken = t;
-  localStorage.setItem('fin_admin_token', t);
-  return _adminToken;
+  if(window._firebaseUser && typeof isEquipe === 'function' && isEquipe()) return 'login';
+  goTo('dashboard');
+  return null;
 }
 
 // Cabeçalhos das chamadas admin: senha admin + login do Firebase de quem está usando.
 // O servidor usa o login para saber se é o Master (único que mexe em acessos da equipe).
 async function adminHeaders(token, extra){
-  const h = {'x-admin-token':token, ...(extra||{})};
+  const h = {...(extra||{})};
   try{
     const u = window._firebaseUser;
     if(u && u.getIdToken) h.Authorization = 'Bearer ' + await u.getIdToken();
@@ -104,7 +98,7 @@ async function cadastrarNovoCliente(){
       headers:await adminHeaders(token,{'Content-Type':'application/json'}),
       body:JSON.stringify({nome,email,senha,plano,origem,role})
     });
-    if(res.status===401){_adminToken='';showMsg('msg-novo-cliente','Senha admin incorreta','err');return;}
+    if(res.status===401){showMsg('msg-novo-cliente','Sem permissão: entre com a sua conta da equipe.','err');return;}
     const data=await res.json();
     if(data.ok){
       showMsg('msg-novo-cliente',ROLES_EQUIPE.includes(role)?'Acesso criado com sucesso!':'Cliente cadastrado com sucesso!','ok');
@@ -133,10 +127,8 @@ async function renderClientes(){
     });
     
     if(res.status===401){
-      _adminToken='';
-      localStorage.removeItem('fin_admin_token');
       goTo('dashboard');
-      setTimeout(()=>alert('Senha de administrador incorreta. Tente novamente.'),100);
+      setTimeout(()=>alert('Sem permissão: esta área é só da equipe do FinRossi.'),100);
       return;
     }
 

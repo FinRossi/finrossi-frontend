@@ -197,45 +197,10 @@ async function esqueciSenhaPerfilFR(){
 let finrossiAutenticado = false;
 
 function abrirFinRossi(){
-  // Master: senha própria do perfil FinRossi, pedida a cada entrada (senha-perfil abaixo)
-  if(isMaster() && !finrossiAutenticado){ pedirSenhaPerfilFR(); return; }
-  if(finrossiAutenticado){_setProfileFinRossi();return;}
-  // Abre modal estilo login
-  const overlay=document.getElementById('modal-finrossi-senha');
-  if(overlay){
-    overlay.style.display='flex';
-    const inp=document.getElementById('inp-senha-finrossi');
-    if(inp){inp.value='';setTimeout(()=>inp.focus(),120);}
-    const msg=document.getElementById('msg-senha-finrossi');
-    if(msg){msg.style.display='none';msg.textContent='';}
-  }
-}
-
-function fecharModalSenhaFinRossi(){
-  const overlay=document.getElementById('modal-finrossi-senha');
-  if(overlay) overlay.style.display='none';
-}
-
-function confirmarSenhaFinRossi(){
-  const inp=document.getElementById('inp-senha-finrossi');
-  const msg=document.getElementById('msg-senha-finrossi');
-  const senha=inp?inp.value:'';
-  if(!senha) return;
-  fetch(`${BACKEND_URL}/admin/clientes`,{headers:{'x-admin-token':senha}})
-    .then(res=>{
-      if(res.status===401){
-        if(msg){msg.textContent='Senha incorreta. Tente novamente.';msg.style.display='block';}
-        if(inp){inp.value='';inp.focus();}
-        return;
-      }
-      finrossiAutenticado=true;
-      _adminToken=senha;
-      localStorage.setItem('fin_admin_token',senha);
-      fecharModalSenhaFinRossi();
-      _setProfileFinRossi();
-    }).catch(()=>{
-      if(msg){msg.textContent='Não foi possível falar com o servidor. Tente de novo em instantes.';msg.style.display='block';}
-    });
+  // Master e sócios: cada um com a própria senha do perfil FinRossi, pedida a cada entrada.
+  // (Antes o sócio digitava a senha admin compartilhada, que ficava salva no navegador.)
+  if((isMaster() || _userRole === 'socio') && !finrossiAutenticado){ pedirSenhaPerfilFR(); return; }
+  if(finrossiAutenticado || isEquipe()){ _setProfileFinRossi(); return; }
 }
 
 function _setProfileFinRossi(){
@@ -292,13 +257,6 @@ function setProfile(p){
   try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
 }
 
-// Enter fecha modal senha FinRossi com Escape
-document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){
-    const overlay=document.getElementById('modal-finrossi-senha');
-    if(overlay&&overlay.style.display==='flex') fecharModalSenhaFinRossi();
-  }
-});
 
 const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura'];
 function goTo(name){

@@ -27,10 +27,8 @@ async function renderSocios(){
   try{
     const res=await fetchBackend(`${BACKEND_URL}/admin/clientes`,{headers:await adminHeaders(token)});
     if(res.status===401){
-      _adminToken='';
-      localStorage.removeItem('fin_admin_token');
       goTo('dashboard');
-      setTimeout(()=>alert('Senha de administrador incorreta. Tente novamente.'),100);
+      setTimeout(()=>alert('Sem permissão: esta área é só da equipe do FinRossi.'),100);
       return;
     }
     const data=await res.json();
