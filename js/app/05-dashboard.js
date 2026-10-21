@@ -118,9 +118,10 @@ function refreshDash(){
   const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${String(Math.abs(parseFloat(v))).replace('.', ',')}%`;
 
   // Sparkline mini — últimos 6 meses de dados
-  const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].sort().slice(-6);
-  if(!mesUniq.includes(mes)) mesUniq.push(mes);
-  mesUniq.sort();
+  // Até o mês escolhido: ele e os 5 meses com lançamentos antes dele (antes pegava os 6 mais
+  // recentes de todos, e escolher um mês antigo ainda mostrava os meses depois dele)
+  const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].filter(m=>m<mes).sort().slice(-5);
+  mesUniq.push(mes);
 
   const sparkRec=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='receita').reduce((a,b)=>a+b.val,0));
   const sparkDes=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='despesa').reduce((a,b)=>a+b.val,0));
