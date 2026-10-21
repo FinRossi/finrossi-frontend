@@ -55,6 +55,19 @@ function abrirEditNota(id){
   document.getElementById('modal-nota').classList.add('open');
 }
 
+async function salvarEditNota(){
+  const id=document.getElementById('nota-edit-id').value;
+  const notas=getNotas(); const i=notas.findIndex(n=>n.id===id);
+  if(i>=0) notas[i]={...notas[i],
+    titulo:document.getElementById('nota-edit-titulo').value.trim()||'Sem título',
+    texto:document.getElementById('nota-edit-texto').value.trim(),
+    cat:document.getElementById('nota-edit-cat').value,
+    cor:document.getElementById('nota-edit-cor').value,
+    editada:hoje()};
+  closeModal('modal-nota'); renderNotas();
+  await saveNotas();
+}
+
 async function remNota(id){
   if(!confirm('Excluir esta nota?'))return;
   pd().notas=getNotas().filter(n=>n.id!==id);renderNotas();saveNotas();

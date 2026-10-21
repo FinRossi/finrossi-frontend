@@ -24,7 +24,7 @@ function renderInvs(){
   // A cor do ponto é a mesma do tipo no gráfico ao lado
   const tipos=[...new Set(invs.map(i=>i.tipo))];
   listEl.innerHTML=invs.map(inv=>`
-    <div class="inv-item"><div class="inv-left"><div class="inv-dot" style="background:${PALETTE[tipos.indexOf(inv.tipo)%PALETTE.length]}"></div><div><div class="inv-name">${escHTML(inv.nome)}</div><div class="inv-type">${inv.tipo}${inv.rent?' · '+escHTML(inv.rent):''}${inv.banco?' · '+escHTML(inv.banco):''}</div></div></div>
+    <div class="inv-item"><div class="inv-left"><div class="inv-dot" style="background:${PALETTE[tipos.indexOf(inv.tipo)%PALETTE.length]}"></div><div><div class="inv-name">${escHTML(inv.nome)}</div><div class="inv-type">${escHTML(inv.tipo)}${inv.rent?' · '+escHTML(inv.rent):''}${inv.banco?' · '+escHTML(inv.banco):''}</div></div></div>
     <div style="display:flex;align-items:center;gap:8px"><div class="inv-val">${fmtR(inv.val)}</div><button class="btn danger xs" onclick="remInv('${inv.id}')">✕</button></div></div>`).join('');
 }
 

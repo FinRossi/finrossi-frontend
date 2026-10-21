@@ -309,7 +309,7 @@ function lerComprovanteTexto(texto, categorias){
   }
 
   // Data: dd/mm/aaaa (ou aa); prefere a que estiver perto de "EMISSÃO"/"DATA"
-  const hojeISO = new Date().toISOString().slice(0, 10);
+  const hojeISO = hoje();   // data no fuso do aparelho (UTC errava depois das 21h)
   const datas = [];
   LINHAS.forEach((L, i) => {
     for(const m of L.matchAll(/\b(\d{2})[\/.-](\d{2})[\/.-](\d{4}|\d{2})\b/g)){

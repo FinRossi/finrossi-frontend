@@ -78,7 +78,9 @@ function addLanc(tipo){
       const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar('d'):null; // mesma foto para todas as parcelas
       const [yr,mo,dy]=data.split('-').map(Number);
       for(let i=0;i<nParc;i++){
-        const d=new Date(yr,mo-1+i,dy);
+        // Dia 29/30/31 em mês mais curto: usa o último dia do mês (31/01 + 1 = 28/02, não 03/03)
+        const ultimoDia=new Date(yr,mo+i,0).getDate();
+        const d=new Date(yr,mo-1+i,Math.min(dy,ultimoDia));
         const dataParc=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         pd().lancs.push({id:uid(),tipo,desc,val:valParc,data:dataParc,cat,obs,metodo,parcelado:true,parcela:i+1,totalParcelas:nParc,valorTotal:val,groupId:gid,cartaoId,...(anexo?{anexo}:{})});
       }

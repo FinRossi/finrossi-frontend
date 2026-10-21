@@ -65,7 +65,7 @@
 
 <!-- Funcionalidades exclusivas por plano — mantidas fora do arquivo principal -->
 <script src="planos/patrimonio/patrimonio.js?v=11" defer></script>
-<script src="planos/patrimonio/lancamento-foto.js?v=7" defer></script>
+<script src="planos/patrimonio/lancamento-foto.js?v=8" defer></script>
 <script src="planos/patrimonio/anexos.js?v=2" defer></script>
 <script src="planos/patrimonio/relatorios.js?v=6" defer></script>
 
@@ -1656,6 +1656,42 @@ try{
 </div>
 
 <!-- MODAL ASSINATURA -->
+<!-- EDITAR NOTA (tinha sumido numa limpeza em 21/06/2026: o lápis da nota dava erro) -->
+<div class="modal-overlay" id="modal-nota">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nota-edit-tit">
+    <h3 id="nota-edit-tit">Editar nota</h3>
+    <input type="hidden" id="nota-edit-id">
+    <div class="field" style="margin-bottom:8px">
+      <label for="nota-edit-titulo">Título</label>
+      <input id="nota-edit-titulo" type="text">
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <label for="nota-edit-texto">Conteúdo</label>
+      <textarea id="nota-edit-texto" rows="5" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;width:100%;line-height:1.6"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label for="nota-edit-cat">Categoria</label>
+        <select id="nota-edit-cat">
+          <option>Geral</option><option>Financeiro</option><option>Reunião</option>
+          <option>Ideia</option><option>Tarefa</option><option>Importante</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="nota-edit-cor">Cor</label>
+        <select id="nota-edit-cor">
+          <option value="default">Padrão</option><option value="green">Verde</option><option value="blue">Azul</option>
+          <option value="amber">Âmbar</option><option value="red">Vermelho</option><option value="purple">Roxo</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="salvarEditNota()">Salvar</button>
+      <button class="btn" onclick="closeModal('modal-nota')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-assin">
   <div class="modal">
     <h3 id="massin-title">Nova assinatura</h3>
@@ -2073,23 +2109,23 @@ try{
 
 <!-- Scripts do app — carregados em ordem numérica; 33-pwa-init.js roda a inicialização e deve ser o último -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous"></script>
-<script src="js/app/01-base.js?v=4"></script>
+<script src="js/app/01-base.js?v=5"></script>
 <script src="js/app/02-firebase-sync.js?v=4"></script>
 <script src="acessos/03-perfil-roles.js?v=9"></script>
 <script src="js/app/04-categorias.js?v=5"></script>
 <script src="js/app/05-dashboard.js?v=20"></script>
 <script src="js/app/05b-cedula.js?v=6"></script>
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
-<script src="js/app/06-lancamentos.js?v=3"></script>
-<script src="planos/essencial/07-investimentos.js?v=3"></script>
-<script src="js/app/08-historico.js?v=4"></script>
+<script src="js/app/06-lancamentos.js?v=4"></script>
+<script src="planos/essencial/07-investimentos.js?v=4"></script>
+<script src="js/app/08-historico.js?v=5"></script>
 <script src="planos/evolucao/09-metas-objetivos.js?v=6"></script>
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
 <script src="js/app/11-modal-export.js?v=3"></script>
-<script src="planos/evolucao/14-notas.js?v=7"></script>
+<script src="planos/evolucao/14-notas.js?v=8"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=11"></script>
+<script src="acessos/17-clientes.js?v=12"></script>
 <script src="acessos/17b-socios.js?v=3"></script>
 <script src="planos/18-regras-planos.js?v=6"></script>
 <script src="acessos/19-preview-planos.js?v=7"></script>
