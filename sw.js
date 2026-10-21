@@ -8,7 +8,7 @@
 // • Versão nova não assume sozinha: o app avisa "Nova versão" e troca quando a pessoa toca
 //   (ou na próxima abertura). Antes recarregava no meio do uso e apagava o que estava sendo digitado.
 // • Banco de dados, login, backend e pagamentos: nunca passam pelo SW.
-const CACHE_NAME = 'finrossi-v11';
+const CACHE_NAME = 'finrossi-v12';
 
 // Bibliotecas e fontes com versão fixa na URL — seguras para guardar
 const IMUTAVEIS = [
@@ -158,7 +158,7 @@ self.addEventListener('fetch', e => {
   // Páginas (index.html e navegação) — sempre da rede; sem internet, a cópia salva
   if (e.request.mode === 'navigate' || url.endsWith('/') || url.includes('index.html')) {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: 'no-cache' })   // sempre confere com o servidor (antes podia vir a cópia de até 10 min do navegador)
         .then(r => {
           if (r && r.status === 200) {
             const copia = r.clone();

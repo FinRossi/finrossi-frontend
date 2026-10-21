@@ -637,8 +637,8 @@ body.modal-aberto{overflow:hidden}
         <p class="section-sub">Comece grátis. Faça upgrade quando quiser. Cancele a qualquer momento.</p>
         <div class="periodo-wrap">
           <div style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:30px;padding:4px">
-            <button id="toggle-mensal" onclick="setPeriodo('mensal')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:#C8A96E;color:#0f0f0f">Mensal</button>
-            <button id="toggle-anual" onclick="setPeriodo('anual')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:#888;display:flex;align-items:center;gap:6px">
+            <button id="toggle-mensal" onclick="setPeriodo('mensal')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:all .2s;background:#C8A96E;color:#0f0f0f">Mensal</button>
+            <button id="toggle-anual" onclick="setPeriodo('anual')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:#888;display:flex;align-items:center;gap:6px">
               Anual <span style="background:rgba(74,222,128,0.15);color:#4ade80;font-size:11px;padding:2px 8px;border-radius:10px">-20%</span>
             </button>
           </div>
@@ -1275,7 +1275,7 @@ if(window.matchMedia('(pointer:fine)').matches){
     <!-- Logo -->
     <div class="modal-logo" style="text-align:center;margin-bottom:28px">
       <img src="../img/icon-192.png?v=5" width="44" height="44" alt="FinRossi" style="display:block;margin:0 auto 10px">
-      <div style="font-family:'DM Serif Display',serif;font-size:30px;color:#C8A96E;letter-spacing:-1px">FinRossi</div>
+      <div style="font-family:var(--serif);font-size:30px;color:#C8A96E;letter-spacing:-1px">FinRossi</div>
       <div style="font-size:12px;color:#555;margin-top:4px">Controle financeiro pessoal</div>
     </div>
 
@@ -1372,7 +1372,7 @@ if(window.matchMedia('(pointer:fine)').matches){
       <!-- Área QR Code Pix -->
       <div id="modal-pix-area" style="display:none;text-align:center">
         <div style="font-size:36px;margin-bottom:12px">📱</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:6px;color:#f0ede8">Pague com Pix</div>
+        <div style="font-family:var(--serif);font-size:20px;margin-bottom:6px;color:#f0ede8">Pague com Pix</div>
         <div style="font-size:13px;color:#888;margin-bottom:4px">Plano: <span id="pix-plano" style="color:#C8A96E;font-weight:500"></span></div>
         <div style="font-size:20px;font-weight:600;color:#C8A96E;margin-bottom:16px" id="pix-valor"></div>
         <img id="pix-qr-img" style="display:none;width:180px;height:180px;border-radius:8px;margin:0 auto 16px;border:2px solid #C8A96E">
@@ -1387,7 +1387,7 @@ if(window.matchMedia('(pointer:fine)').matches){
       <!-- Sucesso -->
       <div id="modal-sucesso" style="display:none;text-align:center;padding:10px 0">
         <div style="font-size:48px;margin-bottom:16px">🎉</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:10px;color:#f0ede8">Conta criada!</div>
+        <div style="font-family:var(--serif);font-size:22px;margin-bottom:10px;color:#f0ede8">Conta criada!</div>
         <div style="font-size:13px;color:#888;margin-bottom:6px" id="modal-sucesso-rotulo">Plano ativado:</div>
         <div style="font-size:15px;font-weight:500;color:#C8A96E;margin-bottom:24px" id="modal-sucesso-plano">—</div>
         <!-- Plano mensal: o pagamento é feito na fatura da Asaas (antes a pessoa não recebia o link aqui) -->
