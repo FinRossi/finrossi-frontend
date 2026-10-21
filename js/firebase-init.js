@@ -162,6 +162,16 @@
         if(nEl) nEl.textContent = user.displayName || user.email;
         const nome = user.displayName || user.email?.split('@')[0] || '';
         irParaApp(nome);
+        // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
+        setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);
+        // Último acesso (régua "cliente que sumiu" para na hora em que a pessoa volta): no máximo a cada 6 h
+        try{
+          const chaveAcesso = 'fin_ultimo_acesso_nuvem_' + user.uid;
+          if(Date.now() - parseInt(localStorage.getItem(chaveAcesso) || '0', 10) > 6 * 3600e3){
+            set(ref(db, `usuarios/${user.uid}/ultimoAcesso`), Date.now())
+              .then(() => localStorage.setItem(chaveAcesso, String(Date.now()))).catch(() => {});
+          }
+        }catch(e){}
         setTimeout(()=>{ try{ initCursorFx(); }catch(e){} }, 150);
         setTimeout(()=>{ try{ initAvatar(); }catch(e){} }, 300);
         setTimeout(()=>{ try{ iniciarSistemaNotificacoes(); }catch(e){} }, 1000);
