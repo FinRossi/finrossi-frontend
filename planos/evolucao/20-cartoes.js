@@ -124,12 +124,13 @@ function cartaoVisualHTML(c, w, h){
       <div style="font-size:${Math.round(w*0.052)}px;letter-spacing:.5px;color:${subByModelo[modelo]};font-weight:500;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${banco}</div>
       ${bandeira}
     </div>
-    <div style="position:relative;margin-top:${Math.round(h*0.1)}px">${chip}</div>
-    <div style="font-size:${Math.round(w*0.062)}px;letter-spacing:2px;color:${numByModelo[modelo]};font-family:monospace;margin-top:${Math.round(h*0.07)}px;position:relative">•••• •••• •••• ${final}</div>
-    <div style="position:absolute;bottom:${pad}px;left:${pad}px;right:${pad}px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+    <div style="position:relative;margin-top:${Math.round(h*0.08)}px;line-height:0">${chip}</div>
+    <!-- Número e titular presos ao rodapé, um embaixo do outro: o "Titular" não encosta mais nos números -->
+    <div style="position:absolute;bottom:${pad}px;left:${pad}px;right:${pad}px">
+      <div style="font-size:${Math.round(w*0.062)}px;line-height:1.2;letter-spacing:2px;color:${numByModelo[modelo]};font-family:monospace;margin-bottom:${Math.round(h*0.1)}px">•••• •••• •••• ${final}</div>
       <div style="min-width:0">
-        <div style="font-size:${Math.round(w*0.028)}px;letter-spacing:1px;color:${subByModelo[modelo]};text-transform:uppercase;margin-bottom:2px">Titular</div>
-        <div style="font-size:${Math.round(w*0.05)}px;font-weight:700;color:${textByModelo[modelo]};text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome||'<span style="opacity:.45">SEU NOME</span>'}</div>
+        <div style="font-size:${Math.max(11, Math.round(w*0.044))}px;line-height:1.2;letter-spacing:1px;font-weight:600;color:${subByModelo[modelo]};text-transform:uppercase;margin-bottom:3px">Titular</div>
+        <div style="font-size:${Math.round(w*0.05)}px;line-height:1.2;font-weight:700;color:${textByModelo[modelo]};text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome||'<span style="opacity:.45">SEU NOME</span>'}</div>
       </div>
     </div>
   </div>`;
@@ -227,7 +228,7 @@ function renderCartoes(){
           <div style="font-size:16px;letter-spacing:4px;color:rgba(255,255,255,.9);font-family:monospace;margin-bottom:16px;position:relative">•••• •••• •••• ${escHTML(c.final||'0000')}</div>
           <div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
             <div>
-              <div style="font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Titular</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Titular</div>
               <div style="font-size:13px;color:white;font-weight:600;text-transform:uppercase;letter-spacing:.5px">${escHTML(c.nome)}</div>
             </div>
             <div>${bandSVG}</div>
