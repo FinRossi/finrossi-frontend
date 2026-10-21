@@ -23,7 +23,7 @@ function addNota(){
   if(!titulo&&!texto){showMsg('msg-nota','Escreva algo antes de salvar','err');return}
   if(!pd().notas)pd().notas=[];
   pd().notas.unshift({id:uid(),titulo:titulo||'Sem título',texto,cat,cor,data:hoje(),hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
-  saveNotas();limparFormNota();showMsg('msg-nota','Nota salva!','ok');renderNotas();
+  saveNotas();fecharFormNota();renderNotas();   // a nota nova aparece em primeiro na lista
 }
 
 function limparFormNota(){
@@ -31,6 +31,18 @@ function limparFormNota(){
   document.getElementById('nota-texto').value='';
   document.getElementById('nota-cat').value='Geral';
   document.getElementById('nota-cor').value='default';
+}
+
+// O formulário fica escondido: a tela mostra primeiro as notas; "+ Nova nota" abre para escrever
+function abrirFormNota(){
+  const f=document.getElementById('nota-form'); if(!f) return;
+  f.style.display='block';
+  f.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>document.getElementById('nota-titulo').focus({preventScroll:true}),250);
+}
+function fecharFormNota(){
+  limparFormNota();
+  const f=document.getElementById('nota-form'); if(f) f.style.display='none';
 }
 
 function abrirEditNota(id){
@@ -59,7 +71,7 @@ function renderNotas(){
   const grid=document.getElementById('notas-grid');
   if(!notas.length){grid.innerHTML=busca||filtCat
     ?'<p class="empty" style="grid-column:1/-1">Nenhuma nota encontrada. Ajuste a busca ou a categoria.</p>'
-    :'<div class="card fr-vazio" style="grid-column:1/-1"><b>Nenhuma nota ainda</b><p>Escreva no formulário acima para guardar ideias, combinados e lembretes.</p></div>';return}
+    :'<div class="card fr-vazio" style="grid-column:1/-1"><b>Nenhuma nota ainda</b><p>Guarde ideias, combinados e lembretes.</p><button class="btn primary" onclick="abrirFormNota()">+ Nova nota</button></div>';return}
   grid.innerHTML=notas.map(n=>{
     const c=NOTA_CORES[n.cor]||NOTA_CORES.default;   // cor desconhecida não quebra a tela
     const preview=n.texto.length>120?n.texto.slice(0,120)+'...':n.texto;
@@ -74,7 +86,7 @@ function renderNotas(){
           <button class="btn danger xs" onclick="remNota('${n.id}')" title="Excluir" aria-label="Excluir nota">✕</button>
         </div>
       </div>
-      ${preview?`<div style="font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${preview}</div>`:''}
+      ${preview?`<div style="font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${escHTML(preview)}</div>`:''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:11.5px;color:var(--muted)">
         <span class="fr-selo">${escHTML(n.cat)}</span>
         <span>${n.data}${n.hora?' às '+n.hora:''}</span>

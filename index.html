@@ -976,16 +976,16 @@ try{
 </section>
 
 <section id="sec-notas" class="section-hidden">
-  <div class="mobile-topbar visible" id="mob-top-notas"><div style="font-family:'DM Serif Display',serif;font-size:20px">Notas</div></div>
+  <div class="mobile-topbar visible" id="mob-top-notas"><div style="font-family:'DM Serif Display',serif;font-size:20px">Notas</div><button class="btn primary sm" onclick="abrirFormNota()" style="height:36px;font-size:13px">+ Nova nota</button></div>
   <div class="page-header">
     <div class="page-title"><h2>Notas</h2><p id="notas-sub">Bloco de anotações pessoal</p></div>
     <div class="header-actions">
-      <button class="btn primary" onclick="document.getElementById('nota-titulo').focus()">+ Nova nota</button>
+      <button class="btn primary" onclick="abrirFormNota()">+ Nova nota</button>
     </div>
   </div>
 
-  <!-- NOVA NOTA RÁPIDA -->
-  <div class="card card-full" style="margin-bottom:16px">
+  <!-- NOVA NOTA: fica escondida; abre pelo botão "+ Nova nota" (a tela mostra primeiro as notas) -->
+  <div class="card card-full" id="nota-form" style="margin-bottom:16px;display:none">
     <h3>Nova nota</h3>
     <div class="field" style="margin-bottom:8px">
       <label>Título</label>
@@ -1021,7 +1021,7 @@ try{
     </div>
     <div class="btn-row">
       <button class="btn primary" onclick="addNota()">Salvar nota</button>
-      <button class="btn" onclick="limparFormNota()">Limpar</button>
+      <button class="btn" onclick="fecharFormNota()">Cancelar</button>
     </div>
     <div class="msg" id="msg-nota"></div>
   </div>
@@ -2086,7 +2086,7 @@ try{
 <script src="planos/evolucao/09-metas-objetivos.js?v=6"></script>
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
 <script src="js/app/11-modal-export.js?v=2"></script>
-<script src="planos/evolucao/14-notas.js?v=6"></script>
+<script src="planos/evolucao/14-notas.js?v=7"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>
 <script src="acessos/17-clientes.js?v=11"></script>
