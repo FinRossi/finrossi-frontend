@@ -85,11 +85,103 @@ function setupPerfilUI(){
   }
 }
 
+// ─── Senha própria do perfil FinRossi (Master) ───────────────────────────────
+// Tranca na porta do perfil FinRossi: pedida toda vez que o Master entra nele (mesmo com o app
+// aberto, quem pegar o aparelho não entra no FinRossi). A senha não fica salva: só um resumo
+// (PBKDF2-SHA256, 150 mil rodadas, com sal) em usuarios/<uid>/senhaPerfilFinRossi.
+// 5 erros seguidos → espera 5 minutos. Esqueceu: sair e entrar de novo na conta; nos 10 minutos
+// seguintes ao login dá para criar uma senha nova.
+const SPF_RODADAS = 150000;
+const _spfB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const _spfDeB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function _spfResumo(senha, salB64, rodadas){
+  const chave = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:_spfDeB64(salB64), iterations:rodadas }, chave, 256);
+  return _spfB64(bits);
+}
+function _spfCaminho(){ return `usuarios/${window._firebaseUser?.uid}/senhaPerfilFinRossi`; }
+function _spfLer(){
+  return new Promise(res => {
+    try{ window._onValue(window._ref(window._db, _spfCaminho()), s => res(s.val()), () => res(null), { onlyOnce:true }); }catch(e){ res(null); }
+  });
+}
+function _spfBloqueadoAte(){ return parseInt(localStorage.getItem('fin_spf_bloqueio') || '0', 10); }
+
+function _spfModal(modo, cfg){
+  let m = document.getElementById('modal-senha-perfil-fr');
+  if(!m){
+    m = document.createElement('div');
+    m.className = 'modal-overlay'; m.id = 'modal-senha-perfil-fr';
+    m.addEventListener('click', e => { if(e.target === m) closeModal('modal-senha-perfil-fr'); });
+    document.body.appendChild(m);
+  }
+  const criar = modo === 'criar';
+  m.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="spf-tit" style="max-width:380px;display:flex;flex-direction:column;gap:12px">
+    <h3 id="spf-tit" style="margin:0">${criar ? 'Criar a senha do perfil FinRossi' : 'Perfil FinRossi'}</h3>
+    <p style="margin:0;font-size:12.5px;color:var(--muted);line-height:1.5">${criar
+      ? 'Ela vai ser pedida toda vez que você entrar no perfil FinRossi. Use uma senha diferente da sua senha de login (mínimo 6 caracteres).'
+      : 'Digite a senha do perfil FinRossi.'}</p>
+    <input id="spf-senha" type="password" autocomplete="${criar ? 'new-password' : 'current-password'}" placeholder="Senha do perfil FinRossi" onkeydown="if(event.key==='Enter')${criar ? "document.getElementById('spf-senha2').focus()" : 'confirmarSenhaPerfilFR()'}">
+    ${criar ? `<input id="spf-senha2" type="password" autocomplete="new-password" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')criarSenhaPerfilFR()">` : ''}
+    <div id="spf-msg" class="msg"></div>
+    <div class="btn-row"><button class="btn primary" type="button" onclick="${criar ? 'criarSenhaPerfilFR()' : 'confirmarSenhaPerfilFR()'}">${criar ? 'Criar senha' : 'Entrar'}</button><button class="btn" type="button" onclick="closeModal('modal-senha-perfil-fr')">Cancelar</button></div>
+    ${criar ? '' : `<button type="button" onclick="esqueciSenhaPerfilFR()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;align-self:center">Esqueci a senha do perfil</button>`}
+  </div>`;
+  m._cfg = cfg || null;
+  m.classList.add('open');
+  setTimeout(() => document.getElementById('spf-senha')?.focus(), 120);
+}
+function _spfMsg(txt, ok){ const el = document.getElementById('spf-msg'); if(el){ el.textContent = txt; el.className = 'msg ' + (ok ? 'ok' : 'err'); } }
+
+// Chamado por abrirFinRossi() quando quem entra é o Master
+async function pedirSenhaPerfilFR(){
+  const cfg = await _spfLer();
+  if(cfg && cfg.hash && cfg.sal) _spfModal('entrar', cfg);
+  else _spfModal('criar');
+}
+async function criarSenhaPerfilFR(){
+  const s1 = document.getElementById('spf-senha').value, s2 = document.getElementById('spf-senha2').value;
+  if(s1.length < 6) return _spfMsg('Use pelo menos 6 caracteres.');
+  if(s1 !== s2) return _spfMsg('As duas senhas não são iguais.');
+  try{
+    const sal = _spfB64(crypto.getRandomValues(new Uint8Array(16)));
+    const hash = await _spfResumo(s1, sal, SPF_RODADAS);
+    await window._set(window._ref(window._db, _spfCaminho()), { sal, hash, rodadas:SPF_RODADAS, criadaEm:new Date().toISOString() });
+    closeModal('modal-senha-perfil-fr');
+    finrossiAutenticado = true; _setProfileFinRossi();
+  }catch(e){ _spfMsg('Não deu para salvar agora. Tente de novo.'); }
+}
+async function confirmarSenhaPerfilFR(){
+  const m = document.getElementById('modal-senha-perfil-fr'), cfg = m && m._cfg;
+  const espera = _spfBloqueadoAte() - Date.now();
+  if(espera > 0) return _spfMsg(`Muitas tentativas. Tente de novo em ${Math.ceil(espera / 60000)} min.`);
+  const senha = document.getElementById('spf-senha').value;
+  if(!senha || !cfg) return;
+  let confere = false;
+  try{ confere = (await _spfResumo(senha, cfg.sal, cfg.rodadas || SPF_RODADAS)) === cfg.hash; }catch(e){}
+  if(!confere){
+    const erros = parseInt(localStorage.getItem('fin_spf_erros') || '0', 10) + 1;
+    if(erros >= 5){ localStorage.setItem('fin_spf_bloqueio', String(Date.now() + 5 * 60000)); localStorage.setItem('fin_spf_erros', '0'); return _spfMsg('Senha incorreta 5 vezes. Aguarde 5 minutos.'); }
+    localStorage.setItem('fin_spf_erros', String(erros));
+    document.getElementById('spf-senha').value = '';
+    return _spfMsg(`Senha incorreta (${erros} de 5).`);
+  }
+  localStorage.setItem('fin_spf_erros', '0');
+  closeModal('modal-senha-perfil-fr');
+  finrossiAutenticado = true; _setProfileFinRossi();
+}
+async function esqueciSenhaPerfilFR(){
+  let recente = false;
+  try{ const t = await window._firebaseUser.getIdTokenResult(); recente = Date.now() - new Date(t.authTime).getTime() < 10 * 60000; }catch(e){}
+  if(recente){ _spfModal('criar'); return; }
+  _spfMsg('Para criar uma senha nova, saia e entre de novo na sua conta. Nos 10 minutos seguintes ao login, o "Esqueci" deixa criar outra.');
+}
+
 let finrossiAutenticado = false;
 
 function abrirFinRossi(){
-  // Master entra direto: o servidor reconhece o login dele, não precisa da senha admin
-  if(isMaster()) finrossiAutenticado=true;
+  // Master: senha própria do perfil FinRossi, pedida a cada entrada (senha-perfil abaixo)
+  if(isMaster() && !finrossiAutenticado){ pedirSenhaPerfilFR(); return; }
   if(finrossiAutenticado){_setProfileFinRossi();return;}
   // Abre modal estilo login
   const overlay=document.getElementById('modal-finrossi-senha');
