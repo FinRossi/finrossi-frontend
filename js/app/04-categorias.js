@@ -184,7 +184,8 @@ function populateMesFiltro(){
   mesesSet.add(mesAtual);
   const meses=[...mesesSet].sort().reverse();
   const cur=getMesFiltro();
-  const opts=meses.map(m=>`<option value="${m}" ${m===cur?'selected':''}>${mesLbl(m+'-01')}${m===mesAtual?' (atual)':''}</option>`).join('');
+  const opts=`<option value="todos" ${cur==='todos'?'selected':''}>Todos os meses</option>`
+    + meses.map(m=>`<option value="${m}" ${m===cur?'selected':''}>${mesLbl(m+'-01')}${m===mesAtual?' (atual)':''}</option>`).join('');
   ['dash-mes-filtro','dash-mes-filtro-mob'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.innerHTML=opts;el.value=cur;}

@@ -123,6 +123,9 @@ function dpGoToday(id){
 
 // Fecha ao clicar fora
 document.addEventListener('click', e=>{
+  // As setas ‹ › redesenham o calendário e o botão clicado sai da página antes deste aviso
+  // chegar: sem esta checagem, contava como "clique fora" e o calendário fechava a cada mês
+  if(!e.target.isConnected) return;
   if(!e.target.closest('.dp-wrap')){
     document.querySelectorAll('.dp-popup.open').forEach(p=>p.classList.remove('open'));
     document.querySelectorAll('.dp-input.open').forEach(b=>b.classList.remove('open'));

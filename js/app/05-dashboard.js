@@ -84,13 +84,17 @@ function refreshDash(){
   atualizarCabecalhoDash();
 
   populateMesFiltro();
-  const doMes=lancs.filter(l=>l.data.startsWith(mes));
+  // "Todos os meses": soma tudo até o mês atual (parcelas futuras ficam de fora); patrimônio e
+  // gráficos usam o mês atual como referência; sem comparação com o mês anterior
+  const todos = mes==='todos';
+  const mesRef = todos ? curMes() : mes;
+  const doMes = todos ? lancs.filter(l=>l.data<=mesRef+'-31') : lancs.filter(l=>l.data.startsWith(mes));
   const rec=doMes.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const des=doMes.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const saldo=rec-des;
 
   // Mês anterior para variação %
-  const [yrN,moN]=mes.split('-').map(Number);
+  const [yrN,moN]=mesRef.split('-').map(Number);
   const mesAnt=`${moN===1?yrN-1:yrN}-${String(moN===1?12:moN-1).padStart(2,'0')}`;
   const doAnt=lancs.filter(l=>l.data.startsWith(mesAnt));
   const recAnt=doAnt.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
@@ -100,6 +104,7 @@ function refreshDash(){
   // Variação em relação ao mês anterior. Sem base (mês anterior zerado): só o sentido,
   // 'N+' subiu / 'N-' caiu. Base negativa: divide pelo valor absoluto para a seta não inverter.
   const varPct=(atual,ant)=>{
+    if(todos) return null;
     if(!ant) return atual>0?'N+':atual<0?'N-':'0.0';
     return ((atual-ant)/Math.abs(ant)*100).toFixed(1);
   };
@@ -114,14 +119,14 @@ function refreshDash(){
     const aplicado = invs.reduce((a,i) => (!i.data || i.data <= lim) ? a + (Number(i.val) || 0) : a, 0);
     return caixa + aplicado;
   };
-  const pat = patrimonioAte(mes), patAnt = patrimonioAte(mesAnt);
+  const pat = patrimonioAte(mesRef), patAnt = patrimonioAte(mesAnt);
   const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${String(Math.abs(parseFloat(v))).replace('.', ',')}%`;
 
   // Sparkline mini — últimos 6 meses de dados
   // Até o mês escolhido: ele e os 5 meses com lançamentos antes dele (antes pegava os 6 mais
   // recentes de todos, e escolher um mês antigo ainda mostrava os meses depois dele)
-  const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].filter(m=>m<mes).sort().slice(-5);
-  mesUniq.push(mes);
+  const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].filter(m=>m<mesRef).sort().slice(-5);
+  mesUniq.push(mesRef);
 
   const sparkRec=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='receita').reduce((a,b)=>a+b.val,0));
   const sparkDes=mesUniq.map(m=>lancs.filter(l=>l.data.startsWith(m)&&l.tipo==='despesa').reduce((a,b)=>a+b.val,0));
@@ -155,6 +160,7 @@ function refreshDash(){
     // receitas/despesas/saldo como faixa de extrato. Mesmos valores e variações de antes.
     const anima = !window._cedAnimou; window._cedAnimou = true; // roseta anima só na 1ª abertura
     const varTxt = (v, invertido) => {
+      if(v === null) return '';
       if(parseFloat(v) === 0) return `<span class="ced-sub">sem mudança no mês</span>`;
       const subiu = varSubiu(v);
       const bom = invertido ? !subiu : subiu; // despesas: gastar menos é bom
@@ -184,7 +190,7 @@ function refreshDash(){
       <div class="ced-painel"><div class="ced-painel-int">
         ${rosetaGuillocheViva().replace('class="ced-roseta ced-roseta-viva"', anima ? 'class="ced-roseta ced-roseta-viva ced-anima"' : 'class="ced-roseta ced-roseta-viva"')}
         <div class="ced-brilho" aria-hidden="true"></div>
-        <div class="ced-serie">${serieCedula(mes)}</div>
+        <div class="ced-serie">${todos ? 'FR-TODOS' : serieCedula(mes)}</div>
         <div class="ced-rotulo">Patrimônio líquido</div>
         <div class="ced-valor-linha"><div class="ced-valor${pat<0?' ced-negativo':''}" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
         <div class="ced-var">${varTxt(varPct(pat, patAnt), false)}</div>
@@ -251,13 +257,14 @@ function refreshDash(){
       evoBadge.textContent=igual?'sem mudança':`${pos?'↑':'↓'}${varRotulo(v)||(pos?' subiu':' caiu')}`;
       evoBadge.style.background=igual?'var(--surface2)':pos?'rgba(74,222,128,.12)':'rgba(248,113,113,.12)';
       evoBadge.style.color=igual?'var(--muted)':pos?'var(--green)':'var(--red)';
-    }
+    } else { evoBadge.textContent=''; evoBadge.style.background='none'; }
   }
   const catTotEl=document.getElementById('dash-cat-total');
   if(catTotEl) catTotEl.textContent=fmtR(des);
 
   // Comparativo com o mês anterior (a chamada tinha sido apagada por engano junto com a troca de logos)
-  renderComparativo(lancs,mes);
+  if(todos){ const cmp=document.getElementById('dash-comparativo'); if(cmp) cmp.innerHTML=''; }
+  else renderComparativo(lancs,mes);
 
   // Parcelas
   const parcelas=lancs.filter(l=>l.parcelado&&l.tipo==='despesa');
@@ -266,7 +273,7 @@ function refreshDash(){
   parcelas.forEach(l=>{
     if(!grupos[l.groupId])grupos[l.groupId]={desc:l.desc,cat:l.cat,valParc:l.val,total:l.valorTotal,n:l.totalParcelas,pagas:0,restantes:0,proxData:null};
     const g=grupos[l.groupId];
-    if(l.data<=mes+'-31')g.pagas++;
+    if(l.data<=mesRef+'-31')g.pagas++;
     else{g.restantes++;if(!g.proxData||l.data<g.proxData)g.proxData=l.data}
   });
 
@@ -612,7 +619,7 @@ function renderDashCartaoWidget(){
     _dashCartaoSelId=cartoes[0].id;
   }
   const c=cartoes.find(x=>x.id===_dashCartaoSelId)||cartoes[0];
-  const mes=getMesFiltro();
+  const mesSel=getMesFiltro(), mes=mesSel==='todos'?curMes():mesSel;   // fatura é sempre de um mês
   const lancsMes=pd().lancs.filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));
   const gastos=lancsMes.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0);
   const disponivel=Math.max(0,(c.limite||0)-gastos);

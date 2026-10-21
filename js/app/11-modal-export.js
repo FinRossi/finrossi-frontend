@@ -8,7 +8,7 @@ function exportarExcel(){
   const {lancs,invs}=pd();
   const mes=getMesFiltro();
   const [yr,mo]=mes.split('-');
-  const mesNome=MONTHS[+mo-1]+'/'+yr.slice(2);
+  const mesNome=mes==='todos'?'Todos os meses':MONTHS[+mo-1]+'/'+yr.slice(2);
 
   // Popup de seleção
   const overlay=document.createElement('div');
