@@ -173,6 +173,9 @@
         const nEl = document.getElementById('user-nome');
         if(nEl) nEl.textContent = user.displayName || user.email;
         const nome = user.displayName || user.email?.split('@')[0] || '';
+        // Este aparelho já usa o FinRossi: daqui em diante finrossi.com.br abre direto o app (não a landing)
+        try{ localStorage.setItem('fin_ja_entrou', '1'); sessionStorage.removeItem('fin_login_google'); }catch(e){}
+        if(new URLSearchParams(location.search).get('entrar') === '1') history.replaceState(null, '', location.pathname + location.hash);
         irParaApp(nome);
         // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
         setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);

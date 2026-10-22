@@ -66,6 +66,8 @@ async function entrarComGoogle(){
   }catch(e){
     // Celular/app instalado sem janela pop-up: vai para a página do Google e volta
     if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/cancelled-popup-request'].includes(e.code)){
+      // Marca a ida ao Google: na volta, finrossi.com.br não pode mandar para a landing
+      try{ sessionStorage.setItem('fin_login_google', '1'); }catch(e3){}
       try{ await f.signInWithRedirect(f.auth, provedor); return; }catch(e2){ e = e2; }
     }
     if(e.code === 'auth/popup-closed-by-user') return;

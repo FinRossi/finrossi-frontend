@@ -8,6 +8,9 @@
 <!-- Contra clickjacking: se o FinRossi for aberto escondido dentro de outro site, a página não aparece -->
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
+<!-- finrossi.com.br sem nada leva à landing (quem ainda não conhece vê os planos). Fica no app: app instalado,
+     quem já entrou neste aparelho, links com parâmetros (?entrar, ?plano/?cupom dos e-mails) e a volta do login com Google -->
+<script>(function(){try{var inst=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;var param=location.search.length>1||location.hash.length>1;var ja=localStorage.getItem('fin_ja_entrou')==='1'||!!localStorage.getItem('fin_ultimo_acesso_ts');var g=sessionStorage.getItem('fin_login_google')==='1';if(!inst&&!param&&!ja&&!g){location.replace('/landing/');}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinRossi — Aplicativo para construir sua riqueza</title>
 
@@ -76,7 +79,7 @@
 <script src="planos/patrimonio/relatorios.js?v=7" defer></script>
 
 <!-- Firebase SDK -->
-<script type="module" src="js/firebase-init.js?v=14"></script>
+<script type="module" src="js/firebase-init.js?v=15"></script>
 <!-- Estilos do app (ordem importa) -->
 <link rel="stylesheet" href="css/01-variaveis-temas.css?v=3">
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
@@ -2103,7 +2106,7 @@ try{
 <script src="js/app/26-cursor-fx.js?v=2"></script>
 <script src="acessos/27-ver-como.js?v=7"></script>
 <script src="js/app/28-nav-personalizacao.js?v=7"></script>
-<script src="js/app/29-login.js?v=5"></script>
+<script src="js/app/29-login.js?v=6"></script>
 <script src="js/app/30-date-picker.js?v=2"></script>
 <script src="js/app/31-reset-senha.js?v=6"></script>
 <script src="js/app/32-notificacoes.js?v=6"></script>

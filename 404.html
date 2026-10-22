@@ -14,6 +14,7 @@
   var p = location.pathname;
   var novo = null;
   if (p === '/landing.html' || p === '/landing') novo = '/landing/';
+  else if (p === '/app' || p === '/app/' || p === '/entrar') { location.replace('/?entrar=1'); return; }   // atalho limpo para o app
   else if (/^\/legal\/[a-z-]+\.html$/.test(p)) novo = '/landing' + p;
   else if (/^\/(favicon-16|favicon-32|icon-192|icon-512)\.png$/.test(p)) novo = '/img' + p;
   if (novo) location.replace(novo + location.search + location.hash);
