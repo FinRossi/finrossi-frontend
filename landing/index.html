@@ -973,6 +973,8 @@ function abrirModalCadastro(plano, periodo){
   atualizarCampoCpf();
 
   ['modal-nome','modal-email','modal-senha','modal-whats','modal-cpf'].forEach(id=>document.getElementById(id).value='');
+  // Veio da tela de login ("ainda não tem conta?"): o e-mail que a pessoa digitou já vem preenchido
+  try{ const em=sessionStorage.getItem('fin_email_cadastro'); if(em){ document.getElementById('modal-email').value=em; sessionStorage.removeItem('fin_email_cadastro'); } }catch(e){}
   document.getElementById('modal-consent').checked = false;
   _cadastroConcluido = false; _leadEnviado = false;
   // Cupom do link do e-mail: só nos planos mensais pagos

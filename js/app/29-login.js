@@ -123,12 +123,24 @@ async function fazerLogin(){
     localStorage.removeItem('fin_pwa_ultimo_aviso');
     setTimeout(()=>{ if(typeof mostrarPWABanner==='function') mostrarPWABanner(); }, 3000);
   }catch(e){
+    // A Firebase não diz se o e-mail tem conta (proteção contra descobrir quem é cliente): para
+    // "e-mail ou senha errados" a mensagem serve aos dois casos e leva quem não tem conta aos planos,
+    // com o e-mail já preenchido no cadastro da landing.
+    const semConta = ['auth/user-not-found','auth/wrong-password','auth/invalid-credential','auth/invalid-login-credentials'].includes(e.code);
     let msg='Email ou senha incorretos.';
-    if(e.code==='auth/user-not-found') msg='Usuário não encontrado.';
-    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='Senha incorreta.';
+    if(e.code==='auth/user-not-found') msg='Não encontramos uma conta com este e-mail.';
     if(e.code==='auth/invalid-email') msg='Email inválido.';
     if(e.code==='auth/too-many-requests') msg='Muitas tentativas. Aguarde alguns minutos.';
-    erroEl.textContent=msg; erroEl.style.display='block';
+    erroEl.textContent=msg;
+    if(semConta){
+      const ir=document.createElement('a');
+      ir.href='landing/#planos';
+      ir.textContent='Ainda não tem conta? Conheça os planos e crie a sua →';
+      ir.style.cssText='display:block;margin-top:6px;color:#e8c560;font-weight:600;text-decoration:none';
+      ir.onclick=()=>{ try{ sessionStorage.setItem('fin_email_cadastro', email); }catch(err){} };
+      erroEl.appendChild(ir);
+    }
+    erroEl.style.display='block';
     if(progressWrap) progressWrap.style.display='none';
     if(progressBar) progressBar.style.width='0%';
     btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
