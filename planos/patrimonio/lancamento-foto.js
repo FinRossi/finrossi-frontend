@@ -211,7 +211,7 @@ function _carregarTesseract(){
   if(window.Tesseract) return Promise.resolve();
   return new Promise((res, rej) => {
     const s = document.createElement('script');
-    s.src = TESSERACT_URL;
+    scriptComIntegridade(s, TESSERACT_URL);
     s.onload = res;
     s.onerror = () => rej(new Error('Não foi possível carregar o leitor de fotos. Verifique a internet e tente de novo.'));
     document.head.appendChild(s);

@@ -49,7 +49,7 @@ function exportarExcel(){
     // A biblioteca do Excel (~200 KB) só é baixada quando alguém exporta
     if(typeof XLSX==='undefined'){
       try{
-        await new Promise((res,rej)=>{const s=document.createElement('script');s.src=XLSX_URL;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+        await new Promise((res,rej)=>{const s=scriptComIntegridade(document.createElement('script'),XLSX_URL);s.onload=res;s.onerror=rej;document.head.appendChild(s);});
       }catch(e){alert('Não consegui preparar a planilha. Verifique a internet e tente de novo.');return;}
     }
     const wb=XLSX.utils.book_new();

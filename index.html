@@ -2,6 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<!-- Segurança: regras de conteúdo que não dependem do servidor (o GitHub Pages não deixa configurar cabeçalhos)
+     · object-src none: sem plugins antigos · base-uri self: ninguém troca o endereço base · upgrade: tudo em HTTPS -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<!-- Contra clickjacking: se o FinRossi for aberto escondido dentro de outro site, a página não aparece -->
+<style id="anti-clickjack">html{display:none!important}</style>
+<script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinRossi — Aplicativo para construir sua riqueza</title>
 
@@ -65,9 +71,9 @@
 
 <!-- Funcionalidades exclusivas por plano — mantidas fora do arquivo principal -->
 <script src="planos/patrimonio/patrimonio.js?v=11" defer></script>
-<script src="planos/patrimonio/lancamento-foto.js?v=8" defer></script>
+<script src="planos/patrimonio/lancamento-foto.js?v=9" defer></script>
 <script src="planos/patrimonio/anexos.js?v=2" defer></script>
-<script src="planos/patrimonio/relatorios.js?v=6" defer></script>
+<script src="planos/patrimonio/relatorios.js?v=7" defer></script>
 
 <!-- Firebase SDK -->
 <script type="module" src="js/firebase-init.js?v=14"></script>
@@ -2067,8 +2073,8 @@ try{
 </div>
 
 <!-- Scripts do app — carregados em ordem numérica; 33-pwa-init.js roda a inicialização e deve ser o último -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous"></script>
-<script src="js/app/01-base.js?v=6"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG"></script>
+<script src="js/app/01-base.js?v=7"></script>
 <script src="js/app/02-firebase-sync.js?v=5"></script>
 <script src="acessos/03-perfil-roles.js?v=13"></script>
 <script src="js/app/04-categorias.js?v=5"></script>
@@ -2080,7 +2086,7 @@ try{
 <script src="js/app/08-historico.js?v=5"></script>
 <script src="planos/evolucao/09-metas-objetivos.js?v=6"></script>
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
-<script src="js/app/11-modal-export.js?v=3"></script>
+<script src="js/app/11-modal-export.js?v=4"></script>
 <script src="planos/evolucao/14-notas.js?v=8"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>

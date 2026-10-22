@@ -325,7 +325,7 @@ function _relCarregarLibs(){
   return REL_LIBS.reduce((p, url) => p.then(() => new Promise((res, rej) => {
     if(document.querySelector(`script[src="${url}"]`)){ res(); return; }
     const s = document.createElement('script');
-    s.src = url; s.onload = res;
+    scriptComIntegridade(s, url); s.onload = res;
     s.onerror = () => rej(new Error('Não foi possível preparar o PDF. Verifique a internet e tente de novo.'));
     document.head.appendChild(s);
   })), Promise.resolve());

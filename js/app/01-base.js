@@ -17,6 +17,15 @@ const fmtR0=(v)=>'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDig
 const mesLbl=(ym)=>{const[y,m]=ym.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+y.slice(2)};
 const curMes=()=>hoje().slice(0,7);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+// Impressão digital (SRI) das bibliotecas externas: se o arquivo da CDN for adulterado, o navegador
+// recusa carregar. Ao trocar a versão de uma biblioteca, gere o hash novo (sha384) e troque aqui.
+const SRI_CDN={
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js':'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js':'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js':'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
+  'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
+};
+function scriptComIntegridade(s, url){ s.src=url; if(SRI_CDN[url]){ s.integrity=SRI_CDN[url]; s.crossOrigin='anonymous'; } return s; }
 const pd=()=>{if(!DATA[cp])DATA[cp]={lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],recorrentes:[],cartoes:[]};return DATA[cp];};
 
 // Texto digitado pelo usuário nunca entra cru no HTML (protege contra código escondido num texto)
