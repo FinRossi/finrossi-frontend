@@ -184,7 +184,8 @@ function renderCartoes(){
   if(_cartaoPage >= totalPaginas) _cartaoPage = totalPaginas - 1;
   if(_cartaoPage < 0) _cartaoPage = 0;
   const cartoesVisiveis = cartoes.slice(_cartaoPage*CARTAO_PAGE_SIZE, _cartaoPage*CARTAO_PAGE_SIZE + CARTAO_PAGE_SIZE);
-  const gridCols = 'repeat(auto-fit,minmax(280px,300px))';
+  // No celular, um cartão por linha ocupando a largura toda (antes ficava com 300 px fixos)
+  const gridCols = window.innerWidth <= 767 ? 'minmax(0,1fr)' : 'repeat(auto-fit,minmax(280px,300px))';
   const gridMaxW = '956px';
 
   const CHIP = '<svg width="34" height="26" viewBox="0 0 34 26" fill="none"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/><rect x="11" y="8" width="12" height="10" fill="#B8881A" opacity=".7"/></svg>';
@@ -215,17 +216,17 @@ function renderCartoes(){
         : `<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
            <div style="position:absolute;bottom:-60px;left:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.03)"></div>`;
       return`<div>
-        <div style="${MODELO_BG_FULL[modelo]};border-radius:18px;padding:24px;position:relative;overflow:hidden;height:190px;box-shadow:0 8px 32px ${cor}33,0 2px 8px rgba(0,0,0,.5);margin-bottom:16px">
+        <div style="${MODELO_BG_FULL[modelo]};border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;aspect-ratio:1.586/1;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 32px ${cor}33,0 2px 8px rgba(0,0,0,.5);margin-bottom:16px">
           ${decorFull}
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative">
             <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">${escHTML(c.banco)}</div>
             <div style="display:flex;gap:6px">
               <button class="btn xs" onclick="openModalCartao('${c.id}')" title="Editar" aria-label="Editar cartão" style="background:rgba(255,255,255,.15);border:none;color:white">${ICO_EDITAR}</button>
               <button class="btn danger xs" onclick="remCartao('${c.id}')" title="Excluir" aria-label="Excluir cartão" style="background:rgba(248,113,113,.2);border:none;color:#f87171">✕</button>
             </div>
           </div>
-          <div style="margin-bottom:16px;position:relative">${CHIP}</div>
-          <div style="font-size:16px;letter-spacing:4px;color:rgba(255,255,255,.9);font-family:monospace;margin-bottom:16px;position:relative">•••• •••• •••• ${escHTML(c.final||'0000')}</div>
+          <div style="position:relative;line-height:0">${CHIP}</div>
+          <div style="font-size:16px;letter-spacing:3px;color:rgba(255,255,255,.9);font-family:monospace;position:relative;white-space:nowrap">•••• •••• •••• ${escHTML(c.final||'0000')}</div>
           <div style="display:flex;justify-content:space-between;align-items:flex-end;position:relative">
             <div>
               <div style="font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Titular</div>
