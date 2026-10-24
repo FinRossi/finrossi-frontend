@@ -22,12 +22,84 @@ const _paCartao = corpo => `<div class="modal" style="max-width:420px;width:100%
 const _paCabeca = (titulo, sub) => `<div style="display:flex;align-items:center;gap:12px">${_paSelo}<div><h3 style="margin:0">${titulo}</h3><div style="font-size:12px;color:var(--muted);margin-top:2px">${sub}</div></div></div>`;
 const _paTexto = t => `<p style="margin:0;font-size:13px;color:var(--muted);line-height:1.6">${t}</p>`;
 
-// ── 1) Tela "Primeiro acesso" (logado com a senha provisória) ───────────────
+// ── Confirmação do celular por SMS (passo 1 do primeiro acesso) ────────────
+// Liga/desliga: fica false até o Lucas ativar o login por telefone na Firebase (plano Blaze, SMS só
+// para o Brasil). Enquanto false, o primeiro acesso vai direto ao passo do e-mail.
+// Depois: trocar o SMS por código no WhatsApp do FinRossi (número próprio + API da Meta) — ver backlog.
+const TELEFONE_SMS_ATIVO = false;
+let _paConfirmacaoSms = null, _paRecaptcha = null;
+
 function mostrarPrimeiroAcesso(){
+  const u = window._firebaseUser; if(!u) return;
+  if(TELEFONE_SMS_ATIVO && !u.phoneNumber) return _paPassoTelefone();
+  _paPassoEmail();
+}
+function _paPassoTelefone(){
+  const m = _paOverlay('pa-primeiro-acesso');
+  m.innerHTML = _paCartao(
+    _paCabeca('Primeiro acesso', 'Passo 1 de 2 · confirme o seu celular') +
+    _paTexto('Vamos mandar um código por SMS para confirmar o seu número. Use o celular com DDD.') +
+    '<div class="field"><label for="pa-tel">Celular</label><input id="pa-tel" type="tel" inputmode="tel" maxlength="16" placeholder="(11) 98765-4321" oninput="ncMascaraTelefone(this)"></div>' +
+    '<div id="pa-codigo-bloco" style="display:none" class="field"><label for="pa-codigo">Código recebido por SMS</label><input id="pa-codigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" onkeydown="if(event.key===\'Enter\')confirmarCodigoSms()"></div>' +
+    '<div id="pa-recaptcha"></div>' +
+    '<div id="pa-msg" class="msg" style="margin:0;min-height:0"></div>' +
+    '<div class="btn-row" style="flex-direction:column;align-items:stretch;gap:8px"><button class="btn primary" type="button" id="pa-sms" onclick="enviarCodigoSms()">Enviar código por SMS</button>' +
+    '<button class="btn" type="button" onclick="sairDoPrimeiroAcesso()">Sair da conta</button></div>'
+  );
+  m.style.display = 'flex';
+  // Preenche com o número do cadastro (se a equipe informou)
+  try{
+    window._onValue(window._ref(window._db, `usuarios/${window._firebaseUser.uid}/telefone`), s => {
+      const t = String(s.val() || '').replace(/^55/, ''); const el = document.getElementById('pa-tel');
+      if(t && el && !el.value){ el.value = t; ncMascaraTelefone(el); }
+    }, () => {}, { onlyOnce:true });
+  }catch(e){}
+}
+async function enviarCodigoSms(){
+  const f = window._firebase, msg = document.getElementById('pa-msg'), btn = document.getElementById('pa-sms');
+  const d = (document.getElementById('pa-tel').value || '').replace(/\D/g, '');
+  const erro = t => { msg.className = 'msg err'; msg.textContent = t; btn.disabled = false; btn.textContent = 'Enviar código por SMS'; };
+  if(d.length < 10 || d.length > 11) return erro('Celular inválido: use DDD + número.');
+  btn.disabled = true; btn.textContent = 'Enviando…'; msg.textContent = '';
+  try{
+    if(!_paRecaptcha) _paRecaptcha = new f.RecaptchaVerifier(f.auth, 'pa-recaptcha', { size:'invisible' });   // anti-robô da Google
+    _paConfirmacaoSms = await f.linkWithPhoneNumber(window._firebaseUser, '+55' + d, _paRecaptcha);
+    document.getElementById('pa-codigo-bloco').style.display = '';
+    msg.className = 'msg ok'; msg.textContent = 'Código enviado! Digite os 6 números que chegaram por SMS.';
+    btn.textContent = 'Confirmar código'; btn.disabled = false; btn.onclick = confirmarCodigoSms;
+    setTimeout(() => document.getElementById('pa-codigo')?.focus(), 100);
+  }catch(e){
+    const c = e && e.code;
+    erro(c === 'auth/invalid-phone-number' ? 'Número inválido. Confira o DDD.'
+      : c === 'auth/too-many-requests' ? 'Muitas tentativas. Aguarde alguns minutos.'
+      : c === 'auth/credential-already-in-use' || c === 'auth/account-exists-with-different-credential' ? 'Este celular já está ligado a outra conta do FinRossi.'
+      : c === 'auth/operation-not-allowed' ? 'A confirmação por SMS ainda não foi ligada. Avise a equipe do FinRossi.'
+      : 'Não deu para enviar o SMS agora. Tente de novo.');
+  }
+}
+async function confirmarCodigoSms(){
+  const msg = document.getElementById('pa-msg'), btn = document.getElementById('pa-sms');
+  const codigo = (document.getElementById('pa-codigo').value || '').replace(/\D/g, '');
+  if(codigo.length !== 6 || !_paConfirmacaoSms){ msg.className = 'msg err'; msg.textContent = 'Digite os 6 números do SMS.'; return; }
+  btn.disabled = true; btn.textContent = 'Confirmando…';
+  try{
+    await _paConfirmacaoSms.confirm(codigo);                    // liga o celular à conta na Firebase
+    const token = await window._firebaseUser.getIdToken(true);
+    await fetchBackend(`${BACKEND_URL}/telefone/confirmar`, { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token }, body:'{}' });
+    _paPassoEmail();                                             // passo 2: senha pelo e-mail
+  }catch(e){
+    msg.className = 'msg err';
+    msg.textContent = e && e.code === 'auth/invalid-verification-code' ? 'Código errado. Confira o SMS e tente de novo.' : 'Não deu para confirmar agora. Tente de novo.';
+    btn.disabled = false; btn.textContent = 'Confirmar código';
+  }
+}
+
+// ── Passo do e-mail: criar a própria senha (o link também confirma o e-mail) ─
+function _paPassoEmail(){
   const u = window._firebaseUser; if(!u) return;
   const m = _paOverlay('pa-primeiro-acesso');
   m.innerHTML = _paCartao(
-    _paCabeca('Primeiro acesso', 'Crie a sua própria senha') +
+    _paCabeca('Primeiro acesso', TELEFONE_SMS_ATIVO ? 'Passo 2 de 2 · crie a sua senha' : 'Crie a sua própria senha') +
     _paTexto(`Sua conta foi criada pela nossa equipe com uma <b style="color:var(--text)">senha provisória</b>. Para sua segurança, crie a sua senha: vamos mandar um link para <b style="color:var(--text)">${escHTML(u.email || '')}</b>. O mesmo link confirma o seu e-mail.`) +
     '<div id="pa-msg" class="msg" style="margin:0;min-height:0"></div>' +
     '<div class="btn-row" style="flex-direction:column;align-items:stretch;gap:8px"><button class="btn primary" type="button" id="pa-enviar" onclick="enviarLinkPrimeiroAcesso()">Enviar link para o meu e-mail</button>' +

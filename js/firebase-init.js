@@ -110,7 +110,7 @@
     const [
       { initializeApp },
       { getDatabase, ref, set, onValue, runTransaction },
-      { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect }
+      { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, RecaptchaVerifier, linkWithPhoneNumber }
     ] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"),
@@ -129,7 +129,7 @@
 
     const db = getDatabase(app);
     const auth = getAuth(app);
-    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, firebaseOk: true };
+    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, RecaptchaVerifier, linkWithPhoneNumber, firebaseOk: true };
 
     onAuthStateChanged(auth, async (user) => {
       if(!iniciou){ iniciou = true; }
