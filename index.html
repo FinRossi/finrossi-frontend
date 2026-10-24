@@ -1081,6 +1081,7 @@ try{
 
 <!-- CLIENTES -->
 <section id="sec-clientes" class="section-hidden">
+  <div class="mobile-topbar visible" id="mob-top-clientes"><div style="font-family:'DM Serif Display',serif;font-size:20px">Clientes</div><button class="btn primary sm" onclick="openModalNovoCliente()" style="height:36px;font-size:13px">+ Novo cliente</button></div>
   <div class="page-header">
     <div class="page-title"><h2>Clientes</h2><p>Gestão de clientes FinRossi</p></div>
     <div class="header-actions">
@@ -1119,6 +1120,7 @@ try{
 </section>
 
 <section id="sec-socios" class="section-hidden">
+  <div class="mobile-topbar visible" id="mob-top-socios"><div style="font-family:'DM Serif Display',serif;font-size:20px">Sócios</div><button class="btn primary sm" onclick="openNovoAcesso()" style="height:36px;font-size:13px">+ Novo acesso</button></div>
   <div class="page-header">
     <div class="page-title"><h2>Sócios</h2><p>Acessos da equipe — exclusivo do Master</p></div>
     <div class="header-actions">
@@ -1957,6 +1959,9 @@ try{
       </div>
     </div>
     <div id="nc-campos-cliente">
+      <div class="field" style="margin-bottom:12px"><label for="nc-telefone">WhatsApp do cliente <small style="text-transform:none;letter-spacing:0">(opcional)</small></label>
+        <input id="nc-telefone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" placeholder="(11) 98765-4321" oninput="ncMascaraTelefone(this)">
+      </div>
       <div class="form-row">
         <div class="field"><label>Plano</label>
           <select id="nc-plano">
@@ -2109,7 +2114,7 @@ try{
 <script src="planos/evolucao/14-notas.js?v=8"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=14"></script>
+<script src="acessos/17-clientes.js?v=15"></script>
 <script src="acessos/17b-socios.js?v=4"></script>
 <script src="planos/18-regras-planos.js?v=7"></script>
 <script src="acessos/19-preview-planos.js?v=7"></script>

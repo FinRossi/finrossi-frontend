@@ -65,7 +65,7 @@ function toggleCamposRole(){
 }
 
 function openModalNovoCliente(){
-  ['nc-nome','nc-email','nc-senha'].forEach(id=>document.getElementById(id).value='');
+  ['nc-nome','nc-email','nc-senha','nc-telefone'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('msg-novo-cliente').textContent='';
   const roleEl=document.getElementById('nc-role');
   if(roleEl) roleEl.value='cliente';
@@ -78,12 +78,14 @@ async function cadastrarNovoCliente(){
   const nome=document.getElementById('nc-nome').value.trim();
   const email=document.getElementById('nc-email').value.trim();
   const senha=document.getElementById('nc-senha').value;
+  const telefone=(document.getElementById('nc-telefone')?.value||'').replace(/\D/g,'');
   const role=document.getElementById('nc-role')?.value||'cliente';
   const plano=role==='cliente'?(document.getElementById('nc-plano')?.value||'gratuito'):'patrimonio';
   const origem=role==='cliente'?(document.getElementById('nc-origem')?.value||'teste'):'interno';
   const msg=document.getElementById('msg-novo-cliente');
 
   if(!nome||!email){showMsg('msg-novo-cliente','Preencha nome e e-mail','err');return}
+  if(telefone && (telefone.length<10||telefone.length>11)){showMsg('msg-novo-cliente','WhatsApp inválido: use DDD + número','err');return}
   if(senha && senha.length<8){showMsg('msg-novo-cliente','A senha provisória precisa ter pelo menos 8 caracteres (ou deixe em branco para gerar uma)','err');return}
   if(!validarEmail(email)){showMsg('msg-novo-cliente','Email inválido — verifique o formato','err');return}
 
@@ -97,7 +99,7 @@ async function cadastrarNovoCliente(){
     const res=await fetchBackend(`${BACKEND_URL}/admin/clientes/teste`,{
       method:'POST',
       headers:await adminHeaders(token,{'Content-Type':'application/json'}),
-      body:JSON.stringify({nome,email,senha,plano,origem,role})
+      body:JSON.stringify({nome,email,senha,plano,origem,role,...(telefone?{telefone}:{})})
     });
     if(res.status===401){showMsg('msg-novo-cliente','Sem permissão: entre com a sua conta da equipe.','err');return;}
     const data=await res.json();
@@ -120,6 +122,12 @@ async function cadastrarNovoCliente(){
   }catch(e){
     showMsg('msg-novo-cliente','Erro de conexão com o backend','err');
   }
+}
+
+// (11) 98765-4321
+function ncMascaraTelefone(el){
+  const d=el.value.replace(/\D/g,'').slice(0,11);
+  el.value=d.length<=2?(d?'('+d:''):d.length<=6?'('+d.slice(0,2)+') '+d.slice(2):d.length<=10?'('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6):'('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);
 }
 
 // Senha provisória gerada: aparece uma vez, com botões para copiar a mensagem ou mandar pelo WhatsApp
