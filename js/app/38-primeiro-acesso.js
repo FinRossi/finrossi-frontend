@@ -31,6 +31,10 @@ let _paConfirmacaoSms = null, _paRecaptcha = null;
 
 function mostrarPrimeiroAcesso(){
   const u = window._firebaseUser; if(!u) return;
+  // Abriu pelo link do e-mail neste mesmo aparelho (ainda logado com a provisória): a tela
+  // "Crie a sua senha" já está aberta — não cobrir com o "Primeiro acesso"
+  const criar = document.getElementById('pa-criar-senha');
+  if(criar && criar.style.display !== 'none') return;
   if(TELEFONE_SMS_ATIVO && !u.phoneNumber) return _paPassoTelefone();
   _paPassoEmail();
 }
