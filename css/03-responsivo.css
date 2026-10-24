@@ -25,7 +25,7 @@
 
   /* Main ocupa tudo */
   .main{
-    padding:10px 12px 72px;
+    padding:10px 12px calc(96px + env(safe-area-inset-bottom));   /* espaço para o menu suspenso */
     height:100dvh;
     overflow-y:auto;
     overflow-x:hidden;
@@ -33,7 +33,19 @@
   }
 
   /* Mostra elementos mobile */
-  .mobile-nav{display:flex}
+  /* Menu de baixo suspenso: longe das bordas e acima da barrinha de "puxar para cima" do iPhone,
+     cantos arredondados, fundo translúcido com desfoque (aprovado pelo Lucas em 24/10/2026) */
+  .mobile-nav{
+    display:flex;
+    left:12px;right:12px;bottom:max(12px, env(safe-area-inset-bottom));
+    height:60px;padding:0 6px;
+    border:1px solid var(--border2);border-radius:22px;
+    background:color-mix(in srgb, var(--surface) 90%, transparent);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    box-shadow:0 10px 28px rgba(0,0,0,.45);
+  }
+  /* App instalado: sem a barra do navegador embaixo, a barrinha do iPhone fica logo abaixo — sobe mais um pouco */
+  @media (display-mode: standalone){ .mobile-nav{bottom:max(22px, env(safe-area-inset-bottom))} .main{padding-bottom:calc(106px + env(safe-area-inset-bottom))} }
   .mobile-topbar{display:flex}
   .page-header{display:none!important}
 
@@ -85,12 +97,12 @@
   .dp-popup{width:calc(100vw - 28px);max-width:320px}
 
   /* PWA banners */
-  #pwa-banner,#ios-banner{right:12px!important;left:12px!important;bottom:72px!important;width:auto!important;max-width:100%!important}
+  #pwa-banner,#ios-banner{right:12px!important;left:12px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:100%!important}
 }
 
 /* ── SMALL MOBILE (≤360px) ─────────────────────────────── */
 @media(max-width:360px){
-  .main{padding:10px 10px 72px}
+  .main{padding:10px 10px calc(96px + env(safe-area-inset-bottom))}
   .metrics{grid-template-columns:1fr}
 }
 

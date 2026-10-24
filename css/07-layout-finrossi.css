@@ -115,7 +115,7 @@
 #pwa-fab>div:last-child{width:42px!important;height:42px!important;border-radius:10px!important;box-shadow:0 4px 14px rgba(0,0,0,.45)!important}
 @media(max-width:767px){
   .main{padding-bottom:150px}
-  #pwa-fab{bottom:84px!important;right:14px!important}
+  #pwa-fab{bottom:calc(96px + env(safe-area-inset-bottom))!important;right:14px!important}
   #pwa-fab>div:first-child{display:none!important}
 }
 
@@ -151,7 +151,7 @@
 .pwa-passos{margin:14px 0 0;padding:12px 14px 12px 32px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.9}
 .pwa-passos b{color:var(--text);font-weight:500}
 .pwa-passos svg{width:15px;height:15px;vertical-align:-3px;color:var(--accent)}
-@media(max-width:767px){.pwa-janela{right:16px;left:16px;bottom:84px;width:auto;max-width:none}}
+@media(max-width:767px){.pwa-janela{right:16px;left:16px;bottom:calc(96px + env(safe-area-inset-bottom));width:auto;max-width:none}}
 
 /* ── Cartões: fatura e limite como extrato ────────────────────────────────── */
 .cartao-extrato{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ced-gravura-fina);border-bottom:1px solid var(--ced-gravura-fina);margin-bottom:12px}
@@ -262,7 +262,7 @@
 .app-atualizacao .btn{flex-shrink:0}
 .app-atualizacao-fechar{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:4px}
 .app-atualizacao-fechar:hover{color:var(--text);background:var(--surface2)}
-@media(max-width:767px){.app-atualizacao{left:12px;right:12px;bottom:72px;transform:none;max-width:none}}
+@media(max-width:767px){.app-atualizacao{left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));transform:none;max-width:none}}
 
 /* ── Configurações: nunca maior que a tela; cabeçalho e abas fixos, só o conteúdo rola ── */
 #modal-config>div{max-height:calc(100dvh - 40px);display:flex;flex-direction:column}
