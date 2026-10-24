@@ -218,6 +218,8 @@ function _setProfileFinRossi(){
   if(navCli) navCli.style.display='flex';
   const navSoc=document.getElementById('nav-socios-item');
   if(navSoc) navSoc.style.display=isMaster()?'flex':'none';
+  const navQr=document.getElementById('nav-qr');
+  if(navQr) navQr.style.display=isMaster()?'flex':'none';   // QR Code: só o Master
   const navPreview=document.getElementById('nav-preview');
   if(navPreview) navPreview.style.display=(_userRole==='socio'||isMaster())?'':'none';
   const navRenda=document.getElementById('nav-renda');
@@ -245,6 +247,8 @@ function setProfile(p){
   if(navCli) navCli.style.display='none';
   const navSoc=document.getElementById('nav-socios-item');
   if(navSoc) navSoc.style.display='none';
+  const navQr=document.getElementById('nav-qr');
+  if(navQr) navQr.style.display='none';
   const navPreview=document.getElementById('nav-preview');
   if(navPreview) navPreview.style.display='none';   // Preview dos planos fica só no FinRossi
   const navRenda=document.getElementById('nav-renda');
@@ -258,7 +262,7 @@ function setProfile(p){
 }
 
 
-const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura'];
+const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura','qr'];
 function goTo(name){
   if(_verComoPlano && !verComoPlanoPermite(name)){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
@@ -271,7 +275,7 @@ function goTo(name){
     const oc=b.getAttribute('onclick');
     if(oc) b.classList.toggle('active',oc.includes("'"+name+"'"));
   });
-  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura};
+  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura,qr:()=>{ if(typeof renderQrCode==='function') renderQrCode(); }};
   if(fn[name]) fn[name]();
   if(name==='lancamentos' && typeof atualizarBotaoFoto==='function') atualizarBotaoFoto();
 }

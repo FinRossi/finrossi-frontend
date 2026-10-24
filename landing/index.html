@@ -1006,6 +1006,10 @@ function fecharModal(){
 // Cupom vindo do link do e-mail (finrossi.com.br/landing/?cupom=FINROSSI20). O servidor confere se vale.
 const CUPOM_LINK = (() => { const c = (new URLSearchParams(location.search).get('cupom') || '').trim().toUpperCase(); return /^[A-Z0-9]{3,20}$/.test(c) ? c : ''; })();
 let _cadastroConcluido = false, _leadEnviado = false;
+// QR Code "Criar conta" (finrossi.com.br/landing/?cadastro=1): abre direto o cadastro do plano Gratuito
+window.addEventListener('load', () => {
+  try{ if(new URLSearchParams(location.search).get('cadastro') === '1') setTimeout(() => abrirModalCadastro('gratuito', 'mensal'), 500); }catch(e){}
+});
 
 // (11) 98765-4321
 function mascaraWhats(el){
