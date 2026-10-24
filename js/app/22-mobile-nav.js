@@ -49,6 +49,13 @@ function openMobileMore(){
   // Mostra/esconde renda passiva (só no pessoal)
   const rOpt = document.getElementById('mnav-renda-opt');
   if(rOpt) rOpt.style.display = cp==='pessoal' ? 'flex' : 'none';
+  // Área da equipe (Clientes, Sócios, Prévia): só no perfil FinRossi — as mesmas regras do menu do computador
+  const noFR = cp === 'finrossi' && typeof isEquipe === 'function' && isEquipe();
+  const vis = (id, mostrar) => { const el = document.getElementById(id); if(el) el.style.display = mostrar ? '' : 'none'; };
+  vis('mob-equipe-section', noFR);
+  vis('mnav-item-clientes', noFR);
+  vis('mnav-item-socios', noFR && typeof isMaster === 'function' && isMaster());
+  vis('mnav-item-preview', noFR && (_userRole === 'socio' || (typeof isMaster === 'function' && isMaster())));
 }
 function closeMobileMore(e){
   if(e.target === document.getElementById('mobile-more-drawer')) closeMobileMoreForce();
