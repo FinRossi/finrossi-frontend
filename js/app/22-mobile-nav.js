@@ -48,7 +48,7 @@ function openMobileMore(){
   });
   // Mostra/esconde renda passiva (só no pessoal)
   const rOpt = document.getElementById('mnav-item-renda');   // (procurava 'mnav-renda-opt', que não existe)
-  if(rOpt) rOpt.style.display = cp==='finrossi' ? 'none' : 'flex';   // some só no FinRossi (clientes e Pessoal continuam vendo)
+  if(rOpt) rOpt.style.display = cp==='finrossi' ? 'none' : '';   // some só no FinRossi; fora dele vale a regra do plano
   // Área da equipe (Clientes, Sócios, Prévia): só no perfil FinRossi — as mesmas regras do menu do computador
   const noFR = cp === 'finrossi' && typeof isEquipe === 'function' && isEquipe();
   const vis = (id, mostrar) => { const el = document.getElementById(id); if(el) el.style.display = mostrar ? '' : 'none'; };
