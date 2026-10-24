@@ -79,7 +79,7 @@
 <script src="planos/patrimonio/relatorios.js?v=7" defer></script>
 
 <!-- Firebase SDK -->
-<script type="module" src="js/firebase-init.js?v=15"></script>
+<script type="module" src="js/firebase-init.js?v=16"></script>
 <!-- Estilos do app (ordem importa) -->
 <link rel="stylesheet" href="css/01-variaveis-temas.css?v=3">
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
@@ -1940,9 +1940,9 @@ try{
       <div class="field"><label>Email</label><input id="nc-email" type="email" placeholder="email@exemplo.com" onblur="const v=this.value;this.style.borderColor=v&&!validarEmail(v)?'var(--red)':'var(--border2)'"></div>
     </div>
     <div class="form-row">
-      <div class="field"><label>Senha</label>
+      <div class="field"><label>Senha provisória</label>
         <div style="position:relative">
-          <input id="nc-senha" type="password" placeholder="Senha de acesso" style="padding-right:38px">
+          <input id="nc-senha" type="password" placeholder="Em branco = gerar uma" style="padding-right:38px">
           <button type="button" onclick="toggleSenha('nc-senha','olho-nc')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:15px;line-height:1" id="olho-nc"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
@@ -2109,7 +2109,7 @@ try{
 <script src="planos/evolucao/14-notas.js?v=8"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=13"></script>
+<script src="acessos/17-clientes.js?v=14"></script>
 <script src="acessos/17b-socios.js?v=4"></script>
 <script src="planos/18-regras-planos.js?v=7"></script>
 <script src="acessos/19-preview-planos.js?v=7"></script>
@@ -2130,6 +2130,7 @@ try{
 <script src="js/app/35-planos-bloqueio.js?v=5"></script>
 <script src="js/app/36-preferencias.js?v=5"></script>
 <script src="js/app/37-primeiros-passos.js?v=3"></script>
+<script src="js/app/38-primeiro-acesso.js?v=1"></script>
 <script src="js/app/33-pwa-init.js?v=2"></script>
 </body>
 </html>

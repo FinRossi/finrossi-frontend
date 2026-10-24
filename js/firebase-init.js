@@ -159,14 +159,16 @@
             try{ onValue(ref(db, caminho), s => fim(s.val()), () => fim(null), { onlyOnce: true }); }catch(e){ fim(null); }
             setTimeout(() => fim(null), 3000);
           });
-          const [role, plano, trialFim, status] = await Promise.all([
+          const [role, plano, trialFim, status, primeiroAcesso] = await Promise.all([
             ler(`usuarios/${user.uid}/role`), ler(`usuarios/${user.uid}/plano`),
             ler(`usuarios/${user.uid}/trialFim`), ler(`usuarios/${user.uid}/status`),
+            ler(`usuarios/${user.uid}/primeiroAcesso`),
           ]);
           window._userRole = role || 'cliente';
           window._userPlano = plano || 'gratuito';
           window._userTrialFim = trialFim || null;   // fim do período de teste (aviso no dashboard)
           window._userStatus = status || null;
+          window._primeiroAcesso = primeiroAcesso === true;   // conta criada pela equipe: criar a própria senha
         }
         _userRole = window._userRole;
         _userPlano = window._userPlano;
@@ -177,6 +179,8 @@
         try{ localStorage.setItem('fin_ja_entrou', '1'); sessionStorage.removeItem('fin_login_google'); }catch(e){}
         if(new URLSearchParams(location.search).get('entrar') === '1') history.replaceState(null, '', location.pathname + location.hash);
         irParaApp(nome);
+        // Conta criada pela equipe com senha provisória: cobre o app até criar a própria senha pelo e-mail
+        if(window._primeiroAcesso) setTimeout(() => { try{ if(typeof mostrarPrimeiroAcesso === 'function') mostrarPrimeiroAcesso(); }catch(e){} }, 1300);
         // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
         setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);
         // Último acesso (régua "cliente que sumiu" para na hora em que a pessoa volta): no máximo a cada 6 h

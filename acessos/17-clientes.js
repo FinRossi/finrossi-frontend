@@ -83,7 +83,8 @@ async function cadastrarNovoCliente(){
   const origem=role==='cliente'?(document.getElementById('nc-origem')?.value||'teste'):'interno';
   const msg=document.getElementById('msg-novo-cliente');
 
-  if(!nome||!email||!senha){showMsg('msg-novo-cliente','Preencha todos os campos','err');return}
+  if(!nome||!email){showMsg('msg-novo-cliente','Preencha nome e e-mail','err');return}
+  if(senha && senha.length<8){showMsg('msg-novo-cliente','A senha provisória precisa ter pelo menos 8 caracteres (ou deixe em branco para gerar uma)','err');return}
   if(!validarEmail(email)){showMsg('msg-novo-cliente','Email inválido — verifique o formato','err');return}
 
   const token=getAdminToken();
@@ -100,6 +101,13 @@ async function cadastrarNovoCliente(){
     });
     if(res.status===401){showMsg('msg-novo-cliente','Sem permissão: entre com a sua conta da equipe.','err');return;}
     const data=await res.json();
+    if(data.ok && data.senhaProvisoria){
+      // Senha gerada pelo sistema: mostra uma vez para a equipe passar ao cliente (no 1º acesso ele cria a dele pelo e-mail)
+      mostrarSenhaProvisoria(email, data.senhaProvisoria);
+      const secSoc=document.getElementById('sec-socios');
+      ((secSoc && !secSoc.classList.contains('section-hidden')) ? renderSocios : renderClientes)();
+      return;
+    }
     if(data.ok){
       showMsg('msg-novo-cliente',ROLES_EQUIPE.includes(role)?'Acesso criado com sucesso!':'Cliente cadastrado com sucesso!','ok');
       // Atualiza a tela de onde o cadastro foi aberto (Sócios ou Clientes)
@@ -112,6 +120,27 @@ async function cadastrarNovoCliente(){
   }catch(e){
     showMsg('msg-novo-cliente','Erro de conexão com o backend','err');
   }
+}
+
+// Senha provisória gerada: aparece uma vez, com botões para copiar a mensagem ou mandar pelo WhatsApp
+function mostrarSenhaProvisoria(email, senha){
+  const msg=document.getElementById('msg-novo-cliente');
+  const texto='Olá! Sua conta no FinRossi está pronta.\n'
+    +'Entre em https://finrossi.com.br/app com o e-mail '+email+' e a senha provisória '+senha+'\n'
+    +'No primeiro acesso, o app vai pedir para você criar a sua própria senha pelo e-mail.';
+  msg.className='msg ok';
+  msg.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">'
+    +'<div>Conta criada! Senha provisória (aparece só agora):</div>'
+    +'<div style="font-family:monospace;font-size:18px;letter-spacing:1px;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px">'+escHTML(senha)+'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn xs" type="button" id="nc-copiar">Copiar mensagem para o cliente</button>'
+    +'<a class="btn xs" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(texto)+'" style="text-decoration:none">Mandar pelo WhatsApp</a>'
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--muted)">No primeiro acesso, o cliente cria a própria senha pelo e-mail (e o e-mail fica confirmado).</div>'
+    +'</div>';
+  document.getElementById('nc-copiar').onclick=e=>{
+    if(navigator.clipboard) navigator.clipboard.writeText(texto).then(()=>{ e.target.textContent='Copiada ✓'; });
+  };
 }
 
 async function renderClientes(){
