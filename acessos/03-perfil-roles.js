@@ -52,6 +52,9 @@ function setupPerfilUI(){
   const mobPerfis = document.getElementById('mob-perfis-section');
   const mobAssin  = document.getElementById('mob-minha-assin-section');
   if(mobPerfis) mobPerfis.style.display = (socio||admin||dev) ? '' : 'none';
+  // Sem "Minha área" (clientes), o Menu abre o painel: sem a linha e o espaço de separação no topo
+  const mobMenu = document.getElementById('mob-menu-section');
+  if(mobMenu){ const comPerfis = socio||admin||dev; mobMenu.style.marginTop = comPerfis ? '12px' : '0'; mobMenu.style.borderTop = comPerfis ? '1px solid var(--border)' : 'none'; mobMenu.style.paddingTop = comPerfis ? '10px' : '0'; }
   if(mobAssin)  mobAssin.style.display  = role==='cliente' ? '' : 'none';
 
   // Preview dos planos: só para sócio/master e só no perfil FinRossi (no Pessoal não aparece)

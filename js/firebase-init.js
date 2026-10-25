@@ -64,6 +64,12 @@
     app.classList.add('app-entrando');
     show('tela-app','flex');
     requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove('app-entrando')));
+    // O dashboard foi montado com o app escondido: redesenha agora que aparece, para a abertura
+    // (patrimônio subindo do zero e roseta) acontecer na frente da pessoa
+    requestAnimationFrame(() => tentar(() => {
+      const dash = document.getElementById('sec-dashboard');
+      if(dash && !dash.classList.contains('section-hidden') && !window._cedAnimou) refreshDash();
+    }));
   };
 
   const irParaLogin = () => {

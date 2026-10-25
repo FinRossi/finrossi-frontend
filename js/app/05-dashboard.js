@@ -158,7 +158,6 @@ function refreshDash(){
   if(kpiEl){
     // Identidade "Cédula": patrimônio no campo do valor (moldura dupla + roseta de guilhoché),
     // receitas/despesas/saldo como faixa de extrato. Mesmos valores e variações de antes.
-    const anima = !window._cedAnimou; window._cedAnimou = true; // roseta anima só na 1ª abertura
     const varTxt = (v, invertido) => {
       if(v === null) return '';
       if(parseFloat(v) === 0) return `<span class="ced-sub">sem mudança no mês</span>`;
@@ -172,6 +171,11 @@ function refreshDash(){
     // surpresa para quando o cliente voltar.
     const secDash = document.getElementById('sec-dashboard'), telaApp = document.getElementById('tela-app');
     const visivel = secDash && !secDash.classList.contains('section-hidden') && (!telaApp || telaApp.style.display !== 'none');
+    // Abertura do app: roseta anima e o patrimônio sobe do zero — na primeira vez que o dashboard
+    // APARECE (antes isso era gasto na montagem por trás da tela de carregamento/boas-vindas, e a
+    // partir de 13/10 só acontecia na primeiríssima vez do aparelho: a "evolução" tinha sumido)
+    const anima = visivel && !window._cedAnimou;
+    if(anima) window._cedAnimou = true;
     const chaveVistos = cp + '|' + mes;
     const atuais = { pat, rec, des, sal: saldo };
     const vistos = visivel ? cedVistos(chaveVistos) : null;
@@ -180,9 +184,10 @@ function refreshDash(){
     Object.keys(atuais).forEach(k => {
       const id = 'ced-valor-' + k;
       if(cedContando(id)) { inicio[k] = cedValorAtual(id); return; }
-      if(vistos && typeof vistos[k] === 'number' && Math.abs(vistos[k] - atuais[k]) >= 0.005){
-        inicio[k] = vistos[k]; cedMarcarDelta(id, atuais[k] - vistos[k], BOM_SUBIR[k]);
-      } else if(visivel && anima && !vistos && k === 'pat') inicio[k] = 0;   // primeira vez: patrimônio sobe do zero
+      const mudou = vistos && typeof vistos[k] === 'number' && Math.abs(vistos[k] - atuais[k]) >= 0.005;
+      if(mudou) cedMarcarDelta(id, atuais[k] - vistos[k], BOM_SUBIR[k]);   // selo "+ R$ …" do que mudou desde a última vez
+      if(anima && k === 'pat') inicio[k] = 0;   // abertura: patrimônio sobe do zero
+      else if(mudou) inicio[k] = vistos[k];     // tempo real: anda do último valor visto até o atual
     });
     const mostra = k => valorCedula(inicio[k] !== undefined ? inicio[k] : atuais[k]);
 
