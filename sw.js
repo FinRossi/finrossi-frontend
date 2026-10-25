@@ -1,4 +1,4 @@
-// FinRossi SW v11
+// FinRossi SW v12 (toque na notificação abre o app)
 // • Página (index.html): sempre da rede; sem internet, a última cópia salva.
 // • Na instalação já guarda TUDO que o index.html usa (CSS/JS com ?v=, Chart.js, Firebase, fontes).
 //   Antes só guardava o index.html: o app instalado abria quebrado sem internet até a 2ª visita.
@@ -173,6 +173,17 @@ self.addEventListener('fetch', e => {
 
   // Demais arquivos locais — da rede, com cópia para usar sem internet
   e.respondWith(redeOuCache(e.request, true));
+});
+
+// Toque na notificação: traz o app para a frente (ou abre, se estiver fechado)
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const destino = new URL((e.notification.data && e.notification.data.url) || '/?entrar=1', self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(janelas => {
+    const aberta = janelas.find(j => j.url.startsWith(self.location.origin) && !j.url.includes('/landing/'));
+    if (aberta && 'focus' in aberta) return aberta.focus();
+    return self.clients.openWindow(destino);
+  }));
 });
 
 self.addEventListener('message', e => {

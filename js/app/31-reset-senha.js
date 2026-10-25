@@ -42,15 +42,20 @@ async function enviarResetSenha(){
   msgEl.style.display = 'none';
 
   try{
-    const f = window._firebase;
-    if(!f || !f.firebaseOk) throw new Error('Firebase não disponível');
-
-    const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    
-    await sendPasswordResetEmail(f.auth, email, {
-      url: 'https://finrossi.com.br', // redireciona para o app após redefinir
-      handleCodeInApp: false,
-    });
+    // E-mail do FinRossi (servidor + Resend), com o link para a tela "Crie uma senha nova" do app.
+    // Servidor fora do ar: cai no e-mail padrão da Firebase, para a pessoa não ficar sem saída.
+    let viaServidor = false;
+    try{
+      const res = await fetchBackend(`${BACKEND_URL}/senha/esqueci`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ email }) });
+      if(res.status === 429) throw Object.assign(new Error('limite'), { code:'auth/too-many-requests' });
+      viaServidor = res.ok;
+    }catch(e){ if(e.code) throw e; }
+    if(!viaServidor){
+      const f = window._firebase;
+      if(!f || !f.firebaseOk) throw new Error('Firebase não disponível');
+      const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+      await sendPasswordResetEmail(f.auth, email, { url: 'https://finrossi.com.br/?entrar=1', handleCodeInApp: false });
+    }
 
     // Sucesso
     msgEl.innerHTML = 'E-mail enviado<br><span style="font-size:12px;opacity:.8">Verifique sua caixa de entrada e spam. O link expira em 1 hora.</span>';

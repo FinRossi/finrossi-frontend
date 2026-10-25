@@ -141,12 +141,15 @@ function _paCampoSenha(id, rotulo, enter){
     <button type="button" id="${id}-olho" onclick="toggleSenha('${id}','${id}-olho')" aria-label="Mostrar ou esconder a senha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;line-height:0">${typeof ICONE_OLHO !== 'undefined' ? ICONE_OLHO : '👁'}</button>
   </div></div>`;
 }
-function telaCriarSenha(codigo){
+// novaSenha: aberta pelo e-mail "Esqueci minha senha" (?modo=nova-senha) — mesma troca, outro texto
+function telaCriarSenha(codigo, novaSenha){
   const m = _paOverlay('pa-criar-senha');
-  m._codigo = codigo;
+  m._codigo = codigo; m._novaSenha = !!novaSenha;
   m.innerHTML = _paCartao(
-    _paCabeca('Crie a sua senha', 'FinRossi') +
-    _paTexto('Escolha uma senha com pelo menos 8 caracteres, misturando letras e números. Ao salvar, a senha provisória deixa de valer e o seu e-mail fica confirmado.') +
+    _paCabeca(novaSenha ? 'Crie uma senha nova' : 'Crie a sua senha', 'FinRossi') +
+    _paTexto(novaSenha
+      ? 'Escolha uma senha com pelo menos 8 caracteres, misturando letras e números. Ao salvar, a senha antiga deixa de valer.'
+      : 'Escolha uma senha com pelo menos 8 caracteres, misturando letras e números. Ao salvar, a senha provisória deixa de valer e o seu e-mail fica confirmado.') +
     _paCampoSenha('pa-senha', 'Nova senha', "document.getElementById('pa-senha2').focus()") +
     _paCampoSenha('pa-senha2', 'Repita a senha', 'salvarSenhaPrimeiroAcesso()') +
     '<div id="pa-msg2" class="msg" style="margin:0;min-height:0"></div>' +
@@ -170,7 +173,7 @@ async function salvarSenhaPrimeiroAcesso(){
     try{ const f = window._firebase; if(f && f.firebaseOk && f.auth && f.auth.currentUser) await f.signOut(f.auth); }catch(e){}
     history.replaceState(null, '', location.pathname + '?entrar=1');
     m.innerHTML = _paCartao(
-      _paCabeca('Pronto!', 'Senha criada e e-mail confirmado') +
+      _paCabeca('Pronto!', m._novaSenha ? 'Senha nova criada' : 'Senha criada e e-mail confirmado') +
       _paTexto('Agora é só entrar com o seu e-mail e a senha nova.') +
       `<div class="btn-row"><button class="btn primary" type="button" onclick="document.getElementById('pa-criar-senha').style.display='none';const e=document.getElementById('login-email');if(e){e.value=${JSON.stringify(d.email || '')};document.getElementById('login-senha')?.focus();}">Entrar no FinRossi</button></div>`
     );
@@ -183,6 +186,6 @@ async function salvarSenhaPrimeiroAcesso(){
 (function(){
   try{
     const q = new URLSearchParams(location.search);
-    if(q.get('modo') === 'criar-senha' && q.get('oobCode')) telaCriarSenha(q.get('oobCode'));
+    if((q.get('modo') === 'criar-senha' || q.get('modo') === 'nova-senha') && q.get('oobCode')) telaCriarSenha(q.get('oobCode'), q.get('modo') === 'nova-senha');
   }catch(e){}
 })();

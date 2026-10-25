@@ -3,40 +3,29 @@
 // SISTEMA DE NOTIFICAÇÕES — FinRossi
 // ═══════════════════════════════════════════════════════════
 
+// Dias até a próxima ocorrência do dia do mês (0 = hoje). Dia 31 num mês de 30 dias cai no dia 30
+// (antes pulava para o mês seguinte e o aviso não saía).
+function _proximoVencimento(dia){
+  dia = parseInt(dia, 10);
+  if(!(dia >= 1 && dia <= 31)) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const noMes = (ano, mes) => new Date(ano, mes, Math.min(dia, new Date(ano, mes + 1, 0).getDate()));
+  let alvo = noMes(hoje.getFullYear(), hoje.getMonth());
+  if(alvo < hoje) alvo = noMes(hoje.getFullYear(), hoje.getMonth() + 1);
+  return { dias: Math.round((alvo - hoje) / 86400000), dia: alvo.getDate() };
+}
+
 // ── Calcula vencimentos próximos ──────────────────────────
 function getVencimentosProximos(diasAlerta=3){
-  const hoje = new Date();
-  const diaHoje = hoje.getDate();
-  const mesHoje = hoje.getMonth();
-  const anoHoje = hoje.getFullYear();
-  const {assinaturas, recorrentes} = pd();
+  const {assinaturas, recorrentes, cartoes} = pd();
   const alertas = [];
-
-  // Assinaturas
-  (assinaturas||[]).filter(a=>a.status!=='pausada').forEach(a=>{
-    const diasFaltam = a.dia >= diaHoje ? a.dia - diaHoje : (new Date(anoHoje, mesHoje+1, a.dia) - hoje) / 86400000;
-    if(diasFaltam >= 0 && diasFaltam <= diasAlerta){
-      alertas.push({tipo:'assinatura', nome:a.nome, val:a.val, dia:a.dia, diasFaltam:Math.ceil(diasFaltam), cat:a.cat});
-    }
-  });
-
-  // Recorrentes
-  (recorrentes||[]).forEach(r=>{
-    const diasFaltam = r.dia >= diaHoje ? r.dia - diaHoje : (new Date(anoHoje, mesHoje+1, r.dia) - hoje) / 86400000;
-    if(diasFaltam >= 0 && diasFaltam <= diasAlerta){
-      alertas.push({tipo:'recorrente', nome:r.desc, val:r.val, dia:r.dia, diasFaltam:Math.ceil(diasFaltam), cat:r.cat});
-    }
-  });
-
-  // Cartões (fatura)
-  (pd().cartoes||[]).forEach(cartao=>{
-    if(!cartao.venc) return;
-    const diasFaltam = cartao.venc >= diaHoje ? cartao.venc - diaHoje : (new Date(anoHoje, mesHoje+1, cartao.venc) - hoje) / 86400000;
-    if(diasFaltam >= 0 && diasFaltam <= diasAlerta){
-      alertas.push({tipo:'cartao', nome:`Fatura ${cartao.nome}`, val:null, dia:cartao.venc, diasFaltam:Math.ceil(diasFaltam), cat:'Cartão'});
-    }
-  });
-
+  const add = (tipo, nome, val, dia, cat) => {
+    const v = _proximoVencimento(dia);
+    if(v && v.dias <= diasAlerta) alertas.push({tipo, nome, val, dia:v.dia, diasFaltam:v.dias, cat});
+  };
+  (assinaturas||[]).filter(a=>a && a.status!=='pausada').forEach(a=>add('assinatura', a.nome, a.val, a.dia, a.cat));
+  (recorrentes||[]).filter(Boolean).forEach(r=>add('recorrente', r.desc, r.val, r.dia, r.cat));
+  (cartoes||[]).filter(c=>c && c.venc).forEach(c=>add('cartao', `Fatura ${c.nome}`, null, c.venc, 'Cartão'));
   return alertas.sort((a,b)=>a.diasFaltam-b.diasFaltam);
 }
 
@@ -67,10 +56,35 @@ function renderAlertasVencimento(){
   </div>`;
 }
 
-// ── FASE 3: Push Notifications ────────────────────────────
+// ── FASE 3: Notificações do aparelho ──────────────────────
+// • Saem pelo service worker (registration.showNotification): no Android e no app instalado o
+//   "new Notification()" dá erro, e antes nenhuma notificação aparecia no celular.
+// • No iPhone só existem com o app instalado na tela de início (iOS 16.4+). No Safari comum
+//   "Notification" nem existe — antes o código quebrava ao ler Notification.permission.
+// • Cada aviso sai uma vez por dia (antes repetia a cada abertura do app e a cada hora).
+// • Por enquanto avisam quando o app é aberto (ou fica aberto). Com o app fechado precisa de push
+//   do servidor — ver backlog.
+const _notifSuportada = () => typeof window !== 'undefined' && 'Notification' in window;
+const _notifLigada = () => _notifSuportada() && Notification.permission === 'granted' && localStorage.getItem('fin_notif_ok') !== '0';
+
+async function _mostrarNotificacao(titulo, opcoes){
+  const o = { icon:'/img/icon-192.png?v=5', lang:'pt-BR', data:{ url:'/?entrar=1' }, ...(opcoes||{}) };
+  try{
+    if('serviceWorker' in navigator){
+      const reg = await Promise.race([navigator.serviceWorker.getRegistration(), new Promise(r=>setTimeout(()=>r(null), 3000))]);
+      if(reg && reg.showNotification){ await reg.showNotification(titulo, o); return true; }
+    }
+    new Notification(titulo, o);   // computador sem service worker (ex.: teste local)
+    return true;
+  }catch(e){ console.warn('[Notificações]', e && e.message); return false; }
+}
+
 async function solicitarPermissaoNotificacoes(){
-  if(!('Notification' in window)){
-    alert('Seu navegador não suporta notificações. Instale o app para receber alertas.');
+  if(!_notifSuportada()){
+    const iphone = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    alert(iphone
+      ? 'No iPhone, as notificações funcionam com o FinRossi instalado: toque em Compartilhar → "Adicionar à Tela de Início" e abra o app por lá.'
+      : 'Este navegador não suporta notificações. Instale o app para receber alertas.');
     return;
   }
   if(Notification.permission === 'granted'){
@@ -101,48 +115,37 @@ async function solicitarPermissaoNotificacoes(){
 }
 
 function mostrarNotificacaoTeste(){
-  new Notification('FinRossi', {
-    body: 'Notificações ativadas! Você será avisado sobre vencimentos.',
-    icon: '/img/icon-192.png?v=5',
-    badge: '/img/favicon-32.png?v=6'
-  });
+  _mostrarNotificacao('FinRossi', { body:'Notificações ativadas! Você será avisado sobre vencimentos.', tag:'fin-teste' });
+}
+
+// Registro do que já foi avisado hoje (some sozinho no dia seguinte)
+function _jaAvisadoHoje(tag){
+  const hoje = new Date().toLocaleDateString('sv');   // AAAA-MM-DD no fuso do aparelho
+  let reg = {};
+  try{ reg = JSON.parse(localStorage.getItem('fin_notif_enviadas') || '{}') || {}; }catch(e){}
+  for(const k in reg) if(reg[k] !== hoje) delete reg[k];
+  if(reg[tag]){ return true; }
+  reg[tag] = hoje;
+  try{ localStorage.setItem('fin_notif_enviadas', JSON.stringify(reg)); }catch(e){}
+  return false;
 }
 
 function agendarNotificacoes(){
-  if(Notification.permission !== 'granted') return;
-  if(localStorage.getItem('fin_notif_ok') === '0') return;
-  const alertas = getVencimentosProximos(3);
-  alertas.forEach(a=>{
-    const msg = a.diasFaltam === 0
-      ? `${a.nome} vence HOJE!`
-      : a.diasFaltam === 1
-      ? `${a.nome} vence amanhã (dia ${a.dia})`
-      : `${a.nome} vence em ${a.diasFaltam} dias (dia ${a.dia})`;
-    // Mostra imediatamente se há alertas urgentes
-    if(a.diasFaltam <= 1){
-      new Notification('FinRossi: vencimento próximo', {
-        body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''),
-        icon: '/img/icon-192.png?v=5',
-        badge: '/img/favicon-32.png?v=6',
-        tag: `venc-${a.nome}-${a.dia}`,
-        renotify: false
-      });
-    }
+  if(!_notifLigada()) return;
+  if(typeof verComoPlanoPermite==='function' && !verComoPlanoPermite('assinaturas')) return;   // mesmo critério do card do dashboard
+  getVencimentosProximos(1).forEach(a=>{
+    const tag = `venc-${a.tipo}-${a.nome}-${a.dia}`;
+    if(_jaAvisadoHoje(tag)) return;
+    const msg = a.diasFaltam === 0 ? `${a.nome} vence hoje` : `${a.nome} vence amanhã (dia ${a.dia})`;
+    _mostrarNotificacao('FinRossi: vencimento próximo', { body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''), tag });
   });
 }
 
-// Verifica e mostra notificações ao abrir o app
+// Verifica e mostra notificações ao abrir o app (chamada a cada login: um relógio só)
+let _notifRelogio = null;
 function iniciarSistemaNotificacoes(){
-  // Fase 1: sempre mostra no dashboard
-  renderAlertasVencimento();
-  // Fase 3: push se permitido e ativado
-  if(Notification.permission === 'granted' && localStorage.getItem('fin_notif_ok') !== '0'){
-    agendarNotificacoes();
-  }
-  // Verifica a cada hora
-  setInterval(()=>{
-    renderAlertasVencimento();
-    if(Notification.permission === 'granted' && localStorage.getItem('fin_notif_ok') !== '0') agendarNotificacoes();
-  }, 3600000);
+  renderAlertasVencimento();          // Fase 1: sempre mostra no dashboard
+  agendarNotificacoes();              // Fase 3: se permitido e ativado
+  if(_notifRelogio) clearInterval(_notifRelogio);
+  _notifRelogio = setInterval(()=>{ renderAlertasVencimento(); agendarNotificacoes(); }, 3600000);
 }
-
