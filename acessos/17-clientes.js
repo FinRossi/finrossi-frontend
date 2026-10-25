@@ -171,6 +171,7 @@ async function renderClientes(){
 
     const data=await res.json();
     const clientes=data.clientes||[];
+    window._clientesCache=clientes;   // excluirCliente mostra o e-mail da linha na confirmação
 
     // Separa equipe interna de clientes reais
     const ROLES_INTERNOS=ROLES_EQUIPE;
@@ -242,7 +243,8 @@ async function renderClientes(){
             <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar">${ICO_EDITAR}</button>
             ${c.status==='inativo'
               ?`<button class="btn xs" onclick="reativarCliente('${c.uid}')" style="color:var(--green);border-color:var(--green)">↺</button>`
-              :`<button class="btn danger xs" onclick="desativarCliente('${c.uid}')">✕</button>`}
+              :`<button class="btn danger xs" onclick="desativarCliente('${c.uid}')" title="Desativar">✕</button>`}
+            ${isMaster() ? `<button class="btn danger xs" onclick="excluirCliente('${c.uid}')" title="Excluir para sempre" aria-label="Excluir para sempre">${ICO_LIXEIRA}</button>` : ''}
           </div>`}</td>
         </tr>`;}).join('')}</tbody>
     </table></div>`;
@@ -475,6 +477,26 @@ async function desativarCliente(uid){
     await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/desativar`,{method:'POST',headers:await adminHeaders(token)});
     renderClientes();
   }catch(e){alert('Erro ao desativar');}
+}
+
+// Excluir para sempre (só o Master): apaga login e todos os dados da pessoa e tira a linha do painel.
+// Pede o e-mail da conta digitado, conferido também no servidor. Assinatura na Asaas é cancelada antes.
+const ICO_LIXEIRA = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>';
+async function excluirCliente(uid){
+  if(!isMaster()) return;
+  const token=getAdminToken();
+  if(!token) return;
+  const c=(window._clientesCache||[]).find(x=>x.uid===uid)||{};
+  const quem=c.email||'esta conta';
+  if(!confirm(`Excluir ${quem} para sempre?\n\nApaga o login e TODOS os dados da pessoa (lançamentos, metas, anexos). Não dá para desfazer.\nSe tiver assinatura na Asaas, ela é cancelada.`)) return;
+  const digitado=prompt(`Para confirmar, digite o e-mail da conta:\n${quem}`);
+  if(digitado===null) return;
+  try{
+    const res=await fetchBackend(`${BACKEND_URL}/admin/clientes/${uid}/excluir`,{method:'POST',headers:await adminHeaders(token,{'Content-Type':'application/json'}),body:JSON.stringify({confirmarEmail:digitado})});
+    const d=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(d.erro||'Não foi possível excluir agora.');
+    renderClientes();
+  }catch(e){alert(e.message);}
 }
 
 async function reativarCliente(uid){
