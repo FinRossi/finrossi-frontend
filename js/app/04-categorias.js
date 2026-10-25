@@ -1,8 +1,11 @@
 // js/app/04-categorias.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── CATEGORIAS PERSONALIZADAS ────────────────────────────────────────────────
 const CATS_DEFAULT = {
-  despesa: ['Moradia','Alimentação','Saúde','Transporte','Educação','Lazer','Parcela','Serviços','Outros'],
+  despesa: ['Moradia','Alimentação','Saúde','Transporte','Educação','Lazer','Parcela','Serviços','Assinaturas','Outros'],
   receita: ['Salário','Freelance','Aluguel recebido','Dividendos','Venda','Outros'],
+  // Tipos de assinatura (tela Assinaturas). Antes a assinatura usava as categorias de despesa
+  // ("Netflix — Alimentação"); personalizáveis pelo "editar" do modal, como as outras.
+  assinatura: ['Streaming','Música','Compras e entregas','Apps e software','Nuvem e armazenamento','Jogos','Educação','Saúde e academia','Leitura e notícias','Telefone e internet','Outros'],
 };
 
 function getCats(tipo){
@@ -39,11 +42,11 @@ function populateCatSelects(){
     hCat.innerHTML = '<option value="">Todas as categorias</option>'+todas.map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) hCat.value = cur;
   }
-  // Assinaturas e Recorrentes
+  // Assinaturas (tipos próprios) e Recorrentes (categorias de despesa)
   const assinCat = document.getElementById('assin-cat');
   if(assinCat){
     const cur = assinCat.value;
-    assinCat.innerHTML = getCats('despesa').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
+    assinCat.innerHTML = getCats('assinatura').map(c=>`<option value="${escHTML(c)}">${escHTML(c)}</option>`).join('');
     if(cur) assinCat.value = cur;
   }
   const recCat = document.getElementById('rec-cat');
@@ -59,6 +62,7 @@ let _catsTemp = []; // {nome, ativa, padrao}
 
 function abrirGerenciarCats(tipo){
   _catsEditandoTipo = tipo;
+  if(tipo==='assinatura') window._assinTiposAntes = [...(pd().categorias?.assinatura||[])];
   const perfil = pd();
   if(!perfil.categorias) perfil.categorias = {despesa:[],receita:[]};
   const padrao = CATS_DEFAULT[tipo];
@@ -71,7 +75,12 @@ function abrirGerenciarCats(tipo){
     ...extras.filter(n=>!padrao.includes(n)).map(n=>({nome:n, ativa:!desativadas.includes(n), padrao:false}))
   ];
 
-  document.getElementById('cats-modal-title').textContent = tipo==='despesa' ? 'Categorias de Despesa' : 'Categorias de Receita';
+  document.getElementById('cats-modal-title').textContent = tipo==='despesa' ? 'Categorias de Despesa' : tipo==='assinatura' ? 'Tipos de assinatura' : 'Categorias de Receita';
+  document.getElementById('modal-cats').style.zIndex = '210';
+  const ehTipo = tipo==='assinatura';
+  const desc = document.getElementById('cats-modal-desc');
+  if(desc) desc.textContent = ehTipo ? 'Personalize os tipos de assinatura do seu perfil. Os padrão não podem ser removidos.' : 'Personalize as categorias do seu perfil. As padrão não podem ser removidas.';
+  document.getElementById('cats-nova').placeholder = ehTipo ? 'Novo tipo...' : 'Nova categoria...';   // abre por cima do modal da assinatura (que vem depois no HTML)
   document.getElementById('cats-nova').value = '';
   document.getElementById('cats-msg').textContent = '';
   renderCatsLista();
@@ -118,11 +127,11 @@ function adicionarCategoria(){
   const nova = input.value.trim();
   if(!nova){ msg.textContent='Digite um nome.'; msg.style.color='var(--red)'; return; }
   if(_catsTemp.some(c=>c.nome.toLowerCase()===nova.toLowerCase())){
-    msg.textContent='Essa categoria já existe.'; msg.style.color='var(--amber)'; return;
+    msg.textContent=_catsEditandoTipo==='assinatura'?'Esse tipo já existe.':'Essa categoria já existe.'; msg.style.color='var(--amber)'; return;
   }
   _catsTemp.push({nome:nova, ativa:true, padrao:false});
   input.value = '';
-  msg.textContent = `✓ "${nova}" adicionada.`; msg.style.color='var(--green)';
+  msg.textContent = `✓ "${nova}" ${_catsEditandoTipo==='assinatura'?'adicionado':'adicionada'}.`; msg.style.color='var(--green)';
   renderCatsLista();
 }
 
@@ -143,6 +152,13 @@ function salvarCategorias(){
   if(window._db && window._set && window._ref) window._set(window._ref(window._db,`financeiro/${cp}/categorias`), perfil.categorias);
   populateCatSelects();
   closeModal('modal-cats');
+  // Criou um tipo novo no modal da assinatura: já fica escolhido
+  if(tipo==='assinatura'){
+    const novo = [...extras].reverse().find(n=>!desativadas.includes(n) && !(window._assinTiposAntes||[]).includes(n));
+    const sel = document.getElementById('assin-cat');
+    if(novo && sel){ sel.value = novo; window._assinTipoManual = true; }
+    if(typeof renderAssinaturas==='function' && document.getElementById('sec-assinaturas') && !document.getElementById('sec-assinaturas').classList.contains('section-hidden')) renderAssinaturas();
+  }
 
   // Atualiza contagem no modal de configurações
   const dCount = document.getElementById('cfg-cats-desp-count');

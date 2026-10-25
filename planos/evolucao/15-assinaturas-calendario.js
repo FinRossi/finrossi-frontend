@@ -3,11 +3,74 @@
 function getAssin(){return pd().assinaturas||[]}
 async function saveAssin(){lsSave(cp,'assinaturas');fbSave(cp,'assinaturas');}
 
+// ── Tipos de assinatura ──────────────────────────────────────────────────────
+// Serviços conhecidos: aparecem como sugestão ao digitar o nome e já escolhem o tipo.
+const ASSIN_SERVICOS = {
+  'Streaming':            ['Netflix','Amazon Prime Video','Disney+','Max','Globoplay','Paramount+','Apple TV+','YouTube Premium','Crunchyroll','Telecine','Mubi'],
+  'Música':               ['Spotify','Apple Music','Deezer','YouTube Music','Amazon Music Unlimited','Tidal'],
+  'Compras e entregas':   ['Amazon Prime','Mercado Livre Meli+','iFood Clube','Rappi Pro','Uber One'],
+  'Apps e software':      ['ChatGPT Plus','Claude Pro','Microsoft 365','Canva Pro','Adobe Creative Cloud','Notion'],
+  'Nuvem e armazenamento':['iCloud+','Google One','Dropbox'],
+  'Jogos':                ['Xbox Game Pass','PlayStation Plus','Nintendo Switch Online'],
+  'Educação':             ['Duolingo Super','Alura','Coursera Plus','Udemy'],
+  'Saúde e academia':     ['Smart Fit','Wellhub (Gympass)','TotalPass','Bluefit'],
+  'Leitura e notícias':   ['Kindle Unlimited','Audible','Skeelo','Folha de S.Paulo','Estadão','O Globo'],
+  'Telefone e internet':  ['Claro','Vivo','TIM','NET','Vivo Fibra'],
+};
+// Palavras que identificam o tipo pelo nome digitado (sem acento, minúsculas). A ordem importa:
+// "prime video" é Streaming antes de "amazon prime" virar Compras; "globoplay" antes de "globo".
+const ASSIN_PISTAS = [
+  [/netflix|prime video|disney|\bmax\b|hbo|globoplay|paramount|apple tv|youtube premium|crunchyroll|telecine|mubi|star\+/, 'Streaming'],
+  [/spotify|apple music|deezer|youtube music|amazon music|tidal/, 'Música'],
+  [/amazon prime|^prime$|mercado livre|meli|ifood|rappi|uber one/, 'Compras e entregas'],
+  [/chatgpt|openai|claude|microsoft 365|office 365|canva|adobe|notion|workspace/, 'Apps e software'],
+  [/icloud|google one|dropbox|onedrive/, 'Nuvem e armazenamento'],
+  [/game pass|xbox|playstation|ps plus|nintendo|steam|ea play/, 'Jogos'],
+  [/duolingo|alura|coursera|udemy|curso|escola|faculdade/, 'Educação'],
+  [/smart ?fit|academia|gympass|wellhub|totalpass|bluefit|crossfit|pilates|plano de saude|unimed/, 'Saúde e academia'],
+  [/kindle|audible|skeelo|jornal|folha|estadao|\bglobo\b|revista|valor economico/, 'Leitura e notícias'],
+  [/^net$|claro|vivo|\btim\b|^oi\b|internet|celular|fibra|telefone/, 'Telefone e internet'],
+];
+const _semAcento = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+function assinTipoPeloNome(nome){
+  const n = _semAcento(nome);
+  if(!n) return null;
+  const achou = ASSIN_PISTAS.find(([re]) => re.test(n));
+  return achou ? achou[1] : null;
+}
+// Tipo de uma assinatura: o que foi escolhido; se for antigo (categoria de despesa, ex. "Alimentação"),
+// o tipo deduzido pelo nome, ou "Outros"
+function tipoDaAssin(a){
+  const tipos = [...CATS_DEFAULT.assinatura, ...(pd().categorias?.assinatura||[])];
+  if(a && tipos.includes(a.cat)) return a.cat;
+  return assinTipoPeloNome(a && a.nome) || 'Outros';
+}
+function _assinGarantirOpcao(tipo){
+  const sel = document.getElementById('assin-cat');
+  if(sel && tipo && ![...sel.options].some(o=>o.value===tipo)) sel.insertAdjacentHTML('beforeend', `<option value="${escHTML(tipo)}">${escHTML(tipo)}</option>`);
+}
+// Ao digitar o nome: escolhe o tipo sozinho, até a pessoa mexer no tipo
+function assinSugerirTipo(){
+  if(window._assinTipoManual) return;
+  const t = assinTipoPeloNome(document.getElementById('assin-nome').value);
+  if(t){ _assinGarantirOpcao(t); document.getElementById('assin-cat').value = t; }
+}
+
 function openModalAssin(id){
+  if(typeof populateCatSelects==='function') populateCatSelects();
+  const lista = document.getElementById('assin-sugestoes');
+  if(lista && !lista.children.length) lista.innerHTML = Object.values(ASSIN_SERVICOS).flat().map(n=>`<option value="${escHTML(n)}"></option>`).join('');
   document.getElementById('massin-title').textContent=id?'Editar assinatura':'Nova assinatura';
   document.getElementById('assin-edit-id').value=id||'';
-  if(id){const a=getAssin().find(x=>x.id===id);if(a){document.getElementById('assin-nome').value=a.nome;document.getElementById('assin-val').value=a.val;document.getElementById('assin-cat').value=a.cat;document.getElementById('assin-dia').value=a.dia;document.getElementById('assin-status').value=a.status||'ativa';document.getElementById('assin-obs').value=a.obs||'';}}
-  else{['assin-nome','assin-val','assin-dia','assin-obs'].forEach(i=>document.getElementById(i).value='');document.getElementById('assin-status').value='ativa';}
+  window._assinTipoManual = !!id;   // editando: mantém o tipo salvo
+  const a = id ? getAssin().find(x=>x.id===id) : null;
+  if(a){
+    const tipo = tipoDaAssin(a); _assinGarantirOpcao(tipo);
+    document.getElementById('assin-nome').value=a.nome;document.getElementById('assin-val').value=a.val;document.getElementById('assin-cat').value=tipo;document.getElementById('assin-dia').value=a.dia;document.getElementById('assin-status').value=a.status||'ativa';document.getElementById('assin-obs').value=a.obs||'';
+  }else{
+    ['assin-nome','assin-val','assin-dia','assin-obs'].forEach(i=>document.getElementById(i).value='');document.getElementById('assin-status').value='ativa';
+    document.getElementById('assin-cat').value='Streaming';
+  }
   document.getElementById('modal-assin').classList.add('open');
 }
 async function salvarAssin(){
@@ -56,8 +119,11 @@ function renderAssinaturas(){
 
     el.innerHTML=`<div class="grid2" style="margin-bottom:16px">
       <div class="card">
-        <h3>Gastos por categoria</h3>
-        <div class="chart-wrap" style="height:200px"><canvas id="c-assin-cat"></canvas></div>
+        <h3>Gastos por tipo</h3>
+        <div class="assin-grafico">
+          <div class="chart-wrap assin-rosca"><canvas id="c-assin-cat"></canvas></div>
+          <div class="assin-legenda" id="assin-legenda"></div>
+        </div>
       </div>
       <div class="card">
         <h3>Assinaturas por dia de cobrança</h3>
@@ -65,14 +131,30 @@ function renderAssinaturas(){
       </div>
     </div>`;
 
+    // Gastos por tipo: total no meio do gráfico e, na legenda, valor e % de cada tipo
     destroyChart('assin-cat');
     const catMap={};
-    ativas.forEach(a=>catMap[a.cat]=(catMap[a.cat]||0)+a.val);
-    const cL=Object.keys(catMap),cV=Object.values(catMap);
+    ativas.forEach(a=>{ const t=tipoDaAssin(a); catMap[t]=(catMap[t]||0)+a.val; });
+    const tiposOrd=Object.entries(catMap).sort((x,y)=>y[1]-x[1]);
+    const cL=tiposOrd.map(t=>t[0]),cV=tiposOrd.map(t=>t[1]);
+    const cores=cL.map((_,i)=>PALETTE[i%PALETTE.length]);
+    const pct=v=>total>0?(v/total*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%':'0%';
     const ctxC=document.getElementById('c-assin-cat');
     if(ctxC){
-      if(!cL.length){ctxC.parentElement.innerHTML='<p class="empty" style="padding:40px 0">Sem dados</p>';}
-      else{charts['assin-cat']=new Chart(ctxC,{type:'doughnut',data:{labels:cL,datasets:[{data:cV,backgroundColor:PALETTE.slice(0,cL.length),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:11},padding:6,boxWidth:10}}}}});}
+      if(!cL.length){ctxC.parentElement.innerHTML='<p class="empty" style="padding:40px 0">Nenhuma assinatura ativa</p>';}
+      else{
+        ctxC.parentElement.insertAdjacentHTML('beforeend',`<div class="assin-centro"><b>${fmtR(total)}</b><span>por mês</span></div>`);
+        charts['assin-cat']=new Chart(ctxC,{type:'doughnut',data:{labels:cL,datasets:[{data:cV,backgroundColor:cores,borderWidth:0}]},
+          options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},
+            tooltip:{callbacks:{label:c=>` ${c.label}: ${fmtR(c.parsed)} (${pct(c.parsed)})`}}}}});
+        const leg=document.getElementById('assin-legenda');
+        if(leg) leg.innerHTML=tiposOrd.map(([t,v],i)=>`<div class="assin-leg-item">
+          <span class="assin-leg-cor" style="background:${cores[i]}"></span>
+          <span class="assin-leg-nome">${escHTML(t)}</span>
+          <span class="assin-leg-val">${fmtR(v)}</span>
+          <span class="assin-leg-pct">${pct(v)}</span>
+        </div>`).join('');
+      }
     }
 
     const listEl=document.getElementById('assin-list');
@@ -84,7 +166,7 @@ function renderAssinaturas(){
           :urgente?`<span class="fr-selo destaque">${diasFaltam===0?'Cobra hoje':`Cobra em ${diasFaltam} ${diasFaltam===1?'dia':'dias'}`}</span>`:'';
         return`<div class="ext-linha${pausada?' pausada':''}">
           <div class="ext-dia"><b>${String(a.dia).padStart(2,'0')}</b><span>mensal</span></div>
-          <div style="min-width:0"><div class="ext-tit">${escHTML(a.nome)}</div><div class="ext-meta">${escHTML(a.cat)}</div></div>
+          <div style="min-width:0"><div class="ext-tit">${escHTML(a.nome)}</div><div class="ext-meta">${escHTML(tipoDaAssin(a))}</div></div>
           <div class="ext-valor-col"><div class="ext-valor">${fmtR(a.val)}</div>${selo}</div>
           <div class="ext-acoes">
             <button class="btn xs" onclick="openModalAssin('${a.id}')" title="Editar" aria-label="Editar assinatura">${ICO_EDITAR}</button>
@@ -152,7 +234,8 @@ function lancarAssinaturasDoMes(mes){
     const data=`${mes}-${String(dia).padStart(2,'0')}`;
     const jaLancado=pd().lancs.some(l=>l.desc===a.nome&&l.data===data&&l.tipo==='despesa'&&l.assinatura);
     if(!jaLancado){
-      pd().lancs.push({id:uid(),tipo:'despesa',desc:a.nome,val:a.val,data,cat:a.cat||'Assinaturas',obs:'Assinatura automática',assinatura:true});
+      // Lançamento entra na categoria de despesa "Assinaturas" (o tipo vai na observação)
+      pd().lancs.push({id:uid(),tipo:'despesa',desc:a.nome,val:a.val,data,cat:'Assinaturas',obs:`Assinatura automática · ${tipoDaAssin(a)}`,assinatura:true});
       lançados++;
     }
   });

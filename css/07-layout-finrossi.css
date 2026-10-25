@@ -442,3 +442,17 @@
 .qr-acoes{display:flex;gap:10px;margin-top:20px;width:100%;max-width:320px}
 .qr-acoes .btn{flex:1;justify-content:center}
 @media(max-width:768px){.qr-tela{padding-bottom:96px}}   /* espaço para o botão flutuante não cobrir "Compartilhar" */
+
+/* ─── Assinaturas: gráfico por tipo (total no meio, legenda com valor e %) ─── */
+.assin-grafico{display:flex;flex-direction:column;align-items:stretch;gap:16px}   /* legenda embaixo: nome do tipo inteiro, sem cortar */
+.assin-rosca{position:relative;width:190px;height:190px;margin:0 auto}
+.assin-centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+.assin-centro b{font-family:'DM Serif Display',serif;font-weight:400;font-size:19px;color:var(--text);line-height:1.15}
+.assin-centro span{font-size:11px;color:var(--muted);margin-top:2px}
+.assin-legenda{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.assin-leg-item{display:grid;grid-template-columns:10px 1fr auto 52px;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.assin-leg-item:last-child{border-bottom:none}
+.assin-leg-cor{width:10px;height:10px;border-radius:50%}
+.assin-leg-nome{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.assin-leg-val{color:var(--text);font-variant-numeric:tabular-nums}
+.assin-leg-pct{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}

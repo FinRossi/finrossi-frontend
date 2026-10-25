@@ -87,7 +87,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=8">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=29">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=30">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
@@ -1206,7 +1206,7 @@ try{
 <div class="modal-overlay" id="modal-cats">
   <div class="modal" style="max-width:420px">
     <h3 id="cats-modal-title">Categorias de Despesa</h3>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Personalize as categorias do seu perfil. As padrão não podem ser removidas.</p>
+    <p id="cats-modal-desc" style="font-size:12px;color:var(--muted);margin-bottom:14px">Personalize as categorias do seu perfil. As padrão não podem ser removidas.</p>
     <div id="cats-lista" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:280px;overflow-y:auto"></div>
     <div style="display:flex;gap:8px">
       <input id="cats-nova" type="text" placeholder="Nova categoria..." style="flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none" onkeydown="if(event.key==='Enter')adicionarCategoria()" onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='var(--border2)'">
@@ -1743,15 +1743,16 @@ try{
     <h3 id="massin-title">Nova assinatura</h3>
     <input type="hidden" id="assin-edit-id">
     <div class="form-row">
-      <div class="field"><label>Nome</label><input id="assin-nome" type="text" placeholder="Ex: Netflix, Spotify..."></div>
+      <div class="field"><label>Nome</label><input id="assin-nome" type="text" placeholder="Ex: Netflix, Spotify..." list="assin-sugestoes" autocomplete="off" oninput="assinSugerirTipo()"><datalist id="assin-sugestoes"></datalist></div>
       <div class="field"><label>Valor (R$)</label><input id="assin-val" type="number" placeholder="0,00" min="0" step="0.01"></div>
     </div>
     <div class="form-row">
-      <div class="field"><label>Categoria</label>
-        <select id="assin-cat">
-          <option>Streaming</option><option>Música</option><option>Saúde/Academia</option>
-          <option>Educação</option><option>Software</option><option>Jogos</option><option>Outros</option>
-        </select>
+      <div class="field">
+        <label style="display:flex;align-items:center;justify-content:space-between">
+          Tipo
+          <button type="button" onclick="abrirGerenciarCats('assinatura')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0" title="Personalizar os tipos de assinatura">editar</button>
+        </label>
+        <select id="assin-cat" onchange="window._assinTipoManual=true"></select>
       </div>
       <div class="field"><label>Dia de vencimento</label><input id="assin-dia" type="number" placeholder="15" min="1" max="31"></div>
     </div>
@@ -2115,7 +2116,7 @@ try{
 <script src="js/app/01-base.js?v=8"></script>
 <script src="js/app/02-firebase-sync.js?v=5"></script>
 <script src="acessos/03-perfil-roles.js?v=14"></script>
-<script src="js/app/04-categorias.js?v=5"></script>
+<script src="js/app/04-categorias.js?v=6"></script>
 <script src="js/app/05-dashboard.js?v=20"></script>
 <script src="js/app/05b-cedula.js?v=6"></script>
 <script src="js/app/05c-graficos-cedula.js?v=4"></script>
@@ -2126,7 +2127,7 @@ try{
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
 <script src="js/app/11-modal-export.js?v=4"></script>
 <script src="planos/evolucao/14-notas.js?v=8"></script>
-<script src="planos/evolucao/15-assinaturas-calendario.js?v=4"></script>
+<script src="planos/evolucao/15-assinaturas-calendario.js?v=5"></script>
 <script src="js/app/16-manual.js?v=2"></script>
 <script src="acessos/17-clientes.js?v=16"></script>
 <script src="acessos/17b-socios.js?v=4"></script>
