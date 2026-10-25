@@ -228,6 +228,8 @@ function _setProfileFinRossi(){
   aplicarNavConfig();
   refreshAll();
   try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
+  _extrasAtualizarMenu();
+  if(isMaster()) carregarExtrasEquipe();
 }
 
 function setProfile(p){
@@ -259,6 +261,7 @@ function setProfile(p){
   aplicarNavConfig();
   refreshAll();
   try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
+  _extrasAtualizarMenu();
 }
 
 
@@ -267,6 +270,7 @@ function goTo(name){
   if(_verComoPlano && !verComoPlanoPermite(name)){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
   }
+  if(!SECS.includes(name)) name = 'dashboard';   // tela que não existe (ou não é desta pessoa): nada de página em branco
   SECS.forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.classList.toggle('section-hidden',s!==name);
@@ -277,7 +281,27 @@ function goTo(name){
   });
   const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura,qr:()=>{ if(typeof renderQrCode==='function') renderQrCode(); }};
   if(fn[name]) fn[name]();
+  else if(_extras.telas[name]) _extras.telas[name]();
   if(name==='lancamentos' && typeof atualizarBotaoFoto==='function') atualizarBotaoFoto();
+}
+
+// ─── Ferramentas internas da equipe ──────────────────────────────────────────
+// Não ficam no site: o servidor entrega só para o login do Master (o resto recebe 403), e elas se
+// encaixam aqui (telas e menus). Clientes nunca baixam nem veem nada disso.
+const _extras = { telas:{}, aoAtualizarMenu:[] };
+let _extrasCarregados = false;
+function _extrasAtualizarMenu(){ _extras.aoAtualizarMenu.forEach(f => { try{ f(); }catch(e){} }); }
+async function carregarExtrasEquipe(){
+  if(_extrasCarregados || !isMaster() || !window._firebaseUser || typeof fetchBackend !== 'function') return;
+  _extrasCarregados = true;
+  try{
+    const res = await fetchBackend(`${BACKEND_URL}/admin/extras.js`, { headers:{ Authorization:'Bearer ' + await window._firebaseUser.getIdToken() } });
+    if(!res.ok){ _extrasCarregados = false; return; }
+    const url = URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }));
+    const s = document.createElement('script');
+    s.src = url; s.onload = () => { URL.revokeObjectURL(url); _extrasAtualizarMenu(); };
+    document.head.appendChild(s);
+  }catch(e){ _extrasCarregados = false; }
 }
 
 function refreshAll(){refreshDash();renderInvs();renderHistorico();renderMetas();renderObjs();populateDashMetaSel();populateCatSelects();renderAlertasVencimento();}
