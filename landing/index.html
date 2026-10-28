@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=2"></script>
+<script src="../js/i18n.js?v=3"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -957,6 +957,35 @@ function renderPlanPrices(){
 renderPlanPrices();
 // Link do rodapé para trocar o idioma: mostra o outro idioma
 (function(){ const l = document.getElementById('link-idioma'); if(l) l.textContent = IDIOMA === 'en' ? 'Português' : 'English'; })();
+
+// Visitante da Austrália (A$): nenhum "R$" na página — telinha de exemplo, selos e textos fixos passam
+// para a moeda e o formato do idioma (R$ 31.400 → A$ 31.400 / $31,400). As partes do pagamento
+// brasileiro (Pix, boleto, CPF) nem aparecem para quem está em A$. No Brasil nada disso roda.
+(function(){
+  if(MOEDA === 'BRL') return;
+  const PAGTO_BR = '#modal-metodos,#modal-pix-area,#metodo-pix-anual,#modal-cpf-wrap';
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nos = []; let n;
+  while((n = w.nextNode())){ if(/R\$/.test(n.nodeValue) && !n.parentElement.closest('script,style,' + PAGTO_BR)) nos.push(n); }
+  nos.forEach(no => {
+    no.nodeValue = no.nodeValue.replace(/R\$\s?(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)?/g, (m, num) => {
+      if(!num) return simboloMoeda();
+      const decimais = num.includes(',') ? 2 : 0;
+      return fmtMoeda(parseFloat(num.replace(/\./g, '').replace(',', '.')), decimais);
+    });
+  });
+  // Pagamento: em português, sem Pix/boleto/Asaas (em inglês o dicionário já troca esses textos)
+  if(IDIOMA === 'pt'){
+    document.querySelectorAll('.faq-a, p, div').forEach(el => {
+      if(el.children.length) return;
+      const t = el.textContent.trim();
+      if(t.startsWith('Via cartão de crédito ou boleto no plano mensal'))
+        el.textContent = 'Os planos pagos são cobrados em dólar australiano (A$), no cartão, por um parceiro de pagamento seguro. O FinRossi não guarda os dados do cartão. Os planos pagos na Austrália chegam em breve: comece pelo teste grátis.';
+      else if(t === 'Pagamento por cartão, boleto ou Pix. Cancele quando quiser, sem fidelidade.')
+        el.textContent = 'Cobrança em A$, no cartão. Cancele quando quiser, sem fidelidade.';
+    });
+  }
+})();
 
 function assinar(plano){
   abrirModalCadastro(plano, _periodoAtual);

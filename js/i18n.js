@@ -28,7 +28,7 @@
     document.documentElement.classList.add('i18n-espera');
     setTimeout(function(){ document.documentElement.classList.remove('i18n-espera'); }, 2500);
     var s = document.createElement('script');
-    s.src = '/js/i18n-en.js?v=2';
+    s.src = '/js/i18n-en.js?v=3';
     s.onload = function(){ if(window.iniciarTraducao) window.iniciarTraducao(); };
     s.onerror = function(){ document.documentElement.classList.remove('i18n-espera'); };
     document.head.appendChild(s);
@@ -46,8 +46,22 @@ function definirMoeda(m){
   try{ localStorage.setItem('fin_moeda', m); }catch(e){}
   var mudou = window.MOEDA !== m;
   window.MOEDA = m;
+  ajustarRotulosMoeda();
   return mudou;
 }
+
+// Português com A$ (brasileiro na Austrália): os rótulos fixos que citam o real passam para A$
+// ("Valor (R$)" → "Valor (A$)"). Em inglês o dicionário já cuida; com R$ não faz nada.
+function ajustarRotulosMoeda(){
+  if(window.MOEDA === 'BRL' || window.IDIOMA !== 'pt' || !document.body) return;
+  var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n, nos = [];
+  while((n = w.nextNode())){ if(/R\$|em reais/.test(n.nodeValue) && n.parentElement && !n.parentElement.closest('script,style,textarea')) nos.push(n); }
+  nos.forEach(function(no){
+    no.nodeValue = no.nodeValue.replace(/\(R\$\)/g, '(A$)').replace(/^(\s*)R\$(\s*)$/, '$1A$$$2').replace('Valores em reais.', 'Valores em dólar australiano (A$).');
+  });
+  document.querySelectorAll('[placeholder*="R$"]').forEach(function(el){ el.setAttribute('placeholder', el.getAttribute('placeholder').replace(/R\$/g, 'A$')); });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ajustarRotulosMoeda); else ajustarRotulosMoeda();
 
 // ─── Dinheiro ────────────────────────────────────────────────────────────────
 function simboloMoeda(){ return window.MOEDA === 'AUD' ? (window.IDIOMA === 'en' ? '$' : 'A$') : 'R$'; }
