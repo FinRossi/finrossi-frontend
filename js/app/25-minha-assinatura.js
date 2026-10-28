@@ -158,8 +158,8 @@ async function renderMinhaAssinatura(){
 // valida o cupom e devolve o link da fatura ou o Pix. O plano novo vale quando o pagamento é confirmado.
 const MA_PLANOS = [
   { id: 'essencial',  nome: 'Essencial',  desc: 'Lançamentos ilimitados e investimentos.' },
-  { id: 'evolucao',   nome: 'Evolução',   desc: 'Metas, cartões, contas fixas, calendário e renda passiva.' },
-  { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e lançar por foto.' },
+  { id: 'evolucao',   nome: 'Evolução',   desc: 'Metas, cartões, contas fixas, calendário, renda passiva e lançar por foto.' },
+  { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e app personalizável.' },
 ];
 // Preços na moeda da conta (PRECOS_PLANO em js/i18n.js; em R$ os de sempre)
 const MA_PRECO = { get mensal(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).mensal; }, get anual(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).anual; } };

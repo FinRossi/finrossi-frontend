@@ -13,13 +13,13 @@ const PLANOS_CONFIG = {
   },
   evolucao: {
     label: 'Evolução', get preco(){ return precoTexto('evolucao'); }, cor: 'var(--green)', dias: null,
-    limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: false, personalizacao: false, foto: false, relatorios: false, 'minha-assinatura': true },
-    desc: 'Tudo do Essencial + metas, objetivos, cartões, assinaturas, contas recorrentes, calendário, notas e calculadora de renda passiva.'
+    limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: false, personalizacao: false, foto: true, relatorios: false, 'minha-assinatura': true },
+    desc: 'Tudo do Essencial + metas, objetivos, cartões, assinaturas, contas recorrentes, calendário, notas, calculadora de renda passiva e lançar por foto.'
   },
   patrimonio: {
     label: 'Patrimônio', get preco(){ return precoTexto('patrimonio'); }, cor: 'var(--accent)', dias: null,
     limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: true, personalizacao: true, foto: true, relatorios: true, 'minha-assinatura': true },
-    desc: 'Tudo do Evolução + saúde do patrimônio, relatórios em PDF, lançar por foto, app personalizável e atendimento prioritário.'
+    desc: 'Tudo do Evolução + saúde do patrimônio, relatórios em PDF, app personalizável e atendimento prioritário.'
   }
 };
 
