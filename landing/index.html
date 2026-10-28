@@ -267,7 +267,8 @@ footer{padding:48px 0 calc(40px + env(safe-area-inset-bottom,0px));border-top:1p
 .footer-marca{display:flex;align-items:center;gap:12px}
 .footer-marca img{border-radius:10px}
 footer p{font-size:13px;color:var(--muted2)}
-footer strong{color:var(--gold);font-weight:500}
+footer strong{color:var(--text);font-weight:500}
+footer strong b{color:var(--gold-light);font-weight:500}
 .footer-links{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12px}
 .footer-links a{color:var(--muted2);text-decoration:none;padding:6px 0;transition:color .2s}
 .footer-links a:hover{color:var(--gold)}
@@ -808,7 +809,7 @@ body.modal-aberto{overflow:hidden}
     <div class="footer-grid">
       <div class="footer-marca">
         <img src="../img/icon-192.png?v=5" width="36" height="36" alt="FinRossi">
-        <p><strong translate="no">FinRossi</strong> — Controle financeiro pessoal simples e inteligente</p>
+        <p><strong translate="no">Fin<b>Rossi</b></strong> — Controle financeiro pessoal simples e inteligente</p>
       </div>
       <p class="footer-links">
         <a href="legal/privacidade.html">Política de Privacidade</a>
@@ -1316,7 +1317,7 @@ if(window.matchMedia('(pointer:fine)').matches){
     <!-- Logo -->
     <div class="modal-logo" style="text-align:center;margin-bottom:28px">
       <img src="../img/icon-192.png?v=5" width="44" height="44" alt="FinRossi" style="display:block;margin:0 auto 10px">
-      <div style="font-family:var(--serif);font-size:30px;color:#C8A96E;letter-spacing:-1px">FinRossi</div>
+      <div translate="no" style="font-family:var(--serif);font-size:30px;color:#f5f0e8;letter-spacing:-1px">Fin<span style="color:#C8A96E">Rossi</span></div>
       <div style="font-size:12px;color:#555;margin-top:4px">Controle financeiro pessoal</div>
     </div>
 
