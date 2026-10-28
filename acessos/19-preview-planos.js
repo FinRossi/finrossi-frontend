@@ -30,9 +30,6 @@ const PERMS_TABLE = [
   {label:'Calendário financeiro',    g:false,  s:false, e:true,  c:true},
   {label:'Notas',                    g:false,  s:false, e:true,  c:true},
   {label:'Score de saúde financeira',g:false,  s:false, e:false, c:true},
-  {label:'Adicionar observação',     g:false,  s:false, e:true,  c:true},
-  {label:'Edição pelo consultor',    g:false,  s:false, e:false, c:true},
-  {label:'Reunião mensal',           g:false,  s:false, e:false, c:true},
   {label:'Relatórios semanais e mensais', g:false, s:false, e:false, c:true},
   {label:'Lançar por foto',         g:false,  s:false, e:false, c:true},
   {label:'App personalizável',       g:false,  s:false, e:false, c:true},
@@ -86,7 +83,6 @@ function renderPreview(){
   // Permissões
   const perms = document.getElementById('preview-permissions');
   if(perms){
-    const edicaoLabel = {nenhuma:'Somente visualização',visualizacao:'Somente visualização',observacao:'Pode adicionar observações',completa:'Edição completa pelo consultor'};
     const items = [
       {label:'Lançamentos', ok: cfg.limites.lancamentos, detail: cfg.limites.lancamentos===20?'limite de 20':'ilimitados'},
       {label:'Investimentos', ok: cfg.limites.investimentos},
@@ -102,11 +98,7 @@ function renderPreview(){
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface2);border-radius:6px">
         <span style="font-size:13px">${i.label}${i.detail?` <span style="font-size:11px;color:var(--muted)">(${i.detail})</span>`:''}</span>
         <span style="font-size:13px">${i.ok?'<span style="color:var(--green);display:inline-flex"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"20 6 9 17 4 12\"/></svg></span>':'<span style="color:var(--muted2)">—</span>'}</span>
-      </div>`).join('')+
-      `<div style="margin-top:10px;padding:10px;background:var(--accent-s);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text)">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Nível de edição</div>
-        ${edicaoLabel[cfg.edicao]}
-      </div>`;
+      </div>`).join('');   // (sem "nível de edição pelo consultor": o FinRossi não presta consultoria — 28/10/2026)
   }
 
   // Tabela comparativa
