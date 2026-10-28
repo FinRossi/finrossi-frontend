@@ -138,7 +138,7 @@ function renderAssinaturas(){
     const tiposOrd=Object.entries(catMap).sort((x,y)=>y[1]-x[1]);
     const cL=tiposOrd.map(t=>t[0]),cV=tiposOrd.map(t=>t[1]);
     const cores=cL.map((_,i)=>PALETTE[i%PALETTE.length]);
-    const pct=v=>total>0?(v/total*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%':'0%';
+    const pct=v=>total>0?(v/total*100).toLocaleString(LOCALE,{maximumFractionDigits:1})+'%':'0%';
     const ctxC=document.getElementById('c-assin-cat');
     if(ctxC){
       if(!cL.length){ctxC.parentElement.innerHTML='<p class="empty" style="padding:40px 0">Nenhuma assinatura ativa</p>';}

@@ -174,7 +174,7 @@ function _relPreencherPeriodos(){
 }
 
 function _relRotuloDatas(ini, fim){
-  const f = iso => _relDia(iso).toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' }).replace(/\./g,'');
+  const f = iso => _relDia(iso).toLocaleDateString(LOCALE, { day:'numeric', month:'short', year:'numeric' }).replace(/\./g,'');
   return `${f(ini)} a ${f(fim)}`;
 }
 function _relPeriodoAtual(){
@@ -217,7 +217,7 @@ function _relHTML(r){
   const titulo = r.tipo==='semanal' ? 'Relatório semanal' : r.tipo==='personalizado' ? 'Relatório do período' : 'Relatório mensal';
   const serie = typeof serieCedula==='function' ? serieCedula(r.p.ini.slice(0,7)) : '';
   const gerado = new Date();
-  const geradoTxt = `Gerado em ${gerado.toLocaleDateString('pt-BR')} às ${gerado.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+  const geradoTxt = `Gerado em ${gerado.toLocaleDateString(LOCALE)} às ${gerado.toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'})}`;
   const fmtDia = iso => { const d = _relDia(iso); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; };
 
   if(!atual.lancs.length){

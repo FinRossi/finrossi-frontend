@@ -401,7 +401,7 @@ function _preencherLancamento(r, foto){
   switchTab(r.tipo);
   const set = (id, v) => { const el = document.getElementById(id); if(el && v != null && v !== '') el.value = v; return el; };
   set(`${p}-desc`, r.descricao);
-  set(`${p}-val`, r.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  set(`${p}-val`, r.valor.toLocaleString(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
   if(typeof dpSetValue === 'function') dpSetValue(`${p}-data`, r.data);
   const cat = document.getElementById(`${p}-cat`);
   if(cat && [...cat.options].some(o => o.value === r.categoria)) cat.value = r.categoria;

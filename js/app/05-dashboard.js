@@ -65,8 +65,8 @@ function atualizarCabecalhoDash(){
   const agora=new Date(), hora=agora.getHours();
   const saud=hora>=5&&hora<12?'Bom dia':hora>=12&&hora<18?'Boa tarde':'Boa noite';
   const perfil = cp==='finrossi' ? ', perfil FinRossi' : '';
-  const data = agora.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const horaTxt = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const data = agora.toLocaleDateString(LOCALE,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const horaTxt = agora.toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'});
   const dataCompleta = `${data.charAt(0).toUpperCase()+data.slice(1)}, ${horaTxt}`;
   const set=(id,txt)=>{ const e=document.getElementById(id); if(e && e.textContent!==txt) e.textContent=txt; };
   set('dash-saudacao', saud + perfil); set('mob-dash-saudacao', saud + perfil);
@@ -489,7 +489,7 @@ function refreshDash(){
       plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:10,padding:12}}},
       scales:{
         x:{ticks:{color:'#666',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{display:false}},
-        y:{ticks:{color:'#666',font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}}
+        y:{ticks:{color:'#666',font:{size:10},callback:v=>simboloMoeda()+v.toLocaleString(LOCALE)},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}}
       }
     }
   });

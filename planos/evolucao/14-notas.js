@@ -22,7 +22,7 @@ function addNota(){
   const cor=document.getElementById('nota-cor').value;
   if(!titulo&&!texto){showMsg('msg-nota','Escreva algo antes de salvar','err');return}
   if(!pd().notas)pd().notas=[];
-  pd().notas.unshift({id:uid(),titulo:titulo||'Sem título',texto,cat,cor,data:hoje(),hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+  pd().notas.unshift({id:uid(),titulo:titulo||'Sem título',texto,cat,cor,data:hoje(),hora:new Date().toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'})});
   saveNotas();fecharFormNota();renderNotas();   // a nota nova aparece em primeiro na lista
 }
 

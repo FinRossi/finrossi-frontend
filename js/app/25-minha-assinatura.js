@@ -75,7 +75,7 @@ async function renderMinhaAssinatura(){
   const email = window._firebaseUser?.email || '';
   const ehEquipe = typeof isEquipe === 'function' && isEquipe();
   // Situação da assinatura (gravada pelo servidor): troca aguardando pagamento ou cancelamento marcado
-  const dataBR = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '';
+  const dataBR = iso => iso ? new Date(iso).toLocaleDateString(LOCALE) : '';
   const solicitado = !planoSimulado && dadosUsuario?.planoSolicitado;
   const planoAte = !planoSimulado && dadosUsuario?.planoAte;
   _maSituacao = { plano, periodo: dadosUsuario?.periodo || 'mensal', pago, status };
@@ -140,7 +140,6 @@ async function renderMinhaAssinatura(){
       <h3>Ajuda e documentos</h3>
       <div class="btn-row" style="flex-wrap:wrap">
         <a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Suporte FinRossi')}" class="btn" style="text-decoration:none">Enviar e-mail ao suporte</a>
-        ${plano==='patrimonio'?`<a href="mailto:finrossiapp@gmail.com?subject=${encodeURIComponent('Agendar sessão FinRossi')}" class="btn primary" style="text-decoration:none">Agendar sessão</a>`:''}
         <a href="landing/legal/termos.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Termos de uso</a>
         <a href="landing/legal/privacidade.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Privacidade</a>
         <a href="landing/legal/contrato.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none">Contrato</a>
@@ -162,7 +161,8 @@ const MA_PLANOS = [
   { id: 'evolucao',   nome: 'Evolução',   desc: 'Metas, cartões, contas fixas, calendário e renda passiva.' },
   { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e lançar por foto.' },
 ];
-const MA_PRECO = { mensal: { essencial: 9.90, evolucao: 24.90, patrimonio: 49.90 }, anual: { essencial: 95.04, evolucao: 239.04, patrimonio: 479.04 } };
+// Preços na moeda da conta (PRECOS_PLANO em js/i18n.js; em R$ os de sempre)
+const MA_PRECO = { get mensal(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).mensal; }, get anual(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).anual; } };
 let _maSituacao = { plano: 'gratuito', periodo: 'mensal', pago: false };
 let _maEscolha = { plano: 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: '' };
 
@@ -194,6 +194,17 @@ function abrirEscolhaPlano(planoId, cupom){
     m.className = 'modal-overlay'; m.id = 'modal-ma-plano';
     m.addEventListener('click', e => { if(e.target === m) closeModal('modal-ma-plano'); });
     document.body.appendChild(m);
+  }
+  // Conta em A$ (Austrália): a cobrança pela Asaas é só em reais. Até a Paddle entrar, só o aviso
+  // (o servidor também recusa — /minha-assinatura).
+  if(MOEDA !== 'BRL'){
+    m.innerHTML = `<div class="modal ma-modal" role="dialog" aria-modal="true" aria-labelledby="ma-breve-tit">
+      <h3 id="ma-breve-tit">Assinaturas em dólar australiano em breve</h3>
+      <p class="ma-nota">Estamos preparando o pagamento em A$. Enquanto isso, continue usando o FinRossi normalmente: avisaremos por e-mail assim que os planos estiverem disponíveis.</p>
+      <div class="btn-row"><button class="btn primary" type="button" onclick="closeModal('modal-ma-plano')">Entendi</button></div>
+    </div>`;
+    m.classList.add('open');
+    return;
   }
   desenharEscolhaPlano();
   m.classList.add('open');
@@ -282,7 +293,7 @@ async function cancelarMinhaAssinatura(){
   if(btn){ btn.disabled = true; btn.textContent = 'Cancelando…'; }
   try{
     const r = await maChamar('/minha-assinatura/cancelar');
-    alert(r.planoAte ? `Assinatura cancelada. Seu plano continua liberado até ${new Date(r.planoAte).toLocaleDateString('pt-BR')}.` : 'Assinatura cancelada.');
+    alert(r.planoAte ? `Assinatura cancelada. Seu plano continua liberado até ${new Date(r.planoAte).toLocaleDateString(LOCALE)}.` : 'Assinatura cancelada.');
     renderMinhaAssinatura();
   }catch(err){
     alert(err.message);

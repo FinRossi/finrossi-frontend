@@ -157,6 +157,7 @@
         if(user.email === 'lucasrossi2100@gmail.com'){
           window._userRole = 'master'; // dono: nível Master (acima de Sócio)
           window._userPlano = 'patrimonio';
+          try{ if(typeof definirMoeda === 'function') definirMoeda('BRL'); }catch(e){}
         } else {
           // Cargo e plano lidos ao mesmo tempo; erro do banco (ex.: fora do ar) responde na hora
           // em vez de esperar 3 s + 3 s
@@ -165,11 +166,13 @@
             try{ onValue(ref(db, caminho), s => fim(s.val()), () => fim(null), { onlyOnce: true }); }catch(e){ fim(null); }
             setTimeout(() => fim(null), 3000);
           });
-          const [role, plano, trialFim, status, primeiroAcesso] = await Promise.all([
+          const [role, plano, trialFim, status, primeiroAcesso, moeda] = await Promise.all([
             ler(`usuarios/${user.uid}/role`), ler(`usuarios/${user.uid}/plano`),
             ler(`usuarios/${user.uid}/trialFim`), ler(`usuarios/${user.uid}/status`),
-            ler(`usuarios/${user.uid}/primeiroAcesso`),
+            ler(`usuarios/${user.uid}/primeiroAcesso`), ler(`usuarios/${user.uid}/moeda`),
           ]);
+          // Moeda da conta (cadastro na Austrália = AUD; contas antigas e do Brasil = BRL), antes de montar o app
+          try{ if(typeof definirMoeda === 'function') definirMoeda(moeda === 'AUD' ? 'AUD' : 'BRL'); }catch(e){}
           window._userRole = role || 'cliente';
           window._userPlano = plano || 'gratuito';
           window._userTrialFim = trialFim || null;   // fim do período de teste (aviso no dashboard)

@@ -123,8 +123,8 @@ function cedDeltaHTML(id){
 
 // Valor monetário com o "R$" pequeno, como numa cédula
 function valorCedula(v){
-  const txt = fmtR(v).replace(/^R\$\s?/, '');
-  return `<span class="ced-moeda">R$</span><span class="ced-num">${txt}</span>`;
+  const txt = fmtNumero(v, 2);   // em R$: o mesmo que fmtR sem o "R$ " (ex.: "-1.234,56")
+  return `<span class="ced-moeda">${simboloMoeda()}</span><span class="ced-num">${txt}</span>`;
 }
 
 // "Número de série" discreto do painel: FR-MMAA (mês exibido)

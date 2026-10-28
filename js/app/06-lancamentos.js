@@ -9,12 +9,13 @@ function maskCurrency(el){
   let v = el.value.replace(/\D/g,'');
   if(!v){ el.value=''; return; }
   v = (parseInt(v)/100).toFixed(2);
-  el.value = parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  el.value = parseFloat(v).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function parseCurrency(el){
   if(!el) return 0;
   const v = typeof el==='string' ? el : el.value;
-  return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;
+  if(IDIOMA==='en') return parseFloat(v.replace(/,/g,'')) || 0;   // inglês: 1,234.56
+  return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;  // português: 1.234,56
 }
 
 function toggleMetodoPagamento(){
@@ -112,7 +113,7 @@ function editarLanc(id){
   document.getElementById('mel-desc').value=l.desc||'';
   // Valor formatado
   const valEl=document.getElementById('mel-val');
-  valEl.value=l.val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  valEl.value=l.val.toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});
   dpInit('mel-data', l.data||hoje());
   // Popula categorias
   const cats=getCats(l.tipo);

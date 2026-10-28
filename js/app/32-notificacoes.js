@@ -68,7 +68,7 @@ const _notifSuportada = () => typeof window !== 'undefined' && 'Notification' in
 const _notifLigada = () => _notifSuportada() && Notification.permission === 'granted' && localStorage.getItem('fin_notif_ok') !== '0';
 
 async function _mostrarNotificacao(titulo, opcoes){
-  const o = { icon:'/img/icon-192.png?v=5', lang:'pt-BR', data:{ url:'/?entrar=1' }, ...(opcoes||{}) };
+  const o = { icon:'/img/icon-192.png?v=5', lang:LOCALE, data:{ url:'/?entrar=1' }, ...(opcoes||{}) };
   try{
     if('serviceWorker' in navigator){
       const reg = await Promise.race([navigator.serviceWorker.getRegistration(), new Promise(r=>setTimeout(()=>r(null), 3000))]);

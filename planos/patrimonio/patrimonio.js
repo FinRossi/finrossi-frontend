@@ -486,7 +486,7 @@ function desenharGraficoProjecao(){
       plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>fmtR(ctx.raw)}} },
       scales:{
         x:{ display:false },
-        y:{ ticks:{color:'#666',font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}, grid:{color:'rgba(255,255,255,.04)'}, border:{display:false} }
+        y:{ ticks:{color:'#666',font:{size:10},callback:v=>simboloMoeda()+(v/1000).toFixed(0)+'k'}, grid:{color:'rgba(255,255,255,.04)'}, border:{display:false} }
       }
     }
   });

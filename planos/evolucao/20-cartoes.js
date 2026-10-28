@@ -43,7 +43,7 @@ function openModalCartao(id){
       document.getElementById('cartao-nome').value=c.nome;
       document.getElementById('cartao-banco').value=c.banco;
       document.getElementById('cartao-final').value=c.final;
-      document.getElementById('cartao-limite').value=(c.limite||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('cartao-limite').value=(c.limite||0).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});
       document.getElementById('cartao-venc').value=c.venc;
       document.getElementById('cartao-fecha').value=c.fecha||'';
       document.getElementById('cartao-cor').value=c.cor||'#C8A96E';

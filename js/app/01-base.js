@@ -12,9 +12,11 @@ let DATA={pessoal:{lancs:[],invs:[],metas:[],objs:[],notas:[],assinaturas:[],rec
 
 // Data no fuso do aparelho (Brasil). Antes era UTC: depois das 21h o "hoje" já era o dia seguinte
 const hoje=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
-const fmtR=(v)=>'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtR0=(v)=>'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
-const mesLbl=(ym)=>{const[y,m]=ym.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+y.slice(2)};
+// Dinheiro na moeda da conta (js/i18n.js). Em portugu\u00eas com R$, o texto \u00e9 exatamente o de antes.
+const fmtR=(v)=>fmtMoeda(v,2);
+const fmtR0=(v)=>fmtMoeda(v,0);
+const MESES_ROTULO = IDIOMA==='en' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const mesLbl=(ym)=>{const[y,m]=ym.split('-');return MESES_ROTULO[+m-1]+'/'+y.slice(2)};
 const curMes=()=>hoje().slice(0,7);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 // Impressão digital (SRI) das bibliotecas externas: se o arquivo da CDN for adulterado, o navegador

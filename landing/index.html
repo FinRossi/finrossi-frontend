@@ -8,6 +8,8 @@
 <!-- Contra clickjacking: se o FinRossi for aberto escondido dentro de outro site, a página não aparece -->
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
+<!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
+<script src="../js/i18n.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -814,6 +816,7 @@ body.modal-aberto{overflow:hidden}
         <a href="legal/contrato.html">Contrato SaaS</a>
         <a href="legal/lgpd.html">LGPD</a>
         <a href="legal/cookies.html">Cookies</a>
+        <a href="#" id="link-idioma" data-sem-traducao onclick="event.preventDefault();trocarIdioma(IDIOMA==='en'?'pt':'en')">English</a>
       </p>
     </div>
     <p class="footer-copy">© 2026 FinRossi. Todos os direitos reservados.</p>
@@ -900,9 +903,13 @@ const BACKEND_URL = /(^|\.)finrossi\.com\.br$|\.github\.io$/.test(location.hostn
   ? 'https://finrossi-backend-production1.up.railway.app'
   : 'http://' + (location.hostname || 'localhost') + ':3000';
 
-const PLANO_MENSAL  = {essencial:9.90, evolucao:24.90, patrimonio:49.90};
-const PLANO_ANUAL   = {essencial:95.04, evolucao:239.04, patrimonio:479.04};
-const PLANO_NOME    = {gratuito:'Gratuito', essencial:'Essencial', evolucao:'Evolução', patrimonio:'Patrimônio'};
+// Preços na moeda (js/i18n.js): no Brasil os de sempre (iguais ao servidor, asaas.js); na Austrália em A$
+const PLANO_MENSAL  = (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).mensal;
+const PLANO_ANUAL   = (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).anual;
+const PLANO_NOME    = IDIOMA === 'en'
+  ? {gratuito:'Free', essencial:'Essential', evolucao:'Growth', patrimonio:'Wealth'}
+  : {gratuito:'Gratuito', essencial:'Essencial', evolucao:'Evolução', patrimonio:'Patrimônio'};
+const EM_REAIS      = MOEDA === 'BRL' && IDIOMA === 'pt';   // Brasil: tudo exatamente como antes
 
 let _periodoAtual = 'mensal'; // 'mensal' | 'anual'
 
@@ -917,6 +924,11 @@ function setPeriodo(p){
 
 function renderPlanPrices(){
   const anual = _periodoAtual === 'anual';
+  const sep = IDIOMA === 'en' ? '.' : ',', porMes = IDIOMA === 'en' ? '/month' : '/mês';
+  if(!EM_REAIS){
+    document.querySelectorAll('.currency').forEach(el => { el.textContent = simboloMoeda(); });
+    document.querySelectorAll('.plan-tag-free').forEach(el => { el.textContent = simboloMoeda() + '0'; });
+  }
   ['essencial','evolucao','patrimonio'].forEach(p=>{
     const amountEl = document.getElementById('amount-'+p);
     const periodEl = document.getElementById('period-'+p);
@@ -926,20 +938,24 @@ function renderPlanPrices(){
       const equivMensal = PLANO_ANUAL[p] / 12;
       const [intPart, decPart] = equivMensal.toFixed(2).split('.');
       amountEl.textContent = intPart;
-      periodEl.textContent = ','+decPart+'/mês';
+      periodEl.textContent = sep+decPart+porMes;
       if(noteEl){
         noteEl.style.display = 'block';
-        noteEl.textContent = `R$ ${PLANO_ANUAL[p].toFixed(2).replace('.',',')} cobrado uma vez por ano`;
+        noteEl.textContent = EM_REAIS
+          ? `R$ ${PLANO_ANUAL[p].toFixed(2).replace('.',',')} cobrado uma vez por ano`
+          : `${fmtMoeda(PLANO_ANUAL[p], 2)} ${IDIOMA === 'en' ? 'billed once a year' : 'cobrado uma vez por ano'}`;
       }
     } else {
       const [intPart, decPart] = PLANO_MENSAL[p].toFixed(2).split('.');
       amountEl.textContent = intPart;
-      periodEl.textContent = ','+decPart+'/mês';
+      periodEl.textContent = sep+decPart+porMes;
       if(noteEl) noteEl.style.display = 'none';
     }
   });
 }
 renderPlanPrices();
+// Link do rodapé para trocar o idioma: mostra o outro idioma
+(function(){ const l = document.getElementById('link-idioma'); if(l) l.textContent = IDIOMA === 'en' ? 'Português' : 'English'; })();
 
 function assinar(plano){
   abrirModalCadastro(plano, _periodoAtual);
@@ -947,6 +963,9 @@ function assinar(plano){
 
 // ─── Modal de cadastro ────────────────────────────────────────────────────────
 function abrirModalCadastro(plano, periodo){
+  // Austrália (A$): a cobrança pela Asaas é só em reais. Até a Paddle entrar, plano pago abre o teste grátis com aviso
+  const pagoEmBreve = MOEDA !== 'BRL' && plano !== 'gratuito';
+  if(pagoEmBreve) plano = 'gratuito';
   const isGratuito = plano === 'gratuito';
   const isAnual = periodo === 'anual' && !isGratuito;
   const valor = isGratuito ? null : isAnual ? PLANO_ANUAL[plano] : PLANO_MENSAL[plano];
@@ -955,7 +974,9 @@ function abrirModalCadastro(plano, periodo){
   document.getElementById('modal-periodo-input').value = isAnual ? 'anual' : 'mensal';
   document.getElementById('modal-plano-nome').textContent =
     isGratuito ? 'Gratuito — 30 dias grátis' :
-    `${PLANO_NOME[plano]} — ${isAnual ? 'R$'+valor.toFixed(2)+'/ano (20% off)' : 'R$'+valor.toFixed(2)+'/mês'}`;
+    EM_REAIS ? `${PLANO_NOME[plano]} — ${isAnual ? 'R$'+valor.toFixed(2)+'/ano (20% off)' : 'R$'+valor.toFixed(2)+'/mês'}`
+             : `${PLANO_NOME[plano]} — ${fmtMoeda(valor, 2)}${isAnual ? (IDIOMA === 'en' ? '/year (20% off)' : '/ano (20% off)') : (IDIOMA === 'en' ? '/month' : '/mês')}`;
+  window._avisoPagoEmBreve = pagoEmBreve;
 
   // Métodos de pagamento
   const metodos = document.getElementById('modal-metodos');
@@ -982,6 +1003,8 @@ function abrirModalCadastro(plano, periodo){
   cupomEl.style.display = comCupom ? 'block' : 'none';
   if(comCupom) cupomEl.textContent = `🎁 Cupom ${CUPOM_LINK} aplicado: desconto no primeiro mês (aparece na fatura).`;
   document.getElementById('modal-msg').style.display='none';
+  if(window._avisoPagoEmBreve) showModalMsg('Os planos pagos em A$ chegam em breve. Comece pelo teste grátis.', 'ok');
+  if(MOEDA === 'AUD') document.getElementById('modal-whats').placeholder = '0412 345 678';
   document.getElementById('modal-form').style.display='block';
   document.getElementById('modal-sucesso').style.display='none';
   document.getElementById('modal-pix-area').style.display='none';
@@ -1012,6 +1035,11 @@ window.addEventListener('load', () => {
 
 // (11) 98765-4321
 function mascaraWhats(el){
+  if(MOEDA === 'AUD'){   // Austrália: 0412 345 678
+    const a = el.value.replace(/\D/g,'').slice(0,10);
+    el.value = a.length <= 4 ? a : a.length <= 7 ? `${a.slice(0,4)} ${a.slice(4)}` : `${a.slice(0,4)} ${a.slice(4,7)} ${a.slice(7)}`;
+    return;
+  }
   const d = el.value.replace(/\D/g,'').slice(0,11);
   el.value = d.length <= 2 ? (d ? '('+d : '') : d.length <= 6 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d.length <= 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
 }
@@ -1042,7 +1070,7 @@ function enviarLeadSeDesistiu(){
   const email = (document.getElementById('modal-email').value || '').trim();
   if(!consent || !consent.checked || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
   _leadEnviado = true;
-  const corpo = JSON.stringify({ nome: document.getElementById('modal-nome').value.trim(), email, plano: document.getElementById('modal-plano-input').value, consentimento: true });
+  const corpo = JSON.stringify({ nome: document.getElementById('modal-nome').value.trim(), email, plano: document.getElementById('modal-plano-input').value, consentimento: true, idioma: IDIOMA });
   try{ fetch(BACKEND_URL + '/lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: corpo, keepalive: true }).catch(()=>{}); }catch(e){}
 }
 // Saiu da página com o cadastro aberto
@@ -1064,7 +1092,9 @@ async function confirmarCadastro(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showModalMsg('Email inválido — verifique o formato.','err'); return; }
   if(senha.length < 6){ showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
   const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
-  if(telefone && (telefone.length < 10 || telefone.length > 11)){ showModalMsg('WhatsApp inválido — use DDD + número.','err'); return; }
+  if(MOEDA === 'AUD' ? (telefone && (telefone.length < 9 || telefone.length > 10)) : (telefone && (telefone.length < 10 || telefone.length > 11))){
+    showModalMsg(MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
+  }
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
   const cpf = atualizarCampoCpf() ? document.getElementById('modal-cpf').value.replace(/\D/g,'') : '';
@@ -1077,7 +1107,7 @@ async function confirmarCadastro(){
 
     if(plano === 'gratuito'){
       endpoint = '/cadastrar';
-      body = {nome, email, senha, ...contato};
+      body = {nome, email, senha, ...contato, moeda: MOEDA, idioma: IDIOMA};   // conta da Austrália nasce em A$ (e-mails no idioma)
     } else if(periodo === 'anual'){
       endpoint = '/assinar-anual';
       body = {nome, email, senha, plano, cpf, ...contato};

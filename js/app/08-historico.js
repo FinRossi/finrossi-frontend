@@ -5,7 +5,7 @@
 
 const ICO_EDITAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
 const METODO_NOME = {pix:'Pix',debito:'débito',credito:'crédito',dinheiro:'dinheiro',boleto:'boleto',transferencia:'transferência',deposito:'depósito',outro:'outro'};
-const MESES_CURTOS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const MESES_CURTOS = IDIOMA==='en' ? ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] : ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
 function renderHistorico(){
   const lancs=pd().lancs;

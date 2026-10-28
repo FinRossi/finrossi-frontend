@@ -113,7 +113,7 @@ async function verAnexo(id, criadoEm){
   const img = document.getElementById('anexo-visor-img'), msg = document.getElementById('anexo-visor-msg');
   img.hidden = true; img.removeAttribute('src'); msg.textContent = 'Carregando…';
   const quando = criadoEm ? new Date(criadoEm) : null;
-  document.getElementById('anexo-visor-data').textContent = 'Anexado' + (quando ? ` em ${quando.toLocaleDateString('pt-BR')} às ${quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : '') + '. O anexo não pode ser alterado.';
+  document.getElementById('anexo-visor-data').textContent = 'Anexado' + (quando ? ` em ${quando.toLocaleDateString(LOCALE)} às ${quando.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' })}` : '') + '. O anexo não pode ser alterado.';
   m.classList.add('open');
 
   let dados = await _anexoLocalGet(id);

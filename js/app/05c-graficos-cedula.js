@@ -36,7 +36,7 @@
   window.hachuraCedula = hachura;
 
   const SERIF = "'Bodoni Moda','Didot','Bodoni 72',Georgia,serif";
-  const COMPACTO = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+  const COMPACTO = new Intl.NumberFormat(LOCALE, { notation: 'compact', maximumFractionDigits: 1 });
   const SANS  = "'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
 
   Chart.defaults.font.family = SANS;
@@ -103,7 +103,7 @@
         // Eixo de valores: reais compactos em português ("R$ 3,2 mil"), sem rótulos repetidos
         if(s.axis === 'y' || s === o.scales.y){
           s.ticks.maxTicksLimit = 5;
-          s.ticks.callback = v => 'R$ ' + COMPACTO.format(v);
+          s.ticks.callback = v => simboloMoeda() + ' ' + COMPACTO.format(v);
         }
       });
 
