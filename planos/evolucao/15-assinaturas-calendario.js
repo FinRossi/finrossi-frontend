@@ -31,9 +31,9 @@ const ASSIN_PISTAS = [
   [/kindle|audible|skeelo|jornal|folha|estadao|\bglobo\b|revista|valor economico/, 'Leitura e notícias'],
   [/^net$|claro|vivo|\btim\b|^oi\b|internet|celular|fibra|telefone/, 'Telefone e internet'],
 ];
-const _semAcento = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+const _assinSemAcento = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
 function assinTipoPeloNome(nome){
-  const n = _semAcento(nome);
+  const n = _assinSemAcento(nome);
   if(!n) return null;
   const achou = ASSIN_PISTAS.find(([re]) => re.test(n));
   return achou ? achou[1] : null;
