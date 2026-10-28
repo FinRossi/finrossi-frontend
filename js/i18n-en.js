@@ -152,7 +152,7 @@ I18N_EN_ADD({
   'Desafios': 'Challenges', 'Projeções': 'Projections', 'Ver todos os cartões': 'See all cards', 'Patrimônio necessário': 'Wealth needed',
   'Total investido': 'Total invested', 'Escolha quais informações aparecem na sua tela inicial.': 'Choose what shows on your home screen.',
   'Comparativo': 'Comparison', 'comparativo': 'comparison', 'Despesa:': 'Expense:', 'Receita:': 'Income:', 'Investimento:': 'Investment:',
-  'mais escolhido': 'most popular', 'por mês': 'per month', 'estimado': 'estimated', 'R$': '$', 'pausadas': 'paused', 'pendente': 'pending', 'lançada': 'added',
+  'mais escolhido': 'most popular', 'por mês': 'per month', 'estimado': 'estimated', 'pausadas': 'paused', 'pendente': 'pending', 'lançada': 'added',
   // Lançamentos
   'Receita': 'Income', 'Despesa': 'Expense', 'Investimento': 'Investment', 'Nova receita': 'New income', 'Nova despesa': 'New expense',
   'Novo investimento': 'New investment', 'Adicionar receita': 'Add income', 'Adicionar despesa': 'Add expense', 'Adicionar investimento': 'Add investment',
@@ -423,7 +423,7 @@ I18N_EN_ADD({
   'Saldo do mês': 'Balance this month', 'Patrimônio líquido': 'Net worth', '↑ 4,2% no mês': '↑ 4.2% this month', 'R$ 31.400': '$31,400', 'R$ 48.320': '$48,320',
   'R$ 6.800': '$6,800', 'R$ 900': '$900', 'R$ 900,00': '$900.00', 'R$ 100,00': '$100.00', 'R$ 99,00': '$99.00', 'R$ 21,90': '$21.90', 'R$ 44,90': '$44.90',
   'R$ 2.879,60': '$2,879.60', '+ R$ 5.000,00': '+ $5,000.00', '− R$ 1.500,00': '− $1,500.00', '− R$ 620,40': '− $620.40', 'de R$ 20.000': 'of $20,000',
-  'R$0': '$0', 'R$0 para começar': '$0 to start', 'Mercado': 'Groceries', 'Aluguel': 'Rent', 'Aluguel,': 'Rent,', 'Academia': 'Gym', 'Netflix': 'Netflix', 'Spotify': 'Spotify',
+  'R$0 para começar': 'Free to start', 'Mercado': 'Groceries', 'Aluguel': 'Rent', 'Aluguel,': 'Rent,', 'Academia': 'Gym', 'Netflix': 'Netflix', 'Spotify': 'Spotify',
   'Aluguel, todo dia 25': 'Rent, every 25th', 'Internet, todo dia 20': 'Internet, every 20th', 'Vence em 3 dias': 'Due in 3 days',
   'Meta: viagem para a Europa': 'Goal: trip to Europe', 'Viagem Europa': 'Europe trip', 'Reserva emergência': 'Emergency fund',
   // Recursos
