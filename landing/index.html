@@ -1437,7 +1437,7 @@ if(window.matchMedia('(pointer:fine)').matches){
           onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Criar conta</button>
         <button onclick="fecharModal()"
           style="width:100%;background:none;color:#555;border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:11px;font-size:14px;font-family:inherit;cursor:pointer">Cancelar</button>
-        <div style="text-align:center;margin-top:14px;font-size:11px;color:#444">Ao criar sua conta você concorda com nossos <a href="legal/termos.html" target="_blank" style="color:#666">termos de uso</a> e <a href="legal/privacidade.html" target="_blank" style="color:#666">política de privacidade</a>.</div>
+        <div style="text-align:center;margin-top:14px;font-size:11px;color:#444">Ao criar sua conta você concorda com nossos <a href="legal/termos.html" target="_blank" rel="noopener" style="color:#666">termos de uso</a> e <a href="legal/privacidade.html" target="_blank" rel="noopener" style="color:#666">política de privacidade</a>.</div>
       </div>
 
       <!-- Área QR Code Pix -->
@@ -1446,7 +1446,7 @@ if(window.matchMedia('(pointer:fine)').matches){
         <div style="font-family:var(--serif);font-size:20px;margin-bottom:6px;color:#f0ede8">Pague com Pix</div>
         <div style="font-size:13px;color:#888;margin-bottom:4px">Plano: <span id="pix-plano" style="color:#C8A96E;font-weight:500"></span></div>
         <div style="font-size:20px;font-weight:600;color:#C8A96E;margin-bottom:16px" id="pix-valor"></div>
-        <img id="pix-qr-img" style="display:none;width:180px;height:180px;border-radius:8px;margin:0 auto 16px;border:2px solid #C8A96E">
+        <img id="pix-qr-img" alt="QR Code do Pix" style="display:none;width:180px;height:180px;border-radius:8px;margin:0 auto 16px;border:2px solid #C8A96E">
         <div style="font-size:11px;color:#666;margin-bottom:6px">Ou copie o código Pix copia e cola:</div>
         <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;font-size:10px;color:#888;word-break:break-all;margin-bottom:12px;max-height:72px;overflow-y:auto;-webkit-user-select:all;user-select:all" id="pix-copia-cola"></div>
         <button id="btn-copiar-pix" onclick="copiarPix()"

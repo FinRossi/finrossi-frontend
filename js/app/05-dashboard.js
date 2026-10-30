@@ -264,8 +264,6 @@ function refreshDash(){
       evoBadge.style.color=igual?'var(--muted)':pos?'var(--green)':'var(--red)';
     } else { evoBadge.textContent=''; evoBadge.style.background='none'; }
   }
-  const catTotEl=document.getElementById('dash-cat-total');
-  if(catTotEl) catTotEl.textContent=fmtR(des);
 
   // Comparativo com o mês anterior (a chamada tinha sido apagada por engano junto com a troca de logos)
   if(todos){ const cmp=document.getElementById('dash-comparativo'); if(cmp) cmp.innerHTML=''; }
@@ -494,7 +492,7 @@ function refreshDash(){
     }
   });
 
-  populateDashMetaSel();renderDashMeta();renderDashCartaoWidget();
+  renderDashCartaoWidget();
   renderTodosMeses();
 
   // Plano Patrimônio: mantém o Score/Insights/Tarefas sempre atualizados,
@@ -557,38 +555,6 @@ function filtrarMes(mes){
   refreshDash();
   // Scroll para o topo
   window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function populateDashMetaSel(){
-  const metas=pd().metas, sel=document.getElementById('dash-meta-sel');
-  if(!sel) return;
-  const cur=sel.value;
-  sel.innerHTML='<option value="">Selecione uma meta</option>'+metas.map(m=>`<option value="${m.id}" ${m.id===cur?'selected':''}>${m.icone?escHTML(m.icone)+' ':''}${escHTML(m.nome)}, ${fmtR0(m.valor)}</option>`).join('');
-}
-
-function renderDashMeta(){
-  const selEl=document.getElementById('dash-meta-sel');
-  if(!selEl) return;
-  const id=selEl.value;
-  destroyChart('meta');
-  const el=document.getElementById('dash-meta-info');
-  if(!el) return;
-  if(!id){el.innerHTML='<span style="color:var(--muted)">Selecione uma meta para visualizar</span>';return}
-  const meta=pd().metas.find(m=>m.id===id);
-  if(!meta){el.innerHTML='';return}
-  const investido=meta.investido||0;
-  const falta=Math.max(0,meta.valor-investido);
-  const pct=Math.min(100,(investido/meta.valor)*100);
-  const cor=meta.cor||'#4ade80';
-  const ctxM=document.getElementById('c-meta');
-  if(ctxM)charts['meta']=new Chart(ctxM,{type:'doughnut',data:{datasets:[{data:[investido,falta],backgroundColor:[cor,'#2a2a2a'],borderWidth:0,circumference:270,rotation:225}]},options:{responsive:true,maintainAspectRatio:false,cutout:'78%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
-  el.innerHTML=`
-    <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-      <span>Investido: <strong style="color:var(--green)">${fmtR(investido)}</strong></span>
-      <span>Falta: <strong style="color:var(--amber)">${fmtR(falta)}</strong></span>
-    </div>
-    <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden"><div style="width:${pct.toFixed(1)}%;height:100%;background:${cor};border-radius:4px"></div></div>
-    <div style="text-align:center;margin-top:4px;font-size:13px;font-weight:500">${pct.toFixed(1).replace('.',',')}% de ${meta.icone?escHTML(meta.icone)+' ':''}${escHTML(meta.nome)}</div>`;
 }
 
 let _dashCartaoSelId=null;

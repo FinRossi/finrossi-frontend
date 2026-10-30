@@ -84,9 +84,6 @@ window.setProfile = function(p){
       const el = document.getElementById('mp-'+id);
       if(el) el.classList.toggle('active', id===cp);
     });
-    // Empresas no drawer mobile
-    const empOpt = document.getElementById('emp-drawer-opt');
-    if(empOpt) empOpt.style.display='none';
   }, 100);
 };
 

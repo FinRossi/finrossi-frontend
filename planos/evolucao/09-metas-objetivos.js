@@ -32,14 +32,12 @@ async function salvarMeta(){
   const cor=document.getElementById('meta-cor').value;
   if(id){const i=pd().metas.findIndex(m=>m.id===id);if(i>=0)pd().metas[i]={...pd().metas[i],nome,valor,investido,icone,cor}}
   else{pd().metas.push({id:uid(),nome,valor,investido,icone,cor})}
-  await saveCollection('metas');closeModal('modal-meta');renderMetas();populateDashMetaSel();
+  await saveCollection('metas');closeModal('modal-meta');renderMetas();
 }
 async function remMeta(id){
   if(!confirm('Excluir esta meta?'))return;
   pd().metas=pd().metas.filter(m=>m.id!==id);
   renderMetas();
-  populateDashMetaSel();
-  renderDashMeta();
   saveCollection('metas');
 }
 

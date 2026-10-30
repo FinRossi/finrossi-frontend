@@ -225,7 +225,5 @@ async function fazerLogout(){
   const senhaInp = document.getElementById('login-senha');
   if(emailInp) emailInp.value='';
   if(senhaInp) senhaInp.value='';
-  const msgLogin = document.getElementById('login-msg');
-  if(msgLogin) msgLogin.textContent='';
 }
 

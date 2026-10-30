@@ -258,8 +258,6 @@ function setProfile(p){
   if(navPreview) navPreview.style.display='none';   // Preview dos planos fica só no FinRossi
   const navRenda=document.getElementById('nav-renda');
   if(navRenda) navRenda.style.display=p==='pessoal'?'flex':'none';
-  const navEmp=document.getElementById('nav-empresas');
-  if(navEmp) navEmp.style.display='none';
   goTo('dashboard');
   aplicarNavConfig();
   refreshAll();
@@ -307,5 +305,5 @@ async function carregarExtrasEquipe(){
   }catch(e){ _extrasCarregados = false; }
 }
 
-function refreshAll(){refreshDash();renderInvs();renderHistorico();renderMetas();renderObjs();populateDashMetaSel();populateCatSelects();renderAlertasVencimento();}
+function refreshAll(){refreshDash();renderInvs();renderHistorico();renderMetas();renderObjs();populateCatSelects();renderAlertasVencimento();}
 
