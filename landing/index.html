@@ -374,6 +374,14 @@ section{padding:110px 0}
 .step:last-child .step-num::after{display:none}
 .step h3{font-size:17px;font-weight:600;margin-bottom:8px}
 .step p{font-size:14px;color:var(--muted)}
+/* Como funciona: tudo centralizado (no celular ficava tudo à esquerda) */
+#como-funciona .sec-cab{grid-template-columns:1fr;justify-items:center;text-align:center;gap:14px}
+#como-funciona .section-label{justify-content:center}
+#como-funciona .section-sub{margin:0 auto}
+#como-funciona .step{text-align:center;padding:0 18px}
+#como-funciona .step-num{flex-direction:column;justify-content:center;gap:14px}
+#como-funciona .step-num::after{display:block;flex:none;width:36px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.7),transparent)}
+#como-funciona .step p{max-width:300px;margin:0 auto}
 
 /* ── PLANOS ──────────────────────────────────────────── */
 .periodo-wrap{display:flex;justify-content:flex-start;margin-top:22px}
