@@ -268,7 +268,7 @@ I18N_EN_ADD({
   'Evolução': 'Growth', 'Patrimônio': 'Wealth', 'Atendimento prioritário': 'Priority support', 'Lançamentos ilimitados e investimentos.': 'Unlimited transactions and investments.',
   'Metas, cartões, contas fixas, calendário, renda passiva e lançar por foto.': 'Goals, cards, fixed bills, calendar, passive income and photo entry.',
   'Tudo do Evolução + relatórios, saúde do patrimônio e app personalizável.': 'Everything in Growth + reports, wealth health and a customisable app.',
-  'Tudo do Evolução + saúde do patrimônio, relatórios em PDF, app personalizável e atendimento prioritário.': 'Everything in Growth + wealth health, PDF reports, a customisable app and priority support.',
+  'Tudo do Evolução + saúde do patrimônio, relatórios em PDF e app personalizável.': 'Everything in Growth + wealth health, PDF reports and a customisable app.',
   'Tudo do Essencial + metas, objetivos, cartões, assinaturas, contas recorrentes, calendário, notas, calculadora de renda passiva e lançar por foto.': 'Everything in Essential + goals, tasks, cards, subscriptions, recurring bills, calendar, notes, the passive income calculator and photo entry.',
   'Assinaturas e contas recorrentes': 'Subscriptions and recurring bills', 'Relatórios semanais e mensais em PDF': 'Weekly and monthly PDF reports',
   'Lançar por foto e anexos': 'Photo entry and attachments', 'App personalizável': 'Customisable app', ', ilimitados': ', unlimited',

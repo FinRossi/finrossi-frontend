@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=13"></script>
+<script src="../js/i18n.js?v=14"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -77,6 +77,10 @@
 /* Cadastro: campo obrigatório vazio ou errado */
 .campo-erro{border-color:#ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
 .campo-vibra{animation:campo-vibra .42s ease}
+.campo-ok{border-color:rgba(74,222,128,.55) !important}
+.campo-dica{font-size:11.5px;color:#888;margin-top:5px;min-height:0}
+.campo-dica:empty{display:none}
+.campo-dica.erro{color:#f87171}
 @keyframes campo-vibra{0%,100%{transform:translateX(0)}15%,55%{transform:translateX(-6px)}35%,75%{transform:translateX(6px)}90%{transform:translateX(-2px)}}
 @media (prefers-reduced-motion:reduce){.campo-vibra{animation:none}}
 html{font-size:16px;scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -1591,7 +1595,8 @@ function abrirModalCadastro(plano, periodo){
   }
   atualizarCampoCpf();
 
-  CAMPOS_CADASTRO.forEach(id=>{ const el=document.getElementById(id); el.value=''; el.classList.remove('campo-erro','campo-vibra'); });
+  CAMPOS_CADASTRO.forEach(id=>{ const el=document.getElementById(id); el.value=''; el.classList.remove('campo-erro','campo-vibra','campo-ok'); });
+  { const dw = document.getElementById('whats-dica'); if(dw){ dw.textContent=''; dw.className='campo-dica'; } }
   // Veio da tela de login ("ainda não tem conta?"): o e-mail que a pessoa digitou já vem preenchido
   try{ const em=sessionStorage.getItem('fin_email_cadastro'); if(em){ document.getElementById('modal-email').value=em; sessionStorage.removeItem('fin_email_cadastro'); } }catch(e){}
   document.getElementById('modal-consent').checked = false;
@@ -1641,6 +1646,39 @@ function mascaraWhats(el){
   }
   const d = el.value.replace(/\D/g,'').slice(0,11);
   el.value = d.length <= 2 ? (d ? '('+d : '') : d.length <= 6 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d.length <= 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+}
+
+// WhatsApp: confere a quantidade de números enquanto digita.
+// Brasil: DDD + celular = 11 números, e o celular começa com 9. Austrália: 04xx xxx xxx (10 números).
+function validarWhats(d){
+  const en = IDIOMA === 'en';
+  if(MOEDA === 'AUD'){
+    if(!d) return { ok:false, vazio:true, msg: en ? 'Enter your mobile number — e.g. 0412 345 678.' : 'Informe seu celular — ex.: 0412 345 678.' };
+    if(!/^0?4/.test(d)) return { ok:false, msg: en ? 'Australian mobiles start with 04.' : 'Celular australiano começa com 04.' };
+    const total = d[0] === '0' ? 10 : 9, falta = total - d.length;
+    if(falta > 0) return { ok:false, falta, msg: en ? `${falta} more ${falta === 1 ? 'digit' : 'digits'} to go` : `Faltam ${falta} ${falta === 1 ? 'número' : 'números'}` };
+    return { ok:true };
+  }
+  if(!d) return { ok:false, vazio:true, msg: en ? 'Enter your WhatsApp with area code.' : 'Informe seu WhatsApp com DDD.' };
+  if(d.length >= 2 && !/^[1-9][1-9]/.test(d)) return { ok:false, msg: en ? 'Invalid area code — check the first 2 digits.' : 'DDD inválido — confira os 2 primeiros números.' };
+  if(d.length >= 3 && d[2] !== '9') return { ok:false, msg: en ? 'Mobile numbers start with 9 after the area code — e.g. (11) 98765-4321.' : 'Celular começa com 9 depois do DDD — ex.: (11) 98765-4321.' };
+  const falta = 11 - d.length;
+  if(falta > 0) return { ok:false, falta, msg: en ? `${falta} more ${falta === 1 ? 'digit' : 'digits'} to go (area code + 9 digits)` : `Faltam ${falta} ${falta === 1 ? 'número' : 'números'} (DDD + 9 dígitos)` };
+  return { ok:true };
+}
+// final=true: saiu do campo ou tentou criar a conta → incompleto vira erro (vermelho)
+function conferirWhats(final){
+  const el = document.getElementById('modal-whats'), dica = document.getElementById('whats-dica');
+  if(!el || !dica) return true;
+  const r = validarWhats(el.value.replace(/\D/g,''));
+  el.classList.toggle('campo-ok', r.ok);
+  if(r.ok){ el.classList.remove('campo-erro'); dica.textContent = ''; dica.className = 'campo-dica'; return true; }
+  if(r.vazio && !final){ dica.textContent = ''; dica.className = 'campo-dica'; return false; }
+  const erro = final || !r.falta;   // número errado (DDD, sem o 9) já avisa enquanto digita; faltando números, só ao sair
+  el.classList.toggle('campo-erro', erro);
+  dica.textContent = r.msg;
+  dica.className = 'campo-dica' + (erro ? ' erro' : '');
+  return false;
 }
 
 // 000.000.000-00 (CPF) ou 00.000.000/0000-00 (CNPJ)
@@ -1698,8 +1736,9 @@ async function confirmarCadastro(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ marcarCampos(['modal-email']); showModalMsg('Email inválido — verifique o formato.','err'); return; }
   if(senha.length < 6){ marcarCampos(['modal-senha']); showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
   const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
-  if(MOEDA === 'AUD' ? (telefone.length < 9 || telefone.length > 10) : (telefone.length < 10 || telefone.length > 11)){   // obrigatório
-    marcarCampos(['modal-whats']); showModalMsg(!telefone ? (MOEDA === 'AUD' ? 'Informe seu celular — ex.: 0412 345 678.' : 'Informe seu WhatsApp com DDD.') : MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
+  if(!validarWhats(telefone).ok){   // obrigatório e com a quantidade certa de números
+    conferirWhats(true);
+    marcarCampos(['modal-whats']); showModalMsg(validarWhats(telefone).msg,'err'); return;
   }
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
@@ -1992,7 +2031,8 @@ if(window.matchMedia('(pointer:fine)').matches){
           <input id="modal-whats" type="tel" placeholder="(11) 98765-4321" autocomplete="tel-national" inputmode="tel" maxlength="16"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
-            oninput="mascaraWhats(this)">
+            oninput="mascaraWhats(this);conferirWhats(false)" onblur="conferirWhats(true)">
+          <div id="whats-dica" class="campo-dica" aria-live="polite"></div>
         </div>
         <!-- Autorização de contato (LGPD): sem ela, só recebe avisos da conta e de pagamento -->
         <label for="modal-consent" style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;cursor:pointer;font-size:12.5px;color:#999;line-height:1.5">
