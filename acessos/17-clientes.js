@@ -46,11 +46,14 @@ function erroServidorHTML(msg, tentarDeNovo){
 }
 
 // Só o Master pode escolher um acesso de equipe ao cadastrar
+// Duas portas separadas: "+ Novo cliente" (Clientes) só cria cliente; "+ Novo acesso" (Sócios) só cria equipe.
+// Assim ninguém da equipe nasce como cliente, e nenhum cliente nasce com acesso de equipe.
+let _ncModo = 'cliente';
 function limitarRolesNovoUsuario(){
   const sel=document.getElementById('nc-role');
   if(!sel) return;
   [...sel.options].forEach(o=>{
-    const bloqueado = o.value!=='cliente' && !isMaster();
+    const bloqueado = _ncModo==='cliente' ? o.value!=='cliente' : (o.value==='cliente' || !isMaster());
     o.disabled = bloqueado;
     o.hidden = bloqueado;
   });
@@ -64,11 +67,15 @@ function toggleCamposRole(){
   if(equipeFields) equipeFields.style.display=role!=='cliente'?'block':'none';
 }
 
-function openModalNovoCliente(){
+function openModalNovoCliente(modo){
+  _ncModo = modo==='equipe' ? 'equipe' : 'cliente';
   ['nc-nome','nc-email','nc-senha','nc-telefone'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('msg-novo-cliente').textContent='';
   const roleEl=document.getElementById('nc-role');
-  if(roleEl) roleEl.value='cliente';
+  if(roleEl) roleEl.value=_ncModo==='equipe' ? 'socio' : 'cliente';
+  // Cliente: o campo de acesso nem aparece. Equipe: escolhe entre Sócio, Admin, Dev (e Master)
+  const campoRole=roleEl&&roleEl.closest('.field'); if(campoRole) campoRole.style.display=_ncModo==='cliente'?'none':'';
+  const tit=document.querySelector('#modal-novo-cliente h3'); if(tit) tit.textContent=_ncModo==='equipe'?'Novo acesso da equipe':'Novo cliente';
   limitarRolesNovoUsuario();
   toggleCamposRole();
   document.getElementById('modal-novo-cliente').classList.add('open');
@@ -201,7 +208,6 @@ async function renderClientes(){
       <div class="mc" id="cli-card-online"><div class="mc-label"><span class="pres-dot on"></span>Online agora</div><div class="mc-val green" id="cli-online-n">—</div><div class="mc-sub" id="cli-online-sub">carregando…</div></div>
       <div class="mc"><div class="mc-label">Inativos</div><div class="mc-val red">${inativos.length}</div><div class="mc-sub">contas desativadas</div></div>
       <div class="mc"><div class="mc-label">MRR</div><div class="mc-val green">${fmtR(mrr)}</div><div class="mc-sub">receita mensal</div></div>
-      <div class="mc"><div class="mc-label">Equipe interna</div><div class="mc-val blue">${equipeInterna.length}</div><div class="mc-sub">fora das métricas</div></div>
     `;
 
     renderWhatsHoje(clientesReais);
@@ -221,8 +227,7 @@ async function renderClientes(){
     tabela.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead><tr style="border-bottom:1px solid var(--border)">
         <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Nome</th>
-        <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Email</th>
-        <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Role</th>
+        <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Email</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Plano</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Status</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Origem</th>
@@ -234,8 +239,7 @@ async function renderClientes(){
         const rb=ROLE_BADGE[c.role]||ROLE_BADGE.cliente;
         return`<tr style="border-bottom:1px solid var(--border);${interno?'background:rgba(200,169,110,0.04)':''}">
           <td style="padding:10px;font-weight:${interno?500:400}"><span class="pres-dot" data-pres="${escHTML(c.uid)}"></span>${escHTML(c.nome||'—')}</td>
-          <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
-          <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${rb[1]}18;color:${rb[1]}">${rb[2]}</span></td>
+          <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">—</span>':`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${escHTML(c.plano||'—')}</span>`}</td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[c.status]||'var(--muted)'}18;color:${STATUS_CORES[c.status]||'var(--muted)'}">${escHTML(c.status||'—')}</span></td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'Interno':c.origem==='teste'?'Teste':c.origem==='trial'?'Trial':'Pagante'}</td>

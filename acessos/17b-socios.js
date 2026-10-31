@@ -90,10 +90,7 @@ async function renderSocios(){
 
 // Novo acesso de equipe: reaproveita o cadastro, já com "Sócio" selecionado
 function openNovoAcesso(){
-  openModalNovoCliente();
-  const roleEl=document.getElementById('nc-role');
-  if(roleEl) roleEl.value='socio';
-  toggleCamposRole();
+  openModalNovoCliente('equipe');   // só acessos de equipe (nunca cliente)
 }
 
 function abrirAlterarAcesso(uid){
