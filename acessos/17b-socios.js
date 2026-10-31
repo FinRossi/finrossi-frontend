@@ -49,6 +49,7 @@ async function renderSocios(){
       <div class="mc"><div class="mc-label">Sócios</div><div class="mc-val">${conta('socio')}</div></div>
       <div class="mc"><div class="mc-label">Admin</div><div class="mc-val">${conta('admin')}</div></div>
       <div class="mc"><div class="mc-label">Dev</div><div class="mc-val">${conta('dev')}</div></div>
+      <div class="mc"><div class="mc-label"><span class="pres-dot on"></span>Online agora</div><div class="mc-val green" id="socios-online-n">—</div><div class="mc-sub">da equipe</div></div>
     `;
 
     const STATUS_CORES={ativo:'var(--green)',trial:'var(--amber)',inativo:'var(--red)',pendente:'var(--amber)'};
@@ -59,6 +60,7 @@ async function renderSocios(){
         <th style="text-align:left;${th}">Email</th>
         <th style="text-align:center;${th}">Acesso</th>
         <th style="text-align:center;${th}">Status</th>
+        <th style="text-align:center;${th}">Online</th>
         <th style="text-align:center;${th}">Cadastro</th>
         <th style="text-align:center;${th}">Ações</th>
       </tr></thead>
@@ -66,10 +68,11 @@ async function renderSocios(){
         const a=ACESSO_INFO[c.role]||ACESSO_INFO.cliente;
         const st=c.status||'ativo';
         return`<tr style="border-bottom:1px solid var(--border);${c._dono?'background:rgba(200,169,110,0.06)':''}">
-          <td style="padding:10px;font-weight:500">${_escSocio(c.nome||'—')}${c._dono?' <span style="font-size:11px;color:var(--muted)">(você)</span>':''}</td>
+          <td style="padding:10px;font-weight:500"><span class="pres-dot" data-pres="${_escSocio(c.uid)}"></span>${_escSocio(c.nome||'—')}${c._dono?' <span style="font-size:11px;color:var(--muted)">(você)</span>':''}</td>
           <td style="padding:10px;color:var(--muted);font-size:12px">${_escSocio(c.email)}</td>
           <td style="padding:10px;text-align:center"><span title="${_escSocio(a[3])}" style="font-size:11px;padding:2px 8px;border-radius:20px;background:${a[1]}18;color:${a[1]}">${a[0]} ${a[2]}</span></td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[st]||'var(--muted)'}18;color:${STATUS_CORES[st]||'var(--muted)'}">${_escSocio(st)}</span></td>
+          <td style="padding:10px;text-align:center;font-size:12px"><span class="pres-txt" data-pres-txt="${_escSocio(c.uid)}">—</span></td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
           <td style="padding:10px;text-align:center">${c._dono?'<span style="font-size:11px;color:var(--muted)">Protegido</span>':`<div style="display:flex;gap:4px;justify-content:center">
             <button class="btn xs" onclick="abrirAlterarAcesso('${_escSocio(c.uid)}')" title="Alterar acesso" aria-label="Alterar acesso"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3"/><path d="M16 7l3 3"/><path d="M14 9l2 2"/></svg></button>
@@ -79,6 +82,7 @@ async function renderSocios(){
           </div>`}</td>
         </tr>`;}).join('')}</tbody>
     </table></div>`;
+    if(typeof presencaNaTabela === 'function') presencaNaTabela();   // online / última vez visto (js/app/40-painel-negocio.js)
   }catch(e){
     tabela.innerHTML=erroServidorHTML(e.message, 'renderSocios()');
   }

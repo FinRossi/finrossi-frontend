@@ -174,21 +174,19 @@ async function renderClientes(){
     window._clientesCache=clientes;   // excluirCliente mostra o e-mail da linha na confirmação
 
     // Separa equipe interna de clientes reais
-    const ROLES_INTERNOS=ROLES_EQUIPE;
-    const clientesReais=clientes.filter(c=>!ROLES_INTERNOS.includes(c.role));
-    const equipeInterna=clientes.filter(c=>ROLES_INTERNOS.includes(c.role));
+    // Equipe (Master, sócios, admin, dev) fica em Sócios, não aqui. O cadastro do dono não tem e-mail nem
+    // cargo gravados (ele é reconhecido pelo login): conta como equipe também.
+    const ehEquipe=c=>ROLES_EQUIPE.includes(c.role)||(!c.email&&!c.role);
+    const clientesReais=clientes.filter(c=>!ehEquipe(c));
+    const equipeInterna=clientes.filter(ehEquipe);
 
     // Filtros
     const filtroStatus=document.getElementById('cli-filtro-status')?.value||'';
     const filtroPlano=document.getElementById('cli-filtro-plano')?.value||'';
     const busca=(document.getElementById('cli-busca')?.value||'').toLowerCase();
-    const filtroRole=document.getElementById('cli-filtro-role')?.value||'';
-
-    let lista=[...clientesReais,...equipeInterna];
+    let lista=[...clientesReais];   // só clientes (a equipe está em Sócios)
     if(filtroStatus) lista=lista.filter(c=>c.status===filtroStatus);
     if(filtroPlano) lista=lista.filter(c=>c.plano===filtroPlano);
-    if(filtroRole==='equipe') lista=equipeInterna;
-    else if(filtroRole==='clientes') lista=clientesReais;
     if(busca) lista=lista.filter(c=>(c.nome+c.email).toLowerCase().includes(busca));
 
     const pagantes=clientesReais.filter(c=>c.origem==='pagante'&&c.status==='ativo');

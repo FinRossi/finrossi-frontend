@@ -61,16 +61,23 @@ function _pintarTabelaPresenca(p){
     const t = textoPresenca(p[el.dataset.pres]);
     el.classList.toggle('on', t.on); el.title = t.txt; el.setAttribute('aria-label', t.txt);
   });
+  // Sócios: coluna "Online" por extenso e o card "Online agora" da equipe
+  let on = 0;
+  document.querySelectorAll('.pres-txt[data-pres-txt]').forEach(el => {
+    const t = textoPresenca(p[el.dataset.presTxt]);
+    el.textContent = t.txt; el.classList.toggle('on', t.on); if(t.on) on++;
+  });
+  const n = document.getElementById('socios-online-n'); if(n) n.textContent = on;
 }
 // Painel do negócio: quem está online (clientes e equipe) e quem foi visto por último
 function _renderOnline(){
   const box = document.getElementById('neg-online');
   if(!box) return;
   const todos = window._clientesCache || [];
-  const linha = c => { const t = textoPresenca(_presenca[c.uid]); return `<div class="neg-item"><div class="neg-item-txt"><b><span class="pres-dot${t.on ? ' on' : ''}"></span>${escHTML(c.nome || c.email)}</b><small>${escHTML(t.txt)}${c.plano && !ROLES_EQUIPE.includes(c.role) ? ' · ' + escHTML(NEG_NOME_PLANO[c.plano] || c.plano) : ''}${ROLES_EQUIPE.includes(c.role) ? ' · ' + escHTML({ master:'Master', socio:'Sócio', admin:'Admin', dev:'Dev' }[c.role] || c.role) : ''}</small></div>${!ROLES_EQUIPE.includes(c.role) ? `<div class="neg-item-acoes"><button class="btn xs" type="button" onclick="editarCliente('${escHTML(c.uid)}')">Ver</button></div>` : ''}</div>`; };
+  const linha = c => { const t = textoPresenca(_presenca[c.uid]); return `<div class="neg-item"><div class="neg-item-txt"><b><span class="pres-dot${t.on ? ' on' : ''}"></span>${escHTML(c.nome || c.email)}</b><small>${escHTML(t.txt)}${c.plano && !_ehEquipe(c) ? ' · ' + escHTML(NEG_NOME_PLANO[c.plano] || c.plano) : ''}${_ehEquipe(c) ? ' · ' + escHTML({ master:'Master', socio:'Sócio', admin:'Admin', dev:'Dev' }[c.role] || 'Master') : ''}</small></div>${!_ehEquipe(c) ? `<div class="neg-item-acoes"><button class="btn xs" type="button" onclick="editarCliente('${escHTML(c.uid)}')">Ver</button></div>` : ''}</div>`; };
   const online = todos.filter(c => _presenca[c.uid] && _presenca[c.uid].online);
-  const cliOn = online.filter(c => !ROLES_EQUIPE.includes(c.role)), eqOn = online.filter(c => ROLES_EQUIPE.includes(c.role));
-  const recentes = todos.filter(c => !ROLES_EQUIPE.includes(c.role) && _presenca[c.uid] && !_presenca[c.uid].online && _presenca[c.uid].vistoEm)
+  const cliOn = online.filter(c => !_ehEquipe(c)), eqOn = online.filter(_ehEquipe);
+  const recentes = todos.filter(c => !_ehEquipe(c) && _presenca[c.uid] && !_presenca[c.uid].online && _presenca[c.uid].vistoEm)
     .sort((a, b) => _presenca[b.uid].vistoEm - _presenca[a.uid].vistoEm).slice(0, 6);
   box.innerHTML = `
     <div class="neg-online-grade">
@@ -101,7 +108,7 @@ async function graficoAcessosDia(todos){
   const ctx = document.getElementById('c-cli-acessos');
   const f = window._firebase;
   if(!ctx || typeof Chart === 'undefined') return;
-  const equipe = new Set((todos || []).filter(c => ROLES_EQUIPE.includes(c.role)).map(c => c.uid));
+  const equipe = new Set((todos || []).filter(_ehEquipe).map(c => c.uid));
   const dias = [];
   for(let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); dias.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`); }
   const ler = dia => new Promise(res => {
@@ -137,8 +144,11 @@ async function graficoAcessosDia(todos){
 
 setInterval(() => {   // atualiza o "há X min" sem precisar recarregar
   if(document.getElementById('neg-online') && !document.getElementById('sec-negocio')?.classList.contains('section-hidden')) _renderOnline();
-  if(document.querySelector('.pres-dot[data-pres]')) _pintarTabelaPresenca(_presenca);
+  if(document.querySelector('.pres-dot[data-pres], .pres-txt[data-pres-txt]')) _pintarTabelaPresenca(_presenca);
 }, 60000);
+
+// Equipe: Master, sócios, admin e dev; o cadastro do dono não tem e-mail nem cargo gravados (conta como equipe)
+const _ehEquipe = c => ROLES_EQUIPE.includes(c.role) || (!c.email && !c.role);
 
 const NEG_PRECO = () => (typeof PRECOS_PLANO !== 'undefined' ? PRECOS_PLANO.BRL : { mensal:{ essencial:9.90, evolucao:24.90, patrimonio:49.90 }, anual:{ essencial:95.04, evolucao:239.04, patrimonio:479.04 } });
 const NEG_NOME_PLANO = { gratuito:'Gratuito', essencial:'Essencial', evolucao:'Evolução', patrimonio:'Patrimônio' };
@@ -166,7 +176,7 @@ async function renderNegocio(){
     return;
   }
 
-  const reais = clientes.filter(c => !ROLES_EQUIPE.includes(c.role) && c.origem !== 'teste');
+  const reais = clientes.filter(c => !_ehEquipe(c) && c.origem !== 'teste');
   const hojeS = hoje(), mesAtual = curMes();
   const mesPassado = (() => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; })();
   const pagantes = reais.filter(c => c.origem === 'pagante' && c.status === 'ativo');
