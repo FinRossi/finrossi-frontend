@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=5"></script>
+<script src="../js/i18n.js?v=6"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -124,28 +124,55 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:calc(14px + env(safe
 
 /* Celular com o app */
 .palco{position:relative;display:flex;justify-content:center;padding:20px 0}
+/* Tema da telinha (Escuro por padrão; muda pelos botões "Personalize") */
+.celular{--app-bg:#0f0f0f;--app-card:#1a1a1a;--app-nav:#121212;--app-text:#f0ede8;--app-muted:#888;--app-muted2:#555;--app-borda:rgba(255,255,255,.13);--app-linha:rgba(255,255,255,.06);--app-accent:#C8A96E;--app-accent-light:#E8C96D}
 .celular{position:relative;width:300px;aspect-ratio:300/620;background:#050505;border-radius:46px;padding:12px;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 0 0 7px #151515,0 0 0 8px rgba(201,168,76,0.25),0 50px 100px -20px rgba(0,0,0,0.9),0 0 120px rgba(201,168,76,0.12);transform:rotate(-2deg);animation:flutua 7s ease-in-out infinite}
 @keyframes flutua{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-12px)}}
 .celular::before{content:'';position:absolute;top:22px;left:50%;transform:translateX(-50%);width:92px;height:24px;background:#000;border-radius:14px;z-index:3}
-.tela{position:relative;height:100%;background:var(--app-bg);border-radius:36px;overflow:hidden;padding:52px 16px 0;display:flex;flex-direction:column;gap:10px;font-family:var(--sans)}
+.tela{position:relative;height:100%;background:var(--app-bg);color:var(--app-text);border-radius:36px;overflow:hidden;padding:52px 16px 0;display:flex;flex-direction:column;gap:10px;font-family:var(--sans);transition:background .45s,color .45s}
+.tela *{transition:background-color .45s,border-color .45s,color .45s}
 .app-topo{display:flex;justify-content:space-between;align-items:flex-start}
-.app-ola{font-size:10px;color:var(--muted)}
+.app-ola{font-size:10px;color:var(--app-muted)}
 .app-perfil{font-family:var(--serif);font-size:19px;line-height:1.1}
-.app-mes{font-size:9px;color:var(--muted);border:1px solid var(--border2);border-radius:7px;padding:4px 7px;margin-top:4px}
-.app-card{background:var(--app-card);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px}
-.app-label{font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.app-mes{font-size:9px;color:var(--app-muted);border:1px solid var(--app-borda);border-radius:7px;padding:4px 7px;margin-top:4px}
+.app-card{background:var(--app-card);border:1px solid var(--app-linha);border-radius:14px;padding:12px}
+.app-label{font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:var(--app-muted)}
 .app-valor{font-size:22px;font-weight:600;letter-spacing:-.5px;margin-top:3px}
 .app-valor.ouro{color:var(--app-accent);font-size:20px}
 .app-delta{font-size:9px;color:var(--green);margin-top:2px}
 .app-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .app-duo .app-valor{font-size:14px}
-.app-grafico{margin-top:6px;display:block;width:100%;height:auto}
+.app-grafico{margin-top:6px;display:block;width:100%;height:auto;overflow:visible}
+/* Gráfico igual ao do app: título serifado, valor em dourado, hachura de cédula, linha suave */
+.app-graf-tit{font-family:var(--serif);font-size:13px;line-height:1.1}
+.app-graf-eixo{font-family:var(--sans);font-size:7.5px;fill:var(--app-muted)}
+.app-graf-grade{stroke:var(--app-accent);stroke-opacity:.12;stroke-width:.6}
+.app-graf-linha{fill:none;stroke:var(--app-accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:graf-desenha 1.8s .5s ease forwards}
+.app-graf-area{opacity:0;animation:graf-aparece 1s 1.3s ease forwards}
+.app-graf-ponto{fill:var(--app-card);stroke:var(--app-accent);stroke-width:1.5;opacity:0;animation:graf-aparece .4s 2.2s ease forwards}
+@keyframes graf-desenha{to{stroke-dashoffset:0}}
+@keyframes graf-aparece{to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.app-graf-linha{animation:none;stroke-dashoffset:0}.app-graf-area,.app-graf-ponto{animation:none;opacity:1}}
+/* Personalize: os mesmos temas e cores do app */
+.personalizar{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:-28px;grid-column:2}
+@media(max-width:860px){.personalizar{grid-column:auto;margin-top:0}.tela .app-meta{display:none}}
+.app-topo,.app-cedula,.app-extrato,.app-abas{flex-shrink:0}
+.personalizar-rotulo{font-size:12px;color:var(--muted);letter-spacing:.3px}
+.personalizar-rotulo b{color:var(--gold-light);font-weight:500}
+.personalizar-cores{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.cor-tema{position:relative;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.18);cursor:pointer;padding:0;transition:transform .2s,box-shadow .2s}
+.cor-tema:hover{transform:scale(1.1)}
+.cor-tema.ativa{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--gold)}
+.cor-tema:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.cor-tema-mais{display:grid;place-items:center;background:conic-gradient(#e0565b,#e7b04a,#5bbf72,#4a8fe0,#9b5fe0,#e0565b);overflow:hidden}
+.cor-tema-mais span{width:16px;height:16px;border-radius:50%;background:#111;color:#f0ede8;font-size:13px;line-height:16px;text-align:center}
+.cor-tema-mais input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:0;padding:0}
 .app-meta{display:flex;flex-direction:column;gap:5px}
-.app-meta-linha{display:flex;justify-content:space-between;font-size:9px;color:var(--muted)}
-.app-barra{height:5px;border-radius:3px;background:rgba(255,255,255,0.07);overflow:hidden}
-.app-barra i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
-.app-abas{margin-top:auto;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(255,255,255,0.06);padding:9px 0 16px;margin-left:-16px;margin-right:-16px;background:#121212}
-.app-aba{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:7.5px;color:var(--muted2)}
+.app-meta-linha{display:flex;justify-content:space-between;font-size:9px;color:var(--app-muted)}
+.app-barra{height:5px;border-radius:3px;background:var(--app-linha,rgba(255,255,255,0.07));overflow:hidden}
+.app-barra i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--app-accent,var(--gold)),var(--app-accent-light,var(--gold-light)))}
+.app-abas{margin-top:auto;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--app-linha);padding:9px 0 16px;margin-left:-16px;margin-right:-16px;background:var(--app-nav)}
+.app-aba{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:7.5px;color:var(--app-muted2)}
 .app-aba svg{width:15px;height:15px}
 .app-aba.ativa{color:var(--app-accent)}
 
@@ -364,15 +391,15 @@ body.modal-aberto{overflow:hidden}
 .palco .flutuante{z-index:3}
 .tela .app-valor{font-family:var(--serif);font-weight:500}
 .app-label{text-transform:none!important;letter-spacing:0!important;font-size:9px!important}
-.app-cedula{position:relative;overflow:hidden;background:var(--app-card);border:1px solid rgba(201,168,76,.35);border-radius:5px;padding:4px}
-.app-cedula-int{position:relative;border:1px solid rgba(201,168,76,.18);border-radius:3px;padding:20px 12px 12px}
-.app-roseta{position:absolute;right:-34px;top:50%;width:150px;height:150px;transform:translateY(-50%);opacity:.5}
-.app-serie{position:absolute;top:6px;left:12px;font-size:7px;letter-spacing:1px;color:var(--muted)}
+.app-cedula{position:relative;overflow:hidden;background:var(--app-card);border:1px solid color-mix(in srgb,var(--app-accent) 40%,transparent);border-radius:5px;padding:4px}
+.app-cedula-int{position:relative;border:1px solid color-mix(in srgb,var(--app-accent) 20%,transparent);border-radius:3px;padding:20px 12px 12px}
+.app-roseta{position:absolute;right:-34px;top:50%;width:150px;height:150px;transform:translateY(-50%);opacity:.5;color:var(--app-accent)}
+.app-serie{position:absolute;top:6px;left:12px;font-size:7px;letter-spacing:1px;color:var(--app-muted)}
 .app-cedula .app-valor{font-family:var(--serif);font-weight:500;font-size:25px;letter-spacing:-.5px;position:relative}
 .app-rs{font-size:.42em;color:var(--app-accent);margin-right:3px;vertical-align:.95em}
-.app-extrato{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(201,168,76,.18);border-bottom:1px solid rgba(201,168,76,.18)}
+.app-extrato{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid color-mix(in srgb,var(--app-accent) 20%,transparent);border-bottom:1px solid color-mix(in srgb,var(--app-accent) 20%,transparent)}
 .app-extrato>div{padding:8px 4px;display:flex;flex-direction:column;gap:2px}
-.app-extrato>div+div{border-left:1px solid rgba(201,168,76,.18);padding-left:10px}
+.app-extrato>div+div{border-left:1px solid color-mix(in srgb,var(--app-accent) 20%,transparent);padding-left:10px}
 .app-extrato b{font-family:var(--serif);font-weight:500;font-size:14px}
 /* Formulário de cadastro: só o visual das etiquetas (campos e script intactos) */
 #modal-cadastro [style*="text-transform:uppercase"]{text-transform:none!important;letter-spacing:0!important;font-size:12.5px!important}
@@ -456,14 +483,9 @@ body.modal-aberto{overflow:hidden}
             <div><span class="app-label">Despesas</span><b class="num menos">3.840,00</b></div>
           </div>
           <div class="app-card">
-            <div class="app-label">Evolução do patrimônio</div>
-            <div class="app-valor ouro num">R$ 48.320</div>
-            <svg class="app-grafico" viewBox="0 0 240 80" aria-hidden="true">
-              <defs><linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C8A96E" stop-opacity=".45"/><stop offset="1" stop-color="#C8A96E" stop-opacity="0"/></linearGradient></defs>
-              <path d="M0 66 L30 60 L60 62 L90 50 L120 46 L150 36 L180 30 L210 20 L240 12 L240 80 L0 80 Z" fill="url(#gArea)"/>
-              <path d="M0 66 L30 60 L60 62 L90 50 L120 46 L150 36 L180 30 L210 20 L240 12" fill="none" stroke="#C8A96E" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-              <circle cx="240" cy="12" r="3.5" fill="#E8C96D"/>
-            </svg>
+            <div class="app-graf-tit">Evolução do patrimônio</div>
+            <div class="app-valor ouro num">R$ 48.320,00</div>
+            <svg class="app-grafico" id="app-grafico" viewBox="0 0 240 94" aria-hidden="true"></svg>
           </div>
           <div class="app-card app-meta">
             <div class="app-meta-linha"><span>Reserva de emergência</span><span class="num">68%</span></div>
@@ -483,6 +505,11 @@ body.modal-aberto{overflow:hidden}
         <strong class="num">R$ 6.800 <span style="color:var(--muted);font-weight:400">de R$ 20.000</span></strong>
         <div class="app-barra" style="margin-top:8px"><i style="width:34%"></i></div>
       </div>
+    </div>
+    <!-- Personalize: os mesmos temas e cores que o app oferece -->
+    <div class="personalizar" id="personalizar">
+      <div class="personalizar-rotulo">Personalize o app: <b id="personalizar-nome">Escuro</b></div>
+      <div class="personalizar-cores" id="personalizar-cores"></div>
     </div>
   </div>
 </header>
@@ -995,6 +1022,93 @@ renderPlanPrices();
 function assinar(plano){
   abrirModalCadastro(plano, _periodoAtual);
 }
+
+// ─── Celular da landing: gráfico igual ao do app e temas como no app ─────────
+(function(){
+  // Gráfico "Evolução do patrimônio" no estilo do app: grade quase invisível, hachura de cédula,
+  // linha suave e só o mês atual marcado. Rótulos no idioma e na moeda de quem visita.
+  const svg = document.getElementById('app-grafico');
+  if(svg){
+    const valores = [31800, 35100, 38600, 42900, 46370, 48320], maximo = 50000;
+    const meses = IDIOMA === 'en' ? ['May','Jun','Jul','Aug','Sep','Oct'] : ['Mai','Jun','Jul','Ago','Set','Out'];
+    const compacto = new Intl.NumberFormat(LOCALE, { notation: 'compact', maximumFractionDigits: 1 });
+    const X0 = 46, X1 = 236, Y0 = 6, Y1 = 76, passo = (X1 - X0) / valores.length;
+    const px = i => X0 + passo * (i + .5), py = v => Y1 - (v / maximo) * (Y1 - Y0);
+    const pts = valores.map((v, i) => [px(i), py(v)]);
+    // Curva suave (mesma ideia da linha do app)
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for(let i = 0; i < pts.length - 1; i++){
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2, t = .35 / 2;
+      d += ` C${(p1[0] + (p2[0] - p0[0]) * t).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) * t).toFixed(1)}, ${(p2[0] - (p3[0] - p1[0]) * t).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) * t).toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    const ult = pts[pts.length - 1];
+    const grade = [0, 25000, 50000].map(v => `<line class="app-graf-grade" x1="${X0}" x2="${X1}" y1="${py(v)}" y2="${py(v)}"/><text class="app-graf-eixo" x="${X0 - 5}" y="${py(v) + 2}" text-anchor="end">${simboloMoeda()}${IDIOMA === 'en' ? '' : ' '}${compacto.format(v)}</text>`).join('');
+    const rotulos = meses.map((m, i) => `<text class="app-graf-eixo" x="${px(i)}" y="91" text-anchor="middle">${m}/26</text>`).join('');
+    svg.innerHTML = `<defs><pattern id="graf-hachura" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="5" height="5" style="fill:var(--app-accent);fill-opacity:.06"/><line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--app-accent);stroke-opacity:.45" stroke-width=".8"/></pattern></defs>
+      ${grade}${rotulos}
+      <path class="app-graf-area" d="${d} L${ult[0]} ${Y1} L${pts[0][0]} ${Y1} Z" fill="url(#graf-hachura)"/>
+      <path class="app-graf-linha" pathLength="1" d="${d}"/>
+      <circle class="app-graf-ponto" cx="${ult[0]}" cy="${ult[1]}" r="3"/>`;
+  }
+
+  // Temas: os mesmos do app (Escuro, All Black, Claro, Azul) e as cores do plano Patrimônio
+  const cel = document.querySelector('.celular'), caixa = document.getElementById('personalizar-cores');
+  if(!cel || !caixa) return;
+  const TEMAS = {
+    escuro:   { nome: 'Escuro',    amostra: '#0f0f0f', bg: '#0f0f0f', card: '#1a1a1a', nav: '#121212', text: '#f0ede8', muted: '#888', muted2: '#555', borda: 'rgba(255,255,255,.13)', linha: 'rgba(255,255,255,.06)' },
+    allblack: { nome: 'All Black', amostra: '#000000', bg: '#000000', card: '#050402', nav: '#000000', text: '#f0ede8', muted: '#888', muted2: '#555', borda: 'rgba(255,255,255,.22)', linha: 'rgba(255,255,255,.12)' },
+    claro:    { nome: 'Claro',     amostra: '#f5f5f7', bg: '#f5f5f7', card: '#ffffff', nav: '#ffffff', text: '#1a1a1a', muted: '#666', muted2: '#999', borda: 'rgba(0,0,0,.14)', linha: 'rgba(0,0,0,.08)' },
+    azul:     { nome: 'Azul',      amostra: '#0d1117', bg: '#0d1117', card: '#161b22', nav: '#161b22', text: '#e6edf3', muted: '#8b949e', muted2: '#656d76', borda: 'rgba(255,255,255,.15)', linha: 'rgba(255,255,255,.08)' },
+  };
+  const CORES = [['Verde', '#1f4d3a'], ['Vinho', '#5c1f2e'], ['Roxo', '#3d2b63'], ['Bege', '#d9c7a3']];
+  // Mesma conta do app (planos/patrimonio): cor escura vira fundo escuro no tom; cor clara, fundo claro
+  const hsl = hex => {
+    let r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+    const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let h = 0, s = 0; const l = (mx+mn)/2;
+    if(mx !== mn){ const dd = mx-mn; s = l > .5 ? dd/(2-mx-mn) : dd/(mx+mn);
+      h = mx === r ? (g-b)/dd + (g < b ? 6 : 0) : mx === g ? (b-r)/dd + 2 : (r-g)/dd + 4; h /= 6; }
+    return [h*360, s*100];
+  };
+  const hex = (h, s, l) => {
+    h /= 360; s /= 100; l /= 100;
+    const f = (p, q, t) => { if(t < 0) t += 1; if(t > 1) t -= 1; return t < 1/6 ? p+(q-p)*6*t : t < 1/2 ? q : t < 2/3 ? p+(q-p)*(2/3-t)*6 : p; };
+    const q = l < .5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+    const rgb = s === 0 ? [l,l,l] : [f(p,q,h+1/3), f(p,q,h), f(p,q,h-1/3)];
+    return '#' + rgb.map(v => Math.round(v*255).toString(16).padStart(2,'0')).join('');
+  };
+  const lum = c => { const v = [1,3,5].map(i => parseInt(c.slice(i,i+2),16)/255).map(x => x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055, 2.4)); return .2126*v[0]+.7152*v[1]+.0722*v[2]; };
+  const temaPorCor = (c, nome) => {
+    const [h, s0] = hsl(c);
+    if(lum(c) > .3){ const s = Math.min(s0, 60);
+      return { nome, amostra: c, bg: hex(h, s*.8, 76), card: hex(h, s*.65, 85), nav: hex(h, s*.65, 85), text: '#15110a', muted: '#463d2c', muted2: '#6b604b', borda: 'rgba(0,0,0,.18)', linha: 'rgba(0,0,0,.10)', accent: '#4a3608', accentLight: '#6b4f14' }; }
+    const s = Math.min(s0, 55);
+    return { nome, amostra: c, bg: hex(h, s*.9, 9), card: hex(h, s*.8, 13), nav: hex(h, s*.8, 13), text: '#f0ede8', muted: hex(h, Math.min(s, 12), 60), muted2: hex(h, Math.min(s, 10), 40), borda: 'rgba(255,255,255,.15)', linha: 'rgba(255,255,255,.08)' };
+  };
+  const aplicar = (t, botao) => {
+    const v = { bg: t.bg, card: t.card, nav: t.nav, text: t.text, muted: t.muted, muted2: t.muted2, borda: t.borda, linha: t.linha, accent: t.accent || '#C8A96E', 'accent-light': t.accentLight || '#E8C96D' };
+    Object.entries(v).forEach(([k, val]) => cel.style.setProperty('--app-' + k, val));
+    caixa.querySelectorAll('.cor-tema').forEach(b => { b.classList.toggle('ativa', b === botao); b.setAttribute('aria-pressed', b === botao ? 'true' : 'false'); });
+    const n = document.getElementById('personalizar-nome'); if(n) n.textContent = t.nome;
+  };
+  const botao = (t, extraClasse) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'cor-tema' + (extraClasse || ''); b.title = t.nome; b.setAttribute('aria-label', t.nome);
+    b.style.background = t.amostra;
+    b.addEventListener('click', () => aplicar(t, b));
+    caixa.appendChild(b); return b;
+  };
+  const padrao = botao(TEMAS.escuro);
+  ['allblack', 'claro', 'azul'].forEach(k => botao(TEMAS[k]));
+  CORES.forEach(([nome, c]) => botao(temaPorCor(c, nome)));
+  // Qualquer cor (como o seletor de cor do app)
+  const mais = document.createElement('label');
+  mais.className = 'cor-tema cor-tema-mais'; mais.title = 'Cor personalizada';
+  mais.innerHTML = '<span aria-hidden="true">+</span><input type="color" value="#2b4a6f" aria-label="Cor personalizada">';
+  mais.querySelector('input').addEventListener('input', e => aplicar(temaPorCor(e.target.value, 'Cor personalizada'), mais));
+  caixa.appendChild(mais);
+  padrao.classList.add('ativa'); padrao.setAttribute('aria-pressed', 'true');
+})();
 
 // Ícones do cadastro (traço dourado, no lugar dos emojis): um para cada plano e para o cupom
 const ICONE_SVG = d => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;

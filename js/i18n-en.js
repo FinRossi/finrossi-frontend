@@ -279,7 +279,7 @@ I18N_EN_ADD({
   'Pagar agora': 'Pay now', 'Total': 'Total',
   // Configurações
   'Aparência': 'Appearance', 'Tema': 'Theme', 'Escuro': 'Dark', 'Claro': 'Light', 'Azul': 'Blue', 'Cores': 'Colours', 'Cor do app': 'App colour',
-  'Dourado': 'Gold', 'Verde': 'Green', 'Vermelho': 'Red', 'Roxo': 'Purple', 'Lilás': 'Lilac', 'Teal': 'Teal', 'Âmbar': 'Amber', 'Efeitos': 'Effects',
+  'Dourado': 'Gold', 'Verde': 'Green', 'Vinho': 'Burgundy', 'Bege': 'Beige', 'Cor personalizada': 'Custom colour', 'Personalize o app:': 'Make it yours:', 'Vermelho': 'Red', 'Roxo': 'Purple', 'Lilás': 'Lilac', 'Teal': 'Teal', 'Âmbar': 'Amber', 'Efeitos': 'Effects',
   'Cursor neon': 'Neon cursor', 'Anel luminoso que acompanha o mouse': 'A glowing ring that follows the mouse', 'Padrão FinRossi': 'FinRossi default',
   'Usar Padrão FinRossi': 'Use FinRossi default', 'Escolha qualquer cor': 'Choose any colour', 'Escolher outra cor': 'Choose another colour',
   'Escolha uma cor abaixo e toque em "Salvar cor" para guardá-la aqui.': 'Choose a colour below and tap "Save colour" to keep it here.',
