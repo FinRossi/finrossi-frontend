@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=10"></script>
+<script src="../js/i18n.js?v=11"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -244,6 +244,43 @@ section{padding:110px 0}
 .inv-pos-nome{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);line-height:1.25}
 .inv-pos-nome small{display:block;font-size:10px;color:var(--muted)}
 .inv-pos b{font-family:var(--serif);font-weight:500;font-size:14px;white-space:nowrap}
+/* Clicável: a aplicação sai do gráfico (como no app) */
+.inv-pos{cursor:pointer;border-radius:6px;transition:opacity .25s}
+.inv-pos:hover .inv-pos-nome{color:var(--gold-light)}
+.inv-pos:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.inv-pos.fora{opacity:.42}
+.inv-pos.fora b{text-decoration:line-through}
+.inv-pos-dir{display:flex;align-items:baseline;gap:8px}
+.inv-pos-pct{font-size:10px;color:var(--muted);min-width:28px;text-align:right}
+.inv-anel circle{cursor:pointer;transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease,opacity .3s}
+.inv-anel-num{font-family:var(--serif);font-size:5px;fill:var(--text)}
+.inv-anel-rot{font-family:var(--sans);font-size:2.8px;fill:var(--muted)}
+.inv-rodape{margin-top:10px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.inv-rodape b{font-family:var(--serif);font-weight:500;color:var(--text);font-size:13px}
+/* Cartões de crédito */
+.b-6{grid-column:span 6}
+.cc-card{display:grid;grid-template-columns:1fr auto;gap:36px;align-items:center}
+.cc-lista{margin-top:16px;font-size:13px}
+.cc-lista .mini-linha span:first-child{color:var(--muted)}
+.cc-lado{display:flex;flex-direction:column;gap:14px;width:300px;max-width:100%}
+.cc-visual{position:relative;width:300px;max-width:100%;aspect-ratio:300/190;border-radius:21px;padding:21px;overflow:hidden;background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid rgba(200,169,110,.33);box-shadow:0 18px 40px rgba(200,169,110,.12),0 2px 8px rgba(0,0,0,.5);transition:transform .5s ease}
+.cc-card:hover .cc-visual{transform:rotate(-1.5deg) translateY(-4px)}
+.cc-brilho{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(200,169,110,.16) 50%,transparent 60%);background-size:250% 100%;animation:cc-brilho 7s ease-in-out infinite}
+@keyframes cc-brilho{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.cc-topo{position:relative;display:flex;justify-content:space-between;align-items:flex-start}
+.cc-banco{font-size:15px;letter-spacing:.5px;color:rgba(255,255,255,.6);font-weight:500}
+.cc-chip{position:relative;margin-top:8px;line-height:0}
+.cc-base{position:absolute;left:21px;right:21px;bottom:21px}
+.cc-numero{font-family:monospace;font-size:17px;letter-spacing:2px;color:rgba(255,255,255,.72);margin-bottom:10px}
+.cc-titular-rot{font-size:12px;letter-spacing:1px;font-weight:600;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:3px}
+.cc-titular{font-size:15px;font-weight:700;color:#fff;letter-spacing:.4px}
+.cc-limite{background:var(--app-bg);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:7px}
+.cc-limite-linha{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--muted)}
+.cc-limite-linha b{font-family:var(--serif);font-weight:500;font-size:18px;color:var(--text)}
+.cc-sub{font-size:11px;flex-direction:column;align-items:flex-start;gap:3px}.cc-sub b{font-size:13px;white-space:nowrap}
+@media(max-width:860px){.cc-card{grid-template-columns:1fr;gap:22px}.cc-lado{width:100%;align-items:center}.cc-limite{width:100%;max-width:300px}}
+@media(max-width:380px){.cc-numero{font-size:15px}.cc-visual{padding:17px}.cc-base{left:17px;right:17px;bottom:17px}}
+@media(prefers-reduced-motion:reduce){.cc-brilho{animation:none}.inv-anel circle{transition:none}}
 @media(max-width:420px){.inv-corpo{grid-template-columns:1fr;justify-items:center}.inv-posicoes{width:100%}}
 /* Selo do plano nos cartões de recursos */
 .fc-selo{display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--gold-s);color:var(--gold-light);border:1px solid rgba(201,168,76,.25);margin-bottom:10px}
@@ -577,9 +614,11 @@ body.modal-aberto{overflow:hidden}
         </div>
         <div class="mini num">
           <div class="mini-linha"><span><i class="ponto" style="background:var(--green)"></i>Salário</span><span class="mais">+ R$ 5.000,00</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--green)"></i>Freelance</span><span class="mais">+ R$ 1.200,00</span></div>
           <div class="mini-linha"><span><i class="ponto" style="background:var(--red)"></i>Aluguel</span><span class="menos">− R$ 1.500,00</span></div>
           <div class="mini-linha"><span><i class="ponto" style="background:var(--red)"></i>Mercado</span><span class="menos">− R$ 620,40</span></div>
-          <div class="mini-linha"><span><i class="ponto" style="background:var(--gold)"></i>Saldo do mês</span><span class="ouro">R$ 2.879,60</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--red)"></i>Farmácia</span><span class="menos">− R$ 94,70</span></div>
+          <div class="mini-linha"><span><i class="ponto" style="background:var(--gold)"></i>Saldo do mês</span><span class="ouro">R$ 3.984,90</span></div>
         </div>
       </div>
 
@@ -594,14 +633,11 @@ body.modal-aberto{overflow:hidden}
             <div><span class="inv-rot">Total investido</span><b class="inv-total">R$ 31.400,00</b></div>
             <div class="inv-split"><span>Renda fixa <b class="mais">R$ 19.468</b></span><span>Renda variável <b class="ouro">R$ 11.932</b></span></div>
           </div>
-          <div class="inv-corpo">
-            <svg class="inv-anel" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#E8C560" stroke-width="3.2" stroke-dasharray="29.61 70.39" stroke-dashoffset="25.00"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#C8A96E" stroke-width="3.2" stroke-dasharray="18.15 81.85" stroke-dashoffset="-6.21"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#D4B896" stroke-width="3.2" stroke-dasharray="9.44 90.56" stroke-dashoffset="-25.96"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#B8935A" stroke-width="3.2" stroke-dasharray="21.97 78.03" stroke-dashoffset="-37.00"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#9A8560" stroke-width="3.2" stroke-dasharray="12.83 87.17" stroke-dashoffset="-60.57"/><text x="21" y="21.5" text-anchor="middle" class="inv-anel-num">62%</text><text x="21" y="26.5" text-anchor="middle" class="inv-anel-rot">renda fixa</text></svg>
-            <div class="inv-posicoes">
-              <div class="inv-pos"><span class="inv-pos-nome"><i class="ponto" style="background:#E8C560"></i><span>CDB Banco Inter<small>Renda Fixa — CDB</small></span></span><b>R$ 9.800</b></div>
-              <div class="inv-pos"><span class="inv-pos-nome"><i class="ponto" style="background:#B8935A"></i><span>BOVA11<small>Renda Variável — ETF</small></span></span><b>R$ 7.400</b></div>
-              <div class="inv-pos"><span class="inv-pos-nome"><i class="ponto" style="background:#C8A96E"></i><span>Tesouro Selic 2029<small>Renda Fixa — Tesouro Direto</small></span></span><b>R$ 6.200</b></div>
-            </div>
+          <div class="inv-corpo" id="inv-corpo">
+            <svg class="inv-anel" id="inv-anel" viewBox="0 0 42 42" role="img" aria-label="Distribuição da carteira"></svg>
+            <div class="inv-posicoes" id="inv-posicoes"></div>
           </div>
+          <div class="inv-rodape" id="inv-rodape"></div>
         </div>
       </div>
 
@@ -642,6 +678,37 @@ body.modal-aberto{overflow:hidden}
           <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Qualquer cor de fundo</span><span class="ouro">Do jeito que preferir</span></div>
           <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Suas cores favoritas</span><span class="ouro">Salve e use em qualquer aparelho</span></div>
           <div style="margin-top:10px"><a class="pers-link" href="#topo-celular" onclick="event.preventDefault();document.getElementById('personalizar').scrollIntoView({behavior:'smooth',block:'center'})">Teste as cores no celular lá em cima ↑</a></div>
+        </div>
+      </div>
+
+      <!-- Cartões de crédito (o modelo "Preto fosco + friso" do app) -->
+      <div class="feature-card b-6 b-largo cc-card">
+        <div class="cc-texto">
+          <span class="fc-selo">Planos Evolução e Patrimônio</span>
+          <h3>Cartões de crédito</h3>
+          <p>Cadastre seus cartões no visual que preferir e acompanhe a fatura do mês, o limite disponível e o que foi gasto em cada um.</p>
+          <div class="cc-lista">
+            <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Fatura do mês</span><span class="ouro">Separada por cartão</span></div>
+            <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Limite disponível</span><span class="ouro">Atualizado a cada compra</span></div>
+            <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Fechamento e vencimento</span><span class="ouro">Sempre à vista</span></div>
+          </div>
+        </div>
+        <div class="cc-lado num">
+          <div class="cc-visual" aria-hidden="true">
+            <span class="cc-brilho"></span>
+            <div class="cc-topo"><span class="cc-banco">Cartão Black</span><svg width="36" height="22" viewBox="0 0 36 22" aria-hidden="true"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg></div>
+            <div class="cc-chip"><svg width="45" height="30" viewBox="0 0 34 26" fill="none" aria-hidden="true"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/></svg></div>
+            <div class="cc-base">
+              <div class="cc-numero">•••• •••• •••• 4821</div>
+              <div class="cc-titular-rot">Titular</div>
+              <div class="cc-titular">ANA PAULA</div>
+            </div>
+          </div>
+          <div class="cc-limite">
+            <div class="cc-limite-linha"><span>Limite disponível</span><b>R$ 7.420,00</b></div>
+            <div class="app-barra"><i style="width:62%"></i></div>
+            <div class="cc-limite-linha cc-sub"><span>Limite total: <b>R$ 12.000,00</b></span><span>Fatura de outubro: <b class="menos">R$ 1.284,90</b></span></div>
+          </div>
         </div>
       </div>
 
@@ -1184,6 +1251,64 @@ function assinar(plano){
   mais.querySelector('input').addEventListener('input', e => aplicar(temaPorCor(e.target.value, 'Cor personalizada'), mais));
   caixa.appendChild(mais);
   padrao.classList.add('ativa'); padrao.setAttribute('aria-pressed', 'true');
+})();
+
+// ─── Investimentos clicáveis: tocar numa aplicação tira ela do gráfico (como no app) ──
+(function(){
+  const anel = document.getElementById('inv-anel'), lista = document.getElementById('inv-posicoes'), rodape = document.getElementById('inv-rodape');
+  if(!anel || !lista) return;
+  const APL = [
+    ['CDB Banco Inter', 'Renda Fixa — CDB', 9800, '#E8C560'],
+    ['BOVA11', 'Renda Variável — ETF', 7400, '#B8935A'],
+    ['Tesouro Selic 2029', 'Renda Fixa — Tesouro Direto', 6200, '#C8A96E'],
+    ['ITSA4', 'Renda Variável — Ações', 4532, '#9A8560'],
+    ['LCI Itaú', 'Renda Fixa — LCI/LCA', 3468, '#D4B896'],
+  ];
+  const fora = new Set();
+  const en = IDIOMA === 'en';
+  const compacto = new Intl.NumberFormat(LOCALE, { notation: 'compact', maximumFractionDigits: 1 });
+  const curto = v => simboloMoeda() + (en ? '' : ' ') + compacto.format(v);
+  anel.innerHTML = APL.map((a, i) => `<circle data-i="${i}" cx="21" cy="21" r="15.9155" fill="none" stroke="${a[3]}" stroke-width="3.2"/>`).join('')
+    + '<text x="21" y="21.6" text-anchor="middle" class="inv-anel-num" id="inv-anel-num"></text><text x="21" y="26" text-anchor="middle" class="inv-anel-rot" id="inv-anel-rot"></text>';
+  lista.innerHTML = APL.map((a, i) => `<div class="inv-pos" data-i="${i}" role="button" tabindex="0" aria-pressed="false">
+      <span class="inv-pos-nome"><i class="ponto" style="background:${a[3]}"></i><span>${a[0]}<small>${a[1]}</small></span></span>
+      <span class="inv-pos-dir"><b>${fmtMoeda(a[2], 0)}</b><span class="inv-pos-pct"></span></span></div>`).join('');
+  function desenhar(){
+    const vis = APL.reduce((t, a, i) => t + (fora.has(i) ? 0 : a[2]), 0);
+    const GAP = fora.size >= APL.length - 1 ? 0 : 1.6;
+    let acum = 0;
+    anel.querySelectorAll('circle').forEach(c => {
+      const i = +c.dataset.i, v = fora.has(i) ? 0 : APL[i][2];
+      const pct = vis ? v / vis * 100 : 0, tam = v ? Math.max(pct - GAP, .5) : 0;
+      c.style.strokeDasharray = `${tam} ${100 - tam}`;
+      c.style.strokeDashoffset = 25 - acum;
+      c.style.opacity = v ? 1 : 0;
+      acum += pct;
+    });
+    lista.querySelectorAll('.inv-pos').forEach(el => {
+      const i = +el.dataset.i, saiu = fora.has(i);
+      el.classList.toggle('fora', saiu);
+      el.setAttribute('aria-pressed', saiu ? 'true' : 'false');
+      el.title = saiu ? (en ? 'Put back in the chart' : 'Voltar ao gráfico') : (en ? 'Take out of the chart' : 'Tirar do gráfico');
+      el.querySelector('.inv-pos-pct').textContent = saiu ? (en ? 'out' : 'fora') : Math.round(APL[i][2] / vis * 100) + '%';
+    });
+    document.getElementById('inv-anel-num').textContent = curto(vis);
+    document.getElementById('inv-anel-rot').textContent = !fora.size ? 'Total'
+      : fora.size === 1 ? (en ? 'without ' : 'sem ') + APL[[...fora][0]][0] : (en ? `without ${fora.size} holdings` : `sem ${fora.size} aplicações`);
+    const valorFora = [...fora].reduce((t, i) => t + APL[i][2], 0);
+    rodape.innerHTML = valorFora
+      ? `<span>${en ? 'Out of the chart' : 'Fora do gráfico'}</span><b>${fmtMoeda(valorFora, 2)}</b>`
+      : `<span>${en ? 'Tap a holding to take it out of the chart' : 'Toque numa aplicação para tirar do gráfico'}</span>`;
+  }
+  const alternar = i => {
+    if(fora.has(i)) fora.delete(i);
+    else if(fora.size < APL.length - 1) fora.add(i);   // sempre fica pelo menos uma no gráfico
+    desenhar();
+  };
+  lista.addEventListener('click', e => { const el = e.target.closest('.inv-pos'); if(el) alternar(+el.dataset.i); });
+  lista.addEventListener('keydown', e => { const el = e.target.closest('.inv-pos'); if(el && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); alternar(+el.dataset.i); } });
+  anel.addEventListener('click', e => { const c = e.target.closest('circle'); if(c) alternar(+c.dataset.i); });
+  desenhar();
 })();
 
 // Ícones do cadastro (traço dourado, no lugar dos emojis): um para cada plano e para o cupom
