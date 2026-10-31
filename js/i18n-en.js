@@ -308,7 +308,7 @@ I18N_EN_ADD({
   'Digite seu email cadastrado e enviaremos um link para criar uma nova senha.': 'Enter your account email and we’ll send you a link to create a new password.',
   'Verificando...': 'Checking...', 'Verificando credenciais...': 'Checking your details...', 'Carregando...': 'Loading...', 'carregando...': 'loading...',
   'email@exemplo.com': 'email@example.com', 'seu@email.com': 'you@email.com', 'Aplicativo para construir sua riqueza': 'The app for building your wealth',
-  'Controle financeiro pessoal simples e inteligente': 'Simple, smart personal finance', 'FinRossi, controle financeiro pessoal': 'FinRossi, personal finance',
+  'Controle financeiro pessoal simples e inteligente': 'Simple, smart personal finance', 'FinRossi, controle financeiro pessoal': 'FinRossi, personal finance', 'FinRossi, aplicativo para construir sua riqueza': 'FinRossi, the app for building your wealth',
   'FinRossi — Aplicativo para construir sua riqueza': 'FinRossi — The app for building your wealth', 'Precisa de ajuda?': 'Need help?',
   'Entre em contato com o suporte do FinRossi pelo WhatsApp ou e-mail.': 'Contact FinRossi support by WhatsApp or email.',
   'Ainda não tem conta? Conheça os planos e crie a sua →': 'Don’t have an account yet? See the plans and create yours →',
@@ -417,7 +417,7 @@ I18N_EN_ADD({
   'Seu dinheiro,': 'Your money,', 'finalmente organizado.': 'finally organised.', 'Testar grátis': 'Try it free', 'Começar grátis': 'Start free',
   'Criar conta grátis': 'Create a free account', 'Gratuito para começar. Sem cartão de crédito.': 'Free to start. No credit card needed.',
   'Controle suas receitas, despesas, investimentos e metas em um só lugar. Simples, inteligente e acessível.': 'Track your income, expenses, investments and goals in one place. Simple, smart and affordable.',
-  'Controle financeiro pessoal simples e inteligente. Receitas, despesas, investimentos e metas — tudo em um só lugar, no celular e no computador.': 'Simple, smart personal finance. Income, expenses, investments and goals — all in one place, on your phone and computer.',
+  'Simples e inteligente. Receitas, despesas, investimentos e metas — tudo em um só lugar, no celular e no computador.': 'Simple and smart. Income, expenses, investments and goals — all in one place, on your phone and computer.',
   'Controle financeiro pessoal': 'Personal finance', '— Controle financeiro pessoal simples e inteligente': '— Simple, smart personal finance', '— Aplicativo para construir sua riqueza': '— The app for building your wealth',
   // Telinha do app (exemplo)
   'Saldo do mês': 'Balance this month', 'Patrimônio líquido': 'Net worth', '↑ 4,2% no mês': '↑ 4.2% this month', 'R$ 31.400': '$31,400', 'R$ 48.320': '$48,320',
