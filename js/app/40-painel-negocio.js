@@ -79,6 +79,62 @@ function _renderOnline(){
       <div><div class="neg-sub"><span class="pres-dot"></span>Vistos por último</div>${recentes.length ? `<div class="neg-lista">${recentes.map(linha).join('')}</div>` : '<p class="neg-vazio">Ainda sem registros (começa a contar a partir de agora).</p>'}</div>
     </div>`;
 }
+// Tela Clientes: card "Online agora" (clientes com o app aberto, fora do app e sem abrir há 30+ dias)
+let _cliOnlineLista = [];
+function cardOnlineClientes(clientesReais){
+  _cliOnlineLista = (clientesReais || []).filter(c => c.status !== 'inativo');
+  assinarPresenca(_pintarCardOnline);
+  _pintarCardOnline(_presenca);
+}
+function _pintarCardOnline(p){
+  const n = document.getElementById('cli-online-n'), sub = document.getElementById('cli-online-sub');
+  if(!n || !sub) return;
+  const on = _cliOnlineLista.filter(c => p[c.uid] && p[c.uid].online).length;
+  const limite = Date.now() - 30 * 864e5;
+  const sumidos = _cliOnlineLista.filter(c => { const v = (p[c.uid] && p[c.uid].vistoEm) || c.ultimoAcesso || 0; return !(p[c.uid] && p[c.uid].online) && v && v < limite; }).length;
+  n.textContent = on;
+  sub.textContent = `${_cliOnlineLista.length - on} fora do app · ${sumidos} sem abrir há 30+ dias`;
+}
+
+// Tela Clientes: gráfico de pessoas diferentes que abriram o app em cada um dos últimos 14 dias
+async function graficoAcessosDia(todos){
+  const ctx = document.getElementById('c-cli-acessos');
+  const f = window._firebase;
+  if(!ctx || typeof Chart === 'undefined') return;
+  const equipe = new Set((todos || []).filter(c => ROLES_EQUIPE.includes(c.role)).map(c => c.uid));
+  const dias = [];
+  for(let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); dias.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`); }
+  const ler = dia => new Promise(res => {
+    if(!f || !f.firebaseOk || !f.db) return res(window._acessosDemo ? window._acessosDemo[dia] || {} : {});
+    let feito = false; const fim = v => { if(!feito){ feito = true; res(v || {}); } };
+    try{ f.onValue(f.ref(f.db, 'acessos/' + dia), s => fim(s.val()), () => fim({}), { onlyOnce: true }); }catch(e){ fim({}); }
+    setTimeout(() => fim({}), 5000);
+  });
+  const porDia = await Promise.all(dias.map(ler));
+  const cli = porDia.map(o => Object.keys(o).filter(u => !equipe.has(u)).length);
+  const eq  = porDia.map(o => Object.keys(o).filter(u => equipe.has(u)).length);
+  const resumo = document.getElementById('cli-acessos-resumo');
+  if(resumo){
+    const hojeN = cli[13], ontemN = cli[12], media = Math.round(cli.reduce((a, b) => a + b, 0) / 14 * 10) / 10;
+    resumo.textContent = `hoje: ${hojeN} cliente(s) · ontem: ${ontemN} · média: ${String(media).replace('.', ',')}/dia`;
+  }
+  destroyChart('cli-acessos');
+  const ouro = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#C8A96E';
+  charts['cli-acessos'] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: dias.map(d => d.slice(8, 10) + '/' + d.slice(5, 7)), datasets: [
+      { label: 'Clientes', data: cli, backgroundColor: ouro, stack: 'a' },
+      { label: 'Equipe', data: eq, backgroundColor: 'rgba(136,136,136,.55)', stack: 'a' },
+    ] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom' }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y} pessoa(s)` } } },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } } },
+  });
+  // O tema dos gráficos põe "R$" em todo eixo vertical; aqui são pessoas
+  charts['cli-acessos'].options.scales.y.ticks.callback = v => Number.isInteger(v) ? v : '';
+  charts['cli-acessos'].update('none');
+}
+
 setInterval(() => {   // atualiza o "há X min" sem precisar recarregar
   if(document.getElementById('neg-online') && !document.getElementById('sec-negocio')?.classList.contains('section-hidden')) _renderOnline();
   if(document.querySelector('.pres-dot[data-pres]')) _pintarTabelaPresenca(_presenca);

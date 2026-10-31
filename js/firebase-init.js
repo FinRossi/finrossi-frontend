@@ -224,6 +224,14 @@
           }
         }catch(e){}
         try{ iniciarPresenca(user.uid); }catch(e){}
+        // Acessos por dia (gráfico da tela Clientes): uma marca por pessoa por dia. Só a equipe lê (regra acessos/).
+        try{
+          const d = new Date(), dia = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          const chaveDia = 'fin_acesso_dia_' + user.uid;
+          if(localStorage.getItem(chaveDia) !== dia){
+            set(ref(db, `acessos/${dia}/${user.uid}`), Date.now()).then(() => localStorage.setItem(chaveDia, dia)).catch(() => {});
+          }
+        }catch(e){}
         setTimeout(()=>{ try{ initCursorFx(); }catch(e){} }, 150);
         setTimeout(()=>{ try{ initAvatar(); }catch(e){} }, 300);
         setTimeout(()=>{ try{ iniciarSistemaNotificacoes(); }catch(e){} }, 1000);

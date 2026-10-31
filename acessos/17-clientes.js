@@ -194,17 +194,21 @@ async function renderClientes(){
     const pagantes=clientesReais.filter(c=>c.origem==='pagante'&&c.status==='ativo');
     const emTrial=clientesReais.filter(c=>c.origem==='trial'&&c.status!=='inativo');
     const inativos=clientesReais.filter(c=>c.status==='inativo');
-    const mrr=pagantes.reduce((a,c)=>{ const p={essencial:9.90,evolucao:24.90,patrimonio:49.90}; return a+(p[c.plano]||0); },0);
+    // Receita mensal recorrente: mesma conta do Painel do negócio (anual entra dividido por 12)
+    const mrr=pagantes.reduce((a,c)=>{ if(typeof _negMRRCliente==='function') return a+_negMRRCliente(c); const p={essencial:9.90,evolucao:24.90,patrimonio:49.90}; return a+(p[c.plano]||0); },0);
 
     document.getElementById('clientes-metrics').innerHTML=`
       <div class="mc"><div class="mc-label">Pagantes ativos</div><div class="mc-val green">${pagantes.length}</div><div class="mc-sub">geram receita</div></div>
       <div class="mc"><div class="mc-label">Em trial</div><div class="mc-val amber">${emTrial.length}</div><div class="mc-sub">30 dias grátis</div></div>
-      <div class="mc"><div class="mc-label">Inativos</div><div class="mc-val red">${inativos.length}</div></div>
+      <div class="mc" id="cli-card-online"><div class="mc-label"><span class="pres-dot on"></span>Online agora</div><div class="mc-val green" id="cli-online-n">—</div><div class="mc-sub" id="cli-online-sub">carregando…</div></div>
+      <div class="mc"><div class="mc-label">Inativos</div><div class="mc-val red">${inativos.length}</div><div class="mc-sub">contas desativadas</div></div>
       <div class="mc"><div class="mc-label">MRR</div><div class="mc-val green">${fmtR(mrr)}</div><div class="mc-sub">receita mensal</div></div>
       <div class="mc"><div class="mc-label">Equipe interna</div><div class="mc-val blue">${equipeInterna.length}</div><div class="mc-sub">fora das métricas</div></div>
     `;
 
     renderWhatsHoje(clientesReais);
+    if(typeof cardOnlineClientes === 'function') cardOnlineClientes(clientesReais);   // card "Online agora" (ao vivo)
+    if(typeof graficoAcessosDia === 'function') graficoAcessosDia(clientes);         // gráfico "Acessos por dia"
 
     if(!lista.length){
       tabela.innerHTML='<p class="empty">Nenhum cliente encontrado</p>';
