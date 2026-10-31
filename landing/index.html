@@ -311,6 +311,59 @@ section{padding:110px 0}
 .barras{display:flex;align-items:flex-end;gap:7px;height:90px}
 .barras i{flex:1;border-radius:5px 5px 2px 2px;background:rgba(255,255,255,0.08)}
 .barras i.g{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
+/* Metas: simulador "quanto guardar por mês" */
+.ms-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.ms-nome{font-size:12px;color:var(--text)}
+.ms-pct{font-size:11px;color:var(--gold-light)}
+.ms-valor{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:8px}
+.ms-valor small{font-family:var(--sans);font-size:11px;color:var(--muted);margin-left:4px}
+.ms-rot{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted);margin:12px 0 6px}
+.ms-rot b{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--text)}
+.ms-range{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--gold) var(--p,30%),rgba(255,255,255,.08) var(--p,30%));outline:none;cursor:pointer}
+.ms-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold-light);border:3px solid #111;box-shadow:0 0 0 1px var(--gold),0 0 12px rgba(201,168,76,.45)}
+.ms-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold-light);border:3px solid #111;box-shadow:0 0 0 1px var(--gold)}
+.ms-range:focus-visible{outline:2px solid var(--gold);outline-offset:6px}
+.ms-res{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:var(--muted);line-height:1.5}
+.ms-res b{color:var(--gold-light);font-weight:600}
+/* Calendário: mês inteiro, dias com conta clicáveis */
+.cv-mes{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.cv-mes b{font-family:var(--serif);font-weight:500;font-size:15px}
+.cv-mes span{font-size:10px;color:var(--muted)}
+.cv-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:10px;color:var(--muted2)}
+.cv-grade .h{color:var(--muted);font-size:9px;padding:2px 0}
+.cv-dia{position:relative;padding:5px 0;border-radius:7px;border:1px solid transparent;background:none;color:inherit;font:inherit;line-height:1.3}
+.cv-dia.conta{color:var(--text);background:rgba(255,255,255,.04);cursor:pointer}
+.cv-dia.conta:hover{border-color:rgba(201,168,76,.35)}
+.cv-dia.conta::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.cv-dia.conta.pago::after{background:var(--green)}
+.cv-dia.conta.perto::after{background:var(--red)}
+.cv-dia.hoje{box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.cv-dia.sel{border-color:var(--gold);background:var(--gold-s);color:var(--gold-light)}
+.cv-dia:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.cv-det{margin-top:10px;padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;min-height:44px}
+.cv-det small{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+.cv-det b{font-family:var(--serif);font-weight:500;font-size:15px;white-space:nowrap}
+.cv-selo{font-size:10px;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.cv-selo.pago{background:rgba(74,222,128,.1);color:var(--green)}
+.cv-selo.perto{background:rgba(248,113,113,.1);color:var(--red)}
+.cv-selo.futuro{background:var(--gold-s);color:var(--gold-light)}
+/* Gráficos: abas e barras clicáveis */
+.gm-abas{display:flex;gap:4px;margin-bottom:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:3px}
+.gm-aba{flex:1;font:inherit;font-size:11px;padding:5px 4px;border:0;border-radius:7px;background:none;color:var(--muted);cursor:pointer;transition:background .2s,color .2s}
+.gm-aba.ativa{background:var(--gold-s);color:var(--gold-light)}
+.gm-aba:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.gm-info{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:11px;color:var(--muted)}
+.gm-info b{font-family:var(--serif);font-weight:500;font-size:17px;color:var(--text)}
+.gm-barras{display:flex;align-items:flex-end;gap:7px;height:84px}
+.gm-barra{flex:1;height:100%;display:flex;align-items:flex-end;border:0;padding:0;background:none;cursor:pointer}
+.gm-barra i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:rgba(255,255,255,.09);transition:height .55s cubic-bezier(.2,.7,.2,1),background .25s}
+.gm-barra:hover i{background:rgba(201,168,76,.35)}
+.gm-barra.sel i{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
+.gm-barra:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.gm-meses{display:flex;gap:7px;margin-top:6px}
+.gm-meses span{flex:1;text-align:center;font-size:9.5px;color:var(--muted2)}
+.gm-meses span.sel{color:var(--gold-light)}
+@media(prefers-reduced-motion:reduce){.gm-barra i{transition:none}}
 
 /* ── COMO FUNCIONA ───────────────────────────────────── */
 .how-bg{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
@@ -457,6 +510,8 @@ body.portal-zoom{transition:transform .65s cubic-bezier(.65,0,.35,1),opacity .65
 #modal-cadastro.open{display:flex}
 #modal-cadastro>div{margin:auto}
 /* iOS dá zoom ao focar campos com fonte < 16px — só no celular */
+/* Celular: os cartões pequenos (só ícone e texto) ficam dois lado a lado */
+@media(max-width:600px){.bento{grid-template-columns:repeat(2,1fr)}.bento>.feature-card{grid-column:span 2}.bento>.fc-compacto{grid-column:span 1;padding:16px;gap:12px}.fc-compacto h3{font-size:15px;margin-bottom:4px}.fc-compacto p{font-size:12.5px;line-height:1.5}.fc-compacto .fc-ico{width:34px;height:34px;border-radius:10px}.fc-compacto .fc-ico svg{width:17px;height:17px}}
 @media(max-width:768px){#modal-cadastro input[type=text],#modal-cadastro input[type=email],#modal-cadastro input[type=password]{font-size:16px!important}}
 body.modal-aberto{overflow:hidden}
 /* ── Identidade "Cédula" ─────────────────────────────── */
@@ -726,12 +781,7 @@ body.modal-aberto{overflow:hidden}
           <h3>Metas financeiras</h3>
           <p>Defina metas com valor alvo e acompanhe o progresso. Simule quanto tempo falta para atingir cada objetivo.</p>
         </div>
-        <div class="mini app-meta num">
-          <div class="app-meta-linha"><span>Reserva emergência</span><span class="ouro">68%</span></div>
-          <div class="app-barra"><i style="width:68%"></i></div>
-          <div class="app-meta-linha" style="margin-top:6px"><span>Viagem Europa</span><span>34%</span></div>
-          <div class="app-barra"><i style="width:34%;background:var(--green)"></i></div>
-        </div>
+        <div class="mini num" id="meta-sim"></div>
       </div>
 
       <!-- Calendário -->
@@ -740,11 +790,7 @@ body.modal-aberto{overflow:hidden}
           <h3>Calendário de vencimentos</h3>
           <p>Veja todos os seus vencimentos no calendário. Nunca mais esqueça uma conta — tudo organizado por data.</p>
         </div>
-        <div class="mini cal num" aria-hidden="true">
-          <span class="h">D</span><span class="h">S</span><span class="h">T</span><span class="h">Q</span><span class="h">Q</span><span class="h">S</span><span class="h">S</span>
-          <span>12</span><span>13</span><span>14</span><span class="v r">15</span><span>16</span><span>17</span><span>18</span>
-          <span>19</span><span class="v">20</span><span>21</span><span>22</span><span>23</span><span>24</span><span class="v">25</span>
-        </div>
+        <div class="mini num" id="cal-venc"></div>
       </div>
 
       <!-- Gráficos -->
@@ -753,11 +799,11 @@ body.modal-aberto{overflow:hidden}
           <h3>Gráficos e relatórios</h3>
           <p>Visualize sua evolução mensal, gastos por categoria e saldo em gráficos claros e modernos.</p>
         </div>
-        <div class="mini"><div class="barras" aria-hidden="true"><i style="height:40%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:66%"></i><i style="height:72%"></i><i class="g" style="height:90%"></i></div></div>
+        <div class="mini num" id="graf-mini"></div>
       </div>
 
       <!-- Recorrentes -->
-      <div class="feature-card b-3">
+      <div class="feature-card b-3 fc-compacto">
         <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div>
         <div>
           <h3>Contas recorrentes</h3>
@@ -766,7 +812,7 @@ body.modal-aberto{overflow:hidden}
       </div>
 
       <!-- Assinaturas -->
-      <div class="feature-card b-3">
+      <div class="feature-card b-3 fc-compacto">
         <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><polygon points="10 8.5 15 11 10 13.5 10 8.5"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
         <div>
           <h3>Assinaturas</h3>
@@ -775,7 +821,7 @@ body.modal-aberto{overflow:hidden}
       </div>
 
       <!-- Objetivos -->
-      <div class="feature-card b-3">
+      <div class="feature-card b-3 fc-compacto">
         <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
         <div>
           <h3>Objetivos</h3>
@@ -784,7 +830,7 @@ body.modal-aberto{overflow:hidden}
       </div>
 
       <!-- Notas -->
-      <div class="feature-card b-3">
+      <div class="feature-card b-3 fc-compacto">
         <div class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <div>
           <h3>Notas</h3>
@@ -1328,6 +1374,102 @@ function assinar(plano){
   cc.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); refletir(); } });
   cc.addEventListener('animationend', e => { if(e.animationName === 'cc-reflexo') cc.classList.remove('refletindo'); });
 })();
+// ─── Metas, calendário e gráficos da seção "O app": interativos, no idioma e na moeda de quem visita ──
+(function(){
+  const en = IDIOMA === 'en';
+  const mesAno = (ano, mes) => { const t = new Date(ano, mes, 1).toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); };
+
+  // Metas: arraste quanto guardar por mês e veja em quantos meses chega lá
+  const ms = document.getElementById('meta-sim');
+  if(ms){
+    const alvo = 20000, guardado = 6800, falta = alvo - guardado;
+    ms.innerHTML = `<div class="ms-topo"><span class="ms-nome">${en ? 'Trip to Europe' : 'Viagem para a Europa'}</span><span class="ms-pct">${Math.round(guardado / alvo * 100)}%</span></div>
+      <div class="ms-valor">${fmtMoeda(guardado, 0)}<small>${en ? 'of' : 'de'} ${fmtMoeda(alvo, 0)}</small></div>
+      <div class="app-barra"><i style="width:${guardado / alvo * 100}%"></i></div>
+      <div class="ms-rot"><span>${en ? 'Saving per month' : 'Guardando por mês'}</span><b id="ms-mensal"></b></div>
+      <input class="ms-range" id="ms-range" type="range" min="200" max="3000" step="100" value="800" aria-label="${en ? 'Saving per month' : 'Guardando por mês'}">
+      <div class="ms-res" id="ms-res"></div>`;
+    const r = document.getElementById('ms-range');
+    const atualizar = () => {
+      const v = +r.value, meses = Math.ceil(falta / v);
+      const quando = new Date(2026, 9 + meses, 1).toLocaleDateString(LOCALE, { month: 'short', year: 'numeric' }).replace('.', '');
+      r.style.setProperty('--p', ((v - r.min) / (r.max - r.min) * 100) + '%');
+      document.getElementById('ms-mensal').textContent = fmtMoeda(v, 0);
+      document.getElementById('ms-res').innerHTML = en
+        ? `You get there in <b>${meses} ${meses === 1 ? 'month' : 'months'}</b> (${quando}).`
+        : `Você chega lá em <b>${meses} ${meses === 1 ? 'mês' : 'meses'}</b> (${quando}).`;
+    };
+    r.addEventListener('input', atualizar);
+    atualizar();
+  }
+
+  // Calendário: outubro de 2026 inteiro; toque num dia com conta para ver o que vence
+  const cv = document.getElementById('cal-venc');
+  if(cv){
+    const HOJE = 12;
+    const CONTAS = {
+      5:  [en ? 'Gym' : 'Academia', 99],
+      10: ['Internet', 100],
+      15: [en ? 'Card statement' : 'Fatura do cartão', 1284.90],
+      20: [en ? 'Electricity' : 'Conta de luz', 186.30],
+      25: [en ? 'Rent' : 'Aluguel', 900],
+    };
+    const semana = en ? ['S','M','T','W','T','F','S'] : ['D','S','T','Q','Q','S','S'];
+    const inicio = new Date(2026, 9, 1).getDay();   // 1/out/2026 cai numa quinta
+    let sel = 15;
+    const estado = d => d < HOJE ? 'pago' : d - HOJE <= 3 ? 'perto' : 'futuro';
+    const desenhar = () => {
+      let dias = '';
+      for(let i = 0; i < inicio; i++) dias += '<span></span>';
+      for(let d = 1; d <= 31; d++){
+        const c = CONTAS[d];
+        const cls = ['cv-dia', c ? 'conta ' + estado(d) : '', d === HOJE ? 'hoje' : '', d === sel ? 'sel' : ''].join(' ').trim();
+        dias += c ? `<button type="button" class="${cls}" data-d="${d}" aria-pressed="${d === sel}">${d}</button>` : `<span class="${cls}">${d}</span>`;
+      }
+      const c = CONTAS[sel], st = estado(sel);
+      const selo = st === 'pago' ? (en ? 'Paid' : 'Pago') : (en ? `Due in ${sel - HOJE} days` : `Vence em ${sel - HOJE} dias`);
+      const data = new Date(2026, 9, sel).toLocaleDateString(LOCALE, { day: 'numeric', month: 'short' }).replace('.', '');
+      cv.innerHTML = `<div class="cv-mes"><b>${mesAno(2026, 9)}</b><span>${en ? 'Tap a day with a bill' : 'Toque num dia com conta'}</span></div>
+        <div class="cv-grade">${semana.map(x => `<span class="h">${x}</span>`).join('')}${dias}</div>
+        <div class="cv-det" aria-live="polite"><span>${c[0]}<small>${data}</small></span><span style="display:flex;align-items:center;gap:8px"><span class="cv-selo ${st}">${selo}</span><b>${fmtMoeda(c[1], 2)}</b></span></div>`;
+    };
+    cv.addEventListener('click', e => { const b = e.target.closest('.cv-dia.conta'); if(b){ sel = +b.dataset.d; desenhar(); cv.querySelector(`[data-d="${sel}"]`).focus(); } });
+    desenhar();
+  }
+
+  // Gráficos: Receitas / Despesas / Saldo dos últimos 6 meses; toque numa barra para ver o mês
+  const gm = document.getElementById('graf-mini');
+  if(gm){
+    const meses = en ? ['May','Jun','Jul','Aug','Sep','Oct'] : ['Mai','Jun','Jul','Ago','Set','Out'];
+    const rec = [6200, 6300, 6500, 6400, 6600, 6500], des = [4100, 3900, 4200, 3700, 3600, 3840];
+    const SERIES = [
+      [en ? 'Income' : 'Receitas', rec],
+      [en ? 'Expenses' : 'Despesas', des],
+      [en ? 'Balance' : 'Saldo', rec.map((v, i) => v - des[i])],
+    ];
+    let serie = 0, mes = 5;
+    gm.innerHTML = `<div class="gm-abas" role="tablist">${SERIES.map((x, i) => `<button type="button" class="gm-aba" role="tab" data-s="${i}">${x[0]}</button>`).join('')}</div>
+      <div class="gm-info" aria-live="polite"><span id="gm-mes"></span><b id="gm-val"></b></div>
+      <div class="gm-barras">${meses.map((m, i) => `<button type="button" class="gm-barra" data-m="${i}" aria-label="${m}/26"><i></i></button>`).join('')}</div>
+      <div class="gm-meses">${meses.map(m => `<span>${m}</span>`).join('')}</div>`;
+    const desenhar = () => {
+      const dados = SERIES[serie][1], max = Math.max(...dados), base = Math.min(...dados) * .75;   // a escala começa perto do menor valor: a diferença entre os meses aparece
+      gm.querySelectorAll('.gm-aba').forEach((b, i) => { b.classList.toggle('ativa', i === serie); b.setAttribute('aria-selected', i === serie); });
+      gm.querySelectorAll('.gm-barra').forEach((b, i) => { b.querySelector('i').style.height = Math.max((dados[i] - base) / (max - base) * 100, 8) + '%'; b.classList.toggle('sel', i === mes); b.setAttribute('aria-pressed', i === mes); });
+      gm.querySelectorAll('.gm-meses span').forEach((x, i) => x.classList.toggle('sel', i === mes));
+      document.getElementById('gm-mes').textContent = `${SERIES[serie][0]} · ${meses[mes]}/26`;
+      document.getElementById('gm-val').textContent = fmtMoeda(dados[mes], 2);
+    };
+    gm.addEventListener('click', e => {
+      const a = e.target.closest('.gm-aba'), b = e.target.closest('.gm-barra');
+      if(a) serie = +a.dataset.s;
+      if(b) mes = +b.dataset.m;
+      if(a || b) desenhar();
+    });
+    desenhar();
+  }
+})();
+
 // Ícones do cadastro (traço dourado, no lugar dos emojis): um para cada plano e para o cupom
 const ICONE_SVG = d => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONE_PLANO = {
