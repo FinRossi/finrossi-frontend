@@ -164,7 +164,7 @@ const MA_PLANOS = [
 // Preços na moeda da conta (PRECOS_PLANO em js/i18n.js; em R$ os de sempre)
 const MA_PRECO = { get mensal(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).mensal; }, get anual(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).anual; } };
 let _maSituacao = { plano: 'gratuito', periodo: 'mensal', pago: false };
-let _maEscolha = { plano: 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: '' };
+let _maEscolha = { plano: 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: '', parcelas: '1' };
 
 // Link do e-mail (finrossi.com.br/?plano=evolucao&cupom=FR20-7KQ2): guarda a intenção antes do login
 // e tira os parâmetros do endereço. Depois do login, abre "Minha assinatura" com tudo aplicado.
@@ -187,7 +187,7 @@ function verificarIntencaoAssinatura(){
 }
 
 function abrirEscolhaPlano(planoId, cupom){
-  _maEscolha = { plano: MA_PLANOS.some(p => p.id === planoId) ? planoId : 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: cupom || _maEscolha.cupom || '', cpf: _maEscolha.cpf || '' };
+  _maEscolha = { plano: MA_PLANOS.some(p => p.id === planoId) ? planoId : 'evolucao', periodo: 'mensal', metodo: 'cartao', cupom: cupom || _maEscolha.cupom || '', cpf: _maEscolha.cpf || '', parcelas: '1' };
   let m = document.getElementById('modal-ma-plano');
   if(!m){
     m = document.createElement('div');
@@ -213,17 +213,20 @@ function desenharEscolhaPlano(){
   const m = document.getElementById('modal-ma-plano'); if(!m) return;
   const e = _maEscolha, anual = e.periodo === 'anual';
   const preco = MA_PRECO[e.periodo][e.plano];
+  const anualCartao = anual && e.metodo === 'cartao';
+  const parcelas = anualCartao ? (Number(e.parcelas) || 1) : 1;
   const opcao = (grupo, valor, rotulo, ativo) => `<button type="button" class="ma-opcao${ativo ? ' ativa' : ''}" onclick="_maEscolha.${grupo}='${valor}';${grupo==='periodo' ? `_maEscolha.metodo='${valor==='anual' ? 'pix' : 'cartao'}';` : ''}desenharEscolhaPlano()">${rotulo}</button>`;
   m.innerHTML = `<div class="modal ma-modal" role="dialog" aria-modal="true" aria-labelledby="ma-modal-tit">
     <h3 id="ma-modal-tit">Assinar o FinRossi</h3>
     <div class="ma-grupo"><span>Plano</span><div class="ma-opcoes">${MA_PLANOS.map(p => opcao('plano', p.id, p.nome, e.plano === p.id)).join('')}</div></div>
     <div class="ma-grupo"><span>Cobrança</span><div class="ma-opcoes">${opcao('periodo', 'mensal', 'Mensal', !anual)}${opcao('periodo', 'anual', 'Anual · 20% off', anual)}</div></div>
-    <div class="ma-grupo"><span>Pagamento</span><div class="ma-opcoes">${anual ? opcao('metodo', 'pix', 'Pix', true) : opcao('metodo', 'cartao', 'Cartão de crédito', e.metodo === 'cartao') + opcao('metodo', 'boleto', 'Boleto', e.metodo === 'boleto')}</div></div>
+    <div class="ma-grupo"><span>Pagamento</span><div class="ma-opcoes">${anual ? opcao('metodo', 'pix', 'Pix', e.metodo === 'pix') + opcao('metodo', 'cartao', 'Cartão (até 3x)', e.metodo === 'cartao') : opcao('metodo', 'cartao', 'Cartão de crédito', e.metodo === 'cartao') + opcao('metodo', 'boleto', 'Boleto', e.metodo === 'boleto')}</div></div>
+    ${anualCartao ? `<div class="ma-grupo"><span>Parcelas <small>(sem juros)</small></span><div class="ma-opcoes">${['1','2','3'].map(n => opcao('parcelas', n, `${n}x`, parcelas === Number(n))).join('')}</div></div>` : ''}
     ${e.metodo !== 'cartao' ? `<div class="ma-grupo"><label for="ma-cpf">CPF ou CNPJ <small>(a Asaas exige no boleto e no Pix)</small></label><input id="ma-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="000.000.000-00" value="${escHTML(e.cpf || '')}" oninput="maMascaraDocumento(this);_maEscolha.cpf=this.value"></div>` : ''}
     ${anual ? '' : `<div class="ma-grupo"><label for="ma-cupom">Cupom <small>(opcional)</small></label><input id="ma-cupom" type="text" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ex.: FR20-7KQ2" value="${escHTML(e.cupom)}" oninput="_maEscolha.cupom=this.value.trim().toUpperCase()"></div>`}
-    <div class="ma-resumo"><span>Total</span><b>${fmtR(preco)}${anual ? '/ano' : '/mês'}</b></div>
+    <div class="ma-resumo"><span>Total</span><b>${fmtR(preco)}${anual ? '/ano' : '/mês'}${anualCartao ? `<small style="display:block">${parcelas > 1 ? `${parcelas}x de ${fmtR(preco / parcelas)} sem juros` : 'à vista'}</small>` : ''}</b></div>
     ${!anual && e.cupom ? '<p class="ma-nota">O desconto do cupom aparece na primeira fatura.</p>' : ''}
-    ${anual ? '<p class="ma-nota">Pagamento único por Pix. O plano vale por 12 meses e não renova sozinho.</p>' : '<p class="ma-nota">Renova todo mês. Cancele quando quiser em Minha assinatura.</p>'}
+    ${anual ? `<p class="ma-nota">${anualCartao ? 'No cartão, à vista ou em até 3x sem juros.' : 'Pagamento único por Pix.'} O plano vale por 12 meses e não renova sozinho.</p>` : '<p class="ma-nota">Renova todo mês. Cancele quando quiser em Minha assinatura.</p>'}
     <div id="ma-msg" class="msg"></div>
     <div class="btn-row"><button class="btn primary" id="btn-ma-confirmar" type="button" onclick="confirmarEscolhaPlano()">Continuar para o pagamento</button><button class="btn" type="button" onclick="closeModal('modal-ma-plano')">Voltar</button></div>
   </div>`;
@@ -259,14 +262,14 @@ async function confirmarEscolhaPlano(){
   }
   btn.disabled = true; btn.textContent = 'Preparando o pagamento…'; msg.textContent = ''; msg.className = 'msg';
   try{
-    const r = await maChamar('/minha-assinatura', { plano: e.plano, periodo: e.periodo, metodo: e.metodo, ...(cpf ? { cpf } : {}), ...(e.periodo === 'mensal' && e.cupom ? { cupom: e.cupom } : {}) });
+    const r = await maChamar('/minha-assinatura', { plano: e.plano, periodo: e.periodo, metodo: e.metodo, ...(e.periodo === 'anual' && e.metodo === 'cartao' ? { parcelas: Number(e.parcelas) || 1 } : {}), ...(cpf ? { cpf } : {}), ...(e.periodo === 'mensal' && e.cupom ? { cupom: e.cupom } : {}) });
     const m = document.getElementById('modal-ma-plano');
     const nomePlano = (MA_PLANOS.find(p => p.id === r.plano) || {}).nome || r.plano;
     const link = /^https:\/\//.test(r.linkPagamento || '') ? r.linkPagamento : '';
     m.innerHTML = `<div class="modal ma-modal" role="dialog" aria-modal="true" aria-labelledby="ma-ok-tit">
       <h3 id="ma-ok-tit">Falta só pagar</h3>
       <p class="ma-nota">Plano <b>${escHTML(nomePlano)}</b> ${r.periodo === 'anual' ? 'anual' : 'mensal'}. Assim que o pagamento for confirmado, ele é liberado na hora e você recebe um e-mail.</p>
-      <div class="ma-resumo"><span>${r.valorPrimeiroMes ? '1º mês com cupom' : 'Valor'}</span><b>${fmtR(r.valorPrimeiroMes || r.valor)}${r.periodo === 'anual' ? '' : (r.valorPrimeiroMes ? `<small> depois ${fmtR(r.valor)}/mês</small>` : '/mês')}</b></div>
+      <div class="ma-resumo"><span>${r.valorPrimeiroMes ? '1º mês com cupom' : 'Valor'}</span><b>${fmtR(r.valorPrimeiroMes || r.valor)}${r.periodo === 'anual' ? (r.parcelas > 1 ? `<small style="display:block">${r.parcelas}x de ${fmtR(r.valor / r.parcelas)} sem juros</small>` : '') : (r.valorPrimeiroMes ? `<small> depois ${fmtR(r.valor)}/mês</small>` : '/mês')}</b></div>
       ${r.pix ? `${r.pix.qrCode ? `<img class="ma-qr" src="data:image/png;base64,${escHTML(r.pix.qrCode)}" alt="QR Code do Pix">` : ''}
         <label class="ma-nota" for="ma-pix">Pix copia e cola</label><textarea id="ma-pix" class="ma-pix" readonly>${escHTML(r.pix.copiaEcola || '')}</textarea>
         <div class="btn-row"><button class="btn primary" type="button" onclick="copiarPixMA(this)">Copiar código Pix</button></div>`

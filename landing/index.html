@@ -780,7 +780,7 @@ body.modal-aberto{overflow:hidden}
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Como é feito o pagamento? <span>+</span></button>
-        <div class="faq-a">Via cartão de crédito ou boleto no plano mensal, e Pix no plano anual — tudo processado pelo Asaas. Seguro, rápido e sem dados do cartão armazenados no sistema.</div>
+        <div class="faq-a">Via cartão de crédito ou boleto no plano mensal, e Pix ou cartão em até 3x sem juros no plano anual — tudo processado pelo Asaas. Seguro, rápido e sem dados do cartão armazenados no sistema.</div>
       </div>
     </div>
   </div>
@@ -1012,8 +1012,14 @@ function abrirModalCadastro(plano, periodo){
   const metodos = document.getElementById('modal-metodos');
   if(metodos){
     metodos.style.display = isGratuito ? 'none' : 'block';
-    // Anual: só Pix | Mensal: cartão + boleto
-    document.getElementById('metodo-cartao').style.display = isAnual ? 'none' : 'flex';
+    // Anual: Pix ou cartão em até 3x sem juros | Mensal: cartão + boleto
+    document.getElementById('metodo-cartao').style.display = 'flex';
+    document.getElementById('metodo-cartao-txt').textContent = isAnual ? '💳 Cartão de crédito (até 3x sem juros)' : '💳 Cartão de crédito (mensal automático)';
+    if(isAnual){
+      const p = document.getElementById('modal-parcelas');
+      p.innerHTML = [1,2,3].map(n => `<option value="${n}">${n}x de R$ ${(valor/n).toFixed(2).replace('.',',')}${n>1?' sem juros':' (à vista)'}</option>`).join('');
+      p.value = '1';
+    }
     document.getElementById('metodo-boleto').style.display = isAnual ? 'none' : 'flex';
     document.getElementById('metodo-pix').style.display = isAnual ? 'flex' : 'none';
     document.getElementById('metodo-pix-anual').style.display = isAnual ? 'block' : 'none';
@@ -1081,13 +1087,18 @@ function mascaraDocumento(el){
     ? d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2')
     : d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/,'$1.$2.$3/$4-$5');
 }
-// O campo de CPF só aparece no boleto e no Pix (anual)
+// O campo de CPF só aparece no boleto e no Pix; no anual com cartão aparecem as parcelas
 function atualizarCampoCpf(){
   const plano = document.getElementById('modal-plano-input').value;
   const periodo = document.getElementById('modal-periodo-input').value;
   const m = document.querySelector('input[name="metodo"]:checked');
-  const precisa = plano !== 'gratuito' && (periodo === 'anual' || (m && m.value === 'boleto'));
+  const precisa = plano !== 'gratuito' && !!m && (m.value === 'boleto' || m.value === 'pix');
   document.getElementById('modal-cpf-wrap').style.display = precisa ? 'block' : 'none';
+  const anualCartao = plano !== 'gratuito' && periodo === 'anual' && !!m && m.value === 'cartao';
+  document.getElementById('metodo-parcelas-wrap').style.display = anualCartao ? 'block' : 'none';
+  document.getElementById('metodo-pix-anual').textContent = anualCartao
+    ? '✓ Após o cadastro, você paga na página segura da Asaas. Sua conta é ativada assim que o pagamento for confirmado.'
+    : '✓ Você receberá um QR Code Pix após o cadastro. Sua conta é ativada assim que o pagamento for confirmado.';
   return precisa;
 }
 document.addEventListener('change', e => { if(e.target && e.target.name === 'metodo') atualizarCampoCpf(); });
@@ -1140,7 +1151,8 @@ async function confirmarCadastro(){
       body = {nome, email, senha, ...contato, moeda: MOEDA, idioma: IDIOMA};   // conta da Austrália nasce em A$ (e-mails no idioma)
     } else if(periodo === 'anual'){
       endpoint = '/assinar-anual';
-      body = {nome, email, senha, plano, cpf, ...contato};
+      const parcelas = metodo === 'cartao' ? Number(document.getElementById('modal-parcelas').value) || 1 : 1;
+      body = {nome, email, senha, plano, metodoPagamento: metodo, parcelas, ...(cpf ? { cpf } : {}), ...contato};
     } else {
       endpoint = '/assinar';
       body = {nome, email, senha, plano, metodoPagamento: metodo, ...(cpf ? { cpf } : {}), ...contato, ...(CUPOM_LINK ? { cupom: CUPOM_LINK } : {})};
@@ -1179,8 +1191,8 @@ async function confirmarCadastro(){
     document.getElementById('modal-sucesso').style.display='block';
     document.getElementById('modal-sucesso-plano').textContent =
       plano==='gratuito' ? 'Gratuito — 30 dias' :
-      PLANO_NOME[plano]+(periodo==='anual'?' Anual':' Mensal');
-    // Plano mensal: mostra o link da fatura para pagar já
+      PLANO_NOME[plano]+(periodo==='anual'?' Anual'+(data.parcelas>1?` em ${data.parcelas}x sem juros`:''):' Mensal');
+    // Plano mensal ou anual no cartão: mostra o link da fatura para pagar já
     const pagar = document.getElementById('modal-sucesso-pagar');
     const link = /^https:\/\//.test(data.linkPagamento || '') ? data.linkPagamento : '';
     pagar.style.display = link ? 'block' : 'none';
@@ -1407,8 +1419,13 @@ if(window.matchMedia('(pointer:fine)').matches){
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px">Forma de pagamento</label>
           <div style="display:flex;flex-direction:column;gap:7px">
             <label id="metodo-cartao" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:9px;cursor:pointer">
-              <input type="radio" name="metodo" value="cartao" style="accent-color:#C8A96E"> <span style="font-size:13px">💳 Cartão de crédito (mensal automático)</span>
+              <input type="radio" name="metodo" value="cartao" style="accent-color:#C8A96E"> <span id="metodo-cartao-txt" style="font-size:13px">💳 Cartão de crédito (mensal automático)</span>
             </label>
+            <!-- Anual no cartão: em quantas vezes (máximo 3x, sem juros) -->
+            <div id="metodo-parcelas-wrap" style="display:none">
+              <select id="modal-parcelas" aria-label="Parcelas no cartão"
+                style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none"></select>
+            </div>
             <label id="metodo-boleto" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:9px;cursor:pointer">
               <input type="radio" name="metodo" value="boleto" style="accent-color:#C8A96E"> <span style="font-size:13px">📄 Boleto bancário (mensal)</span>
             </label>
