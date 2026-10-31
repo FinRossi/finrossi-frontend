@@ -731,7 +731,7 @@ function hexParaRgba(hex, alpha){
 
 
 
-// Cor personalizada (Patrimônio) = o FUNDO do app inteiro, como os temas Azul/Preto.
+// Cor personalizada (todos os planos) = o FUNDO do app inteiro, como os temas Azul/Preto.
 // O dourado continua sendo o destaque em qualquer cor. Cor clara (ex.: dourado, bege) vira
 // um fundo claro no tom escolhido, com letras pretas e destaque num dourado escuro.
 const _VARS_COR_FUNDO = ['--bg','--surface','--surface2','--surface3','--surface4','--border','--border2',
@@ -918,10 +918,14 @@ function renderCoresPatrimonio(){
   atualizarSeletorCoresUI(corAtual);
 }
 
+// Cores do app: liberadas em todos os planos, até no Gratuito (desde 31/10/2026).
+// Atalhos e organização do dashboard continuam só no Patrimônio (patrimonioTemAcesso).
+function coresTemAcesso(){ return true; }
+
 function initPatrimonioCores(){
   const wrap = document.getElementById('patrimonio-cores-wrap');
   if(!wrap) return;
-  const permitido = patrimonioTemAcesso();
+  const permitido = coresTemAcesso();
   wrap.style.display = permitido ? 'block' : 'none';
   // Plano sem personalização (ex.: deixou de ser Patrimônio): tira a cor aplicada na abertura
   if(!permitido){ if(document.documentElement.hasAttribute('data-cor-fundo')) limparCorTema(false); return; }
