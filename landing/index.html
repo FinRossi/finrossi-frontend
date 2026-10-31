@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=4"></script>
+<script src="../js/i18n.js?v=5"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -74,6 +74,11 @@
 #cursor-fx-dot.cfx-hover{box-shadow:0 0 10px var(--gold),0 0 22px var(--gold)}
 .cursor-fx-ripple{position:fixed;top:0;left:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--gold);pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(0);opacity:.7;animation:cfx-ripple .5s ease-out forwards}
 @keyframes cfx-ripple{to{transform:translate(-50%,-50%) scale(3);opacity:0}}
+/* Cadastro: campo obrigatório vazio ou errado */
+.campo-erro{border-color:#ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+.campo-vibra{animation:campo-vibra .42s ease}
+@keyframes campo-vibra{0%,100%{transform:translateX(0)}15%,55%{transform:translateX(-6px)}35%,75%{transform:translateX(6px)}90%{transform:translateX(-2px)}}
+@media (prefers-reduced-motion:reduce){.campo-vibra{animation:none}}
 html{font-size:16px;scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 .num{font-variant-numeric:tabular-nums}
@@ -1039,7 +1044,7 @@ function abrirModalCadastro(plano, periodo){
   }
   atualizarCampoCpf();
 
-  ['modal-nome','modal-email','modal-senha','modal-whats','modal-cpf'].forEach(id=>document.getElementById(id).value='');
+  CAMPOS_CADASTRO.forEach(id=>{ const el=document.getElementById(id); el.value=''; el.classList.remove('campo-erro','campo-vibra'); });
   // Veio da tela de login ("ainda não tem conta?"): o e-mail que a pessoa digitou já vem preenchido
   try{ const em=sessionStorage.getItem('fin_email_cadastro'); if(em){ document.getElementById('modal-email').value=em; sessionStorage.removeItem('fin_email_cadastro'); } }catch(e){}
   document.getElementById('modal-consent').checked = false;
@@ -1141,17 +1146,18 @@ async function confirmarCadastro(){
   const metodoEl = document.querySelector('input[name="metodo"]:checked');
   const metodo   = metodoEl ? metodoEl.value : 'cartao';
 
-  if(!nome||!email||!senha){ showModalMsg('Preencha todos os campos.','err'); return; }
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showModalMsg('Email inválido — verifique o formato.','err'); return; }
-  if(senha.length < 6){ showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
+  const vazios = CAMPOS_CADASTRO.filter(id => { const el = document.getElementById(id); return el.offsetParent !== null && !el.value.trim(); });
+  if(vazios.length){ marcarCampos(vazios); showModalMsg(vazios.length > 1 ? 'Preencha os campos destacados em vermelho.' : 'Preencha o campo destacado em vermelho.','err'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ marcarCampos(['modal-email']); showModalMsg('Email inválido — verifique o formato.','err'); return; }
+  if(senha.length < 6){ marcarCampos(['modal-senha']); showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
   const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
   if(MOEDA === 'AUD' ? (telefone.length < 9 || telefone.length > 10) : (telefone.length < 10 || telefone.length > 11)){   // obrigatório
-    showModalMsg(!telefone ? (MOEDA === 'AUD' ? 'Informe seu celular — ex.: 0412 345 678.' : 'Informe seu WhatsApp com DDD.') : MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
+    marcarCampos(['modal-whats']); showModalMsg(!telefone ? (MOEDA === 'AUD' ? 'Informe seu celular — ex.: 0412 345 678.' : 'Informe seu WhatsApp com DDD.') : MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
   }
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
   const cpf = atualizarCampoCpf() ? document.getElementById('modal-cpf').value.replace(/\D/g,'') : '';
-  if(atualizarCampoCpf() && cpf.length !== 11 && cpf.length !== 14){ showModalMsg(`Informe seu CPF (ou CNPJ) — a Asaas exige no ${metodo === 'pix' ? 'Pix' : 'boleto'}.`,'err'); return; }
+  if(atualizarCampoCpf() && cpf.length !== 11 && cpf.length !== 14){ marcarCampos(['modal-cpf']); showModalMsg(`Informe seu CPF (ou CNPJ) — a Asaas exige no ${metodo === 'pix' ? 'Pix' : 'boleto'}.`,'err'); return; }
 
   btn.textContent='Criando conta...'; btn.disabled=true;
 
@@ -1241,6 +1247,29 @@ function copiarPix(){
   } else {
     fallback();
   }
+}
+
+// Campos obrigatórios do cadastro (o CPF só conta quando está aparecendo)
+const CAMPOS_CADASTRO = ['modal-nome','modal-email','modal-senha','modal-whats','modal-cpf'];
+// Pulou o campo sem preencher: borda vermelha, sem mensagem. Começou a digitar: volta ao normal
+document.addEventListener('focusout', e => {
+  const el = e.target;
+  if(el && CAMPOS_CADASTRO.includes(el.id) && !el.value.trim() && document.getElementById('modal-cadastro')?.classList.contains('open')) el.classList.add('campo-erro');
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if(el && CAMPOS_CADASTRO.includes(el.id) && el.value.trim()) el.classList.remove('campo-erro');
+});
+// Ao tentar criar a conta: os campos com problema ficam vermelhos e tremem
+function marcarCampos(ids){
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.add('campo-erro');
+    el.classList.remove('campo-vibra'); void el.offsetWidth;   // reinicia a animação se tremer de novo
+    el.classList.add('campo-vibra');
+    el.addEventListener('animationend', () => el.classList.remove('campo-vibra'), { once: true });
+  });
 }
 
 function showModalMsg(texto, tipo){
