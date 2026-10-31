@@ -418,7 +418,7 @@ I18N_EN_ADD({
   'Criar conta grátis': 'Create a free account', 'Gratuito para começar. Sem cartão de crédito.': 'Free to start. No credit card needed.',
   'Controle suas receitas, despesas, investimentos e metas em um só lugar. Simples, inteligente e acessível.': 'Track your income, expenses, investments and goals in one place. Simple, smart and affordable.',
   'Controle financeiro pessoal simples e inteligente. Receitas, despesas, investimentos e metas — tudo em um só lugar, no celular e no computador.': 'Simple, smart personal finance. Income, expenses, investments and goals — all in one place, on your phone and computer.',
-  'Controle financeiro pessoal': 'Personal finance', '— Controle financeiro pessoal simples e inteligente': '— Simple, smart personal finance',
+  'Controle financeiro pessoal': 'Personal finance', '— Controle financeiro pessoal simples e inteligente': '— Simple, smart personal finance', '— Aplicativo para construir sua riqueza': '— The app for building your wealth',
   // Telinha do app (exemplo)
   'Saldo do mês': 'Balance this month', 'Patrimônio líquido': 'Net worth', '↑ 4,2% no mês': '↑ 4.2% this month', 'R$ 31.400': '$31,400', 'R$ 48.320': '$48,320',
   'R$ 6.800': '$6,800', 'R$ 900': '$900', 'R$ 900,00': '$900.00', 'R$ 100,00': '$100.00', 'R$ 99,00': '$99.00', 'R$ 21,90': '$21.90', 'R$ 44,90': '$44.90',
@@ -479,7 +479,7 @@ I18N_EN_ADD({
   'WhatsApp': 'Mobile', 'Quero receber dicas, lembretes e ofertas do FinRossi por e-mail e WhatsApp. Posso cancelar quando quiser.': 'I’d like tips, reminders and offers from FinRossi by email and SMS. I can opt out anytime.',
   'Ao criar sua conta você concorda com nossos': 'By creating an account you agree to our', 'termos de uso': 'terms of use', 'e': 'and', 'política de privacidade': 'privacy policy',
   'Conta criada!': 'Account created!', 'Criando conta...': 'Creating account...', 'Preencha todos os campos.': 'Please fill in all fields.',
-  'A senha deve ter pelo menos 6 caracteres.': 'Your password must be at least 6 characters.', 'Celular inválido — ex.: 0412 345 678.': 'Invalid mobile number — e.g. 0412 345 678.',
+  'A senha deve ter pelo menos 6 caracteres.': 'Your password must be at least 6 characters.', 'Celular inválido — ex.: 0412 345 678.': 'Invalid mobile number — e.g. 0412 345 678.', 'Informe seu celular — ex.: 0412 345 678.': 'Enter your mobile number — e.g. 0412 345 678.',
   'Email já cadastrado': 'This email already has an account', 'Informe seu nome.': 'Enter your name.', 'Muitas tentativas. Aguarde alguns minutos e tente de novo.': 'Too many attempts. Wait a few minutes and try again.',
   'Os planos pagos em A$ chegam em breve. Comece pelo teste grátis': 'Paid plans in AUD are coming soon. Start with the free trial',
   // Rodapé

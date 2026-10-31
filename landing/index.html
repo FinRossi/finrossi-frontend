@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=3"></script>
+<script src="../js/i18n.js?v=4"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -809,7 +809,7 @@ body.modal-aberto{overflow:hidden}
     <div class="footer-grid">
       <div class="footer-marca">
         <img src="../img/icon-192.png?v=5" width="36" height="36" alt="FinRossi">
-        <p><strong translate="no">Fin<b>Rossi</b></strong> — Controle financeiro pessoal simples e inteligente</p>
+        <p><strong translate="no">Fin<b>Rossi</b></strong> — Aplicativo para construir sua riqueza</p>
       </div>
       <p class="footer-links">
         <a href="legal/privacidade.html">Política de Privacidade</a>
@@ -991,6 +991,16 @@ function assinar(plano){
   abrirModalCadastro(plano, _periodoAtual);
 }
 
+// Ícones do cadastro (traço dourado, no lugar dos emojis): um para cada plano e para o cupom
+const ICONE_SVG = d => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONE_PLANO = {
+  gratuito:   '<path d="M7 20h10"/><path d="M12 20v-8"/><path d="M12 12c0-3.5-2.5-6-7-6 0 3.5 2.5 6 7 6Z"/><path d="M12 12c0-3 2-5.5 6.5-5.5 0 3-2 5.5-6.5 5.5Z"/>',
+  essencial:  '<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v3"/><path d="M3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M21 12h-4a2 2 0 0 0 0 4h4Z"/>',
+  evolucao:   '<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+  patrimonio: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+};
+const ICONE_CUPOM = '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/>';
+
 // ─── Modal de cadastro ────────────────────────────────────────────────────────
 function abrirModalCadastro(plano, periodo){
   // Austrália (A$): a cobrança pela Asaas é só em reais. Até a Paddle entrar, plano pago abre o teste grátis com aviso
@@ -1004,8 +1014,9 @@ function abrirModalCadastro(plano, periodo){
   document.getElementById('modal-periodo-input').value = isAnual ? 'anual' : 'mensal';
   document.getElementById('modal-plano-nome').textContent =
     isGratuito ? 'Gratuito — 30 dias grátis' :
-    EM_REAIS ? `${PLANO_NOME[plano]} — ${isAnual ? 'R$'+valor.toFixed(2)+'/ano (20% off)' : 'R$'+valor.toFixed(2)+'/mês'}`
+    EM_REAIS ? `${PLANO_NOME[plano]} — R$ ${valor.toFixed(2).replace('.', ',')}${isAnual ? '/ano (20% off)' : '/mês'}`
              : `${PLANO_NOME[plano]} — ${fmtMoeda(valor, 2)}${isAnual ? (IDIOMA === 'en' ? '/year (20% off)' : '/ano (20% off)') : (IDIOMA === 'en' ? '/month' : '/mês')}`;
+  document.getElementById('modal-plano-icone').innerHTML = ICONE_SVG(ICONE_PLANO[plano] || ICONE_PLANO.gratuito);
   window._avisoPagoEmBreve = pagoEmBreve;
 
   // Métodos de pagamento
@@ -1014,7 +1025,7 @@ function abrirModalCadastro(plano, periodo){
     metodos.style.display = isGratuito ? 'none' : 'block';
     // Anual: Pix ou cartão em até 3x sem juros | Mensal: cartão + boleto
     document.getElementById('metodo-cartao').style.display = 'flex';
-    document.getElementById('metodo-cartao-txt').textContent = isAnual ? '💳 Cartão de crédito (até 3x sem juros)' : '💳 Cartão de crédito (mensal automático)';
+    document.getElementById('metodo-cartao-txt').textContent = isAnual ? 'Cartão de crédito (até 3x sem juros)' : 'Cartão de crédito (mensal automático)';
     if(isAnual){
       const p = document.getElementById('modal-parcelas');
       p.innerHTML = [1,2,3].map(n => `<option value="${n}">${n}x de R$ ${(valor/n).toFixed(2).replace('.',',')}${n>1?' sem juros':' (à vista)'}</option>`).join('');
@@ -1037,7 +1048,7 @@ function abrirModalCadastro(plano, periodo){
   const cupomEl = document.getElementById('modal-cupom');
   const comCupom = CUPOM_LINK && !isGratuito && !isAnual;
   cupomEl.style.display = comCupom ? 'block' : 'none';
-  if(comCupom) cupomEl.textContent = `🎁 Cupom ${CUPOM_LINK} aplicado: desconto no primeiro mês (aparece na fatura).`;
+  if(comCupom) cupomEl.innerHTML = `<span style="display:inline-flex;vertical-align:-5px;margin-right:6px">${ICONE_SVG(ICONE_CUPOM)}</span>Cupom ${CUPOM_LINK} aplicado: desconto no primeiro mês (aparece na fatura).`;   // CUPOM_LINK: só letras e números
   document.getElementById('modal-msg').style.display='none';
   if(window._avisoPagoEmBreve) showModalMsg('Os planos pagos em A$ chegam em breve. Comece pelo teste grátis.', 'ok');
   if(MOEDA === 'AUD') document.getElementById('modal-whats').placeholder = '0412 345 678';
@@ -1134,8 +1145,8 @@ async function confirmarCadastro(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showModalMsg('Email inválido — verifique o formato.','err'); return; }
   if(senha.length < 6){ showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
   const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
-  if(MOEDA === 'AUD' ? (telefone && (telefone.length < 9 || telefone.length > 10)) : (telefone && (telefone.length < 10 || telefone.length > 11))){
-    showModalMsg(MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
+  if(MOEDA === 'AUD' ? (telefone.length < 9 || telefone.length > 10) : (telefone.length < 10 || telefone.length > 11)){   // obrigatório
+    showModalMsg(!telefone ? (MOEDA === 'AUD' ? 'Informe seu celular — ex.: 0412 345 678.' : 'Informe seu WhatsApp com DDD.') : MOEDA === 'AUD' ? 'Celular inválido — ex.: 0412 345 678.' : 'WhatsApp inválido — use DDD + número.','err'); return;
   }
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
@@ -1360,7 +1371,7 @@ if(window.matchMedia('(pointer:fine)').matches){
     <div class="modal-logo" style="text-align:center;margin-bottom:28px">
       <img src="../img/icon-192.png?v=5" width="44" height="44" alt="FinRossi" style="display:block;margin:0 auto 10px">
       <div translate="no" style="font-family:var(--serif);font-size:30px;color:#f5f0e8;letter-spacing:-1px">Fin<span style="color:#C8A96E">Rossi</span></div>
-      <div style="font-size:12px;color:#555;margin-top:4px">Controle financeiro pessoal</div>
+      <div style="font-size:12px;color:#555;margin-top:4px">Aplicativo para construir sua riqueza</div>
     </div>
 
     <!-- Card -->
@@ -1368,7 +1379,7 @@ if(window.matchMedia('(pointer:fine)').matches){
 
       <!-- Plano selecionado -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;padding:10px 14px;background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.2);border-radius:10px">
-        <div style="font-size:20px">✨</div>
+        <div id="modal-plano-icone" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;border-radius:9px;background:rgba(200,169,110,0.10)"></div>
         <div>
           <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px">Plano selecionado</div>
           <div style="font-size:14px;font-weight:500;color:#C8A96E" id="modal-plano-nome">—</div>
@@ -1401,7 +1412,7 @@ if(window.matchMedia('(pointer:fine)').matches){
             onkeydown="if(event.key==='Enter')confirmarCadastro()">
         </div>
         <div style="margin-bottom:14px">
-          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">WhatsApp <span style="text-transform:none;letter-spacing:0;color:#555">(opcional)</span></label>
+          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">WhatsApp</label>
           <input id="modal-whats" type="tel" placeholder="(11) 98765-4321" autocomplete="tel-national" inputmode="tel" maxlength="16"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
@@ -1420,7 +1431,7 @@ if(window.matchMedia('(pointer:fine)').matches){
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px">Forma de pagamento</label>
           <div style="display:flex;flex-direction:column;gap:7px">
             <label id="metodo-cartao" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:9px;cursor:pointer">
-              <input type="radio" name="metodo" value="cartao" style="accent-color:#C8A96E"> <span id="metodo-cartao-txt" style="font-size:13px">💳 Cartão de crédito (mensal automático)</span>
+              <input type="radio" name="metodo" value="cartao" style="accent-color:#C8A96E"> <span style="display:inline-flex;vertical-align:-4px;margin-right:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg></span><span id="metodo-cartao-txt" style="font-size:13px">Cartão de crédito (mensal automático)</span>
             </label>
             <!-- Anual no cartão: em quantas vezes (máximo 3x, sem juros) -->
             <div id="metodo-parcelas-wrap" style="display:none">
@@ -1428,10 +1439,10 @@ if(window.matchMedia('(pointer:fine)').matches){
                 style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none"></select>
             </div>
             <label id="metodo-boleto" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:9px;cursor:pointer">
-              <input type="radio" name="metodo" value="boleto" style="accent-color:#C8A96E"> <span style="font-size:13px">📄 Boleto bancário (mensal)</span>
+              <input type="radio" name="metodo" value="boleto" style="accent-color:#C8A96E"> <span style="display:inline-flex;vertical-align:-4px;margin-right:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14"/><path d="M7 5v14"/><path d="M10 5v14"/><path d="M14 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></svg></span><span style="font-size:13px">Boleto bancário (mensal)</span>
             </label>
             <label id="metodo-pix" style="display:none;align-items:center;gap:10px;padding:10px 12px;background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:9px;cursor:pointer">
-              <input type="radio" name="metodo" value="pix" style="accent-color:#C8A96E"> <span style="font-size:13px">📱 Pix</span>
+              <input type="radio" name="metodo" value="pix" style="accent-color:#C8A96E"> <span style="display:inline-flex;vertical-align:-4px;margin-right:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12Z"/><path d="M12 8l4 4-4 4-4-4Z"/></svg></span><span style="font-size:13px">Pix</span>
             </label>
             <div id="metodo-pix-anual" style="display:none;font-size:11px;color:#888;padding:6px 4px">
               ✓ Você receberá um QR Code Pix após o cadastro. Sua conta é ativada assim que o pagamento for confirmado.
@@ -1460,7 +1471,7 @@ if(window.matchMedia('(pointer:fine)').matches){
 
       <!-- Área QR Code Pix -->
       <div id="modal-pix-area" style="display:none;text-align:center">
-        <div style="font-size:36px;margin-bottom:12px">📱</div>
+        <div style="display:flex;justify-content:center;margin-bottom:12px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg></div>
         <div style="font-family:var(--serif);font-size:20px;margin-bottom:6px;color:#f0ede8">Pague com Pix</div>
         <div style="font-size:13px;color:#888;margin-bottom:4px">Plano: <span id="pix-plano" style="color:#C8A96E;font-weight:500"></span></div>
         <div style="font-size:20px;font-weight:600;color:#C8A96E;margin-bottom:16px" id="pix-valor"></div>
@@ -1475,7 +1486,7 @@ if(window.matchMedia('(pointer:fine)').matches){
 
       <!-- Sucesso -->
       <div id="modal-sucesso" style="display:none;text-align:center;padding:10px 0">
-        <div style="font-size:48px;margin-bottom:16px">🎉</div>
+        <div style="display:flex;justify-content:center;margin-bottom:16px"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></div>
         <div style="font-family:var(--serif);font-size:22px;margin-bottom:10px;color:#f0ede8">Conta criada!</div>
         <div style="font-size:13px;color:#888;margin-bottom:6px" id="modal-sucesso-rotulo">Plano ativado:</div>
         <div style="font-size:15px;font-weight:500;color:#C8A96E;margin-bottom:24px" id="modal-sucesso-plano">—</div>

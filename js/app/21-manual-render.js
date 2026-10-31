@@ -5,7 +5,7 @@ function renderManual(){
     <div class="card card-full" style="margin-bottom:16px;border-color:var(--ced-gravura,#c8a96e55)">
       <div style="margin-bottom:10px">
         <div style="font-family:var(--ced-serif,'Bodoni Moda',serif);font-weight:500;font-size:24px;letter-spacing:-.3px">Bem-vindo ao FinRossi</div>
-        <div style="font-size:13px;color:var(--muted)">Controle financeiro pessoal simples e inteligente</div>
+        <div style="font-size:13px;color:var(--muted)">Aplicativo para construir sua riqueza</div>
       </div>
       <p style="font-size:13px;color:var(--muted);line-height:1.7">Este manual explica cada funcionalidade do app. Navegue pelas seções abaixo para aprender a usar tudo. Se tiver dúvidas, entre em contato pelo suporte.</p>
     </div>
@@ -53,7 +53,7 @@ function exportarManualPDF(){
   </head><body>
     <div style="text-align:center;margin-bottom:32px;padding:24px;background:#f9fafb;border-radius:12px">
       <h1>Manual de uso do FinRossi</h1>
-      <p style="color:#6b7280;margin-top:8px">Controle financeiro pessoal simples e inteligente</p>
+      <p style="color:#6b7280;margin-top:8px">Aplicativo para construir sua riqueza</p>
     </div>
     ${conteudo}
   </body></html>`);

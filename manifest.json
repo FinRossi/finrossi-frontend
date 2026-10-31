@@ -1,7 +1,7 @@
 {
   "name": "FinRossi",
   "short_name": "FinRossi",
-  "description": "Controle financeiro pessoal simples e inteligente",
+  "description": "Aplicativo para construir sua riqueza",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

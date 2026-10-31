@@ -28,7 +28,7 @@
     document.documentElement.classList.add('i18n-espera');
     setTimeout(function(){ document.documentElement.classList.remove('i18n-espera'); }, 2500);
     var s = document.createElement('script');
-    s.src = '/js/i18n-en.js?v=3';
+    s.src = '/js/i18n-en.js?v=4';
     s.onload = function(){ if(window.iniciarTraducao) window.iniciarTraducao(); };
     s.onerror = function(){ document.documentElement.classList.remove('i18n-espera'); };
     document.head.appendChild(s);
