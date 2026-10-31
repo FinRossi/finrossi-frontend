@@ -2033,8 +2033,8 @@ if(window.matchMedia('(pointer:fine)').matches){
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">WhatsApp</label>
           <input id="modal-whats" type="tel" placeholder="(11) 98765-4321" autocomplete="tel-national" inputmode="tel" maxlength="16"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
-            onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
-            oninput="mascaraWhats(this);conferirWhats(false)" onblur="conferirWhats(true)">
+            onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';conferirWhats(true)"
+            oninput="mascaraWhats(this);conferirWhats(false)">
           <div id="whats-dica" class="campo-dica" aria-live="polite"></div>
         </div>
         <!-- Autorização de contato (LGPD): sem ela, só recebe avisos da conta e de pagamento -->
