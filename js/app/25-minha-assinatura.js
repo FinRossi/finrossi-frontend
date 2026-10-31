@@ -222,7 +222,7 @@ function desenharEscolhaPlano(){
     <div class="ma-grupo"><span>Cobrança</span><div class="ma-opcoes">${opcao('periodo', 'mensal', 'Mensal', !anual)}${opcao('periodo', 'anual', 'Anual · 20% off', anual)}</div></div>
     <div class="ma-grupo"><span>Pagamento</span><div class="ma-opcoes">${anual ? opcao('metodo', 'pix', 'Pix', e.metodo === 'pix') + opcao('metodo', 'cartao', 'Cartão (até 3x)', e.metodo === 'cartao') : opcao('metodo', 'cartao', 'Cartão de crédito', e.metodo === 'cartao') + opcao('metodo', 'boleto', 'Boleto', e.metodo === 'boleto')}</div></div>
     ${anualCartao ? `<div class="ma-grupo"><span>Parcelas <small>(sem juros)</small></span><div class="ma-opcoes">${['1','2','3'].map(n => opcao('parcelas', n, `${n}x`, parcelas === Number(n))).join('')}</div></div>` : ''}
-    ${e.metodo !== 'cartao' ? `<div class="ma-grupo"><label for="ma-cpf">CPF ou CNPJ <small>(a Asaas exige no boleto e no Pix)</small></label><input id="ma-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="000.000.000-00" value="${escHTML(e.cpf || '')}" oninput="maMascaraDocumento(this);_maEscolha.cpf=this.value"></div>` : ''}
+    ${e.metodo !== 'cartao' ? `<div class="ma-grupo"><label for="ma-cpf">CPF ou CNPJ <small>(a Asaas exige no ${e.metodo === 'pix' ? 'Pix' : 'boleto'})</small></label><input id="ma-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="000.000.000-00" value="${escHTML(e.cpf || '')}" oninput="maMascaraDocumento(this);_maEscolha.cpf=this.value"></div>` : ''}
     ${anual ? '' : `<div class="ma-grupo"><label for="ma-cupom">Cupom <small>(opcional)</small></label><input id="ma-cupom" type="text" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ex.: FR20-7KQ2" value="${escHTML(e.cupom)}" oninput="_maEscolha.cupom=this.value.trim().toUpperCase()"></div>`}
     <div class="ma-resumo"><span>Total</span><b>${fmtR(preco)}${anual ? '/ano' : '/mês'}${anualCartao ? `<small style="display:block">${parcelas > 1 ? `${parcelas}x de ${fmtR(preco / parcelas)} sem juros` : 'à vista'}</small>` : ''}</b></div>
     ${!anual && e.cupom ? '<p class="ma-nota">O desconto do cupom aparece na primeira fatura.</p>' : ''}
@@ -256,7 +256,7 @@ async function confirmarEscolhaPlano(){
   const e = _maEscolha;
   const cpf = e.metodo !== 'cartao' ? String(e.cpf || '').replace(/\D/g, '') : '';
   if(e.metodo !== 'cartao' && cpf.length !== 11 && cpf.length !== 14){
-    msg.textContent = 'Informe seu CPF (ou CNPJ) — a Asaas exige no boleto e no Pix.'; msg.className = 'msg err';
+    msg.textContent = `Informe seu CPF (ou CNPJ) — a Asaas exige no ${e.metodo === 'pix' ? 'Pix' : 'boleto'}.`; msg.className = 'msg err';
     const campo = document.getElementById('ma-cpf'); if(campo) campo.focus();
     return;
   }

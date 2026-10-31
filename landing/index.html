@@ -1094,6 +1094,7 @@ function atualizarCampoCpf(){
   const m = document.querySelector('input[name="metodo"]:checked');
   const precisa = plano !== 'gratuito' && !!m && (m.value === 'boleto' || m.value === 'pix');
   document.getElementById('modal-cpf-wrap').style.display = precisa ? 'block' : 'none';
+  document.getElementById('modal-cpf-dica').textContent = m && m.value === 'pix' ? '(exigido no Pix)' : '(exigido no boleto)';   // anual não tem boleto
   const anualCartao = plano !== 'gratuito' && periodo === 'anual' && !!m && m.value === 'cartao';
   document.getElementById('metodo-parcelas-wrap').style.display = anualCartao ? 'block' : 'none';
   document.getElementById('metodo-pix-anual').textContent = anualCartao
@@ -1139,7 +1140,7 @@ async function confirmarCadastro(){
   const consentimento = document.getElementById('modal-consent').checked;
   const contato = { telefone, consentimento };
   const cpf = atualizarCampoCpf() ? document.getElementById('modal-cpf').value.replace(/\D/g,'') : '';
-  if(atualizarCampoCpf() && cpf.length !== 11 && cpf.length !== 14){ showModalMsg('Informe seu CPF (ou CNPJ) — a Asaas exige no boleto e no Pix.','err'); return; }
+  if(atualizarCampoCpf() && cpf.length !== 11 && cpf.length !== 14){ showModalMsg(`Informe seu CPF (ou CNPJ) — a Asaas exige no ${metodo === 'pix' ? 'Pix' : 'boleto'}.`,'err'); return; }
 
   btn.textContent='Criando conta...'; btn.disabled=true;
 
@@ -1440,7 +1441,7 @@ if(window.matchMedia('(pointer:fine)').matches){
 
         <!-- CPF/CNPJ: a Asaas exige no boleto e no Pix (no cartão, a página de pagamento pede) -->
         <div id="modal-cpf-wrap" style="display:none;margin-bottom:16px">
-          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">CPF ou CNPJ <span style="text-transform:none;letter-spacing:0;color:#555">(exigido no boleto e no Pix)</span></label>
+          <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">CPF ou CNPJ <span id="modal-cpf-dica" style="text-transform:none;letter-spacing:0;color:#555">(exigido no boleto e no Pix)</span></label>
           <input id="modal-cpf" type="text" placeholder="000.000.000-00" inputmode="numeric" autocomplete="off" maxlength="18"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
