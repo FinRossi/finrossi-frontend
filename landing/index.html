@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=6"></script>
+<script src="../js/i18n.js?v=7"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -229,6 +229,24 @@ section{padding:110px 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-size:12px;padding:6px 11px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--text)}
 .chip b{color:var(--gold-light);font-weight:500;margin-left:4px}
+/* Selo do plano nos cartões de recursos */
+.fc-selo{display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--gold-s);color:var(--gold-light);border:1px solid rgba(201,168,76,.25);margin-bottom:10px}
+/* Lançamento por foto: comprovante sendo lido */
+.foto-leitura{display:grid;grid-template-columns:86px 1fr;gap:16px;align-items:center}
+.foto-cupom{position:relative;width:86px;height:112px;overflow:hidden;border-radius:4px}
+.foto-cupom svg{display:block;width:100%;height:100%}
+.foto-scan{position:absolute;left:0;right:0;top:0;height:2px;background:var(--gold-light);box-shadow:0 0 10px var(--gold),0 0 18px rgba(201,168,76,.5);animation:foto-scan 2.6s ease-in-out infinite}
+@keyframes foto-scan{0%,100%{top:6%}50%{top:88%}}
+.foto-campos .mini-linha{padding:5px 0}
+.foto-campos .mini-linha span:last-child{color:var(--text)}
+.feature-card .mini-linha{gap:12px}.feature-card .mini-linha span:last-child{text-align:right}
+@media(prefers-reduced-motion:reduce){.foto-scan{animation:none;top:50%}}
+/* Personalize: amostras de tema */
+.pers-cores{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pers-cores i{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.pers-cores i.ativa{box-shadow:0 0 0 2px var(--app-bg),0 0 0 3.5px var(--gold)}
+.pers-link{color:var(--gold-light);text-decoration:none;font-size:12px}
+.pers-link:hover{text-decoration:underline}
 .barras{display:flex;align-items:flex-end;gap:7px;height:90px}
 .barras i{flex:1;border-radius:5px 5px 2px 2px;background:rgba(255,255,255,0.08)}
 .barras i.g{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
@@ -566,6 +584,47 @@ body.modal-aberto{overflow:hidden}
             <span><i class="ponto" style="background:var(--blue)"></i> Renda variável <b>38%</b></span>
             <span>Total investido <b>R$ 31.400</b></span>
           </div>
+        </div>
+      </div>
+
+      <!-- Lançamento por foto -->
+      <div class="feature-card b-3">
+        <div>
+          <span class="fc-selo">Planos Evolução e Patrimônio</span>
+          <h3>Lançamento por foto</h3>
+          <p>Fotografe a nota, o cupom ou o comprovante do Pix: o FinRossi lê o valor, a data, o estabelecimento e a categoria. Você confere e salva, sem digitar. A foto não sai do seu celular.</p>
+        </div>
+        <div class="mini foto-leitura num">
+          <div class="foto-cupom" aria-hidden="true">
+            <svg viewBox="0 0 86 112"><path d="M4 2h78v100l-6.5 6-6.5-6-6.5 6-6.5-6-6.5 6-6.5-6-6.5 6-6.5-6-6.5 6-6.5-6-6.5 6L4 102Z" fill="#f2ede2"/>
+              <g fill="#b9b2a3"><rect x="22" y="10" width="42" height="5" rx="1"/><rect x="14" y="22" width="58" height="3" rx="1"/><rect x="14" y="32" width="40" height="3" rx="1"/><rect x="60" y="32" width="12" height="3" rx="1"/><rect x="14" y="40" width="34" height="3" rx="1"/><rect x="60" y="40" width="12" height="3" rx="1"/><rect x="14" y="48" width="44" height="3" rx="1"/><rect x="60" y="48" width="12" height="3" rx="1"/><rect x="14" y="56" width="30" height="3" rx="1"/><rect x="60" y="56" width="12" height="3" rx="1"/></g>
+              <g fill="#5a5345"><rect x="14" y="70" width="22" height="5" rx="1"/><rect x="52" y="70" width="20" height="5" rx="1"/></g>
+              <g fill="#b9b2a3"><rect x="14" y="84" width="58" height="3" rx="1"/><rect x="24" y="91" width="38" height="3" rx="1"/></g></svg>
+            <span class="foto-scan"></span>
+          </div>
+          <div class="foto-campos">
+            <div class="mini-linha"><span>Estabelecimento</span><span>Mercado Bom Preço</span></div>
+            <div class="mini-linha"><span>Valor</span><span class="menos">− R$ 186,40</span></div>
+            <div class="mini-linha"><span>Data</span><span>28/10/2026</span></div>
+            <div class="mini-linha"><span>Categoria</span><span>Mercado</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personalize do seu jeito -->
+      <div class="feature-card b-3">
+        <div>
+          <span class="fc-selo">Cor livre e atalhos: Plano Patrimônio</span>
+          <h3>Personalize do seu jeito</h3>
+          <p>Deixe o app com a sua cara. Em todos os planos você escolhe o tema e os itens do menu; no Patrimônio, qualquer cor de fundo e os atalhos da tela inicial.</p>
+        </div>
+        <div class="mini num">
+          <div class="pers-cores" aria-hidden="true"><i class="ativa" style="background:#0f0f0f"></i><i style="background:#000"></i><i style="background:#f5f5f7"></i><i style="background:#0d1117"></i><i style="background:#1f4d3a"></i><i style="background:#5c1f2e"></i><i style="background:#3d2b63"></i><i style="background:#d9c7a3"></i></div>
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Tema</span><span class="ouro">Escuro, All Black, Claro ou Azul</span></div>
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Itens do menu</span><span class="ouro">Mostre só o que usa</span></div>
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Qualquer cor de fundo</span><span class="ouro">Do jeito que preferir</span></div>
+          <div class="mini-linha"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Atalhos da tela inicial</span><span class="ouro">Na ordem que preferir</span></div>
+          <div style="margin-top:10px"><a class="pers-link" href="#topo-celular" onclick="event.preventDefault();document.getElementById('personalizar').scrollIntoView({behavior:'smooth',block:'center'})">Teste as cores no celular lá em cima ↑</a></div>
         </div>
       </div>
 
