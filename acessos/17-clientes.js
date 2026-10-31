@@ -231,7 +231,7 @@ async function renderClientes(){
         const interno=ROLES_INTERNOS_TBL.includes(c.role);
         const rb=ROLE_BADGE[c.role]||ROLE_BADGE.cliente;
         return`<tr style="border-bottom:1px solid var(--border);${interno?'background:rgba(200,169,110,0.04)':''}">
-          <td style="padding:10px;font-weight:${interno?500:400}">${escHTML(c.nome||'—')}</td>
+          <td style="padding:10px;font-weight:${interno?500:400}"><span class="pres-dot" data-pres="${escHTML(c.uid)}"></span>${escHTML(c.nome||'—')}</td>
           <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${rb[1]}18;color:${rb[1]}">${rb[2]}</span></td>
           <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">—</span>':`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${escHTML(c.plano||'—')}</span>`}</td>
@@ -248,6 +248,7 @@ async function renderClientes(){
           </div>`}</td>
         </tr>`;}).join('')}</tbody>
     </table></div>`;
+    if(typeof presencaNaTabela === 'function') presencaNaTabela();   // bolinha online/offline (js/app/40-painel-negocio.js)
 
   }catch(e){
     tabela.innerHTML=erroServidorHTML(e.message, 'renderClientes()');

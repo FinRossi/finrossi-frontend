@@ -115,7 +115,7 @@
     // O index.html já pede esses arquivos com antecedência (modulepreload).
     const [
       { initializeApp },
-      { getDatabase, ref, set, onValue, runTransaction },
+      { getDatabase, ref, set, onValue, runTransaction, onDisconnect, serverTimestamp },
       { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, RecaptchaVerifier, linkWithPhoneNumber }
     ] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
@@ -135,7 +135,30 @@
 
     const db = getDatabase(app);
     const auth = getAuth(app);
-    window._firebase = { db, ref, set, onValue, runTransaction, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, RecaptchaVerifier, linkWithPhoneNumber, firebaseOk: true };
+    window._firebase = { db, ref, set, onValue, runTransaction, onDisconnect, serverTimestamp, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, RecaptchaVerifier, linkWithPhoneNumber, firebaseOk: true };
+
+    // Presença: online enquanto o app está aberto e conectado. Ao fechar ou perder a internet, o
+    // servidor da Firebase grava sozinho "offline" e a hora (onDisconnect). Só a equipe lê (regra presenca/).
+    let _presencaUid = null, _presencaParar = null;
+    const iniciarPresenca = uid => {
+      if(_presencaUid === uid) return;
+      _presencaUid = uid;
+      const pRef = ref(db, 'presenca/' + uid);
+      _presencaParar = onValue(ref(db, '.info/connected'), s => {
+        if(s.val() !== true) return;
+        onDisconnect(pRef).set({ online: false, vistoEm: serverTimestamp() })
+          .then(() => set(pRef, { online: true, desde: serverTimestamp(), vistoEm: serverTimestamp() }))
+          .catch(() => {});
+      });
+    };
+    // "Sair": marca offline antes de desconectar (depois do logout não dá mais para gravar)
+    window._presencaSair = async () => {
+      if(!_presencaUid) return;
+      const pRef = ref(db, 'presenca/' + _presencaUid);
+      try{ await set(pRef, { online: false, vistoEm: serverTimestamp() }); await onDisconnect(pRef).cancel(); }catch(e){}
+      try{ if(_presencaParar) _presencaParar(); }catch(e){}
+      _presencaUid = null; _presencaParar = null;
+    };
 
     onAuthStateChanged(auth, async (user) => {
       if(!iniciou){ iniciou = true; }
@@ -200,6 +223,7 @@
               .then(() => localStorage.setItem(chaveAcesso, String(Date.now()))).catch(() => {});
           }
         }catch(e){}
+        try{ iniciarPresenca(user.uid); }catch(e){}
         setTimeout(()=>{ try{ initCursorFx(); }catch(e){} }, 150);
         setTimeout(()=>{ try{ initAvatar(); }catch(e){} }, 300);
         setTimeout(()=>{ try{ iniciarSistemaNotificacoes(); }catch(e){} }, 1000);

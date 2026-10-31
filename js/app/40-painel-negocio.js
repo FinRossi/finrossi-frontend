@@ -24,6 +24,66 @@ function atualizarMenuGestao(){
   atualizarMenuGestao();
 })();
 
+// ─── Presença (online agora / última vez visto) ───────────────────────────────
+// presenca/<uid> = { online, desde, vistoEm } — o app de cada pessoa grava (js/firebase-init.js).
+let _presenca = {}, _presencaParar = null;
+const _presencaAvisar = [];
+function assinarPresenca(cb){
+  if(cb && !_presencaAvisar.includes(cb)) _presencaAvisar.push(cb);
+  const f = window._firebase;
+  if(_presencaParar || !f || !f.firebaseOk || !f.db) { if(cb) cb(_presenca); return; }
+  _presencaParar = f.onValue(f.ref(f.db, 'presenca'), s => {
+    _presenca = s.val() || {};
+    _presencaAvisar.forEach(fn => { try{ fn(_presenca); }catch(e){} });
+  }, () => {});
+}
+function textoPresenca(p){
+  if(!p) return { on: false, txt: 'nunca visto' };
+  const agora = Date.now();
+  const min = t => Math.max(0, Math.round((agora - t) / 60000));
+  const tempo = m => m < 1 ? 'agora' : m < 60 ? m + ' min' : m < 1440 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : '') : Math.floor(m / 1440) + ' dia(s)';
+  if(p.online) return { on: true, txt: 'online há ' + tempo(min(p.desde || p.vistoEm || agora)) };
+  if(!p.vistoEm) return { on: false, txt: 'nunca visto' };
+  const d = new Date(p.vistoEm), hojeD = new Date(); const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+  const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if(min(p.vistoEm) < 60) return { on: false, txt: 'visto há ' + tempo(min(p.vistoEm)) };
+  if(d.toDateString() === hojeD.toDateString()) return { on: false, txt: 'visto hoje às ' + hora };
+  if(d.toDateString() === ontem.toDateString()) return { on: false, txt: 'visto ontem às ' + hora };
+  return { on: false, txt: 'visto em ' + d.toLocaleDateString('pt-BR') + ' às ' + hora };
+}
+// Tela Clientes: bolinha verde (online) ou cinza, com a última vez visto ao passar o mouse
+function presencaNaTabela(){
+  assinarPresenca(_pintarTabelaPresenca);
+  _pintarTabelaPresenca(_presenca);
+}
+function _pintarTabelaPresenca(p){
+  document.querySelectorAll('.pres-dot[data-pres]').forEach(el => {
+    const t = textoPresenca(p[el.dataset.pres]);
+    el.classList.toggle('on', t.on); el.title = t.txt; el.setAttribute('aria-label', t.txt);
+  });
+}
+// Painel do negócio: quem está online (clientes e equipe) e quem foi visto por último
+function _renderOnline(){
+  const box = document.getElementById('neg-online');
+  if(!box) return;
+  const todos = window._clientesCache || [];
+  const linha = c => { const t = textoPresenca(_presenca[c.uid]); return `<div class="neg-item"><div class="neg-item-txt"><b><span class="pres-dot${t.on ? ' on' : ''}"></span>${escHTML(c.nome || c.email)}</b><small>${escHTML(t.txt)}${c.plano && !ROLES_EQUIPE.includes(c.role) ? ' · ' + escHTML(NEG_NOME_PLANO[c.plano] || c.plano) : ''}${ROLES_EQUIPE.includes(c.role) ? ' · ' + escHTML({ master:'Master', socio:'Sócio', admin:'Admin', dev:'Dev' }[c.role] || c.role) : ''}</small></div>${!ROLES_EQUIPE.includes(c.role) ? `<div class="neg-item-acoes"><button class="btn xs" type="button" onclick="editarCliente('${escHTML(c.uid)}')">Ver</button></div>` : ''}</div>`; };
+  const online = todos.filter(c => _presenca[c.uid] && _presenca[c.uid].online);
+  const cliOn = online.filter(c => !ROLES_EQUIPE.includes(c.role)), eqOn = online.filter(c => ROLES_EQUIPE.includes(c.role));
+  const recentes = todos.filter(c => !ROLES_EQUIPE.includes(c.role) && _presenca[c.uid] && !_presenca[c.uid].online && _presenca[c.uid].vistoEm)
+    .sort((a, b) => _presenca[b.uid].vistoEm - _presenca[a.uid].vistoEm).slice(0, 6);
+  box.innerHTML = `
+    <div class="neg-online-grade">
+      <div><div class="neg-sub"><span class="pres-dot on"></span>Clientes online <b>${cliOn.length}</b></div>${cliOn.length ? `<div class="neg-lista">${cliOn.map(linha).join('')}</div>` : '<p class="neg-vazio">Nenhum cliente com o app aberto agora.</p>'}</div>
+      <div><div class="neg-sub"><span class="pres-dot on"></span>Equipe online <b>${eqOn.length}</b></div>${eqOn.length ? `<div class="neg-lista">${eqOn.map(linha).join('')}</div>` : '<p class="neg-vazio">Ninguém da equipe online agora.</p>'}</div>
+      <div><div class="neg-sub"><span class="pres-dot"></span>Vistos por último</div>${recentes.length ? `<div class="neg-lista">${recentes.map(linha).join('')}</div>` : '<p class="neg-vazio">Ainda sem registros (começa a contar a partir de agora).</p>'}</div>
+    </div>`;
+}
+setInterval(() => {   // atualiza o "há X min" sem precisar recarregar
+  if(document.getElementById('neg-online') && !document.getElementById('sec-negocio')?.classList.contains('section-hidden')) _renderOnline();
+  if(document.querySelector('.pres-dot[data-pres]')) _pintarTabelaPresenca(_presenca);
+}, 60000);
+
 const NEG_PRECO = () => (typeof PRECOS_PLANO !== 'undefined' ? PRECOS_PLANO.BRL : { mensal:{ essencial:9.90, evolucao:24.90, patrimonio:49.90 }, anual:{ essencial:95.04, evolucao:239.04, patrimonio:479.04 } });
 const NEG_NOME_PLANO = { gratuito:'Gratuito', essencial:'Essencial', evolucao:'Evolução', patrimonio:'Patrimônio' };
 const _negDia = s => String(s || '').slice(0, 10);
@@ -110,6 +170,11 @@ async function renderNegocio(){
       </div>
     </div>
 
+    <div class="card neg-bloco">
+      <div class="neg-tit"><h3>Quem está online</h3><span>atualiza sozinho</span></div>
+      <div id="neg-online"></div>
+    </div>
+
     <div class="neg-grade">
       <div class="card neg-bloco">
         <div class="neg-tit"><h3>Receita</h3>${variacao == null ? '' : selo((variacao >= 0 ? '↑ ' : '↓ ') + Math.abs(variacao) + '% vs. mês passado', variacao >= 0 ? 'green' : 'red')}</div>
@@ -145,6 +210,9 @@ async function renderNegocio(){
           .map(([rot, n, sub, cls], i, arr) => `<div class="neg-etapa ${cls}"><div class="neg-barra" style="width:${Math.max(6, cadastros ? n / cadastros * 100 : 0)}%"></div><div class="neg-etapa-txt"><span>${rot}</span><b>${n}</b><small>${sub}</small></div></div>`).join('')}
       </div>
     </div>`;
+
+  assinarPresenca(_renderOnline);
+  _renderOnline();
 
   // Gráfico de receita (o tema "cédula" do app se aplica sozinho)
   if(typeof destroyChart === 'function') destroyChart('negocio');

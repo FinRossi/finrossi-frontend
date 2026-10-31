@@ -150,6 +150,7 @@ async function fazerLogin(){
 async function fazerLogout(){
   try{
     const f=window._firebase;
+    try{ if(typeof window._presencaSair === 'function') await window._presencaSair(); }catch(e){}   // aparece offline na hora
     if(f&&f.firebaseOk) await f.signOut(f.auth);
   }catch(e){console.warn('logout err',e)}
 
