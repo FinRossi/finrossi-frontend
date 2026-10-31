@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=12"></script>
+<script src="../js/i18n.js?v=13"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -420,6 +420,32 @@ section{padding:110px 0}
 .plan-confianca{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin-top:16px;font-size:12.5px;color:var(--muted)}
 .plan-confianca span{display:inline-flex;align-items:center;gap:7px}
 .plan-confianca svg{color:var(--gold-light)}
+/* Em breve: FinRossi IA (borda com brilho que corre e uma conversa de exemplo) */
+.plan-ia{position:relative;margin:-8px 0 22px;padding:14px;border-radius:14px;background:linear-gradient(160deg,rgba(201,168,76,.10),rgba(201,168,76,.02) 60%);isolation:isolate}
+.plan-ia::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:conic-gradient(from var(--ia-ang,0deg),rgba(201,168,76,.15),rgba(232,197,96,.9),rgba(201,168,76,.15) 30%,rgba(201,168,76,.15));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ia-borda 5s linear infinite;z-index:-1}
+@property --ia-ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes ia-borda{to{--ia-ang:360deg}}
+.plan-ia-topo{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.plan-ia-nome,.plan-ia-selo{white-space:nowrap}
+.plan-ia-nome{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px;color:var(--gold-light)}
+.plan-ia-selo{font-size:10px;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:var(--gold);color:#0f0f0f;font-weight:700}
+.plan-ia-txt{font-size:12px;color:var(--muted);margin:6px 0 10px;line-height:1.45}
+.plan-ia-chat{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.ia-msg{max-width:88%;font-size:11.5px;line-height:1.35;padding:7px 10px;border-radius:12px}
+.ia-msg.eu{align-self:flex-end;background:var(--gold-s);color:var(--text);border-bottom-right-radius:4px;opacity:0;animation:ia-entra .4s .3s ease forwards}
+.ia-msg.ia{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);color:var(--text);border-bottom-left-radius:4px;opacity:0;animation:ia-entra .4s 1s ease forwards;min-height:28px;display:grid}
+.ia-msg.ia b{color:var(--gold-light);font-weight:600}
+.ia-msg.ia>span{grid-area:1/1}
+.ia-digitando{display:inline-flex;gap:3px;align-items:center;animation:ia-some .01s 2.6s forwards}
+.ia-digitando i{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:ia-ponto 1s infinite}
+.ia-digitando i:nth-child(2){animation-delay:.15s}.ia-digitando i:nth-child(3){animation-delay:.3s}
+.ia-resposta{opacity:0;animation:ia-entra .35s 2.6s ease forwards}
+@keyframes ia-entra{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes ia-some{to{opacity:0;visibility:hidden}}
+@keyframes ia-ponto{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-2px)}}
+.plan-ia-lista{list-style:none;display:flex;flex-direction:column;gap:7px;padding:0;margin:0}
+.plan-ia-lista li{position:relative;padding-left:16px;font-size:12px;color:var(--text);line-height:1.4}
+.plan-ia-lista li::before{content:'';position:absolute;left:2px;top:6px;width:6px;height:6px;border-radius:50%;background:var(--gold-light);box-shadow:0 0 8px rgba(232,197,96,.6)}
+@media(prefers-reduced-motion:reduce){.plan-ia::before{animation:none}.ia-msg.eu,.ia-msg.ia,.ia-resposta{animation:none;opacity:1}.ia-digitando{display:none}}
 
 /* ── FAQ ─────────────────────────────────────────────── */
 .faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
@@ -984,8 +1010,21 @@ body.modal-aberto{overflow:hidden}
           <li>Saúde do patrimônio: sua nota financeira</li>
           <li>Relatórios semanais e mensais em PDF</li>
           <li>Dashboard e atalhos organizados do seu jeito</li>
-          <li>Atendimento prioritário</li>
         </ul>
+        <!-- Em breve: FinRossi IA (anúncio; ainda não existe para clientes) -->
+        <div class="plan-ia">
+          <div class="plan-ia-topo"><span class="plan-ia-nome"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>FinRossi IA</span><span class="plan-ia-selo">Em breve</span></div>
+          <p class="plan-ia-txt">Uma assistente dentro do app, que entende o que você escreve.</p>
+          <div class="plan-ia-chat" aria-hidden="true">
+            <div class="ia-msg eu">Gastei 45 no mercado</div>
+            <div class="ia-msg ia"><span class="ia-digitando"><i></i><i></i><i></i></span><span class="ia-resposta">Pronto! Lancei <b>R$ 45,00</b> em Mercado, hoje.</span></div>
+          </div>
+          <ul class="plan-ia-lista">
+            <li>Lance gastos e receitas conversando</li>
+            <li>Tire dúvidas sobre o app e o seu plano na hora</li>
+            <li>Pergunte sobre os seus números: "quanto gastei com mercado?"</li>
+          </ul>
+        </div>
         <button class="plan-btn outline-btn" onclick="portalTransition(event,()=>assinar('patrimonio'))">Assinar Patrimônio</button>
       </div>
 
@@ -1026,7 +1065,7 @@ body.modal-aberto{overflow:hidden}
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Como funciona o plano Patrimônio? <span>+</span></button>
-        <div class="faq-a">O Patrimônio é o plano completo do FinRossi: tudo do Evolução mais a saúde do patrimônio, relatórios semanais e mensais em PDF, app personalizável do seu jeito e atendimento prioritário. O FinRossi é uma ferramenta de organização financeira: não presta consultoria nem recomenda investimentos.</div>
+        <div class="faq-a">O Patrimônio é o plano completo do FinRossi: tudo do Evolução mais a saúde do patrimônio, relatórios semanais e mensais em PDF, app personalizável do seu jeito e, em breve, a FinRossi IA. O FinRossi é uma ferramenta de organização financeira: não presta consultoria nem recomenda investimentos.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Como é feito o pagamento? <span>+</span></button>
