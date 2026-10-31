@@ -298,7 +298,9 @@ function lerComprovanteTexto(texto, categorias){
   for(const chave of CHAVES_TOTAL){
     for(let i = 0; i < LINHAS.length && valor == null; i++){
       if(!LINHAS[i].includes(chave) || IGNORAR.test(LINHAS[i])) continue;
-      const nums = _valoresDaLinha(linhas[i]).concat(i + 1 < linhas.length && !IGNORAR.test(LINHAS[i+1]) ? _valoresDaLinha(linhas[i+1]) : []);
+      // o número DEPOIS da palavra: "DINHEIRO R$ 50,00   TOTAL R$ 33,74" na mesma linha → 33,74
+      const depois = linhas[i].slice(Math.max(0, LINHAS[i].indexOf(chave)));
+      const nums = _valoresDaLinha(depois).concat(i + 1 < linhas.length && !IGNORAR.test(LINHAS[i+1]) ? _valoresDaLinha(linhas[i+1]) : []);
       if(nums.length) valor = nums[0];
     }
     if(valor != null) break;
@@ -342,7 +344,12 @@ function lerComprovanteTexto(texto, categorias){
     descricao = /[A-Za-zÀ-ú]{3}/.test(resto) ? resto : (linhas[i+1] || '');
   }
   if(!descricao){
-    const CABECALHO = /(CNPJ|CPF|\bIE\b|INSCRICAO|DOCUMENTO|CUPOM|NFC|NF-E|DANFE|CONSUMIDOR|AUXILIAR|ENDERECO|RUA |AV\.|AVENIDA|FONE|TEL|CEP|SAT|EXTRATO|COMPROVANTE|TRANSACAO|DATA|HORA|PROTOCOLO|CHAVE)/;
+    const CABECALHO = /(CNPJ|\bCPF\b|\bIE\b|INSCRICAO|DOCUMENTO|CUPOM|NFC|NF-E|DANFE|CONSUMIDOR|AUXILIAR|ENDERECO|RUA |AV\.|AVENIDA|FONE|TEL|CEP|SAT|EXTRATO|COMPROVANTE|TRANSACAO|DATA|HORA|PROTOCOLO|CHAVE)/;
+    // Primeiro, a linha com cara de razão social / nome de loja (LTDA, ME, Comércio, Supermercado…)
+    const LOJA = /(\bLTDA\b|\bEIRELI\b|\bME\b|\bEPP\b|\bS\/A\b|\bS\.A\b|COMERCIO|SUPERMERCADO|MERCADO|FARMACIA|DROGARIA|RESTAURANTE|PADARIA|LANCHONETE|POSTO|LOJA|NOME FANTASIA)/;
+    for(let i = 0; i < Math.min(LINHAS.length, 12) && !descricao; i++){
+      if(LOJA.test(LINHAS[i]) && !CABECALHO.test(LINHAS[i]) && (LINHAS[i].match(/[A-Z]/g) || []).length >= 4) descricao = linhas[i];
+    }
     for(let i = 0; i < Math.min(LINHAS.length, 8) && !descricao; i++){
       const letras = (LINHAS[i].match(/[A-Z]/g) || []).length;
       if(letras >= 4 && letras / LINHAS[i].length > .5 && !CABECALHO.test(LINHAS[i])) descricao = linhas[i];
