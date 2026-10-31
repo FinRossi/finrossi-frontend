@@ -427,7 +427,7 @@
 /* ── QR Code (aba do Master para mostrar e a pessoa escanear) ─────────────── */
 .qr-tela{display:flex;flex-direction:column;align-items:center;text-align:center;padding:12px 6px 24px;border-radius:24px;background:radial-gradient(120% 60% at 50% 0%,rgba(200,169,110,.14),transparent 60%)}
 .qr-logo{width:76px;height:76px;border-radius:20px;border:1.5px solid #C8A96E;box-shadow:0 0 24px rgba(200,169,110,.25)}
-.qr-marca{font-family:'Bodoni Moda','DM Serif Display',serif;font-size:34px;margin:14px 0 2px;letter-spacing:.3px}
+.qr-marca{font-family:'FR Cifrao','Bodoni Moda','DM Serif Display',serif;font-size:34px;margin:14px 0 2px;letter-spacing:.3px}
 .qr-marca b{color:#C8A96E;font-weight:500}
 .qr-slogan{color:var(--muted);font-size:14px;margin-bottom:22px}
 .qr-seg{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:4px;gap:4px;margin-bottom:22px;width:100%;max-width:320px}

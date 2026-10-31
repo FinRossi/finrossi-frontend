@@ -35,7 +35,7 @@
   }
   window.hachuraCedula = hachura;
 
-  const SERIF = "'Bodoni Moda','Didot','Bodoni 72',Georgia,serif";
+  const SERIF = "'FR Cifrao','Bodoni Moda','Didot','Bodoni 72',Georgia,serif";
   const COMPACTO = new Intl.NumberFormat(LOCALE, { notation: 'compact', maximumFractionDigits: 1 });
   const SANS  = "'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
 

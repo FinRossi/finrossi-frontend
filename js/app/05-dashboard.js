@@ -450,7 +450,7 @@ function refreshDash(){
             ctx.save();
             ctx.textAlign='center';
             ctx.textBaseline='middle';
-            ctx.font="500 22px 'Bodoni Moda',Georgia,serif";
+            ctx.font="500 22px 'FR Cifrao','Bodoni Moda',Georgia,serif";
             const corTxt=getComputedStyle(document.documentElement);   // segue a cor do texto do tema
             ctx.fillStyle=corTxt.getPropertyValue('--text').trim()||'#f0ede8';
             ctx.fillText(fmtR(catTotalVisivel(chart)).replace('R$\u00a0','R$ '), cx, cy-8);

@@ -3,8 +3,10 @@
    gravada no valor principal, roseta de guilhoché, totais secundários como extrato.
    Cores via var(--accent) → acompanham o tema escolhido no plano Patrimônio. */
 
+/* Cifrão de um risco só: o "$" vem da DM Sans; os números continuam na Bodoni (que desenha o $ com dois riscos) */
+@font-face{font-family:'FR Cifrao';font-style:normal;font-weight:300 700;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHQ.woff2) format('woff2');unicode-range:U+0024}
 :root{
-  --ced-serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;
+  --ced-serif:'FR Cifrao','Bodoni Moda','Didot','Bodoni 72',Georgia,serif;
   --ced-gravura:color-mix(in srgb,var(--accent) 34%,transparent);
   --ced-gravura-fina:color-mix(in srgb,var(--accent) 18%,transparent);
 }
