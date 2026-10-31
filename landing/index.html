@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=11"></script>
+<script src="../js/i18n.js?v=12"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -411,6 +411,15 @@ section{padding:110px 0}
 .plan-btn.free-btn:hover{background:var(--surface2)}
 .plan-tag-free{color:var(--green)!important;font-family:var(--serif);font-size:48px;line-height:1}
 .plan-nota{text-align:center;font-size:13px;color:var(--muted);margin-top:28px}
+/* Planos: preço por dia, economia no anual, "tudo do plano anterior, mais", faixa de confiança */
+.plan-dia{font-size:12px;color:var(--gold-light);margin:2px 0 12px}
+.plan-anual-nota{font-size:11px;color:var(--muted);margin:-4px 0 6px}
+.plan-anual-nota b{color:var(--green);font-weight:600}
+.plan-features li.plan-mais{color:var(--gold-light);font-weight:600;font-size:12.5px}
+.plan-features li.plan-mais::before{display:none}
+.plan-confianca{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.plan-confianca span{display:inline-flex;align-items:center;gap:7px}
+.plan-confianca svg{color:var(--gold-light)}
 
 /* ── FAQ ─────────────────────────────────────────────── */
 .faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
@@ -877,7 +886,7 @@ body.modal-aberto{overflow:hidden}
         <h2 class="section-title">Escolha o plano<br><em>ideal para você.</em></h2>
       </div>
       <div>
-        <p class="section-sub">Comece grátis. Faça upgrade quando quiser. Cancele a qualquer momento.</p>
+        <p class="section-sub">Comece grátis por 30 dias, sem cartão de crédito. Mude de plano ou cancele quando quiser, sem fidelidade.</p>
         <div class="periodo-wrap">
           <div style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:30px;padding:4px">
             <button id="toggle-mensal" onclick="setPeriodo('mensal')" style="padding:9px 20px;border:none;border-radius:24px;font-size:13px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:all .2s;background:#C8A96E;color:#0f0f0f">Mensal</button>
@@ -896,16 +905,16 @@ body.modal-aberto{overflow:hidden}
         <span class="plan-badge">Para experimentar</span>
         <div class="plan-name">Gratuito</div>
         <div class="plan-price" translate="no"><span class="plan-tag-free">R$0</span></div>
-        <p class="plan-desc">30 dias para conhecer a plataforma.</p>
+        <div class="plan-dia">30 dias para testar, sem cartão</div>
+        <p class="plan-desc">Para conhecer o FinRossi sem compromisso e ver, em poucos dias, para onde vai o seu dinheiro.</p>
         <ul class="plan-features">
           <li>Até 20 lançamentos</li>
-          <li>Receitas e despesas</li>
-          <li>Gráfico básico</li>
+          <li>Receitas e despesas com gráfico</li>
           <li>Notas e anotações</li>
+          <li>Tema e cores do app do seu jeito</li>
           <li class="no">Investimentos</li>
-          <li class="no">Metas e objetivos</li>
-          <li class="no">Calendário e recorrentes</li>
-          <li class="no">Suporte</li>
+          <li class="no">Metas, cartões e calendário</li>
+          <li class="no">Lançar por foto</li>
         </ul>
         <button class="plan-btn free-btn" onclick="portalTransition(event,()=>assinar('gratuito'))">Começar grátis</button>
       </div>
@@ -919,61 +928,62 @@ body.modal-aberto{overflow:hidden}
           <span class="amount" id="amount-essencial">9</span>
           <span class="period" id="period-essencial">,90/mês</span>
         </div>
-        <div id="anual-note-essencial" style="font-size:11px;color:var(--muted);margin:-4px 0 8px;display:none"></div>
-        <p class="plan-desc">Controle básico do dia a dia.</p>
+        <div id="anual-note-essencial" class="plan-anual-nota" style="display:none"></div>
+        <div class="plan-dia" id="dia-essencial"></div>
+        <p class="plan-desc">Para quem quer sair do aperto e saber exatamente para onde vai cada real.</p>
         <ul class="plan-features">
           <li>Lançamentos ilimitados</li>
-          <li>Receitas e despesas</li>
-          <li>Gráficos completos</li>
-          <li>Investimentos simples</li>
+          <li>Receitas e despesas por categoria</li>
+          <li>Gráficos completos do mês</li>
+          <li>Investimentos: total e distribuição da carteira</li>
           <li>Notas e anotações</li>
-          <li class="no">Metas e objetivos</li>
-          <li class="no">Calendário e recorrentes</li>
-          <li class="no">Suporte prioritário</li>
+          <li class="no">Metas, cartões e calendário</li>
+          <li class="no">Lançar por foto</li>
         </ul>
         <button class="plan-btn outline-btn" onclick="portalTransition(event,()=>assinar('essencial'))">Assinar Essencial</button>
       </div>
 
       <!-- EVOLUÇÃO -->
       <div class="plan-card featured">
-        <span class="plan-badge">Mais popular</span>
+        <span class="plan-badge">Recomendado</span>
         <div class="plan-name">Evolução</div>
         <div class="plan-price" translate="no">
           <span class="currency">R$</span>
           <span class="amount" id="amount-evolucao">24</span>
           <span class="period" id="period-evolucao">,90/mês</span>
         </div>
-        <div id="anual-note-evolucao" style="font-size:11px;color:var(--muted);margin:-4px 0 8px;display:none"></div>
-        <p class="plan-desc">Controle financeiro completo, do seu jeito.</p>
+        <div id="anual-note-evolucao" class="plan-anual-nota" style="display:none"></div>
+        <div class="plan-dia" id="dia-evolucao"></div>
+        <p class="plan-desc">Para quem quer organizar tudo e fazer o dinheiro sobrar no fim do mês.</p>
         <ul class="plan-features">
-          <li>Tudo do Essencial</li>
-          <li>Metas de investimento</li>
-          <li>Objetivos diários e mensais</li>
-          <li>Calendário financeiro</li>
-          <li>Cartões de crédito</li>
-          <li>Assinaturas e recorrentes</li>
-          <li>Calculadora renda passiva</li>
-          <li>Lançar por foto, com anexos</li>
+          <li class="plan-mais">Tudo do Essencial, mais:</li>
+          <li>Lançar por foto: fotografe a nota e pronto</li>
+          <li>Cartões de crédito: fatura e limite à vista</li>
+          <li>Contas recorrentes e assinaturas no automático</li>
+          <li>Calendário de vencimentos</li>
+          <li>Metas com simulação e objetivos</li>
+          <li>Calculadora de renda passiva</li>
         </ul>
         <button class="plan-btn gold-btn" onclick="portalTransition(event,()=>assinar('evolucao'))">Assinar Evolução</button>
       </div>
 
       <!-- PATRIMÔNIO -->
       <div class="plan-card">
-        <span class="plan-badge">Premium</span>
+        <span class="plan-badge">Completo</span>
         <div class="plan-name">Patrimônio</div>
         <div class="plan-price" translate="no">
           <span class="currency">R$</span>
           <span class="amount" id="amount-patrimonio">49</span>
           <span class="period" id="period-patrimonio">,90/mês</span>
         </div>
-        <div id="anual-note-patrimonio" style="font-size:11px;color:var(--muted);margin:-4px 0 8px;display:none"></div>
-        <p class="plan-desc">O FinRossi completo, com relatórios e a saúde do seu patrimônio.</p>
+        <div id="anual-note-patrimonio" class="plan-anual-nota" style="display:none"></div>
+        <div class="plan-dia" id="dia-patrimonio"></div>
+        <p class="plan-desc">Para quem quer construir patrimônio e acompanhar a própria evolução de perto.</p>
         <ul class="plan-features">
-          <li>Tudo do Evolução</li>
-          <li>Relatórios semanais e mensais</li>
-          <li>Saúde do seu patrimônio</li>
-          <li>App personalizável, do seu jeito</li>
+          <li class="plan-mais">Tudo do Evolução, mais:</li>
+          <li>Saúde do patrimônio: sua nota financeira</li>
+          <li>Relatórios semanais e mensais em PDF</li>
+          <li>Dashboard e atalhos organizados do seu jeito</li>
           <li>Atendimento prioritário</li>
         </ul>
         <button class="plan-btn outline-btn" onclick="portalTransition(event,()=>assinar('patrimonio'))">Assinar Patrimônio</button>
@@ -981,6 +991,12 @@ body.modal-aberto{overflow:hidden}
 
     </div>
     <p class="plan-nota">Pagamento por cartão, boleto ou Pix. Cancele quando quiser, sem fidelidade.</p>
+    <div class="plan-confianca">
+      <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>30 dias grátis, sem cartão</span>
+      <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Cancele quando quiser</span>
+      <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Pagamento seguro</span>
+      <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados são só seus</span>
+    </div>
   </div>
 </section>
 
@@ -1154,6 +1170,9 @@ function setPeriodo(p){
   document.getElementById('toggle-mensal').style.color = p==='mensal'?'#0f0f0f':'#888';
   document.getElementById('toggle-anual').style.background = p==='anual'?'#C8A96E':'transparent';
   document.getElementById('toggle-anual').style.color = p==='anual'?'#0f0f0f':'#888';
+  // selo "-20%": verde claro no fundo escuro; com o Anual escolhido (fundo dourado), fundo escuro para continuar legível
+  const selo = document.querySelector('#toggle-anual span');
+  if(selo){ selo.style.background = p==='anual' ? '#0f0f0f' : 'rgba(74,222,128,0.15)'; selo.style.color = '#4ade80'; }
   renderPlanPrices();
 }
 
@@ -1176,15 +1195,22 @@ function renderPlanPrices(){
       periodEl.textContent = sep+decPart+porMes;
       if(noteEl){
         noteEl.style.display = 'block';
-        noteEl.textContent = EM_REAIS
-          ? `R$ ${PLANO_ANUAL[p].toFixed(2).replace('.',',')} cobrado uma vez por ano`
-          : `${fmtMoeda(PLANO_ANUAL[p], 2)} ${IDIOMA === 'en' ? 'billed once a year' : 'cobrado uma vez por ano'}`;
+        const economia = PLANO_MENSAL[p] * 12 - PLANO_ANUAL[p];
+        noteEl.innerHTML = IDIOMA === 'en'
+          ? `${fmtMoeda(PLANO_ANUAL[p], 2)} billed once a year · <b>save ${fmtMoeda(economia, 2)}</b>`
+          : `${fmtMoeda(PLANO_ANUAL[p], 2)} cobrado uma vez por ano · <b>economize ${fmtMoeda(economia, 2)}</b>`;
       }
     } else {
       const [intPart, decPart] = PLANO_MENSAL[p].toFixed(2).split('.');
       amountEl.textContent = intPart;
       periodEl.textContent = sep+decPart+porMes;
       if(noteEl) noteEl.style.display = 'none';
+    }
+    // Quanto sai por dia (ajuda a ver o tamanho do investimento)
+    const diaEl = document.getElementById('dia-'+p);
+    if(diaEl){
+      const porDia = anual ? PLANO_ANUAL[p] / 365 : PLANO_MENSAL[p] / 30;
+      diaEl.textContent = IDIOMA === 'en' ? `Only ${fmtMoeda(porDia, 2)} a day` : `Só ${fmtMoeda(porDia, 2)} por dia`;
     }
   });
 }
