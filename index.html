@@ -1862,13 +1862,14 @@ try{
     </div>
 
     <div class="form-row">
-      <!-- Origem -->
+      <!-- Perfil do cliente: só leitura. Teste = criado pela equipe; Pago = entra sozinho quando o pagamento é confirmado -->
       <div class="field">
-        <label>Origem</label>
-        <select id="ec-origem">
-          <option value="teste">Teste gratuito</option>
-          <option value="trial">Trial (auto)</option>
-          <option value="pagante">Pagante</option>
+        <label>Perfil</label>
+        <select id="ec-origem" disabled title="O perfil pago entra sozinho quando o pagamento é confirmado">
+          <option value="teste">Teste (sem cobrança)</option>
+          <option value="trial">Teste grátis 30 dias (cadastro pela landing)</option>
+          <option value="pagante">Pago (automático, pelo pagamento)</option>
+          <option value="cancelado">Cancelado</option>
         </select>
       </div>
       <!-- Vencimento -->
@@ -2010,20 +2011,19 @@ try{
       <div class="form-row">
         <div class="field"><label>Plano</label>
           <select id="nc-plano">
-            <option value="gratuito">Gratuito (trial)</option>
+            <option value="gratuito">Gratuito</option>
             <option value="essencial">Essencial — R$9,90</option>
             <option value="evolucao">Evolução — R$24,90</option>
             <option value="patrimonio">Patrimônio — R$49,90</option>
           </select>
         </div>
-        <div class="field"><label>Origem</label>
-          <select id="nc-origem">
+        <div class="field"><label>Perfil</label>
+          <select id="nc-origem" disabled>
             <option value="teste">Teste (sem cobrança)</option>
-            <option value="trial">Trial 30 dias</option>
-            <option value="pagante">Pagante</option>
           </select>
         </div>
       </div>
+      <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">Cadastro feito aqui é sempre um <b>perfil de teste</b>, sem cobrança. O <b>perfil pago</b> entra sozinho quando a pessoa assina e o pagamento é confirmado.</p>
     </div>
     <div id="nc-campos-equipe" style="display:none">
       <div style="background:var(--accent-s);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:8px">
@@ -2159,7 +2159,7 @@ try{
 <script src="planos/evolucao/14-notas.js?v=9"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=7"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=20"></script>
+<script src="acessos/17-clientes.js?v=21"></script>
 <script src="acessos/17b-socios.js?v=6"></script>
 <script src="planos/18-regras-planos.js?v=11"></script>
 <script src="acessos/19-preview-planos.js?v=9"></script>

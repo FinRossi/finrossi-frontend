@@ -185,7 +185,6 @@ async function renderClientes(){
     // cargo gravados (ele é reconhecido pelo login): conta como equipe também.
     const ehEquipe=c=>ROLES_EQUIPE.includes(c.role)||(!c.email&&!c.role);
     const clientesReais=clientes.filter(c=>!ehEquipe(c));
-    const equipeInterna=clientes.filter(ehEquipe);
 
     // Filtros
     const filtroStatus=document.getElementById('cli-filtro-status')?.value||'';
@@ -204,7 +203,7 @@ async function renderClientes(){
 
     document.getElementById('clientes-metrics').innerHTML=`
       <div class="mc"><div class="mc-label">Pagantes ativos</div><div class="mc-val green">${pagantes.length}</div><div class="mc-sub">geram receita</div></div>
-      <div class="mc"><div class="mc-label">Em trial</div><div class="mc-val amber">${emTrial.length}</div><div class="mc-sub">30 dias grátis</div></div>
+      <div class="mc"><div class="mc-label">Em teste grátis</div><div class="mc-val amber">${emTrial.length}</div><div class="mc-sub">30 dias grátis</div></div>
       <div class="mc" id="cli-card-online"><div class="mc-label"><span class="pres-dot on"></span>Online agora</div><div class="mc-val green" id="cli-online-n">—</div><div class="mc-sub" id="cli-online-sub">carregando…</div></div>
       <div class="mc"><div class="mc-label">Inativos</div><div class="mc-val red">${inativos.length}</div><div class="mc-sub">contas desativadas</div></div>
       <div class="mc"><div class="mc-label">MRR</div><div class="mc-val green">${fmtR(mrr)}</div><div class="mc-sub">receita mensal</div></div>
@@ -222,36 +221,34 @@ async function renderClientes(){
     const PLANO_CORES={gratuito:'var(--muted)',essencial:'var(--blue)',evolucao:'var(--green)',patrimonio:'var(--accent)'};
     const STATUS_CORES={ativo:'var(--green)',trial:'var(--amber)',inativo:'var(--red)',pendente:'var(--amber)'};
     const ROLE_BADGE={master:['','var(--accent)','Master'],socio:['','var(--accent)','Sócio'],admin:['','var(--purple)','Admin'],dev:['','var(--blue)','Dev'],cliente:['','var(--muted)','Cliente']};
-    const ROLES_INTERNOS_TBL=ROLES_EQUIPE;
 
     tabela.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead><tr style="border-bottom:1px solid var(--border)">
         <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Nome</th>
-        <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Email</th>
+        <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Email</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Plano</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Status</th>
-        <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Origem</th>
+        <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Perfil</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Cadastro</th>
         <th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Ações</th>
       </tr></thead>
       <tbody>${lista.map(c=>{
-        const interno=ROLES_INTERNOS_TBL.includes(c.role);
         const rb=ROLE_BADGE[c.role]||ROLE_BADGE.cliente;
-        return`<tr style="border-bottom:1px solid var(--border);${interno?'background:rgba(200,169,110,0.04)':''}">
-          <td style="padding:10px;font-weight:${interno?500:400}"><span class="pres-dot" data-pres="${escHTML(c.uid)}"></span>${escHTML(c.nome||'—')}</td>
-          <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
-          <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">—</span>':`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${escHTML(c.plano||'—')}</span>`}</td>
+        return`<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:10px"><span class="pres-dot" data-pres="${escHTML(c.uid)}"></span>${escHTML(c.nome||'—')}</td>
+          <td style="padding:10px;color:var(--muted);font-size:12px">${escHTML(c.email)}</td>
+          <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${PLANO_CORES[c.plano]||'var(--muted)'}18;color:${PLANO_CORES[c.plano]||'var(--muted)'}">${escHTML(c.plano||'—')}</span></td>
           <td style="padding:10px;text-align:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${STATUS_CORES[c.status]||'var(--muted)'}18;color:${STATUS_CORES[c.status]||'var(--muted)'}">${escHTML(c.status||'—')}</span></td>
-          <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${interno?'Interno':c.origem==='teste'?'Teste':c.origem==='trial'?'Trial':'Pagante'}</td>
+          <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.origem==='teste'?'Teste':c.origem==='trial'?'Teste grátis':c.origem==='cancelado'?'Cancelado':c.status==='pendente'?'Aguardando pagamento':'Pago'}</td>
           <td style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">${c.dataCadastro?c.dataCadastro.slice(0,10):'—'}</td>
-          <td style="padding:10px;text-align:center">${interno?'<span style="font-size:11px;color:var(--muted)">Equipe</span>':`<div style="display:flex;gap:4px;justify-content:center">
+          <td style="padding:10px;text-align:center"><div style="display:flex;gap:4px;justify-content:center">
             ${linkWhats(c, 'geral') ? `<a class="btn xs" href="${escHTML(linkWhats(c, 'geral'))}" target="_blank" rel="noopener" title="Chamar no WhatsApp${c.consentimentoContato ? '' : ' (sem autorização de contato: só para assuntos da conta)'}" style="text-decoration:none;color:#4fbf7f;border-color:#4fbf7f">WhatsApp</a>` : ''}
             <button class="btn xs" onclick="editarCliente('${c.uid}')" title="Editar">${ICO_EDITAR}</button>
             ${c.status==='inativo'
               ?`<button class="btn xs" onclick="reativarCliente('${c.uid}')" style="color:var(--green);border-color:var(--green)">↺</button>`
               :`<button class="btn danger xs" onclick="desativarCliente('${c.uid}')" title="Desativar">✕</button>`}
             ${isMaster() ? `<button class="btn danger xs" onclick="excluirCliente('${c.uid}')" title="Excluir para sempre" aria-label="Excluir para sempre">${ICO_LIXEIRA}</button>` : ''}
-          </div>`}</td>
+          </div></td>
         </tr>`;}).join('')}</tbody>
     </table></div>`;
     if(typeof presencaNaTabela === 'function') presencaNaTabela();   // bolinha online/offline (js/app/40-painel-negocio.js)
@@ -401,7 +398,6 @@ async function salvarEdicaoCliente(){
 
   const plano   = document.getElementById('ec-plano').value;
   const status  = document.getElementById('ec-status').value;
-  const origem  = document.getElementById('ec-origem').value;
   const vencimento = document.getElementById('ec-vencimento').value;
   const observacoes = document.getElementById('ec-obs').value.trim();
 
@@ -425,7 +421,7 @@ async function salvarEdicaoCliente(){
     // apagava o que não estava na cópia (preferências, cores, atalhos, foto...).
     // Lançamentos e demais dados ficam em financeiro/<uid> e nunca são tocados aqui.
     if(window._db && window._ref && window._set){
-      const campos = { plano, status, origem, vencimento, observacoes };
+      const campos = { plano, status, vencimento, observacoes };   // perfil (teste/pago) não se troca à mão: o pago vem do pagamento
       await Promise.all(Object.entries(campos).map(([k, v]) =>
         window._set(window._ref(window._db, `usuarios/${uid}/${k}`), v === undefined ? null : v)));
     }
