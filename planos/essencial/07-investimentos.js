@@ -12,9 +12,13 @@ function renderInvs(){
   destroyChart('inv-dist');
   const ctxD=document.getElementById('c-inv-dist');
   if(ctxD){
-    if(!invs.length){
-      ctxD.parentElement.innerHTML='<p class="empty" style="padding:60px 0">Nenhum investimento ainda</p>';
-    } else {
+    // Sem investimentos: esconde o gráfico e mostra o aviso (antes o aviso apagava o <canvas> e o
+    // gráfico não voltava mais quando os investimentos chegavam da nuvem ou eram cadastrados)
+    let vazio=ctxD.parentElement.querySelector('.inv-dist-vazio');
+    if(!vazio){ vazio=document.createElement('p'); vazio.className='empty inv-dist-vazio'; vazio.style.padding='60px 0'; vazio.textContent='Nenhum investimento ainda'; ctxD.parentElement.appendChild(vazio); }
+    ctxD.style.display=invs.length?'':'none';
+    vazio.style.display=invs.length?'none':'';
+    if(invs.length){
       const tM={};invs.forEach(i=>tM[i.tipo]=(tM[i.tipo]||0)+i.val);
       charts['inv-dist']=new Chart(ctxD,{type:'doughnut',data:{labels:Object.keys(tM),datasets:[{data:Object.values(tM),backgroundColor:PALETTE,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#888',font:{size:10},padding:5,boxWidth:10}}}}});
     }
