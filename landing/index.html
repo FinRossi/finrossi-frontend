@@ -265,6 +265,14 @@ section{padding:110px 0}
 .cc-lado{display:flex;flex-direction:column;gap:14px;width:300px;max-width:100%}
 .cc-visual{position:relative;width:300px;max-width:100%;aspect-ratio:300/190;border-radius:21px;padding:21px;overflow:hidden;background:linear-gradient(135deg,#1a1a1a 0%,#000 100%);border:1px solid rgba(200,169,110,.33);box-shadow:0 18px 40px rgba(200,169,110,.12),0 2px 8px rgba(0,0,0,.5);transition:transform .5s ease}
 .cc-card:hover .cc-visual{transform:rotate(-1.5deg) translateY(-4px)}
+/* Clique/toque no cartão: um reflexo de luz atravessa o cartão (a cada clique) */
+.cc-visual{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cc-visual:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.cc-visual:active{transform:rotate(-1.5deg) translateY(-2px) scale(.985)}
+.cc-reflexo{position:absolute;top:-20%;bottom:-20%;left:-60%;width:45%;z-index:2;pointer-events:none;opacity:0;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,236,190,.10) 25%,rgba(255,246,220,.55) 50%,rgba(255,236,190,.10) 75%,transparent);mix-blend-mode:screen}
+.cc-visual.refletindo .cc-reflexo{animation:cc-reflexo .9s cubic-bezier(.25,.7,.3,1)}
+.cc-visual.refletindo{border-color:rgba(232,197,96,.75);box-shadow:0 18px 50px rgba(200,169,110,.28),0 0 0 1px rgba(232,197,96,.25),0 2px 8px rgba(0,0,0,.5)}
+@keyframes cc-reflexo{0%{left:-60%;opacity:0}12%{opacity:1}88%{opacity:1}100%{left:120%;opacity:0}}
 .cc-brilho{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(200,169,110,.16) 50%,transparent 60%);background-size:250% 100%;animation:cc-brilho 7s ease-in-out infinite}
 @keyframes cc-brilho{0%,100%{background-position:100% 0}50%{background-position:0 0}}
 .cc-topo{position:relative;display:flex;justify-content:space-between;align-items:flex-start}
@@ -280,7 +288,7 @@ section{padding:110px 0}
 .cc-sub{font-size:11px;flex-direction:column;align-items:flex-start;gap:3px}.cc-sub b{font-size:13px;white-space:nowrap}
 @media(max-width:860px){.cc-card{grid-template-columns:1fr;gap:22px}.cc-lado{width:100%;align-items:center}.cc-limite{width:100%;max-width:300px}}
 @media(max-width:380px){.cc-numero{font-size:15px}.cc-visual{padding:17px}.cc-base{left:17px;right:17px;bottom:17px}}
-@media(prefers-reduced-motion:reduce){.cc-brilho{animation:none}.inv-anel circle{transition:none}}
+@media(prefers-reduced-motion:reduce){.cc-visual.refletindo .cc-reflexo{animation-duration:.01s}.cc-brilho{animation:none}.inv-anel circle{transition:none}}
 @media(max-width:420px){.inv-corpo{grid-template-columns:1fr;justify-items:center}.inv-posicoes{width:100%}}
 /* Selo do plano nos cartões de recursos */
 .fc-selo{display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--gold-s);color:var(--gold-light);border:1px solid rgba(201,168,76,.25);margin-bottom:10px}
@@ -694,8 +702,8 @@ body.modal-aberto{overflow:hidden}
           </div>
         </div>
         <div class="cc-lado num">
-          <div class="cc-visual" aria-hidden="true">
-            <span class="cc-brilho"></span>
+          <div class="cc-visual" id="cc-visual" role="button" tabindex="0" aria-label="Cartão Black">
+            <span class="cc-brilho"></span><span class="cc-reflexo"></span>
             <div class="cc-topo"><span class="cc-banco">Cartão Black</span><svg width="36" height="22" viewBox="0 0 36 22" aria-hidden="true"><circle cx="13" cy="11" r="11" fill="#EB001B" opacity=".9"/><circle cx="23" cy="11" r="11" fill="#F79E1B" opacity=".9"/><path d="M18 4.5a11 11 0 010 13A11 11 0 0118 4.5z" fill="#FF5F00" opacity=".9"/></svg></div>
             <div class="cc-chip"><svg width="45" height="30" viewBox="0 0 34 26" fill="none" aria-hidden="true"><rect x="0" y="0" width="34" height="26" rx="4" fill="#D4AF5A" opacity=".9"/><rect x="11" y="0" width="12" height="26" fill="#C4992A" opacity=".5"/><rect x="0" y="8" width="34" height="10" fill="#C4992A" opacity=".5"/></svg></div>
             <div class="cc-base">
@@ -1311,6 +1319,18 @@ function assinar(plano){
   desenhar();
 })();
 
+// ─── Cartão de crédito: a cada clique/toque, um reflexo de luz atravessa o cartão ───
+(function(){
+  const cc = document.getElementById('cc-visual');
+  if(!cc) return;
+  const refletir = () => {
+    cc.classList.remove('refletindo'); void cc.offsetWidth;   // reinicia o reflexo se clicar de novo no meio
+    cc.classList.add('refletindo');
+  };
+  cc.addEventListener('click', refletir);
+  cc.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); refletir(); } });
+  cc.addEventListener('animationend', e => { if(e.animationName === 'cc-reflexo') cc.classList.remove('refletindo'); });
+})();
 // Ícones do cadastro (traço dourado, no lugar dos emojis): um para cada plano e para o cupom
 const ICONE_SVG = d => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONE_PLANO = {
