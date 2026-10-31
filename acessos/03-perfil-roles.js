@@ -266,7 +266,7 @@ function setProfile(p){
 }
 
 
-const SECS=['dashboard','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura','qr'];
+const SECS=['dashboard','negocio','lancamentos','investimentos','historico','metas','objetivos','renda','score','relatorios','empresas','notas','assinaturas','recorrentes','calendario','manual','cartoes','clientes','socios','preview','minha-assinatura','qr'];
 function goTo(name){
   if(_verComoPlano && !verComoPlanoPermite(name)){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
@@ -282,6 +282,7 @@ function goTo(name){
   });
   const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura,qr:()=>{ if(typeof renderQrCode==='function') renderQrCode(); }};
   if(fn[name]) fn[name]();
+  else if(name==='negocio' && typeof renderNegocio==='function') renderNegocio();   // Painel do negócio (js/app/40-painel-negocio.js)
   else if(_extras.telas[name]) _extras.telas[name]();
   if(name==='lancamentos' && typeof atualizarBotaoFoto==='function') atualizarBotaoFoto();
 }

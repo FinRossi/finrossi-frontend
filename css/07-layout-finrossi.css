@@ -456,3 +456,44 @@
 .assin-leg-nome{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .assin-leg-val{color:var(--text);font-variant-numeric:tabular-nums}
 .assin-leg-pct{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── Painel do negócio (perfil FinRossi) ── */
+#negocio-conteudo{display:flex;flex-direction:column;gap:16px}
+.neg-tit{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.neg-tit h3{margin:0;font-family:var(--ced-serif,'DM Serif Display',serif);font-weight:500;font-size:19px}
+.neg-tit>span:not(.neg-selo){font-size:12px;color:var(--muted)}
+.neg-metrics{margin-bottom:0}
+.neg-grade{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;align-items:start}
+.neg-selo{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.neg-selo.green{background:var(--green-s);color:var(--green)}
+.neg-selo.red{background:var(--red-s);color:var(--red)}
+.neg-selo.amber{background:var(--amber-s);color:var(--amber)}
+.neg-receita-topo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.neg-receita-topo div{display:flex;flex-direction:column;gap:2px}
+.neg-receita-topo span{font-size:11px;color:var(--muted)}
+.neg-receita-topo b{font-family:var(--ced-serif,serif);font-weight:500;font-size:18px}
+.neg-planos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.neg-plano{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:2px}
+.neg-plano span{font-size:11px;color:var(--muted)}
+.neg-plano b{font-family:var(--ced-serif,serif);font-weight:500;font-size:16px;color:var(--accent)}
+.neg-plano b small{font-family:var(--sans,'DM Sans',sans-serif);font-size:10px;color:var(--muted);margin-left:2px}
+.neg-plano>small{font-size:11px;color:var(--muted)}
+.neg-lista{display:flex;flex-direction:column}
+.neg-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.neg-item:last-child{border-bottom:0}
+.neg-item-txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+.neg-item-txt b{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.neg-item-txt small{font-size:11.5px;color:var(--muted)}
+.neg-item-acoes{display:flex;gap:6px;flex-shrink:0}
+.neg-mais{font-size:12px;color:var(--muted);margin:8px 0 0}
+.neg-funil{display:flex;flex-direction:column;gap:8px}
+.neg-etapa{position:relative;min-height:46px;border-radius:10px;background:var(--surface2);overflow:hidden;display:flex;align-items:center}
+.neg-barra{position:absolute;left:0;top:0;bottom:0;background:var(--accent-s);border-right:2px solid var(--accent);transition:width .6s ease}
+.neg-etapa.red .neg-barra{background:var(--red-s);border-right-color:var(--red)}
+.neg-etapa.ouro .neg-barra{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.neg-etapa-txt{position:relative;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:2px 12px;width:100%;padding:8px 14px}
+.neg-etapa-txt span{font-size:13px}
+.neg-etapa-txt b{font-family:var(--ced-serif,serif);font-weight:500;font-size:20px;grid-row:span 2;align-self:center}
+.neg-etapa-txt small{font-size:11px;color:var(--muted)}
+@media(max-width:900px){.neg-grade{grid-template-columns:1fr}}
+@media(max-width:520px){.neg-receita-topo,.neg-planos{grid-template-columns:1fr 1fr}.neg-receita-topo div:last-child{grid-column:span 2}}

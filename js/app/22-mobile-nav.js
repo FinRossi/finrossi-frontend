@@ -54,6 +54,7 @@ function openMobileMore(){
   const vis = (id, mostrar) => { const el = document.getElementById(id); if(el) el.style.display = mostrar ? '' : 'none'; };
   vis('mob-equipe-section', noFR);
   vis('mnav-item-clientes', noFR);
+  vis('mnav-item-negocio', noFR);
   vis('mnav-item-socios', noFR && typeof isMaster === 'function' && isMaster());
   vis('mnav-item-qr', noFR && typeof isMaster === 'function' && isMaster());   // QR Code: só o Master
   vis('mnav-item-preview', noFR && (_userRole === 'socio' || (typeof isMaster === 'function' && isMaster())));
