@@ -635,3 +635,5 @@ I18N_EN_ADD({
 }, [
   [/^\((\d+) de (\d+)\)$/, '($1 of $2)'], [/^\(limite de (\d+) atingido\)$/, '(limit of $1 reached)'],
 ]);
+
+I18N_EN_ADD({ 'Perfil e configurações': 'Profile and settings' });
