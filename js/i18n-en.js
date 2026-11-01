@@ -651,3 +651,22 @@ I18N_EN_ADD({
   'Seu plano atual não tem contas recorrentes, assinaturas e cartões, então os lembretes estão pausados.': 'Your current plan doesn’t include recurring bills, subscriptions and cards, so reminders are paused.',
   'Os lembretes pelo WhatsApp avisam das contas recorrentes, assinaturas e faturas de cartão, que fazem parte dos planos Evolução e Patrimônio.': 'WhatsApp reminders cover recurring bills, subscriptions and card statements, which are part of the Growth and Wealth plans.',
 });
+
+// ═══ Avaliar o FinRossi (js/app/42-avaliacao.js) ═══════════════════════════
+I18N_EN_ADD({
+  'Avaliar o FinRossi': 'Rate FinRossi', 'Conte o que está achando': 'Tell us what you think', 'Avalie o FinRossi': 'Rate FinRossi', 'Sua avaliação': 'Your rating',
+  'Sua opinião ajuda a deixar o app cada vez melhor.': 'Your feedback helps make the app better and better.',
+  'Mudou de ideia? Pode atualizar quando quiser.': 'Changed your mind? You can update it anytime.',
+  'Toque nas estrelas': 'Tap the stars', 'Muito ruim': 'Very poor', 'Ruim': 'Poor', 'Bom': 'Good', 'Muito bom': 'Very good', 'Excelente': 'Excellent',
+  'Conte o que está achando (opcional)': 'Tell us what you think (optional)', '(opcional)': '(optional)',
+  'O que você mais gosta? O que podemos melhorar?': 'What do you like most? What could we improve?',
+  'Enviar avaliação': 'Send rating', 'Atualizar avaliação': 'Update rating', 'Enviando…': 'Sending…',
+  'Obrigado pela avaliação! Ficamos muito felizes.': 'Thanks for your rating! We’re really glad.',
+  'Obrigado pela avaliação! Vamos usar para melhorar o FinRossi.': 'Thanks for your rating! We’ll use it to improve FinRossi.',
+  'Sem conexão agora. Tente de novo em instantes.': 'No connection right now. Please try again shortly.',
+  'Não deu para enviar agora. Tente de novo em instantes.': 'Couldn’t send it right now. Please try again shortly.',
+}, [
+  [/^Sua nota: (\d) de 5 · toque para mudar$/, 'Your rating: $1 of 5 · tap to change'],
+  [/^Sua avaliação: (\d) de 5 · mudar$/, 'Your rating: $1 of 5 · change'],
+  [/^(\d) estrelas?: (.+)$/, function(m, n, r){ return n + ' star' + (n === '1' ? '' : 's'); }],
+]);

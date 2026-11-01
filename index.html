@@ -11,7 +11,7 @@
 <!-- finrossi.com.br sem nada leva à landing (quem ainda não conhece vê os planos). Fica no app: app instalado,
      quem já entrou neste aparelho, links com parâmetros (?entrar, ?plano/?cupom dos e-mails) e a volta do login com Google -->
 <script>(function(){try{var inst=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;var param=location.search.length>1||location.hash.length>1;var ja=localStorage.getItem('fin_ja_entrou')==='1'||!!localStorage.getItem('fin_ultimo_acesso_ts');var g=sessionStorage.getItem('fin_login_google')==='1';if(!inst&&!param&&!ja&&!g){location.replace('/landing/');}}catch(e){}})();</script>
-<!-- Idioma e moeda (antes de todos os scripts): português e R$ ficam iguais; inglês baixa o dicionário --><script src="js/i18n.js?v=30"></script>
+<!-- Idioma e moeda (antes de todos os scripts): português e R$ ficam iguais; inglês baixa o dicionário --><script src="js/i18n.js?v=31"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinRossi — Aplicativo para construir sua riqueza</title>
 
@@ -88,7 +88,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=9">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=46">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=47">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
@@ -1216,6 +1216,12 @@ try{
       <div id="cfg-vercomo-wrap" style="display:none">
       </div>
 
+      <!-- Avaliar o FinRossi (só clientes; js/app/42-avaliacao.js) -->
+      <button type="button" id="cfg-avaliar" onclick="fecharConfiguracoes();abrirAvaliacao()" style="display:none;margin-top:16px;width:100%;align-items:center;justify-content:center;gap:8px;padding:9px 12px;background:var(--accent-s);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);color:var(--accent);border-radius:var(--radius-sm);font:600 12.5px 'DM Sans',sans-serif;cursor:pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <span id="cfg-avaliar-txt">Avaliar o FinRossi</span>
+      </button>
+
       <div style="height:1px;background:var(--border);margin:16px 0"></div>
 
       <button onclick="fazerLogout()" style="display:flex;align-items:center;gap:6px;width:100%;padding:7px 10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border-radius:var(--radius-sm);transition:all .2s" onmouseover="this.style.background='rgba(248,113,113,0.15)'" onmouseout="this.style.background='rgba(248,113,113,0.08)'">
@@ -1480,6 +1486,11 @@ try{
       <div class="mobile-profile-opt" id="mnav-item-manual" onclick="goTo('manual');closeMobileMoreForce()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         <div><div class="po-name">Manual</div><div class="po-sub">Como usar o FinRossi</div></div>
+      </div>
+      <!-- Avaliar o FinRossi (só clientes; js/app/42-avaliacao.js) -->
+      <div class="mobile-profile-opt" id="mnav-avaliar" style="display:none" onclick="closeMobileMoreForce();abrirAvaliacao()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <div><div class="po-name">Avaliar o FinRossi</div><div class="po-sub" id="mnav-avaliar-sub">Conte o que está achando</div></div>
       </div>
     </div>
 
@@ -1792,9 +1803,9 @@ try{
 <script src="planos/18-regras-planos.js?v=12"></script>
 <script src="planos/evolucao/20-cartoes.js?v=8"></script>
 <script src="js/app/21-manual-render.js?v=3"></script>
-<script src="js/app/22-mobile-nav.js?v=13"></script>
+<script src="js/app/22-mobile-nav.js?v=14"></script>
 <script src="js/app/23-tema.js?v=2"></script>
-<script src="js/app/24-configuracoes.js?v=12"></script>
+<script src="js/app/24-configuracoes.js?v=13"></script>
 <script src="js/app/25-minha-assinatura.js?v=16"></script>
 <script src="js/app/26-cursor-fx.js?v=2"></script>
 <script src="acessos/27-ver-como.js?v=9"></script>
@@ -1809,6 +1820,7 @@ try{
 <script src="js/app/37-primeiros-passos.js?v=3"></script>
 <script src="js/app/38-primeiro-acesso.js?v=6"></script>
 <script src="js/app/41-passo-a-passo.js?v=2"></script>
+<script src="js/app/42-avaliacao.js?v=1"></script>
 <script src="js/app/33-pwa-init.js?v=2"></script>
 </body>
 </html>

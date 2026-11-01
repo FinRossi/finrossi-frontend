@@ -706,3 +706,24 @@ body.sb-minimizado .dock-favoritos{
 @media(max-width:768px){   /* no celular as janelas são presas na borda de baixo (03-responsivo.css): esta não */
   #modal-ajuste-foto .modal{position:relative!important;bottom:auto!important;left:auto!important;right:auto!important;width:min(340px,calc(100vw - 24px))!important;border:1px solid var(--border2)!important}
 }
+
+/* ── Avaliar o FinRossi (js/app/42-avaliacao.js) ── */
+#avaliacao-modal{z-index:9995;align-items:center!important;justify-content:center!important}
+.aval{width:min(420px,100%);align-items:center;text-align:center;gap:12px;padding:26px 22px 22px;position:relative}
+.aval h3{margin:0;font-family:'DM Serif Display',serif;font-weight:400;font-size:24px}
+.aval p{margin:0;font-size:13px;color:var(--muted)}
+.aval-fechar{position:absolute;top:14px;right:14px}
+.aval-estrelas{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.aval-estrelas button{width:48px;height:48px;padding:4px;border:none;background:none;cursor:pointer;color:color-mix(in srgb,var(--muted) 45%,transparent);transition:transform .15s ease,color .2s ease}
+.aval-estrelas button svg{width:100%;height:100%;fill:currentColor;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.aval-estrelas button.on{color:var(--accent)}
+.aval-estrelas button.on svg{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--accent) 45%,transparent))}
+.aval-estrelas button:hover{transform:scale(1.08)}
+.aval-estrelas button.pulo{animation:aval-pulo .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes aval-pulo{0%{transform:scale(.8)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+.aval-rotulo{font-size:14px;font-weight:600;color:var(--accent);min-height:20px}
+.aval textarea{width:100%;resize:vertical;min-height:90px;text-align:left}
+.aval .field label{text-align:left}
+.aval-cont{text-align:right;font-size:11px;color:var(--muted2);margin-top:4px}
+@media(max-width:768px){#avaliacao-modal .fav-vidro{position:relative!important;bottom:auto!important;width:min(420px,calc(100vw - 24px))!important}}
+@media(prefers-reduced-motion:reduce){.aval-estrelas button.pulo{animation:none}}

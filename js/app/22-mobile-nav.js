@@ -101,6 +101,7 @@ function openMobileMore(){
   vis('mnav-item-preview', noFR && (_userRole === 'socio' || (typeof isMaster === 'function' && isMaster())));
   if(typeof _extrasAtualizarMenu === 'function') _extrasAtualizarMenu();   // ferramentas internas (só o Master)
   if(typeof renderFavoritosMais === 'function') renderFavoritosMais();     // 5º e 6º favoritos no topo do Mais
+  if(typeof atualizarEntradasAvaliacao === 'function') atualizarEntradasAvaliacao();   // "Avaliar o FinRossi" (clientes)
 }
 function closeMobileMore(e){
   if(e.target === document.getElementById('mobile-more-drawer')) closeMobileMoreForce();
