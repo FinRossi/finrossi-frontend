@@ -515,3 +515,11 @@ I18N_EN_ADD({
 
 // ═══ Login: acesso da equipe (js/app/29-login.js) ═══════════════════════════
 I18N_EN_ADD({ 'Acesso da equipe': 'Team access', 'Somente para a equipe do FinRossi': 'FinRossi team only', 'Entrar com Google': 'Sign in with Google' });
+
+// ═══ Editar cliente: WhatsApp (pacote da equipe) ═══════════════════════════
+I18N_EN_ADD({
+  'Com DDD. Deixe em branco para remover.': 'With area code. Leave blank to remove.',
+  'Celular da Austrália. Deixe em branco para remover.': 'Australian mobile. Leave blank to remove.',
+  'WhatsApp inválido: use DDD + número, ex.: (11) 98765-4321.': 'Invalid WhatsApp: use area code + number, e.g. (11) 98765-4321.',
+  'WhatsApp inválido: use o celular com 10 números, ex.: 0412 345 678.': 'Invalid WhatsApp: use a 10-digit mobile, e.g. 0412 345 678.',
+});
