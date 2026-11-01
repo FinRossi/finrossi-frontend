@@ -19,7 +19,7 @@ const PLANOS_CONFIG = {
   patrimonio: {
     label: 'Patrimônio', get preco(){ return precoTexto('patrimonio'); }, cor: 'var(--accent)', dias: null,
     limites: { lancamentos: true, investimentos: true, metas: true, cartoes: true, assinaturas: true, recorrentes: true, calendario: true, notas: true, renda: true, score: true, personalizacao: true, foto: true, relatorios: true, 'minha-assinatura': true },
-    desc: 'Tudo do Evolução + saúde do patrimônio, relatórios em PDF e app personalizável.'
+    desc: 'Tudo do Evolução + saúde do patrimônio, relatórios em PDF e dashboard organizado do seu jeito.'
   }
 };
 

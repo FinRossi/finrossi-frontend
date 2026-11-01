@@ -431,6 +431,18 @@ async function renderWhatsConfig(){
   try{ _whatsInfo = await _whatsApi('GET'); }catch(e){ st.textContent = 'Indisponível'; btn.style.display = 'none'; return; }
   const w = _whatsInfo, pintar = (txt, verde) => { st.textContent = txt; st.style.background = verde ? 'rgba(74,222,128,.1)' : 'var(--surface3)'; st.style.color = verde ? 'var(--green)' : 'var(--muted)'; };
   btn.style.display = '';
+  // Plano sem contas para lembrar (Gratuito, Essencial ou pagamento pendente): mostra o plano que libera
+  if(w.planoPermite === false){
+    pintar(w.aceito ? 'Pausado' : 'Evolução e Patrimônio', false);
+    info.style.display = '';
+    info.textContent = w.aceito
+      ? 'Seu plano atual não tem contas recorrentes, assinaturas e cartões, então os lembretes estão pausados.'
+      : 'Os lembretes pelo WhatsApp avisam das contas recorrentes, assinaturas e faturas de cartão, que fazem parte dos planos Evolução e Patrimônio.';
+    btn.textContent = w.aceito ? 'Não quero mais pelo WhatsApp' : 'Ver planos';
+    btn.style.background = w.aceito ? 'var(--surface3)' : 'var(--accent)'; btn.style.color = w.aceito ? 'var(--text)' : '#0f0f0f';
+    btn.onclick = w.aceito ? cancelarAceiteWhats : () => { if(typeof fecharConfiguracoes === 'function') fecharConfiguracoes(); if(typeof mostrarPlanoNecessario === 'function') mostrarPlanoNecessario('recorrentes'); };
+    return;
+  }
   if(w.aceito){
     pintar(w.canalAtivo && w.confirmadoEm ? 'Ativo' : 'Aceito', true);
     const tel = typeof ncMascaraTelefone === 'function' && !String(w.telefone).startsWith('61') ? (() => { const e = { value: _whatsTelTela(w.telefone) }; ncMascaraTelefone(e); return e.value; })() : _whatsTelTela(w.telefone);

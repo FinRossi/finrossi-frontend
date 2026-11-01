@@ -637,3 +637,17 @@ I18N_EN_ADD({
 ]);
 
 I18N_EN_ADD({ 'Perfil e configurações': 'Profile and settings' });
+
+// ═══ Planos atualizados (01/11/2026): favoritos em todos, lembretes no Evolução, dashboard no Patrimônio ═══
+I18N_EN_ADD({
+  'Tema, cores e favoritos do seu jeito': 'Theme, colours and favourites your way',
+  'Lembretes das contas no celular, com "Paguei" que já lança': 'Bill reminders on your phone, with a "Paid" button that records it',
+  'Dashboard organizado do seu jeito': 'A dashboard arranged your way',
+  'Lembretes das contas com Paguei / Vou pagar': 'Bill reminders with Paid / Will pay',
+  'Tudo do Evolução + relatórios, saúde do patrimônio e dashboard organizado do seu jeito.': 'Everything in Growth + reports, wealth health and a dashboard arranged your way.',
+  'Tudo do Evolução + saúde do patrimônio, relatórios em PDF e dashboard organizado do seu jeito.': 'Everything in Growth + wealth health, PDF reports and a dashboard arranged your way.',
+  'O Patrimônio é o plano completo do FinRossi: tudo do Evolução mais a saúde do patrimônio, relatórios semanais e mensais em PDF, dashboard organizado do seu jeito e, em breve, a FinRossi IA. O FinRossi é uma ferramenta de organização financeira: não presta consultoria nem recomenda investimentos.': 'Wealth is the complete FinRossi plan: everything in Growth plus wealth health, weekly and monthly PDF reports, a dashboard arranged your way and, coming soon, FinRossi AI. FinRossi is a money organisation tool: it doesn’t provide financial advice or recommend investments.',
+  'Pausado': 'Paused', 'Evolução e Patrimônio': 'Growth and Wealth', 'Ver planos': 'See plans',
+  'Seu plano atual não tem contas recorrentes, assinaturas e cartões, então os lembretes estão pausados.': 'Your current plan doesn’t include recurring bills, subscriptions and cards, so reminders are paused.',
+  'Os lembretes pelo WhatsApp avisam das contas recorrentes, assinaturas e faturas de cartão, que fazem parte dos planos Evolução e Patrimônio.': 'WhatsApp reminders cover recurring bills, subscriptions and card statements, which are part of the Growth and Wealth plans.',
+});

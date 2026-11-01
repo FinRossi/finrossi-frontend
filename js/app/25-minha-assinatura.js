@@ -59,13 +59,15 @@ async function renderMinhaAssinatura(){
     ['Metas e objetivos', !!lim.metas],
     ['Cartões de crédito', !!lim.cartoes],
     ['Assinaturas e contas recorrentes', !!lim.assinaturas],
+    ['Lembretes das contas com Paguei / Vou pagar', !!lim.assinaturas],
     ['Notas', true],
     ['Calendário financeiro', !!lim.calendario],
     ['Calculadora de renda passiva', !!lim.renda],
     ['Saúde do patrimônio', !!lim.score],
     ['Relatórios semanais e mensais em PDF', !!lim.relatorios],
     ['Lançar por foto e anexos', !!lim.foto],
-    ['App personalizável', !!lim.personalizacao],
+    ['Tema, cores e favoritos do seu jeito', true],
+    ['Dashboard organizado do seu jeito', !!lim.personalizacao],
   ];
   const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
 
@@ -158,7 +160,7 @@ async function renderMinhaAssinatura(){
 const MA_PLANOS = [
   { id: 'essencial',  nome: 'Essencial',  desc: 'Lançamentos ilimitados e investimentos.' },
   { id: 'evolucao',   nome: 'Evolução',   desc: 'Metas, cartões, contas fixas, calendário, renda passiva e lançar por foto.' },
-  { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e app personalizável.' },
+  { id: 'patrimonio', nome: 'Patrimônio', desc: 'Tudo do Evolução + relatórios, saúde do patrimônio e dashboard organizado do seu jeito.' },
 ];
 // Preços na moeda da conta (PRECOS_PLANO em js/i18n.js; em R$ os de sempre)
 const MA_PRECO = { get mensal(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).mensal; }, get anual(){ return (PRECOS_PLANO[MOEDA] || PRECOS_PLANO.BRL).anual; } };
