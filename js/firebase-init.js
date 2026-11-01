@@ -162,8 +162,40 @@
           .catch(() => {});
       });
     };
+    // Tempo no app (tela Clientes → "Tempo médio no app"): sessoes/<uid>/<id> = { inicio, fim } (hora do servidor).
+    // Uma sessão = o app aberto e na tela; o fim avança a cada minuto enquanto está visível e quando sai da tela.
+    // Voltou em até 5 min: continua a mesma sessão; depois disso abre uma nova. Só clientes (a equipe não é medida).
+    let _sessao = null, _sessaoParar = null;
+    const SESSAO_PAUSA_MS = 5 * 60000;
+    const iniciarSessoes = uid => {
+      if(_sessaoParar) return;
+      const nova = () => {
+        _sessao = { uid, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), escondidoEm: null };
+        set(ref(db, `sessoes/${uid}/${_sessao.id}`), { inicio: serverTimestamp(), fim: serverTimestamp() }).catch(() => {});
+      };
+      const marcarFim = () => { if(_sessao) set(ref(db, `sessoes/${_sessao.uid}/${_sessao.id}/fim`), serverTimestamp()).catch(() => {}); };
+      const aoMudar = () => {
+        if(!_sessao) return;
+        if(document.visibilityState === 'hidden'){ marcarFim(); _sessao.escondidoEm = Date.now(); }
+        else if(_sessao.escondidoEm){
+          if(Date.now() - _sessao.escondidoEm > SESSAO_PAUSA_MS) nova();
+          else { _sessao.escondidoEm = null; marcarFim(); }
+        }
+      };
+      nova();
+      const timer = setInterval(() => { if(document.visibilityState === 'visible') marcarFim(); }, 60000);
+      document.addEventListener('visibilitychange', aoMudar);
+      window.addEventListener('pagehide', marcarFim);
+      _sessaoParar = () => {
+        marcarFim(); clearInterval(timer);
+        document.removeEventListener('visibilitychange', aoMudar); window.removeEventListener('pagehide', marcarFim);
+        _sessao = null; _sessaoParar = null;
+      };
+    };
+
     // "Sair": marca offline antes de desconectar (depois do logout não dá mais para gravar)
     window._presencaSair = async () => {
+      try{ if(_sessaoParar) _sessaoParar(); }catch(e){}
       if(!_presencaUid) return;
       const pRef = ref(db, 'presenca/' + _presencaUid);
       try{ await set(pRef, { online: false, vistoEm: serverTimestamp() }); await onDisconnect(pRef).cancel(); }catch(e){}
@@ -248,6 +280,7 @@
           }
         }catch(e){}
         try{ iniciarPresenca(user.uid); }catch(e){}
+        try{ if(window._userRole === 'cliente') iniciarSessoes(user.uid); }catch(e){}   // tempo no app (só clientes)
         // Acessos por dia (gráfico da tela Clientes): uma marca por pessoa por dia. Só a equipe lê (regra acessos/).
         try{
           const d = new Date(), dia = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

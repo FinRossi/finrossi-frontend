@@ -13,7 +13,10 @@ function renderHistorico(){
   const mesUniq=[...new Set(lancs.map(l=>l.data.slice(0,7)))].sort().reverse();
   const selMes=document.getElementById('h-mes'),cM=selMes.value;
   selMes.innerHTML='<option value="">Todos os meses</option>'+mesUniq.map(m=>`<option value="${m}" ${m===cM?'selected':''}>${mesLbl(m+'-01')}</option>`).join('');
-  const cats=[...new Set(lancs.map(l=>l.cat))].sort();
+  // Filtro de categoria: todas as categorias ativas (inclusive as criadas, mesmo sem lançamento ainda) +
+  // as que já têm lançamento (ex.: uma que foi ocultada depois). Antes vinham só as com lançamento.
+  const tiposCat=filtroTipo?[filtroTipo]:['despesa','receita'];
+  const cats=[...new Set([...tiposCat.flatMap(t=>getCats(t)),...lancs.filter(l=>!filtroTipo||l.tipo===filtroTipo).map(l=>l.cat)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const selCat=document.getElementById('h-cat'),cC=selCat.value;
   selCat.innerHTML='<option value="">Todas as categorias</option>'+cats.map(c=>`<option value="${escHTML(c)}" ${c===cC?'selected':''}>${escHTML(c)}</option>`).join('');
   let lista=[...lancs].sort((a,b)=>b.data.localeCompare(a.data));

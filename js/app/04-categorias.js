@@ -18,6 +18,15 @@ function getCats(tipo){
   return todas.filter(c=>!desativadas.includes(c));
 }
 
+// Categorias desativadas (ocultas) do tipo: somem dos formulários de novo lançamento, mas continuam
+// valendo para os lançamentos que já usam (e dá para escolher na edição)
+function getCatsOcultas(tipo){
+  const perfil = pd();
+  const off = perfil.categorias?.[tipo+'_off'] || [];
+  const extras = perfil.categorias?.[tipo] || [];
+  return [...(CATS_DEFAULT[tipo]||[]), ...extras].filter((c,i,a)=>off.includes(c) && a.indexOf(c)===i);
+}
+
 function populateCatSelects(){
   populateCartaoSelect();
   // Despesa
@@ -59,9 +68,11 @@ function populateCatSelects(){
 
 let _catsEditandoTipo = 'despesa';
 let _catsTemp = []; // {nome, ativa, padrao}
+let _catsAntes = []; // personalizadas ao abrir (para saber qual foi criada agora)
 
 function abrirGerenciarCats(tipo){
   _catsEditandoTipo = tipo;
+  _catsAntes = [...(pd().categorias?.[tipo] || [])];
   if(tipo==='assinatura') window._assinTiposAntes = [...(pd().categorias?.assinatura||[])];
   const perfil = pd();
   if(!perfil.categorias) perfil.categorias = {despesa:[],receita:[]};
@@ -151,6 +162,15 @@ function salvarCategorias(){
   try{ localStorage.setItem(`fin3_${cp}_categorias`, JSON.stringify(perfil.categorias)); }catch(e){}
   if(window._db && window._set && window._ref) window._set(window._ref(window._db,`financeiro/${cp}/categorias`), perfil.categorias);
   populateCatSelects();
+  // Mudou as categorias de dentro da janela "Editar lançamento": a lista dela já vem atualizada
+  const mel = document.getElementById('modal-editar-lanc');
+  if(mel && mel.classList.contains('open') && mel._tipo===tipo && typeof preencherCatEdicao==='function'){
+    const atual = document.getElementById('mel-cat').value;
+    preencherCatEdicao(atual);
+    const nova = [...extras].reverse().find(n=>!desativadas.includes(n) && !_catsAntes.includes(n));
+    if(nova) document.getElementById('mel-cat').value = nova;   // criou uma categoria agora: já fica escolhida
+  }
+  if(typeof renderHistorico==='function' && !document.getElementById('sec-historico')?.classList.contains('section-hidden')) renderHistorico();
   closeModal('modal-cats');
   // Criou um tipo novo no modal da assinatura: já fica escolhido
   if(tipo==='assinatura'){

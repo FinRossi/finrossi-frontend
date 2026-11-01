@@ -540,3 +540,15 @@ I18N_EN_ADD({
   [/^(\d+) nos últimos (\d+) dias$/, '$1 in the last $2 days'],
   [/^Nenhuma entrada registrada nos últimos (\d+) dias\. \(Este registro começou em (.+)\.\)$/, 'No sign-ins recorded in the last $1 days. (This log started on $2.)'],
 ]);
+
+// ═══ Categorias ocultas (Editar lançamento) e tempo no app (tela Clientes) ═══
+I18N_EN_ADD({
+  'Categorias ocultas': 'Hidden categories', 'editar': 'edit',
+  'Tempo médio no app': 'Average time in app', 'ainda sem visitas medidas': 'no visits measured yet',
+  'Quanto tempo, em média, cada visita ao app dura (clientes, últimos 30 dias)': 'How long each visit to the app lasts on average (clients, last 30 days)',
+  'menos de 1 min': 'under 1 min',
+}, [
+  [/^por visita · (\d+) visita\(s\) em (\d+) dias$/, 'per visit · $1 visit(s) in $2 days'],
+  [/^(.+) por visita · (\d+) visita\(s\)$/, '$1 per visit · $2 visit(s)'],
+  [/^Tempo total \((\d+) dias\)$/, 'Total time ($1 days)'],
+]);

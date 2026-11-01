@@ -115,14 +115,27 @@ function editarLanc(id){
   const valEl=document.getElementById('mel-val');
   valEl.value=l.val.toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});
   dpInit('mel-data', l.data||hoje());
-  // Popula categorias
-  const cats=getCats(l.tipo);
-  const catSel=document.getElementById('mel-cat');
-  catSel.innerHTML=cats.map(c=>`<option value="${escHTML(c)}" ${c===l.cat?'selected':''}>${escHTML(c)}</option>`).join('');
+  // Categorias: as ativas + as ocultas (dá para escolher qualquer uma) e o "editar" abre o gerenciador do tipo
+  document.getElementById('modal-editar-lanc')._tipo=l.tipo;
+  preencherCatEdicao(l.cat);
   document.getElementById('mel-metodo').value=l.metodo||'';
   document.getElementById('mel-obs').value=l.obs||'';
   document.getElementById('msg-mel').textContent='';
   document.getElementById('modal-editar-lanc').classList.add('open');
+}
+
+// Lista de categorias da janela "Editar lançamento". Antes vinham só as ativas: um lançamento numa
+// categoria ocultada abria marcado na primeira da lista e, ao salvar, trocava de categoria sem aviso.
+function preencherCatEdicao(atual){
+  const tipo=document.getElementById('modal-editar-lanc')._tipo||'despesa';
+  if(tipo!=='despesa'&&tipo!=='receita') return;
+  const catSel=document.getElementById('mel-cat');
+  const ativas=getCats(tipo);
+  const ocultas=[...new Set([...getCatsOcultas(tipo),...(atual&&!ativas.includes(atual)?[atual]:[])])];
+  const opt=c=>`<option value="${escHTML(c)}" ${c===atual?'selected':''}>${escHTML(c)}</option>`;
+  catSel.innerHTML=ativas.map(opt).join('')+(ocultas.length?`<optgroup label="Categorias ocultas">${ocultas.map(opt).join('')}</optgroup>`:'');
+  if(atual) catSel.value=atual;
+  const ed=document.getElementById('mel-cat-editar'); if(ed) ed.onclick=()=>abrirGerenciarCats(tipo);
 }
 
 async function salvarEdicaoLanc(){
