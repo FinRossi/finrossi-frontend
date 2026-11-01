@@ -69,6 +69,8 @@ function aplicarAtalhos(){
     if(atual) nav.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.toggle('active', b.id === 'mnav-' + atual.id.replace('sec-','')));
   }
 
+  renderDockFavoritos();   // computador com o menu minimizado: os mesmos favoritos no dock
+
   // Computador: atalhos no topo do menu lateral só quando o cliente personalizou
   const menu = document.getElementById('sb-group-menu'), ctrl = document.getElementById('sb-group-controles');
   if(!menu || !ctrl) return;
@@ -80,6 +82,27 @@ function aplicarAtalhos(){
   [..._ordemOriginalMenu.menu].forEach(el => { if(!topo.includes(el)) menu.appendChild(el); });
   topo.slice().reverse().forEach(el => menu.insertBefore(el, menu.firstChild));
   _ordemOriginalMenu.controles.forEach(el => { if(!topo.includes(el)) ctrl.appendChild(el); });
+}
+
+// ── Dock de favoritos (computador, menu lateral minimizado) ─────────────────────
+// Minimizar o menu (setinha ‹) esconde o menu lateral e mostra este dock flutuante de vidro no rodapé:
+// "Menu" (traz o menu lateral de volta) + os favoritos (os mesmos 4 atalhos da barra do celular).
+// Visual em css/07-layout-finrossi.css (.dock-favoritos); a lente do ativo vem de 22-mobile-nav.js.
+const ICO_MENU_DOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>';
+function renderDockFavoritos(){
+  let dock = document.getElementById('dock-favoritos');
+  const app = document.getElementById('tela-app');
+  if(!app) return;
+  if(!dock){
+    dock = document.createElement('nav');
+    dock.id = 'dock-favoritos'; dock.className = 'dock-favoritos'; dock.setAttribute('aria-label', 'Favoritos');
+    app.appendChild(dock);
+  }
+  const aberta = (document.querySelector('section:not(.section-hidden)')?.id || '').replace('sec-', '');
+  const itens = getAtalhos().map(id => `<button type="button" class="dock-item${id === aberta ? ' active' : ''}" data-ir="${id}" onclick="goTo('${id}')" title="${ATALHOS_NOME_LONGO[id]}">${_icoNav(id)}<span>${ATALHOS_NOME[id]}</span></button>`).join('');
+  const html = `<button type="button" class="dock-item dock-menu" onclick="toggleSidebar()" title="Mostrar o menu completo">${ICO_MENU_DOCK}<span>Menu</span></button><i class="dock-sep" aria-hidden="true"></i>${itens}`;
+  if(dock._html !== html){ dock._html = html; dock.querySelectorAll('.dock-item,.dock-sep').forEach(e => e.remove()); dock.insertAdjacentHTML('beforeend', html); }
+  if(typeof vigiarLenteNav === 'function') vigiarLenteNav('dock-favoritos', '.dock-item[data-ir]');
 }
 
 // ── Configurações → Dashboard ────────────────────────────────────────────────

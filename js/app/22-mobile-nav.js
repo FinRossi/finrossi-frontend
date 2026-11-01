@@ -18,11 +18,12 @@ function setupMobile(){
 // Lente de vidro da barra de baixo (css/07-layout-finrossi.css → .mnav-lente): segue o item ativo.
 // Observa a barra em vez de ser chamada: o ativo muda aqui (updateMobileNav) e na barra de atalhos
 // (34-barra-atalhos.js, que também recria os botões).
-function posicionarLenteNav(){
-  const nav = document.getElementById('mobile-nav'); if(!nav) return;
+// Também serve ao dock de favoritos do computador (id 'dock-favoritos', itens .dock-item).
+function posicionarLenteNav(navId = 'mobile-nav', itemSel = '.mobile-nav-item'){
+  const nav = document.getElementById(navId); if(!nav) return;
   let lente = nav.querySelector('.mnav-lente');
   if(!lente){ lente = document.createElement('span'); lente.className = 'mnav-lente'; lente.setAttribute('aria-hidden', 'true'); nav.prepend(lente); }
-  const ativo = nav.querySelector('.mobile-nav-item.active');
+  const ativo = nav.querySelector(itemSel + '.active');
   // (só mexe no que mudou: mudar a classe da própria lente dispararia o observador de novo)
   if(!ativo || !ativo.offsetWidth){ if(lente.classList.contains('on')) lente.classList.remove('on'); return; }
   const folga = 4, w = (ativo.offsetWidth - folga * 2) + 'px', x = `translateX(${ativo.offsetLeft + folga}px)`;
@@ -30,20 +31,25 @@ function posicionarLenteNav(){
   if(lente.style.transform !== x) lente.style.transform = x;
   if(!lente.classList.contains('on')) lente.classList.add('on');
 }
-(function(){
-  const nav = document.getElementById('mobile-nav'); if(!nav) return;
+function vigiarLenteNav(navId, itemSel){
+  const nav = document.getElementById(navId); if(!nav || nav._lenteVigiada) return;
+  nav._lenteVigiada = true;
   let pendente = false;
-  const agendar = () => { if(pendente) return; pendente = true; requestAnimationFrame(() => { pendente = false; posicionarLenteNav(); }); };
+  const agendar = () => { if(pendente) return; pendente = true; requestAnimationFrame(() => { pendente = false; posicionarLenteNav(navId, itemSel); }); };
   new MutationObserver(agendar).observe(nav, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
   window.addEventListener('resize', agendar);
   agendar();
-})();
+}
+vigiarLenteNav('mobile-nav', '.mobile-nav-item');
 
 function updateMobileNav(section){
   // todos os 6 itens são diretos agora
   document.querySelectorAll('.mobile-nav-item').forEach(b => {
     b.classList.toggle('active', b.id === 'mnav-'+section);
   });
+  // Dock de favoritos (computador, menu minimizado): marca a tela que de fato abriu
+  const aberta = (document.querySelector('section:not(.section-hidden)')?.id || '').replace('sec-', '');
+  document.querySelectorAll('.dock-item[data-ir]').forEach(b => b.classList.toggle('active', b.dataset.ir === aberta));
   // Atualiza topbars
   document.querySelectorAll('.mobile-topbar').forEach(el => el.classList.remove('visible'));
   if(isMobile()){

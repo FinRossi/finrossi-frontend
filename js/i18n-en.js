@@ -552,3 +552,6 @@ I18N_EN_ADD({
   [/^(.+) por visita · (\d+) visita\(s\)$/, '$1 per visit · $2 visit(s)'],
   [/^Tempo total \((\d+) dias\)$/, 'Total time ($1 days)'],
 ]);
+
+// ═══ Dock de favoritos (computador, menu minimizado) ═══════════════════════
+I18N_EN_ADD({ 'Favoritos': 'Favourites', 'Mostrar o menu completo': 'Show the full menu', 'Mostrar o menu': 'Show the menu', 'Minimizar o menu': 'Minimise the menu' });

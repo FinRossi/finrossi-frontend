@@ -17,19 +17,25 @@ function verComoPlanoPermite(name){
 
 // ativarVerComo / sairVerComo (o "Ver como" da equipe) chegam no pacote da equipe (interno/equipe no servidor)
 
+// Minimizar o menu lateral (computador): o menu some e aparece o dock de vidro com os favoritos
+// (js/app/34-barra-atalhos.js → renderDockFavoritos). A escolha fica salva no aparelho.
+function _aplicarSidebarMinimizada(min){
+  const sb=document.getElementById('sidebar'), btn=document.getElementById('sb-toggle');
+  if(sb) sb.classList.toggle('collapsed', min);
+  document.body.classList.toggle('sb-minimizado', min);
+  if(btn){ btn.textContent=min?'›':'‹'; btn.title=min?'Mostrar o menu':'Minimizar o menu'; }
+  if(typeof renderDockFavoritos==='function') renderDockFavoritos();
+}
 function toggleSidebar(){
-  const sb=document.getElementById('sidebar');
-  const btn=document.getElementById('sb-toggle');
-  const collapsed=sb.classList.toggle('collapsed');
-  btn.textContent=collapsed?'›':'‹';
-  btn.title=collapsed?'Expandir sidebar':'Minimizar sidebar';
-  localStorage.setItem('fin_sb_collapsed',collapsed?'1':'0');
+  const min=!document.getElementById('sidebar').classList.contains('collapsed');
+  _aplicarSidebarMinimizada(min);
+  try{ localStorage.setItem('fin_sb_collapsed',min?'1':'0'); }catch(e){}
 }
 function initSidebar(){
-  const collapsed=localStorage.getItem('fin_sidebar_collapsed')==='1';
-  const sb=document.getElementById('sidebar');
-  const btn=document.getElementById('sb-toggle');
-  if(collapsed){ sb.classList.add('collapsed'); if(btn)btn.textContent='›'; }
+  // (antes gravava "fin_sb_collapsed" e lia "fin_sidebar_collapsed": o menu sempre voltava aberto)
+  let min=false;
+  try{ min=localStorage.getItem('fin_sb_collapsed')==='1'; }catch(e){}
+  _aplicarSidebarMinimizada(min);
   initNavGroups();
   aplicarNavConfig();
 }

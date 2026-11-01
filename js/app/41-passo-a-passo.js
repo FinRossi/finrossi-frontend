@@ -85,6 +85,8 @@ async function talvezIniciarPassoAPasso(){
 function iniciarPassoAPasso(){
   if(_pp) return;
   if(typeof closeMobileMoreForce === 'function') try{ closeMobileMoreForce(); }catch(e){}
+  // Computador com o menu minimizado (dock de favoritos): abre o menu lateral, que é o que o passeio mostra
+  if(!_ppCelular() && document.getElementById('sidebar')?.classList.contains('collapsed') && typeof toggleSidebar === 'function') toggleSidebar();
   const passos = _ppPassosValidos();
   _pp = { passos, i:0, voltarPara: document.querySelector('section:not(.section-hidden)')?.id?.replace('sec-', '') || 'dashboard' };
   let m = document.getElementById('pp-tour');

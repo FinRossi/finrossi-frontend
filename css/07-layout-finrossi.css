@@ -527,3 +527,47 @@ body.pp-aberto #pwa-fab,body.pp-aberto #pwa-banner,body.pp-aberto #ios-banner,bo
   .mobile-nav{background:color-mix(in srgb,var(--surface) 94%,transparent)}
 }
 @media(prefers-reduced-motion:reduce){.mnav-lente,.mobile-nav-item svg{transition:none}}
+
+/* ── Computador: menu lateral minimizado → dock de favoritos em vidro leitoso ──
+   A setinha ‹ esconde o menu lateral por inteiro; no rodapé aparece o dock (js/app/34-barra-atalhos.js)
+   com "Menu" + os favoritos, no mesmo vidro da barra do celular, e a lente que desliza até a tela aberta. */
+body.sb-minimizado .sidebar.collapsed{width:0;padding:0;border-right:0}
+body.sb-minimizado .sidebar-toggle{display:none}   /* o "Menu" do dock traz o menu de volta */
+.dock-favoritos{display:none}
+body.sb-minimizado .dock-favoritos{
+  display:flex;align-items:center;gap:2px;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:120;
+  height:68px;padding:0 8px;border-radius:34px;isolation:isolate;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 55%,rgba(255,255,255,.05)),
+    color-mix(in srgb,var(--surface) 42%,transparent);
+  -webkit-backdrop-filter:blur(22px) saturate(190%) brightness(1.06);backdrop-filter:blur(22px) saturate(190%) brightness(1.06);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,255,255,.05),0 16px 40px rgba(0,0,0,.42),0 3px 8px rgba(0,0,0,.22);
+  animation:dock-entra .45s cubic-bezier(.3,1.35,.45,1);
+}
+@keyframes dock-entra{from{opacity:0;transform:translateX(-50%) translateY(18px) scale(.96)}to{opacity:1;transform:translateX(-50%)}}
+.dock-favoritos::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:2;
+  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,.10) 30%,rgba(255,255,255,0) 55%,rgba(255,255,255,.14) 85%,rgba(255,255,255,.30));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+}
+.dock-favoritos::after{content:'';position:absolute;left:18px;right:18px;top:1px;height:46%;border-radius:30px 30px 60% 60% / 30px 30px 18px 18px;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,0));pointer-events:none;z-index:0}
+.dock-item{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  width:76px;height:100%;border:none;background:none;color:var(--muted);font:500 10.5px 'DM Sans',sans-serif;cursor:pointer;
+  transition:color .25s ease,transform .18s ease}
+.dock-item svg{width:21px;height:21px;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.dock-item:hover{color:var(--text)}
+.dock-item:hover svg{transform:translateY(-2px) scale(1.12)}
+.dock-item:active{transform:scale(.92)}
+.dock-item.active{color:var(--accent)}
+.dock-item.active svg{transform:translateY(-1px) scale(1.08)}
+.dock-sep{width:1px;height:34px;margin:0 4px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.18),transparent);z-index:1}
+.dock-favoritos .mnav-lente{top:7px;bottom:7px}
+[data-theme="claro"] body.sb-minimizado .dock-favoritos{
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.30)),color-mix(in srgb,var(--surface) 35%,transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 14px 34px rgba(0,0,0,.14),0 2px 6px rgba(0,0,0,.08)}
+[data-theme="claro"] .dock-favoritos::before{background:linear-gradient(150deg,#fff,rgba(255,255,255,.4) 35%,rgba(0,0,0,.06) 70%,rgba(255,255,255,.8))}
+[data-theme="claro"] .dock-sep{background:linear-gradient(180deg,transparent,rgba(0,0,0,.15),transparent)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){body.sb-minimizado .dock-favoritos{background:color-mix(in srgb,var(--surface) 94%,transparent)}}
+@media(max-width:767px){body.sb-minimizado .dock-favoritos{display:none}}
+@media(prefers-reduced-motion:reduce){body.sb-minimizado .dock-favoritos{animation:none}.dock-item svg{transition:none}}
