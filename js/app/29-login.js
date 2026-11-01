@@ -39,22 +39,17 @@ function irisTransition(callback){
 }
 
 // ─── Acesso Master: só pelo Google (verificação em duas etapas da conta Google) ───
-// A tela de login é igual para todos: o Google fica em "Acesso da equipe" (alternarAcessoEquipe) e digitar
-// um e-mail não muda nada na tela. Antes o botão aparecia ao digitar o e-mail do Master, o que mostrava a
-// qualquer um qual conta é a do dono. O e-mail do Master não fica escrito no site: só a impressão digital
-// dele (SHA-256), usada apenas na etapa 2 abaixo.
+// O botão "Entrar com Google" saiu da tela de login por enquanto (ninguém usa): todos entram com e-mail e
+// senha, e digitar um e-mail não muda nada na tela. entrarComGoogle continua aqui para quando voltar.
+// O e-mail do Master não fica escrito no site: só a impressão digital dele (SHA-256), usada na etapa 2 abaixo.
 const HASH_EMAIL_MASTER = 'e75f4dc7f7cb90f39eb64c064602bd19a7195dfcef85bdb33aef58ee6c055fe0';
-function alternarAcessoEquipe(){
-  const b = document.getElementById('login-equipe'); if(!b) return;
-  b.style.display = b.style.display === 'none' ? 'block' : 'none';
-}
 async function ehEmailMaster(v){
   try{
     const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(v || '').trim().toLowerCase()));
     return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('') === HASH_EMAIL_MASTER;
   }catch(e){ return false; }
 }
-// Etapa 1 (agora): o Master entra pela senha ou pelo Google ("Acesso da equipe"), até o Lucas confirmar que o Google funciona.
+// Etapa 1 (agora): todos entram pela senha (o botão do Google está fora da tela de login).
 // Etapa 2: MASTER_SO_GOOGLE = true esconde a senha ao digitar o e-mail do Master (e as regras do banco passam a exigir o Google).
 const MASTER_SO_GOOGLE = false;
 async function atualizarLoginMaster(){
