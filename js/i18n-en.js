@@ -626,3 +626,12 @@ I18N_EN_ADD({
   'Escolha até 6 favoritos: os 5 primeiros ficam na barra de baixo e o 6º aparece aqui.': 'Choose up to 6 favourites: the first 5 go in the bottom bar and the 6th shows up here.',
   'As telas que você mais usa: as 5 primeiras ficam na barra de baixo do celular e a 6ª no topo do Mais; no computador, aparecem as 6 no dock (com o menu minimizado). Também dá para editar pelo Mais, segurando o dedo na barra do celular ou pelo lápis do dock.': 'The screens you use most: the first 5 go in the phone’s bottom bar and the 6th at the top of More; on a computer, all 6 appear in the dock (with the menu minimised). You can also edit from More, by holding your finger on the phone bar or with the dock’s pencil.',
 });
+
+// ═══ Favoritos: no máximo 5 ═════════════════════════════════════════════════
+I18N_EN_ADD({
+  'Até 5 favoritos: ficam na barra de baixo do celular (com o Mais) e no dock do computador.': 'Up to 5 favourites: they go in the phone’s bottom bar (with More) and in the computer dock.',
+  'Seus 5 favoritos ficam na barra de baixo. Toque em Editar para escolher.': 'Your 5 favourites live in the bottom bar. Tap Edit to choose them.',
+  'As telas que você mais usa, até 5: ficam na barra de baixo do celular (com o Mais) e no dock do computador (com o menu minimizado). Também dá para editar pelo Mais, segurando o dedo na barra do celular ou pelo lápis do dock.': 'The screens you use most, up to 5: they go in the phone’s bottom bar (with More) and in the computer dock (with the menu minimised). You can also edit from More, by holding your finger on the phone bar or with the dock’s pencil.',
+}, [
+  [/^\((\d+) de (\d+)\)$/, '($1 of $2)'], [/^\(limite de (\d+) atingido\)$/, '(limit of $1 reached)'],
+]);

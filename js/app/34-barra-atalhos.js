@@ -1,6 +1,6 @@
 // js/app/34-barra-atalhos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── BARRA DE ATALHOS (personalizável no plano Patrimônio) ───────────────────
-// • Celular: a barra de baixo tem 5 favoritos + "Mais" (fixo); o 6º favorito fica no topo do Mais.
+// • No máximo 5 favoritos (decisão do Lucas, 01/11/2026): a barra de baixo do celular tem os 5 + "Mais" (fixo).
 // • Computador: se o cliente personalizou, os mesmos atalhos sobem para o topo do menu lateral,
 //   na ordem escolhida. Sem personalização, tudo fica como sempre foi.
 // • Só entram telas que o plano libera. Salvo no aparelho e, para clientes, na nuvem.
@@ -24,7 +24,7 @@ let _ordemOriginalMenu = null;     // ordem do menu lateral antes de qualquer mu
 // Favoritos personalizáveis em todos os planos (01/11/2026, como as cores do app); só entram as telas
 // que o plano libera (_atalhoPermitido). Antes era só no Patrimônio.
 function atalhosTemAcesso(){ return true; }
-const ATALHOS_DOCK_QTD = 6;   // computador: os 5 da barra do celular + o 6º (no celular ele fica no Mais)
+const ATALHOS_DOCK_QTD = ATALHOS_QTD;   // computador: o dock mostra os mesmos 5 (não existe 6º favorito)
 function _atalhoPermitido(id){
   if(id === 'dashboard' || id === 'lancamentos' || id === 'historico') return true;
   if(typeof navOcultoNoPerfil === 'function' && navOcultoNoPerfil(id)) return false;
@@ -46,7 +46,7 @@ function getAtalhos(){
   return lista;
 }
 
-// Dock do computador: os 5 da barra do celular + o 6º que a pessoa escolheu
+// Dock do computador: os mesmos 5 favoritos da barra do celular
 function getAtalhosDock(){
   const lista = getAtalhos();
   (_atalhosSalvos() || []).forEach(id => {
@@ -95,7 +95,7 @@ function aplicarAtalhos(){
 
 // ── Dock de favoritos (computador, menu lateral minimizado) ─────────────────────
 // Minimizar o menu (setinha ‹) esconde o menu lateral e mostra este dock flutuante de vidro no rodapé:
-// "Menu" (traz o menu lateral de volta) + os 6 favoritos.
+// "Menu" (traz o menu lateral de volta) + os 5 favoritos.
 // Visual em css/07-layout-finrossi.css (.dock-favoritos); a lente do ativo vem de 22-mobile-nav.js.
 const ICO_MENU_DOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>';
 function renderDockFavoritos(){
@@ -115,19 +115,19 @@ function renderDockFavoritos(){
   if(typeof vigiarLenteNav === 'function') vigiarLenteNav('dock-favoritos', '.dock-item[data-ir]');
 }
 
-// ── Celular: o 5º e o 6º favoritos (não cabem na barra) ficam no topo do "Mais" ──
+// ── Celular: topo do "Mais" com o atalho "Editar favoritos" ──
 function renderFavoritosMais(){
   const el = document.getElementById('mob-fav-mais'); if(!el) return;
   const extras = getAtalhosDock().slice(ATALHOS_QTD);
   el.innerHTML = `<div class="mob-fav-topo"><h4>Seus favoritos</h4>
       <button type="button" class="mob-fav-editar" onclick="abrirEditorFavoritos()">${ICO_EDITAR_FAV}Editar favoritos</button></div>
     ${extras.length ? `<div class="mob-fav-grade">${extras.map(id => `<button type="button" class="mob-fav-item" onclick="goTo('${id}');closeMobileMoreForce()">${_icoNav(id)}<span>${ATALHOS_NOME_LONGO[id]}</span></button>`).join('')}</div>`
-      : `<p class="mob-fav-dica">Escolha até 6 favoritos: os 5 primeiros ficam na barra de baixo e o 6º aparece aqui.</p>`}`;
+      : `<p class="mob-fav-dica">Seus 5 favoritos ficam na barra de baixo. Toque em Editar para escolher.</p>`}`;
 }
 
 // ── Editor de favoritos (vidro) ──────────────────────────────────────────────
 // Abre pelo lápis do dock (computador), segurando o dedo na barra de baixo (celular) ou em Configurações.
-// Ordem importa: os 5 primeiros ficam na barra do celular; o 6º no topo do Mais. O dock do computador mostra os 6.
+// Até 5 favoritos, na ordem escolhida: barra de baixo do celular e dock do computador.
 const ICO_EDITAR_FAV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
 let _favEdit = null;   // lista em edição
 function abrirEditorFavoritos(){
@@ -142,7 +142,7 @@ function abrirEditorFavoritos(){
   }
   m.innerHTML = `<div class="fav-vidro" role="dialog" aria-modal="true" aria-labelledby="fav-tit">
     <div class="fav-topo"><div><h3 id="fav-tit">Seus favoritos</h3>
-      <p>Os 5 primeiros ficam na barra de baixo do celular; o 6º, no topo do Mais. No computador, o dock mostra os 6.</p></div>
+      <p>Até 5 favoritos: ficam na barra de baixo do celular (com o Mais) e no dock do computador.</p></div>
       <button type="button" class="fav-fechar" onclick="fecharEditorFavoritos()" aria-label="Fechar">✕</button></div>
     <ol class="fav-lista" id="fav-lista"></ol>
     <div class="fav-sub">Adicionar <span id="fav-cont"></span></div>
@@ -161,7 +161,6 @@ function _favPintar(){
   const n = _favEdit.length;
   lista.innerHTML = _favEdit.map((id, i) => `<li class="fav-item" draggable="true" data-i="${i}">
       <span class="fav-pos">${i + 1}</span>${_icoNav(id)}<b>${ATALHOS_NOME_LONGO[id]}</b>
-      <small>${i < ATALHOS_QTD ? 'barra do celular' : 'Mais do celular'}</small>
       <span class="fav-btns">
         <button type="button" onclick="favMover(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button>
         <button type="button" onclick="favMover(${i},1)" ${i === n - 1 ? 'disabled' : ''} aria-label="Descer">↓</button>
@@ -169,7 +168,7 @@ function _favPintar(){
       </span></li>`).join('') || '<li class="fav-vazio">Nenhum favorito. Toque numa tela abaixo para adicionar.</li>';
   const livres = Object.keys(ATALHOS_NOME).filter(id => _atalhoPermitido(id) && !_favEdit.includes(id));
   const cheio = n >= ATALHOS_DOCK_QTD;
-  document.getElementById('fav-cont').textContent = cheio ? '(limite de 6 atingido)' : `(${n} de 6)`;
+  document.getElementById('fav-cont').textContent = cheio ? `(limite de ${ATALHOS_DOCK_QTD} atingido)` : `(${n} de ${ATALHOS_DOCK_QTD})`;
   // Telas que o plano ainda não libera: aparecem com cadeado e levam à escolha de plano
   const presas = Object.keys(ATALHOS_NOME).filter(id => !_atalhoPermitido(id) && !(typeof navOcultoNoPerfil === 'function' && navOcultoNoPerfil(id)));
   const ICO_CADEADO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>';
