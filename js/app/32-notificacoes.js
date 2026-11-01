@@ -130,15 +130,20 @@ function _jaAvisadoHoje(tag){
   return false;
 }
 
+const NOTIF_DIAS_ANTES = 2;   // começa a lembrar 2 dias antes do vencimento (01/11/2026)
 function agendarNotificacoes(){
   if(!_notifLigada()) return;
   if(typeof verComoPlanoPermite==='function' && !verComoPlanoPermite('assinaturas')) return;   // mesmo critério do card do dashboard
-  getVencimentosProximos(1).forEach(a=>{
-    const tag = `venc-${a.tipo}-${a.nome}-${a.dia}`;
+  // Lembra 2 dias antes, na véspera e no dia (uma vez em cada um desses dias)
+  const en = typeof IDIOMA !== 'undefined' && IDIOMA === 'en';
+  getVencimentosProximos(NOTIF_DIAS_ANTES).forEach(a=>{
+    const tag = `venc-${a.tipo}-${a.nome}-${a.dia}-${a.diasFaltam}`;
     if(_jaAvisadoHoje(tag)) return;
-    const msg = a.diasFaltam === 0 ? `${a.nome} vence hoje` : `${a.nome} vence amanhã (dia ${a.dia})`;
+    const msg = en
+      ? (a.diasFaltam === 0 ? `${a.nome} is due today` : a.diasFaltam === 1 ? `${a.nome} is due tomorrow (${a.dia})` : `${a.nome} is due in ${a.diasFaltam} days (${a.dia})`)
+      : (a.diasFaltam === 0 ? `${a.nome} vence hoje` : a.diasFaltam === 1 ? `${a.nome} vence amanhã (dia ${a.dia})` : `${a.nome} vence em ${a.diasFaltam} dias (dia ${a.dia})`);
     // O aparelho não conseguiu mostrar: tira a marca de "avisado hoje" para tentar na próxima conferência
-    _mostrarNotificacao('FinRossi: vencimento próximo', { body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''), tag })
+    _mostrarNotificacao(en ? 'FinRossi: bill due soon' : 'FinRossi: vencimento próximo', { body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''), tag })
       .then(ok => { if(!ok) _desmarcarAvisado(tag); });
   });
 }
@@ -201,7 +206,7 @@ function _convMostrar(adiado){
   m.innerHTML = `<div class="fav-vidro conv-notif" role="dialog" aria-modal="true" aria-labelledby="conv-tit">
     <div class="conv-sino" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
     <h3 id="conv-tit">Ative as notificações</h3>
-    <p>Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer, na véspera e no dia. Assim nada passa do prazo.</p>
+    <p>Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer: 2 dias antes, na véspera e no dia. Assim nada passa do prazo.</p>
     <div class="conv-acoes">
       <button type="button" class="btn primary" onclick="convNotifAtivar()">Ativar notificações</button>
       <button type="button" class="btn" onclick="convNotifDepois(${adiado})">Lembrar depois</button>

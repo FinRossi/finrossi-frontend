@@ -574,6 +574,6 @@ I18N_EN_ADD({
 // ═══ Convite para ativar as notificações (js/app/32-notificacoes.js) ═══════
 I18N_EN_ADD({
   'Ative as notificações': 'Turn on notifications', 'Ativar notificações': 'Turn on notifications', 'Lembrar depois': 'Remind me later', 'Não perguntar mais': 'Don’t ask again',
-  'Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer, na véspera e no dia. Assim nada passa do prazo.': 'We’ll let you know on your device when a bill, subscription or card statement is about to fall due, the day before and on the day. So nothing slips past.',
-  'Avisos no aparelho (com o app aberto) e no painel, na véspera e no dia': 'Alerts on your device (with the app open) and on the dashboard, the day before and on the day',
+  'Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer: 2 dias antes, na véspera e no dia. Assim nada passa do prazo.': 'We’ll let you know on your device when a bill, subscription or card statement is about to fall due: 2 days before, the day before and on the day. So nothing slips past.',
+  'Avisos no aparelho (com o app aberto) e no painel: 2 dias antes, na véspera e no dia': 'Alerts on your device (with the app open) and on the dashboard: 2 days before, the day before and on the day',
 });
