@@ -1,13 +1,13 @@
 // js/app/34-barra-atalhos.js — carregado pelo index.html em ordem numérica. Não mude a ordem sem revisar.
 // ─── BARRA DE ATALHOS (personalizável no plano Patrimônio) ───────────────────
-// • Celular: a barra de baixo tem 4 atalhos + "Mais" (fixo). O cliente Patrimônio escolhe os 4.
+// • Celular: a barra de baixo tem 5 favoritos + "Mais" (fixo); o 6º favorito fica no topo do Mais.
 // • Computador: se o cliente personalizou, os mesmos atalhos sobem para o topo do menu lateral,
 //   na ordem escolhida. Sem personalização, tudo fica como sempre foi.
 // • Só entram telas que o plano libera. Salvo no aparelho e, para clientes, na nuvem.
 // Também cuida do "Instalar o app" no celular (item no menu Mais + botão flutuante).
 
-const ATALHOS_PADRAO = ['dashboard','lancamentos','historico','metas'];
-const ATALHOS_QTD = 4;
+const ATALHOS_PADRAO = ['dashboard','lancamentos','historico','metas','investimentos'];
+const ATALHOS_QTD = 5;   // barra de baixo do celular (01/11/2026: eram 4; o Lucas pediu os 5 que dá para escolher)
 const ATALHOS_NOME = {
   dashboard:'Início', lancamentos:'Lançar', historico:'Histórico', investimentos:'Investir', metas:'Metas',
   objetivos:'Objetivos', renda:'Renda', score:'Saúde', relatorios:'Relatórios', cartoes:'Cartões',
@@ -24,7 +24,7 @@ let _ordemOriginalMenu = null;     // ordem do menu lateral antes de qualquer mu
 // Favoritos personalizáveis em todos os planos (01/11/2026, como as cores do app); só entram as telas
 // que o plano libera (_atalhoPermitido). Antes era só no Patrimônio.
 function atalhosTemAcesso(){ return true; }
-const ATALHOS_DOCK_QTD = 6;   // computador: os 4 da barra do celular + até 2 que aparecem só no dock
+const ATALHOS_DOCK_QTD = 6;   // computador: os 5 da barra do celular + o 6º (no celular ele fica no Mais)
 function _atalhoPermitido(id){
   if(id === 'dashboard' || id === 'lancamentos' || id === 'historico') return true;
   if(typeof navOcultoNoPerfil === 'function' && navOcultoNoPerfil(id)) return false;
@@ -36,7 +36,7 @@ function _atalhosSalvos(){
   try{ const v = JSON.parse(localStorage.getItem(_atalhosChave()) || 'null'); if(Array.isArray(v)) return v; }catch(e){}
   return null;
 }
-// Lista final de 4 atalhos válidos (completa com os padrões se faltar algum)
+// Lista final dos favoritos da barra do celular (completa com os padrões se faltar algum)
 function getAtalhos(){
   const salvos = atalhosTemAcesso() ? (_atalhosSalvos() || ATALHOS_PADRAO) : ATALHOS_PADRAO;
   const lista = [];
@@ -46,7 +46,7 @@ function getAtalhos(){
   return lista;
 }
 
-// Dock do computador: os 4 da barra do celular + as posições 5 e 6 que a pessoa escolheu
+// Dock do computador: os 5 da barra do celular + o 6º que a pessoa escolheu
 function getAtalhosDock(){
   const lista = getAtalhos();
   (_atalhosSalvos() || []).forEach(id => {
@@ -63,7 +63,7 @@ function _icoNav(id){
 function aplicarAtalhos(){
   const atalhos = getAtalhos();
 
-  // Celular: reconstrói os 4 botões antes do "Mais"
+  // Celular: reconstrói os 5 botões antes do "Mais"
   const nav = document.getElementById('mobile-nav'), mais = document.getElementById('mnav-mais');
   if(nav && mais){
     nav.querySelectorAll('.mobile-nav-item:not(#mnav-mais)').forEach(b => b.remove());
@@ -95,7 +95,7 @@ function aplicarAtalhos(){
 
 // ── Dock de favoritos (computador, menu lateral minimizado) ─────────────────────
 // Minimizar o menu (setinha ‹) esconde o menu lateral e mostra este dock flutuante de vidro no rodapé:
-// "Menu" (traz o menu lateral de volta) + os favoritos (os mesmos 4 atalhos da barra do celular).
+// "Menu" (traz o menu lateral de volta) + os 6 favoritos.
 // Visual em css/07-layout-finrossi.css (.dock-favoritos); a lente do ativo vem de 22-mobile-nav.js.
 const ICO_MENU_DOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>';
 function renderDockFavoritos(){
@@ -122,12 +122,12 @@ function renderFavoritosMais(){
   el.innerHTML = `<div class="mob-fav-topo"><h4>Seus favoritos</h4>
       <button type="button" class="mob-fav-editar" onclick="abrirEditorFavoritos()">${ICO_EDITAR_FAV}Editar favoritos</button></div>
     ${extras.length ? `<div class="mob-fav-grade">${extras.map(id => `<button type="button" class="mob-fav-item" onclick="goTo('${id}');closeMobileMoreForce()">${_icoNav(id)}<span>${ATALHOS_NOME_LONGO[id]}</span></button>`).join('')}</div>`
-      : `<p class="mob-fav-dica">Escolha até 6 favoritos: os 4 primeiros ficam na barra de baixo e os outros aparecem aqui.</p>`}`;
+      : `<p class="mob-fav-dica">Escolha até 6 favoritos: os 5 primeiros ficam na barra de baixo e o 6º aparece aqui.</p>`}`;
 }
 
 // ── Editor de favoritos (vidro) ──────────────────────────────────────────────
 // Abre pelo lápis do dock (computador), segurando o dedo na barra de baixo (celular) ou em Configurações.
-// Ordem importa: os 4 primeiros ficam na barra do celular e no dock; o 5º e o 6º só no dock do computador.
+// Ordem importa: os 5 primeiros ficam na barra do celular; o 6º no topo do Mais. O dock do computador mostra os 6.
 const ICO_EDITAR_FAV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
 let _favEdit = null;   // lista em edição
 function abrirEditorFavoritos(){
@@ -142,7 +142,7 @@ function abrirEditorFavoritos(){
   }
   m.innerHTML = `<div class="fav-vidro" role="dialog" aria-modal="true" aria-labelledby="fav-tit">
     <div class="fav-topo"><div><h3 id="fav-tit">Seus favoritos</h3>
-      <p>Os 4 primeiros ficam na barra de baixo do celular; o 5º e o 6º, no topo do Mais. No computador, o dock mostra os 6.</p></div>
+      <p>Os 5 primeiros ficam na barra de baixo do celular; o 6º, no topo do Mais. No computador, o dock mostra os 6.</p></div>
       <button type="button" class="fav-fechar" onclick="fecharEditorFavoritos()" aria-label="Fechar">✕</button></div>
     <ol class="fav-lista" id="fav-lista"></ol>
     <div class="fav-sub">Adicionar <span id="fav-cont"></span></div>

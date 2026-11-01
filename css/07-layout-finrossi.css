@@ -687,3 +687,8 @@ body.sb-minimizado .dock-favoritos{
 .mob-fav-item svg{width:20px;height:20px;color:var(--accent);flex-shrink:0}
 .mob-fav-item:active{transform:scale(.97)}
 .mob-fav-dica{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Barra do celular com 6 botões (5 favoritos + Mais): mais justos para caber em telas de 360 px */
+.mobile-nav{padding:0 4px}
+.mobile-nav-item{padding:0 1px;min-width:0;font-size:9px;letter-spacing:-.1px}
+.mobile-nav-item svg{width:19px;height:19px}
