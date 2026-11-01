@@ -613,9 +613,9 @@ function renderDashCartaoWidget(){
       </select>` : '';
   }
   el.innerHTML=`
-    <div style="display:flex;align-items:center;gap:20px">
+    <div class="dash-cartao-linha" style="display:flex;align-items:center;gap:20px">
       ${cartaoVisualHTML(c, 270, 170)}
-      <div style="flex:1;min-width:0">
+      <div class="dash-cartao-info" style="flex:1;min-width:0">
         <div style="font-size:12px;color:var(--muted);margin-bottom:5px">Limite disponível</div>
         <div style="font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:12px">${fmtR(disponivel)}</div>
         <div style="background:var(--surface3);border-radius:4px;height:6px;overflow:hidden">

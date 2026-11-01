@@ -692,3 +692,17 @@ body.sb-minimizado .dock-favoritos{
 .mobile-nav{padding:0 4px}
 .mobile-nav-item{padding:0 1px;min-width:0;font-size:9px;letter-spacing:-.1px}
 .mobile-nav-item svg{width:19px;height:19px}
+
+/* ── Dashboard, card Cartões: no celular o limite vai para baixo do cartão (ao lado, o valor era cortado) ── */
+@media(max-width:600px){
+  .dash-cartao-linha{flex-direction:column;align-items:stretch!important;gap:16px!important}
+  .dash-cartao-linha>:first-child{align-self:center;max-width:100%}
+  .dash-cartao-info{width:100%}
+}
+
+/* ── Ajustar foto do perfil: no meio da tela (no celular as janelas ficam embaixo; esta ficava embaixo e à esquerda) ── */
+#modal-ajuste-foto{align-items:center!important;justify-content:center!important;z-index:260}
+#modal-ajuste-foto .modal{width:min(340px,100%);margin:auto;border-radius:18px!important}
+@media(max-width:768px){   /* no celular as janelas são presas na borda de baixo (03-responsivo.css): esta não */
+  #modal-ajuste-foto .modal{position:relative!important;bottom:auto!important;left:auto!important;right:auto!important;width:min(340px,calc(100vw - 24px))!important;border:1px solid var(--border2)!important}
+}
