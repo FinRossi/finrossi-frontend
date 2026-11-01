@@ -39,14 +39,24 @@ function irisTransition(callback){
 }
 
 // ─── Acesso Master: só pelo Google (verificação em duas etapas da conta Google) ───
-const EMAIL_MASTER = 'lucasrossi2100@gmail.com';
-const ehEmailMaster = v => String(v || '').trim().toLowerCase() === EMAIL_MASTER;
+// O e-mail do Master não fica escrito no site: só a impressão digital dele (SHA-256), comparada aqui
+const HASH_EMAIL_MASTER = 'e75f4dc7f7cb90f39eb64c064602bd19a7195dfcef85bdb33aef58ee6c055fe0';
+let _emailMasterDigitado = false;   // resposta da última conferência (o campo muda a cada tecla)
+async function ehEmailMaster(v){
+  try{
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(v || '').trim().toLowerCase()));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('') === HASH_EMAIL_MASTER;
+  }catch(e){ return false; }
+}
 // Digitou o e-mail do Master: aparece o botão do Google.
 // Etapa 1 (agora): senha e Google lado a lado, até o Lucas confirmar que o Google funciona.
 // Etapa 2: MASTER_SO_GOOGLE = true esconde a senha (e as regras do banco passam a exigir o Google).
 const MASTER_SO_GOOGLE = false;
-function atualizarLoginMaster(){
-  const master = ehEmailMaster(document.getElementById('login-email')?.value);
+async function atualizarLoginMaster(){
+  const campo = document.getElementById('login-email'), v = campo?.value;
+  const master = await ehEmailMaster(v);
+  if(campo && campo.value !== v) return;   // digitou mais enquanto conferia: vale a conferência seguinte
+  _emailMasterDigitado = master;
   const g = document.getElementById('btn-login-google');
   if(g) g.style.display = master ? 'flex' : 'none';
   if(!MASTER_SO_GOOGLE) return;
@@ -60,7 +70,8 @@ async function entrarComGoogle(){
   if(!f || !f.firebaseOk || !f.GoogleAuthProvider) return;
   erroEl.style.display = 'none';
   const provedor = new f.GoogleAuthProvider();
-  provedor.setCustomParameters({ login_hint: EMAIL_MASTER, prompt: 'select_account' });
+  const digitado = String(document.getElementById('login-email')?.value || '').trim();
+  provedor.setCustomParameters(_emailMasterDigitado && digitado ? { login_hint: digitado, prompt: 'select_account' } : { prompt: 'select_account' });
   try{
     await f.signInWithPopup(f.auth, provedor);
   }catch(e){
@@ -80,7 +91,7 @@ async function entrarComGoogle(){
 
 async function fazerLogin(){
   const email=document.getElementById('login-email').value.trim();
-  if(MASTER_SO_GOOGLE && ehEmailMaster(email)){ atualizarLoginMaster(); entrarComGoogle(); return; }
+  if(MASTER_SO_GOOGLE && await ehEmailMaster(email)){ await atualizarLoginMaster(); entrarComGoogle(); return; }
   const senha=document.getElementById('login-senha').value;
   const erroEl=document.getElementById('login-erro');
   const btn=document.getElementById('btn-login');
@@ -226,5 +237,8 @@ async function fazerLogout(){
   const senhaInp = document.getElementById('login-senha');
   if(emailInp) emailInp.value='';
   if(senhaInp) senhaInp.value='';
+
+  // Quem saiu era da equipe: recarrega a página para não sobrar nada das telas da equipe no navegador
+  if(typeof _equipeCarregada !== 'undefined' && _equipeCarregada) setTimeout(() => location.reload(), 60);
 }
 

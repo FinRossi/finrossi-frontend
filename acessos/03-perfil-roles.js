@@ -86,6 +86,9 @@ function setupPerfilUI(){
     finrossiAutenticado=true; // pula senha para clientes
     setTimeout(()=>{ cp='finrossi'; goTo('clientes'); },200);
   }
+
+  // Telas da equipe (Clientes, Sócios, Painel do negócio...): baixadas do servidor só para quem é da equipe
+  if(equipe) carregarEquipe();
 }
 
 // ─── Senha própria do perfil FinRossi (Master) ───────────────────────────────
@@ -232,7 +235,7 @@ function _setProfileFinRossi(){
   refreshAll();
   try{ initAvatar(); }catch(e){}   // cada perfil tem a sua foto
   _extrasAtualizarMenu();
-  if(isMaster()) carregarExtrasEquipe();
+  if(isMaster()) carregarEquipe().then(() => carregarExtrasEquipe());   // a IA se encaixa ao lado do QR Code, que vem no pacote da equipe
 }
 
 function setProfile(p){
@@ -272,6 +275,11 @@ function goTo(name){
     name = 'dashboard'; // plano simulado não libera essa seção — redireciona
   }
   if(!SECS.includes(name)) name = 'dashboard';   // tela que não existe (ou não é desta pessoa): nada de página em branco
+  // Tela da equipe que ainda não chegou do servidor: mostra o dashboard e abre a tela quando chegar
+  if(TELAS_EQUIPE[name] && !document.getElementById('sec-'+name)){
+    if(isEquipe()) carregarEquipe().then(ok => { if(ok && document.getElementById('sec-'+name)) goTo(name); });
+    name = 'dashboard';
+  }
   SECS.forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.classList.toggle('section-hidden',s!==name);
@@ -280,11 +288,34 @@ function goTo(name){
     const oc=b.getAttribute('onclick');
     if(oc) b.classList.toggle('active',oc.includes("'"+name+"'"));
   });
-  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,clientes:renderClientes,socios:renderSocios,preview:renderPreview,'minha-assinatura':renderMinhaAssinatura,qr:()=>{ if(typeof renderQrCode==='function') renderQrCode(); }};
+  const fn={dashboard:refreshDash,investimentos:renderInvs,historico:renderHistorico,metas:renderMetas,objetivos:renderObjs,renda:renderRP,score:renderScore,relatorios:renderRelatorio,notas:renderNotas,assinaturas:renderAssinaturas,recorrentes:renderRecorrentes,calendario:renderCalendario,manual:renderManual,cartoes:renderCartoes,'minha-assinatura':renderMinhaAssinatura};
   if(fn[name]) fn[name]();
-  else if(name==='negocio' && typeof renderNegocio==='function') renderNegocio();   // Painel do negócio (js/app/40-painel-negocio.js)
+  else if(TELAS_EQUIPE[name]){ const f = window[TELAS_EQUIPE[name]]; if(typeof f === 'function') f(); }
   else if(_extras.telas[name]) _extras.telas[name]();
   if(name==='lancamentos' && typeof atualizarBotaoFoto==='function') atualizarBotaoFoto();
+}
+
+// ─── Telas da equipe (Clientes, Sócios, Painel do negócio, QR Code, Prévia, "Ver como") ──────
+// Não ficam no site público: o servidor (GET /admin/equipe.js) entrega só para o login de quem é da
+// equipe — Sócios e QR Code só para o Master — e o pacote encaixa as telas, menus e janelas no app.
+// Clientes recebem 403 e nada disso chega ao navegador deles.
+const TELAS_EQUIPE = { clientes:'renderClientes', socios:'renderSocios', preview:'renderPreview', qr:'renderQrCode', negocio:'renderNegocio' };
+let _equipeCarregada = null;
+function carregarEquipe(){
+  if(_equipeCarregada) return _equipeCarregada;
+  if(!isEquipe() || !window._firebaseUser || typeof fetchBackend !== 'function') return Promise.resolve(false);
+  _equipeCarregada = (async () => {
+    const res = await fetchBackend(`${BACKEND_URL}/admin/equipe.js`, { headers:{ Authorization:'Bearer ' + await window._firebaseUser.getIdToken() } });
+    if(!res.ok) throw new Error('servidor respondeu ' + res.status);
+    const url = URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }));
+    await new Promise((pronto, erro) => {
+      const s = document.createElement('script');
+      s.src = url; s.onload = () => { URL.revokeObjectURL(url); pronto(); }; s.onerror = erro;
+      document.head.appendChild(s);
+    });
+    return true;
+  })().catch(e => { console.warn('[Equipe] telas da equipe não carregaram:', e && e.message); _equipeCarregada = null; return false; });
+  return _equipeCarregada;
 }
 
 // ─── Ferramentas internas da equipe ──────────────────────────────────────────

@@ -160,13 +160,23 @@
       _presencaUid = null; _presencaParar = null;
     };
 
+    // Conta do dono (Master): o e-mail não fica escrito no site, só a impressão digital dele (SHA-256)
+    const HASH_EMAIL_DONO = 'e75f4dc7f7cb90f39eb64c064602bd19a7195dfcef85bdb33aef58ee6c055fe0';
+    const ehContaDono = async (email) => {
+      try{
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(email || '').trim().toLowerCase()));
+        return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('') === HASH_EMAIL_DONO;
+      }catch(e){ return false; }
+    };
+
     onAuthStateChanged(auth, async (user) => {
       if(!iniciou){ iniciou = true; }
       window._firebaseUser = user;
+      const dono = !!user && await ehContaDono(user.email);
 
       // "Entrar com Google" é só do acesso Master (verificação em duas etapas da conta Google).
       // Qualquer outra conta Google é desconectada na hora.
-      if(user && user.email !== 'lucasrossi2100@gmail.com'){
+      if(user && !dono){
         try{
           if((await user.getIdTokenResult()).signInProvider === 'google.com'){
             await signOut(auth);
@@ -177,7 +187,7 @@
         }catch(e){}
       }
       if(user){
-        if(user.email === 'lucasrossi2100@gmail.com'){
+        if(dono){
           window._userRole = 'master'; // dono: nível Master (acima de Sócio)
           window._userPlano = 'patrimonio';
           try{ if(typeof definirMoeda === 'function') definirMoeda('BRL'); }catch(e){}

@@ -80,7 +80,7 @@
 <script src="planos/patrimonio/relatorios.js?v=8" defer></script>
 
 <!-- Firebase SDK -->
-<script type="module" src="js/firebase-init.js?v=21"></script>
+<script type="module" src="js/firebase-init.js?v=22"></script>
 <!-- Estilos do app (ordem importa) -->
 <link rel="stylesheet" href="css/01-variaveis-temas.css?v=3">
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
@@ -88,7 +88,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=9">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=34">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=35">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
@@ -349,21 +349,6 @@ try{
       <span>Gestão</span><span class="sb-group-arrow" id="sb-arrow-gestao">›</span>
     </div>
     <div class="sb-group-items" id="sb-group-gestao">
-    <button class="nav-item" id="nav-negocio" style="display:none" onclick="goTo('negocio')" data-nav="negocio">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-text">Painel do negócio</span>
-    </button>
-    <button class="nav-item" id="nav-clientes-item" style="display:none" onclick="goTo('clientes')" data-nav="clientes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="nav-text">Clientes</span>
-    </button>
-    <button class="nav-item" id="nav-socios-item" style="display:none" onclick="goTo('socios')" data-nav="socios">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4"/><path d="M18 5l2 2"/><path d="M15 8l2 2"/></svg><span class="nav-text">Sócios</span>
-    </button>
-    <button class="nav-item" id="nav-qr" style="display:none" onclick="goTo('qr')" data-nav="qr">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><span class="nav-text">QR Code</span>
-    </button>
-    <button class="nav-item" onclick="goTo('preview')" id="nav-preview" data-nav="preview" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Prévia dos planos</span>
-    </button>
     </div>
   </div>
 
@@ -1095,134 +1080,10 @@ try{
   <div id="cartoes-content" style="width:100%"></div>
 </section>
 
-<!-- CLIENTES -->
-<section id="sec-negocio" class="section-hidden">
-  <div class="mobile-topbar visible" id="mob-top-negocio"><div style="font-family:'DM Serif Display',serif;font-size:20px">Painel do negócio</div></div>
-  <div class="page-header">
-    <div class="page-title"><h2>Painel do negócio</h2><p>Resumo, receita, atenção e funil dos clientes do FinRossi</p></div>
-    <div class="header-actions"><button class="btn" type="button" onclick="renderNegocio()">Atualizar</button></div>
-  </div>
-  <div id="negocio-conteudo"></div>
-</section>
 
-<section id="sec-clientes" class="section-hidden">
-  <div class="mobile-topbar visible" id="mob-top-clientes"><div style="font-family:'DM Serif Display',serif;font-size:20px">Clientes</div><button class="btn primary sm" onclick="openModalNovoCliente()" style="height:36px;font-size:13px">+ Novo cliente</button></div>
-  <div class="page-header">
-    <div class="page-title"><h2>Clientes</h2><p>Gestão de clientes FinRossi</p></div>
-    <div class="header-actions">
-      <button class="btn primary" onclick="openModalNovoCliente()">+ Novo cliente</button>
-    </div>
-  </div>
-  <div class="metrics" id="clientes-metrics"></div>
-  <!-- Acessos por dia (js/app/40-painel-negocio.js): pessoas diferentes que abriram o app em cada dia -->
-  <div class="card cli-acessos" style="margin-bottom:16px">
-    <div class="neg-tit"><h3>Acessos por dia</h3><span id="cli-acessos-resumo">últimos 14 dias</span></div>
-    <div class="chart-wrap" style="height:200px"><canvas id="c-cli-acessos"></canvas></div>
-  </div>
 
-  <!-- FILTROS -->
-  <div class="filter-bar" style="margin-bottom:14px">
-    <select id="cli-filtro-status" onchange="renderClientes()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none">
-      <option value="">Todos os status</option>
-      <option value="ativo">Ativos</option>
-      <option value="trial">Trial</option>
-      <option value="inativo">Inativos</option>
-    </select>
-    <select id="cli-filtro-plano" onchange="renderClientes()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none">
-      <option value="">Todos os planos</option>
-      <option value="gratuito">Gratuito</option>
-      <option value="essencial">Essencial</option>
-      <option value="evolucao">Evolução</option>
-      <option value="patrimonio">Patrimônio</option>
-    </select>
-    <input id="cli-busca" type="text" placeholder="Buscar por nome ou email..." oninput="renderClientes()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;flex:1;max-width:260px">
-  </div>
 
-  <!-- TABELA DE CLIENTES -->
-  <div class="card card-full">
-    <div id="clientes-tabela"></div>
-  </div>
-</section>
 
-<section id="sec-socios" class="section-hidden">
-  <div class="mobile-topbar visible" id="mob-top-socios"><div style="font-family:'DM Serif Display',serif;font-size:20px">Sócios</div><button class="btn primary sm" onclick="openNovoAcesso()" style="height:36px;font-size:13px">+ Novo acesso</button></div>
-  <div class="page-header">
-    <div class="page-title"><h2>Sócios</h2><p>Acessos da equipe — exclusivo do Master</p></div>
-    <div class="header-actions">
-      <button class="btn primary" onclick="openNovoAcesso()">+ Novo acesso</button>
-    </div>
-  </div>
-  <div class="metrics" id="socios-metrics"></div>
-  <div class="card"><div id="socios-tabela"></div></div>
-</section>
-
-<!-- PREVIEW (como o cliente vê) -->
-<!-- QR CODE (só o Master): mostrar no celular para a pessoa escanear -->
-<section id="sec-qr" class="section-hidden">
-  <div class="mobile-topbar visible" id="mob-top-qr"><div style="font-family:'DM Serif Display',serif;font-size:20px">QR Code</div></div>
-  <div class="page-header"><div class="page-title"><h2>QR Code</h2><p>Mostre para a pessoa escanear com a câmera</p></div></div>
-  <div id="qr-conteudo" style="max-width:420px;margin:0 auto"></div>
-</section>
-
-<section id="sec-preview" class="section-hidden">
-  <div class="page-header">
-    <div class="page-title"><h2>Review de planos</h2><p>Visualize exatamente o que cada cliente vê</p></div>
-  </div>
-
-  <!-- Seletor de plano -->
-  <div class="card card-full" style="margin-bottom:20px">
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Simular plano:</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="preview-plan-btns">
-        <button onclick="setPreviewPlano('gratuito')" id="prev-btn-gratuito" class="btn" style="font-size:12px">Gratuito</button>
-        <button onclick="setPreviewPlano('essencial')" id="prev-btn-essencial" class="btn" style="font-size:12px">Essencial</button>
-        <button onclick="setPreviewPlano('evolucao')" id="prev-btn-evolucao" class="btn" style="font-size:12px">Evolução</button>
-        <button onclick="setPreviewPlano('patrimonio')" id="prev-btn-patrimonio" class="btn primary" style="font-size:12px">Patrimônio</button>
-      </div>
-      <div id="preview-plano-badge" style="margin-left:auto;font-size:12px;padding:4px 12px;border-radius:20px;background:var(--accent-s);color:var(--accent);font-weight:500"></div>
-    </div>
-  </div>
-
-  <!-- Descrição do plano selecionado -->
-  <div id="preview-plano-desc" style="margin-bottom:20px"></div>
-
-  <!-- Simulação visual da sidebar do cliente -->
-  <div class="grid2" style="align-items:start">
-    <!-- Sidebar simulada -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface2)">
-        <div style="font-size:13px;font-weight:500;color:var(--text);font-family:'DM Serif Display',serif">Fin<span style="color:var(--accent)">Rossi</span></div>
-        <div style="font-size:11px;color:var(--muted)">Visão do cliente</div>
-      </div>
-      <div style="padding:10px 8px" id="preview-sidebar"></div>
-    </div>
-
-    <!-- Painel de permissões -->
-    <div class="card">
-      <h3><span class="dot" style="background:var(--accent)"></span>Permissões do plano</h3>
-      <div id="preview-permissions" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
-    </div>
-  </div>
-
-  <!-- Limitações detalhadas -->
-  <div class="card card-full" style="margin-top:20px">
-    <h3><span class="dot" style="background:var(--blue)"></span>Comparativo de planos</h3>
-    <div style="overflow-x:auto;margin-top:8px">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border)">
-            <th style="text-align:left;padding:10px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px">Funcionalidade</th>
-            <th style="text-align:center;padding:10px;color:var(--muted);font-size:11px;text-transform:uppercase">Gratuito</th>
-            <th style="text-align:center;padding:10px;color:var(--muted);font-size:11px;text-transform:uppercase">Essencial</th>
-            <th style="text-align:center;padding:10px;color:var(--muted);font-size:11px;text-transform:uppercase">Evolução</th>
-            <th style="text-align:center;padding:10px;color:var(--accent);font-size:11px;text-transform:uppercase">Patrimônio</th>
-          </tr>
-        </thead>
-        <tbody id="preview-comparativo"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
 
 <!-- MODAL GERENCIAR CATEGORIAS -->
 <div class="modal-overlay" id="modal-cats">
@@ -1365,17 +1226,6 @@ try{
       </div>
 
       <div id="cfg-vercomo-wrap" style="display:none">
-        <div style="height:1px;background:var(--border);margin:16px 0"></div>
-        <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px">Ver como (sócio)</label>
-        <div style="background:var(--surface2);border-radius:10px;padding:12px">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Simula na sua própria tela o que cada plano vê, sem precisar deslogar.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="ativarVerComo('gratuito')" class="btn" style="font-size:11px">Gratuito</button>
-            <button onclick="ativarVerComo('essencial')" class="btn" style="font-size:11px">Essencial</button>
-            <button onclick="ativarVerComo('evolucao')" class="btn" style="font-size:11px">Evolução</button>
-            <button onclick="ativarVerComo('patrimonio')" class="btn" style="font-size:11px">Patrimônio</button>
-          </div>
-        </div>
       </div>
 
       <div style="height:1px;background:var(--border);margin:16px 0"></div>
@@ -1570,23 +1420,6 @@ try{
     <!-- FinRossi: área da equipe (só aparece no perfil FinRossi; antes não existia no celular) -->
     <div id="mob-equipe-section" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
       <h4>Gestão</h4>
-      <div class="mobile-profile-opt" id="mnav-item-negocio" onclick="goTo('negocio');closeMobileMoreForce()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><div><div class="po-name">Painel do negócio</div><div class="po-sub">Resumo, receita e funil</div></div></div>
-      <div class="mobile-profile-opt" id="mnav-item-clientes" onclick="goTo('clientes');closeMobileMoreForce()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        <div><div class="po-name">Clientes</div><div class="po-sub">Cadastros, planos e WhatsApp</div></div>
-      </div>
-      <div class="mobile-profile-opt" id="mnav-item-socios" onclick="goTo('socios');closeMobileMoreForce()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0112 0v1"/><path d="M19 8v6M22 11h-6"/></svg>
-        <div><div class="po-name">Sócios e acessos</div><div class="po-sub">Quem entra no FinRossi</div></div>
-      </div>
-      <div class="mobile-profile-opt" id="mnav-item-preview" onclick="goTo('preview');closeMobileMoreForce()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        <div><div class="po-name">Prévia dos planos</div><div class="po-sub">Veja o app como cada plano</div></div>
-      </div>
-      <div class="mobile-profile-opt" id="mnav-item-qr" onclick="goTo('qr');closeMobileMoreForce()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
-        <div><div class="po-name">QR Code</div><div class="po-sub">Mostrar para a pessoa escanear</div></div>
-      </div>
     </div>
     <!-- Menu -->
     <div id="mob-menu-section" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
@@ -1826,217 +1659,9 @@ try{
   </div>
 </div>
 
-<!-- MODAL EDITAR CLIENTE -->
-<div class="modal-overlay" id="modal-editar-cliente">
-  <div class="modal" style="max-width:480px">
-    <h3>Editar cliente</h3>
-    <input type="hidden" id="ec-uid">
 
-    <!-- Info do cliente (readonly) -->
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px">
-      <div id="ec-nome-display" style="font-size:14px;font-weight:500;color:var(--text)">—</div>
-      <div id="ec-email-display" style="font-size:12px;color:var(--muted);margin-top:2px">—</div>
-    </div>
 
-    <div class="form-row">
-      <!-- Plano -->
-      <div class="field">
-        <label>Plano</label>
-        <select id="ec-plano">
-          <option value="gratuito">Gratuito (30 dias)</option>
-          <option value="essencial">Essencial — R$9,90/mês</option>
-          <option value="evolucao">Evolução — R$24,90/mês</option>
-          <option value="patrimonio">Patrimônio — R$49,90/mês</option>
-        </select>
-      </div>
-      <!-- Status -->
-      <div class="field">
-        <label>Status</label>
-        <select id="ec-status">
-          <option value="ativo">Ativo</option>
-          <option value="trial">Trial</option>
-          <option value="pendente">Pendente (aguardando pagamento)</option>
-          <option value="inativo">Inativo</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="form-row">
-      <!-- Perfil do cliente: só leitura. Teste = criado pela equipe; Pago = entra sozinho quando o pagamento é confirmado -->
-      <div class="field">
-        <label>Perfil</label>
-        <select id="ec-origem" disabled title="O perfil pago entra sozinho quando o pagamento é confirmado">
-          <option value="teste">Teste (sem cobrança)</option>
-          <option value="trial">Teste grátis 30 dias (cadastro pela landing)</option>
-          <option value="pagante">Pago (automático, pelo pagamento)</option>
-          <option value="cancelado">Cancelado</option>
-        </select>
-      </div>
-      <!-- Vencimento -->
-      <div class="field">
-        <label>Vencimento / Próx. cobrança</label>
-        <div class="dp-wrap">
-          <button type="button" class="dp-input" id="dp-btn-ec-vencimento" onclick="dpToggle('ec-vencimento')"></button>
-          <span class="dp-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-          <input type="hidden" id="ec-vencimento">
-          <div class="dp-popup" id="dp-popup-ec-vencimento"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alerta de pagamento -->
-    <div id="ec-alerta-pagamento" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
-      <div style="font-size:12px;color:var(--red);font-weight:500;margin-bottom:4px">Pagamento pendente</div>
-      <div id="ec-alerta-txt" style="font-size:12px;color:var(--muted)"></div>
-    </div>
-
-    <!-- Observações internas -->
-    <div class="field">
-      <label>Observações internas <span style="font-size:10px;color:var(--muted)">(só você vê)</span></label>
-      <textarea id="ec-obs" rows="3" placeholder="Ex: Cliente pediu upgrade, aguardando confirmação do PIX..." style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;resize:vertical;min-height:70px"></textarea>
-    </div>
-
-    <!-- Histórico de pagamentos -->
-    <div style="margin-bottom:14px">
-      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px">Histórico de pagamentos</label>
-      <div id="ec-historico-pag" style="max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">
-        <div style="font-size:12px;color:var(--muted2);font-style:italic">Nenhum registro ainda</div>
-      </div>
-      <button onclick="adicionarPagamento()" class="btn xs" style="margin-top:8px">+ Registrar pagamento</button>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn primary" onclick="salvarEdicaoCliente()">Salvar alterações</button>
-      <button class="btn" onclick="closeModal('modal-editar-cliente')">Cancelar</button>
-    </div>
-    <div class="msg" id="msg-ec"></div>
-  </div>
-</div>
-
-<!-- MODAL REGISTRAR PAGAMENTO -->
-<div class="modal-overlay" id="modal-pag-cliente">
-  <div class="modal" style="max-width:360px">
-    <h3>Registrar pagamento</h3>
-    <div class="form-row">
-      <div class="field">
-        <label>Valor (R$)</label>
-        <input id="pag-valor" type="text" inputmode="decimal" placeholder="0,00" oninput="maskCurrency(this)" class="currency-input">
-      </div>
-      <div class="field">
-        <label>Data</label>
-        <div class="dp-wrap">
-          <button type="button" class="dp-input" id="dp-btn-pag-data" onclick="dpToggle('pag-data')"></button>
-          <span class="dp-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-          <input type="hidden" id="pag-data">
-          <div class="dp-popup" id="dp-popup-pag-data"></div>
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      <label>Forma de pagamento</label>
-      <select id="pag-forma">
-        <option value="pix">Pix</option>
-        <option value="cartao">Cartão</option>
-        <option value="boleto">Boleto</option>
-        <option value="transferencia">Transferência</option>
-        <option value="outro">Outro</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Observação</label>
-      <input id="pag-obs" type="text" placeholder="Opcional">
-    </div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="confirmarPagamento()">Confirmar</button>
-      <button class="btn" onclick="closeModal('modal-pag-cliente')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL NOVO CLIENTE -->
-<div class="modal-overlay" id="modal-alterar-acesso">
-  <div class="modal">
-    <h3>Alterar acesso</h3>
-    <input type="hidden" id="aa-uid">
-    <div style="margin-bottom:12px">
-      <div style="font-size:14px;font-weight:500;color:var(--text)" id="aa-nome">—</div>
-      <div style="font-size:12px;color:var(--muted)" id="aa-email">—</div>
-    </div>
-    <div class="field"><label>Acesso</label>
-      <select id="aa-role" onchange="atualizarDescAcesso()">
-        <option value="master">Master</option>
-        <option value="socio">Sócio</option>
-        <option value="admin">Admin</option>
-        <option value="dev">Dev</option>
-        <option value="cliente">Cliente (remover da equipe)</option>
-      </select>
-    </div>
-    <div id="aa-desc" style="background:var(--accent-s);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted);margin:8px 0"></div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="salvarAlterarAcesso()">Salvar</button>
-      <button class="btn" onclick="closeModal('modal-alterar-acesso')">Cancelar</button>
-    </div>
-    <div class="msg" id="msg-aa"></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-novo-cliente">
-  <div class="modal">
-    <h3>Cadastrar usuário</h3>
-    <div class="form-row">
-      <div class="field"><label>Nome</label><input id="nc-nome" type="text" placeholder="Nome completo"></div>
-      <div class="field"><label>Email</label><input id="nc-email" type="email" placeholder="email@exemplo.com" onblur="const v=this.value;this.style.borderColor=v&&!validarEmail(v)?'var(--red)':'var(--border2)'"></div>
-    </div>
-    <div class="form-row">
-      <div class="field"><label>Senha provisória</label>
-        <div style="position:relative">
-          <input id="nc-senha" type="password" placeholder="Em branco = gerar uma" style="padding-right:38px">
-          <button type="button" onclick="toggleSenha('nc-senha','olho-nc')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:15px;line-height:1" id="olho-nc"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-      <div class="field"><label>Acesso</label>
-        <select id="nc-role" onchange="toggleCamposRole()">
-          <option value="cliente">Cliente</option>
-          <option value="master">Master</option>
-          <option value="socio">Sócio</option>
-          <option value="admin">Admin</option>
-          <option value="dev">Dev</option>
-        </select>
-      </div>
-    </div>
-    <div id="nc-campos-cliente">
-      <div class="field" style="margin-bottom:12px"><label for="nc-telefone">WhatsApp do cliente <small style="text-transform:none;letter-spacing:0">(opcional)</small></label>
-        <input id="nc-telefone" type="tel" inputmode="tel" autocomplete="off" maxlength="16" placeholder="(11) 98765-4321" oninput="ncMascaraTelefone(this)">
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Plano</label>
-          <select id="nc-plano">
-            <option value="gratuito">Gratuito</option>
-            <option value="essencial">Essencial — R$9,90</option>
-            <option value="evolucao">Evolução — R$24,90</option>
-            <option value="patrimonio">Patrimônio — R$49,90</option>
-          </select>
-        </div>
-        <div class="field"><label>Perfil</label>
-          <select id="nc-origem" disabled>
-            <option value="teste">Teste (sem cobrança)</option>
-          </select>
-        </div>
-      </div>
-      <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">Cadastro feito aqui é sempre um <b>perfil de teste</b>, sem cobrança. O <b>perfil pago</b> entra sozinho quando a pessoa assina e o pagamento é confirmado.</p>
-    </div>
-    <div id="nc-campos-equipe" style="display:none">
-      <div style="background:var(--accent-s);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:8px">
-        Usuário de equipe interna — não aparece nas métricas de clientes nem MRR.
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="cadastrarNovoCliente()">Cadastrar</button>
-      <button class="btn" onclick="closeModal('modal-novo-cliente')">Cancelar</button>
-    </div>
-    <div class="msg" id="msg-novo-cliente"></div>
-  </div>
-</div>
 
 <!-- MODAL CARTÃO -->
 <div class="modal-overlay" id="modal-cartao">
@@ -2145,7 +1770,7 @@ try{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG"></script>
 <script src="js/app/01-base.js?v=9"></script>
 <script src="js/app/02-firebase-sync.js?v=5"></script>
-<script src="acessos/03-perfil-roles.js?v=18"></script>
+<script src="acessos/03-perfil-roles.js?v=19"></script>
 <script src="js/app/04-categorias.js?v=6"></script>
 <script src="js/app/05-dashboard.js?v=24"></script>
 <script src="js/app/05b-cedula.js?v=7"></script>
@@ -2159,10 +1784,8 @@ try{
 <script src="planos/evolucao/14-notas.js?v=9"></script>
 <script src="planos/evolucao/15-assinaturas-calendario.js?v=7"></script>
 <script src="js/app/16-manual.js?v=2"></script>
-<script src="acessos/17-clientes.js?v=21"></script>
-<script src="acessos/17b-socios.js?v=6"></script>
+<script src="acessos/17-servidor.js?v=1"></script>
 <script src="planos/18-regras-planos.js?v=11"></script>
-<script src="acessos/19-preview-planos.js?v=9"></script>
 <script src="planos/evolucao/20-cartoes.js?v=8"></script>
 <script src="js/app/21-manual-render.js?v=3"></script>
 <script src="js/app/22-mobile-nav.js?v=9"></script>
@@ -2170,9 +1793,9 @@ try{
 <script src="js/app/24-configuracoes.js?v=10"></script>
 <script src="js/app/25-minha-assinatura.js?v=15"></script>
 <script src="js/app/26-cursor-fx.js?v=2"></script>
-<script src="acessos/27-ver-como.js?v=7"></script>
+<script src="acessos/27-ver-como.js?v=8"></script>
 <script src="js/app/28-nav-personalizacao.js?v=7"></script>
-<script src="js/app/29-login.js?v=9"></script>
+<script src="js/app/29-login.js?v=10"></script>
 <script src="js/app/30-date-picker.js?v=2"></script>
 <script src="js/app/31-reset-senha.js?v=7"></script>
 <script src="js/app/32-notificacoes.js?v=8"></script>
@@ -2181,8 +1804,6 @@ try{
 <script src="js/app/36-preferencias.js?v=5"></script>
 <script src="js/app/37-primeiros-passos.js?v=3"></script>
 <script src="js/app/38-primeiro-acesso.js?v=4"></script>
-<script src="js/app/39-qr-code.js?v=1"></script>
-<script src="js/app/40-painel-negocio.js?v=5"></script>
 <script src="js/app/33-pwa-init.js?v=2"></script>
 </body>
 </html>
