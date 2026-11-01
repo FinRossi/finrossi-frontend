@@ -626,3 +626,19 @@ body.sb-minimizado .dock-favoritos{
 .fav-btns{margin-left:auto;flex-shrink:0}
 .fav-item small+.fav-btns{margin-left:0}
 .fav-acoes .btn{height:36px;padding:0 14px;font-size:13px}
+
+/* ── Convite para ativar as notificações (js/app/32-notificacoes.js) ── */
+#notif-convite{z-index:9994}
+.conv-notif{width:min(400px,100%);align-items:center;text-align:center;gap:12px;padding:26px 22px 20px}
+.conv-notif h3{margin:0;font-family:'DM Serif Display',serif;font-weight:400;font-size:22px}
+.conv-notif p{margin:0;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.conv-sino{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.18),rgba(255,255,255,0) 60%),var(--accent-s);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent);animation:conv-balanca 2.4s ease-in-out .4s 2}
+.conv-sino svg{width:26px;height:26px}
+@keyframes conv-balanca{0%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(0)}}
+.conv-acoes{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:6px}
+.conv-acoes .btn{justify-content:center;height:42px}
+.conv-nunca{background:none;border:none;color:var(--muted);font:12.5px 'DM Sans',sans-serif;cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.conv-nunca:hover{color:var(--text)}
+@media(prefers-reduced-motion:reduce){.conv-sino{animation:none}}

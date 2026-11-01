@@ -337,5 +337,7 @@ async function carregarExtrasEquipe(){
   }catch(e){ _extrasCarregados = false; }
 }
 
-function refreshAll(){refreshDash();renderInvs();renderHistorico();renderMetas();renderObjs();populateCatSelects();renderAlertasVencimento();}
+// Notificações do aparelho: conferidas sempre que os dados chegam ou mudam (antes só 1 s após o login,
+// quando as contas ainda não tinham chegado da nuvem, e de novo 1 hora depois). Cada aviso sai uma vez por dia.
+function refreshAll(){refreshDash();renderInvs();renderHistorico();renderMetas();renderObjs();populateCatSelects();renderAlertasVencimento();if(typeof agendarNotificacoes==='function')agendarNotificacoes();}
 

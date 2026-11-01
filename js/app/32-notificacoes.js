@@ -137,9 +137,92 @@ function agendarNotificacoes(){
     const tag = `venc-${a.tipo}-${a.nome}-${a.dia}`;
     if(_jaAvisadoHoje(tag)) return;
     const msg = a.diasFaltam === 0 ? `${a.nome} vence hoje` : `${a.nome} vence amanhã (dia ${a.dia})`;
-    _mostrarNotificacao('FinRossi: vencimento próximo', { body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''), tag });
+    // O aparelho não conseguiu mostrar: tira a marca de "avisado hoje" para tentar na próxima conferência
+    _mostrarNotificacao('FinRossi: vencimento próximo', { body: msg + (a.val ? ` · ${fmtR(a.val)}` : ''), tag })
+      .then(ok => { if(!ok) _desmarcarAvisado(tag); });
   });
 }
+function _desmarcarAvisado(tag){
+  try{ const reg = JSON.parse(localStorage.getItem('fin_notif_enviadas') || '{}') || {}; delete reg[tag]; localStorage.setItem('fin_notif_enviadas', JSON.stringify(reg)); }catch(e){}
+}
+
+// ── Convite para ativar as notificações (clientes) ───────────────────────────
+// Aparece a cada abertura do app até o cliente ativar, depois das boas-vindas e do passo a passo
+// (perfil teste: a partir da primeira entrada com a própria senha; assinante: desde a primeira entrada).
+// 1ª vez: "Ativar" ou "Lembrar depois". Da 2ª em diante também "Não perguntar mais" (encerra o convite).
+// Estado: preferencias/notifConvite = nº de vezes adiado | 'nunca' | 'ativado' (vale em qualquer aparelho).
+// Não aparece: equipe, quem já ativou ou desativou em Configurações, navegador bloqueado, aparelho sem
+// suporte (iPhone sem o app instalado) e plano sem contas/assinaturas para avisar (Gratuito).
+let _convNotifFeito = false;
+const _convChave = () => 'fin_notif_convite_' + (window._firebaseUser?.uid || 'local');
+function _convJanelaAberta(){
+  if(typeof _pp !== 'undefined' && _pp) return true;   // passo a passo
+  const bv = document.getElementById('tela-bemvindo'); if(bv && bv.style.display === 'flex') return true;
+  if(['pa-primeiro-acesso', 'pa-criar-senha'].some(id => { const e = document.getElementById(id); return e && e.style.display !== 'none'; })) return true;
+  return !!document.querySelector('.modal-overlay.open');
+}
+async function talvezConvidarNotificacoes(){
+  if(_convNotifFeito) return;
+  const role = window._userRole || (typeof _userRole !== 'undefined' ? _userRole : '');
+  if(role !== 'cliente' || window._primeiroAcesso) return;
+  if(typeof _verComoPlano !== 'undefined' && _verComoPlano) return;
+  if(!_notifSuportada() || Notification.permission === 'denied') return;
+  if(Notification.permission === 'granted' && localStorage.getItem('fin_notif_ok') !== null) return;   // ativou, ou desativou de propósito
+  if(typeof verComoPlanoPermite === 'function' && !verComoPlanoPermite('assinaturas')) return;
+  let estado = null;
+  try{ estado = localStorage.getItem(_convChave()); }catch(e){}
+  const u = window._firebaseUser;
+  if(u && window._onValue && window._ref && window._db){
+    const nuvem = await new Promise(res => {
+      const t = setTimeout(() => res(undefined), 4000);
+      try{ window._onValue(window._ref(window._db, `usuarios/${u.uid}/preferencias/notifConvite`), s => { clearTimeout(t); res(s.val()); }, () => { clearTimeout(t); res(undefined); }, { onlyOnce: true }); }
+      catch(e){ clearTimeout(t); res(undefined); }
+    });
+    if(nuvem !== undefined && nuvem !== null) estado = String(nuvem);
+  }
+  if(estado === 'nunca' || estado === 'ativado') return;
+  // Espera o passo a passo e outras janelas fecharem (até 3 min); não abre por cima de nada
+  for(let i = 0; i < 180 && _convJanelaAberta(); i++) await new Promise(r => setTimeout(r, 1000));
+  if(_convJanelaAberta() || _convNotifFeito) return;
+  _convNotifFeito = true;
+  _convMostrar(parseInt(estado, 10) || 0);
+}
+function _convGravar(v){
+  try{ localStorage.setItem(_convChave(), String(v)); }catch(e){}
+  if(typeof prefSalvar === 'function') prefSalvar('notifConvite', v);
+}
+function _convMostrar(adiado){
+  let m = document.getElementById('notif-convite');
+  if(!m){
+    m = document.createElement('div');
+    m.id = 'notif-convite'; m.className = 'modal-overlay';
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `<div class="fav-vidro conv-notif" role="dialog" aria-modal="true" aria-labelledby="conv-tit">
+    <div class="conv-sino" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+    <h3 id="conv-tit">Ative as notificações</h3>
+    <p>Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer, na véspera e no dia. Assim nada passa do prazo.</p>
+    <div class="conv-acoes">
+      <button type="button" class="btn primary" onclick="convNotifAtivar()">Ativar notificações</button>
+      <button type="button" class="btn" onclick="convNotifDepois(${adiado})">Lembrar depois</button>
+      ${adiado >= 1 ? '<button type="button" class="conv-nunca" onclick="convNotifNunca()">Não perguntar mais</button>' : ''}
+    </div>
+  </div>`;
+  m.classList.add('open');
+}
+function _convFechar(){ const m = document.getElementById('notif-convite'); if(m) m.classList.remove('open'); }
+async function convNotifAtivar(){
+  _convFechar();
+  if(_notifSuportada() && Notification.permission === 'granted'){
+    // O aparelho já permitia: só liga no app (o botão de Configurações alterna e desligaria)
+    localStorage.setItem('fin_notif_ok', '1'); mostrarNotificacaoTeste(); agendarNotificacoes();
+    if(typeof atualizarStatusNotificacoesConfig === 'function') atualizarStatusNotificacoesConfig();
+  } else await solicitarPermissaoNotificacoes();   // pede a permissão do aparelho (precisa ser no toque)
+  if(_notifSuportada() && Notification.permission === 'granted') _convGravar('ativado');
+  else if(_notifSuportada() && Notification.permission === 'denied') _convGravar('nunca');   // bloqueou no aparelho: não insiste
+}
+function convNotifDepois(adiado){ _convFechar(); _convGravar((adiado || 0) + 1); }
+function convNotifNunca(){ _convFechar(); _convGravar('nunca'); }
 
 // Verifica e mostra notificações ao abrir o app (chamada a cada login: um relógio só)
 let _notifRelogio = null;

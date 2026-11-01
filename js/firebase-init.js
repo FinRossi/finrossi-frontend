@@ -268,7 +268,11 @@
         // (espera a abertura de boas-vindas terminar e o app aparecer)
         if(window._primeiroAcesso) quandoAppAparecer(() => { if(typeof mostrarPrimeiroAcesso === 'function') mostrarPrimeiroAcesso(); });
         // Passo a passo pelo app: uma vez, para o cliente que está começando (js/app/41-passo-a-passo.js)
-        else quandoAppAparecer(() => { if(typeof talvezIniciarPassoAPasso === 'function') talvezIniciarPassoAPasso(); });
+        // e, depois dele, o convite para ativar as notificações (js/app/32-notificacoes.js)
+        else quandoAppAparecer(async () => {
+          if(typeof talvezIniciarPassoAPasso === 'function') await talvezIniciarPassoAPasso();
+          if(typeof talvezConvidarNotificacoes === 'function') talvezConvidarNotificacoes();
+        });
         // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
         setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);
         // Último acesso (régua "cliente que sumiu" para na hora em que a pessoa volta): no máximo a cada 6 h
