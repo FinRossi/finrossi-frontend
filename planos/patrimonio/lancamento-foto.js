@@ -282,6 +282,91 @@ const _RECEITA_PALAVRAS = {
   'Aluguel recebido': ['ALUGUEL'],
 };
 
+// ── Data da compra / do pagamento ─────────────────────────────────────────────
+// Acha todas as datas do comprovante e dá nota a cada uma pelo contexto:
+// + "data do pagamento / pago em / data da transação / compra" (no rótulo da linha ou da linha de cima)
+// + "emissão / data / autorização", + hora junto (é o carimbo da transação)
+// − "vencimento / validade / nascimento / cliente desde / entrega" (não é a data da compra)
+// Formatos: 28/10/2026 · 28.10.26 · 28-10-2026 · 2026-10-28 · 28 OUT 2026 · 28 de outubro de 2026 ·
+// 28/OUT/26 · 28/10 14:32 (sem ano: ano atual) · e erros de foto (O no lugar de 0, B no lugar de 8, espaços).
+const _MES3 = { JAN:1, FEV:2, FEB:2, MAR:3, ABR:4, APR:4, MAI:5, MAY:5, JUN:6, JUL:7, AGO:8, AUG:8, SET:9, SEP:9, OUT:10, OCT:10, NOV:11, DEZ:12, DEC:12 };
+const _ROT_PAGTO  = /(DATA (DO|DE|DA) (PAGAMENTO|COMPRA|TRANSACAO|OPERACAO|TRANSFERENCIA)|PAGO EM|PAGAMENTO (EFETUADO|REALIZADO)|REALIZAD[OA] EM|EFETUAD[OA] EM|COMPRA EM|DATA\/HORA|DATA E HORA|DATA HORA)/;
+const _ROT_DATA   = /(EMISSAO|EMITID|\bDATA\b|AUTORIZACAO|HORARIO|\bDT\b)/;
+const _ROT_NAO    = /(VENCIMENTO|\bVENC\b|VALIDADE|VALIDO ATE|\bVAL\b|NASCIMENTO|\bNASC\b|CLIENTE DESDE|DESDE|ABERTURA|PREVISAO|ENTREGA|PROXIMA|LIMITE)/;
+// Corrige erros comuns da foto só dentro de "pedaços de data" (letras que parecem números)
+const _ocrNumero = t => t.replace(/[OQD]/g, '0').replace(/[IL|]/g, '1').replace(/S/g, '5').replace(/B/g, '8').replace(/Z/g, '2');
+function _limparDatasDaLinha(L){
+  // "2 4 / 1 0 / 2 0 2 6" → "24/10/2026" (dígitos soltos com espaço, comum na foto de papel térmico)
+  let s = L.replace(/(?:\b[0-9OQDILSBZ]\s){1,3}[0-9OQDILSBZ]\b\s*[\/.\-]\s*(?:[0-9OQDILSBZ]\s?){1,2}\s*[\/.\-]\s*(?:[0-9OQDILSBZ]\s?){2,4}/g, t => t.replace(/\s+(?=\S)/g, ''));   // mantém o espaço antes da hora
+  s = s.replace(/\s*([\/])\s*/g, '$1');
+  return s.replace(/[0-9OQDILSBZ|]{1,4}(?:[\/.\-][0-9OQDILSBZ|]{1,4}){1,2}/g, t => (t.match(/\d/g) || []).length >= 2 ? _ocrNumero(t) : t);
+}
+function _dataDoComprovante(LINHAS, hojeISO){
+  const ano = +hojeISO.slice(0, 4);
+  const iso = (a, m, d) => `${a}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  const valida = (a, m, d) => a >= 2000 && m >= 1 && m <= 12 && d >= 1 && d <= new Date(a, m, 0).getDate();
+  const achadas = [];
+  LINHAS.forEach((L0, i) => {
+    const L = _limparDatasDaLinha(L0);
+    const cima = i > 0 ? LINHAS[i - 1] : '';
+    const rotulo = t => t.test(L) || (t.test(cima) && !/\d{1,2}[\/.\-]\d{1,2}/.test(cima));
+    const comHora = /\b\d{1,2}:\d{2}\b/.test(L);
+    const nota = () => (rotulo(_ROT_PAGTO) ? 4 : 0) + (rotulo(_ROT_DATA) ? 2 : 0) + (comHora ? 1 : 0) - (rotulo(_ROT_NAO) && !rotulo(_ROT_PAGTO) ? 6 : 0);
+    const add = (a, m, d, extra) => { if(valida(a, m, d)){ const v = iso(a, m, d); if(v <= hojeISO) achadas.push({ v, n: nota() + (extra || 0), i }); } };
+    // 28/10/2026 · 28.10.26 · 28-10-2026
+    for(const m of L.matchAll(/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4}|\d{2})\b/g)){ let a = +m[3]; if(a < 100) a += 2000; add(a, +m[2], +m[1]); }
+    // 2026-10-28 · 2026/10/28
+    for(const m of L.matchAll(/\b(20\d{2})[\/.\-](\d{1,2})[\/.\-](\d{1,2})\b/g)) add(+m[1], +m[2], +m[3]);
+    // 28 OUT 2026 · 28 de outubro de 2026 · 28/OUT/26 · 28OUT26 · 30 Out, 14:22 (sem ano)
+    for(const m of L.matchAll(/\b(\d{1,2})\s*(?:DE\s+)?[\/.\-]?\s*([A-Z]{3,9})\.?\s*(?:DE\s+|[\/.\-,]\s*)?(\d{4}|\d{2}(?!\s*:))?\b/g)){
+      const mes = _MES3[m[2].slice(0, 3)]; if(!mes) continue;
+      let a = m[3] ? +m[3] : ano; if(a < 100) a += 2000;
+      if(!m[3] && iso(a, mes, +m[1]) > hojeISO) a--;
+      add(a, mes, +m[1]);
+    }
+    // 28/10 14:32 (sem ano, só com hora junto — "PARCELA 01/03" não é data)
+    if(comHora) for(const m of L.matchAll(/\b(\d{1,2})\/(\d{1,2})\b(?![\/.\-]\d)/g)){
+      let a = ano; if(iso(a, +m[2], +m[1]) > hojeISO) a--;
+      add(a, +m[2], +m[1], -1);
+    }
+  });
+  if(!achadas.length) return hojeISO;
+  achadas.sort((x, y) => y.n - x.n || x.i - y.i);   // maior nota; empate: a que aparece primeiro
+  return achadas[0].v;
+}
+
+// ── Forma de pagamento ────────────────────────────────────────────────────────
+// Cada forma ganha pontos pelas palavras que aparecem; valem 3x perto de "forma de pagamento / pago com /
+// valor pago" (ou na linha de baixo desse título). Não contam: propaganda ("aceitamos Pix", "desconto no
+// Pix", "parcele"), "crédito de ICMS / tributo", "crédito em conta" (é entrada, não cartão), limite de crédito.
+const _FORMAS = [
+  ['pix',           3, /\bP[I1L]X\b|CHAVE PIX|ID DA TRANSACAO|\bE\d{8}[A-Z0-9]{20,}\b/],
+  ['credito',       3, /\bCRED(ITO)?\b|CREDITO A VISTA|CREDITO PARCELADO|VENDA CREDITO|PARCELADO (LOJA|EMISSOR|ADM)|PARCELA \d{1,2}\s*\/\s*\d{1,2}|\b(AMEX|HIPERCARD|DINERS)\b/],
+  ['debito',        3, /\bDEB(ITO)?\b|DEBITO A VISTA|VENDA DEBITO|MAESTRO|ELECTRON|REDESHOP|VISA DEBITO|ELO DEBITO/],
+  ['dinheiro',      3, /DINHEIRO|\bESPECIE\b|\bTROCO\b/],
+  ['boleto',        3, /BOLETO|LINHA DIGITAVEL|CODIGO DE BARRAS|\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}/],
+  ['transferencia', 2, /\bTED\b|\bDOC\b|TRANSFERENCIA BANCARIA|TRANSFERENCIA ENTRE CONTAS/],
+  ['deposito',      2, /\bDEPOSITO\b/],
+];
+const _PAG_CONTEXTO = /(FORMAS? DE PAGAMENTO|MEIO DE PAGAMENTO|TIPO DE PAGAMENTO|FORMA PAGAMENTO|PAGO COM|PAGAMENTO\s*:|VALOR PAGO|PAGAMENTO (PIX|EM|VIA|NO|COM)|TIPO DE TRANSFERENCIA|TIPO DE TRANSACAO|MODALIDADE|PIX ENVIADO|PIX RECEBIDO|ENVIADO VIA|RECEBEU UM PIX|VIA CLIENTE|COMPROVANTE DE (VENDA|PAGAMENTO))/;
+const _PAG_PROPAGANDA = /(ACEITAMOS|ACEITA |PAGUE COM|PAGUE VIA|PAGUE NO|DESCONTO (NO|DE|PAGANDO)|PARCELE|EM ATE \d|CONDICOES|PROMOCAO|SIGA|INSTAGRAM|WWW\.|HTTP)/;
+const _PAG_NAO_CARTAO = /(CREDITO (DE|DO) (ICMS|IMPOSTO|TRIBUT)|CREDITO TRIBUT|CREDITO EM CONTA|LIMITE DE CREDITO|CREDITO PRE-APROVADO|SALDO|DEBITO AUTOMATICO EM CONTA DE)/;
+function _metodoDoComprovante(LINHAS, ehReceita){
+  const pontos = {};
+  LINHAS.forEach((L, i) => {
+    if(_PAG_PROPAGANDA.test(L)) return;
+    const contexto = _PAG_CONTEXTO.test(L) || (i > 0 && _PAG_CONTEXTO.test(LINHAS[i - 1]) && !/\d/.test(LINHAS[i - 1].replace(/R\$/g, '')));
+    const linha = L.replace(_PAG_NAO_CARTAO, ' ');
+    for(const [forma, peso, re] of _FORMAS){
+      if(forma === 'deposito' && !ehReceita) continue;
+      if(re.test(linha)) pontos[forma] = (pontos[forma] || 0) + peso * (contexto ? 3 : 1);
+    }
+  });
+  // Pix com "transferência" no texto é Pix (o Pix é uma transferência)
+  const melhor = Object.entries(pontos).sort((a, b) => b[1] - a[1])[0];
+  return melhor ? melhor[0] : '';
+}
+
 function lerComprovanteTexto(texto, categorias){
   const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 1);
   const LINHAS = linhas.map(_semAcento);
@@ -310,29 +395,8 @@ function lerComprovanteTexto(texto, categorias){
     if(todos.length) valor = Math.max(...todos);
   }
 
-  // Data: dd/mm/aaaa (ou aa); prefere a que estiver perto de "EMISSÃO"/"DATA"
-  const hojeISO = hoje();   // data no fuso do aparelho (UTC errava depois das 21h)
-  const datas = [];
-  LINHAS.forEach((L, i) => {
-    for(const m of L.matchAll(/\b(\d{2})[\/.-](\d{2})[\/.-](\d{4}|\d{2})\b/g)){
-      const d = +m[1], mo = +m[2]; let a = +m[3]; if(a < 100) a += 2000;
-      if(d < 1 || d > 31 || mo < 1 || mo > 12 || a < 2000) continue;
-      const iso = `${a}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      if(iso > hojeISO) continue;
-      datas.push({ iso, peso: /(EMISSAO|DATA|EMITIDO|REALIZAD|PAGAMENTO)/.test(L) ? 1 : 0 });
-    }
-  });
-  datas.sort((a, b) => b.peso - a.peso);
-  const data = datas.length ? datas[0].iso : hojeISO;
-
-  // Forma de pagamento
-  let metodo = '';
-  if(/\bPIX\b/.test(TUDO)) metodo = 'pix';
-  else if(/(CARTAO DE CREDITO|CREDITO A VISTA|CREDITO PARCELADO|\bCREDITO\b)/.test(TUDO)) metodo = 'credito';
-  else if(/(CARTAO DE DEBITO|\bDEBITO\b)/.test(TUDO)) metodo = 'debito';
-  else if(/(DINHEIRO|ESPECIE)/.test(TUDO)) metodo = 'dinheiro';
-  else if(/(BOLETO|LINHA DIGITAVEL|CODIGO DE BARRAS)/.test(TUDO)) metodo = 'boleto';
-  else if(/(\bTED\b|\bDOC\b|TRANSFERENCIA)/.test(TUDO)) metodo = 'transferencia';
+  const data = _dataDoComprovante(LINHAS, hoje());   // hoje no fuso do aparelho (UTC errava depois das 21h)
+  const metodo = _metodoDoComprovante(LINHAS, ehReceita);
 
   // Descrição: em comprovante de Pix/transferência, quem recebeu (ou quem enviou);
   // em nota/cupom, o nome do estabelecimento (primeira linha "de nome" do topo)
