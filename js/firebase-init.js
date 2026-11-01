@@ -56,8 +56,15 @@
     tentar(() => refreshAll());
     tentar(() => { if(typeof initPatrimonioCores === 'function') initPatrimonioCores(); });
   };
+  // O que só pode aparecer com o app já na tela (depois das boas-vindas): primeiro acesso, passo a passo.
+  // Antes a tela de primeiro acesso entrava 1,3 s depois do login e cobria a abertura "Bem-vindo, nome".
+  let appRevelado = false;
+  const aoRevelarApp = [];
+  const quandoAppAparecer = fn => { if(appRevelado) setTimeout(() => tentar(fn), 400); else aoRevelarApp.push(fn); };
   // App entra com um fade curto (classe tira a opacidade em seguida)
   const revelarApp = () => {
+    appRevelado = true;
+    setTimeout(() => aoRevelarApp.splice(0).forEach(fn => tentar(fn)), 600);
     hide('tela-login');
     const app = document.getElementById('tela-app');
     if(!app) return;
@@ -74,6 +81,7 @@
 
   const irParaLogin = () => {
     entrouNoApp = false;    // saiu da conta: a próxima entrada roda a sequência de novo
+    appRevelado = false; aoRevelarApp.length = 0;
     sairDoLoadingParaLogin();
   };
   const irParaApp = (nome) => {
@@ -222,7 +230,10 @@
         if(new URLSearchParams(location.search).get('entrar') === '1') history.replaceState(null, '', location.pathname + location.hash);
         irParaApp(nome);
         // Conta criada pela equipe com senha provisória: cobre o app até criar a própria senha pelo e-mail
-        if(window._primeiroAcesso) setTimeout(() => { try{ if(typeof mostrarPrimeiroAcesso === 'function') mostrarPrimeiroAcesso(); }catch(e){} }, 1300);
+        // (espera a abertura de boas-vindas terminar e o app aparecer)
+        if(window._primeiroAcesso) quandoAppAparecer(() => { if(typeof mostrarPrimeiroAcesso === 'function') mostrarPrimeiroAcesso(); });
+        // Passo a passo pelo app: uma vez, para o cliente que está começando (js/app/41-passo-a-passo.js)
+        else quandoAppAparecer(() => { if(typeof talvezIniciarPassoAPasso === 'function') talvezIniciarPassoAPasso(); });
         // Veio do link de um e-mail (?plano=...&cupom=...): abre "Minha assinatura" com tudo aplicado
         setTimeout(() => { try{ if(typeof verificarIntencaoAssinatura === 'function') verificarIntencaoAssinatura(); }catch(e){} }, 1600);
         // Último acesso (régua "cliente que sumiu" para na hora em que a pessoa volta): no máximo a cada 6 h

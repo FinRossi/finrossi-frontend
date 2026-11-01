@@ -172,14 +172,28 @@ async function salvarSenhaPrimeiroAcesso(){
     // Sessão antiga (senha provisória) não vale mais: sai e volta para o login com o e-mail preenchido
     try{ const f = window._firebase; if(f && f.firebaseOk && f.auth && f.auth.currentUser) await f.signOut(f.auth); }catch(e){}
     history.replaceState(null, '', location.pathname + '?entrar=1');
+    // A próxima entrada (já com a senha nova) abre com as boas-vindas, mesmo dentro dos 30 minutos
+    try{ localStorage.removeItem('fin_ultimo_acesso_ts'); }catch(e){}
     m.innerHTML = _paCartao(
       _paCabeca('Pronto!', m._novaSenha ? 'Senha nova criada' : 'Senha criada e e-mail confirmado') +
       _paTexto('Agora é só entrar com o seu e-mail e a senha nova.') +
-      `<div class="btn-row"><button class="btn primary" type="button" onclick="document.getElementById('pa-criar-senha').style.display='none';const e=document.getElementById('login-email');if(e){e.value=${JSON.stringify(d.email || '')};document.getElementById('login-senha')?.focus();}">Entrar no FinRossi</button></div>`
+      '<div class="btn-row"><button class="btn primary" type="button" id="pa-ir-login">Entrar no FinRossi</button></div>'
     );
+    // (Antes o e-mail ia escrito dentro do onclick, entre aspas duplas, e quebrava o botão: não fazia nada)
+    document.getElementById('pa-ir-login').addEventListener('click', () => irParaLoginComEmail(d.email || ''));
   }catch(e){
     erro(e.message); btn.disabled = false; btn.textContent = 'Criar senha';
   }
+}
+
+// Depois de criar a senha: fecha a janela e deixa o login pronto, com o e-mail preenchido
+function irParaLoginComEmail(email){
+  ['pa-criar-senha', 'pa-primeiro-acesso'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  ['loading', 'tela-app', 'tela-bemvindo'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  const login = document.getElementById('tela-login'); if(login) login.style.display = 'flex';
+  const e = document.getElementById('login-email'), s = document.getElementById('login-senha');
+  if(e && email) e.value = email;
+  if(s){ s.value = ''; setTimeout(() => s.focus(), 100); }
 }
 
 // Abriu pelo link do e-mail?

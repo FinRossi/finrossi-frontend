@@ -490,3 +490,25 @@ I18N_EN_ADD({
   // Mês abreviado (Out/26 → Oct/26)
   [/^(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)\/(\d{2})$/, function(m, mes, ano){ return { Jan:'Jan', Fev:'Feb', Mar:'Mar', Abr:'Apr', Mai:'May', Jun:'Jun', Jul:'Jul', Ago:'Aug', Set:'Sep', Out:'Oct', Nov:'Nov', Dez:'Dec' }[mes] + '/' + ano; }],
 ]);
+
+// ═══ Passo a passo do primeiro acesso (js/app/41-passo-a-passo.js) ═══════════
+I18N_EN_ADD({
+  'Bem-vindo ao FinRossi': 'Welcome to FinRossi',
+  'Em menos de um minuto, mostramos onde fica cada coisa no app. Você pode pular quando quiser.': 'In under a minute, we’ll show you where everything is in the app. You can skip at any time.',
+  'Seu resumo do mês: quanto entrou, quanto saiu, o saldo e o seu patrimônio. É a tela que abre sempre que você entra.': 'Your monthly summary: money in, money out, balance and net worth. It’s the screen you see every time you log in.',
+  'Aqui você registra receitas, despesas e investimentos. Leva poucos segundos, e o dashboard atualiza na hora.': 'Record income, expenses and investments here. It takes seconds, and the dashboard updates straight away.',
+  'Todos os seus lançamentos, como um extrato. Filtre por mês e categoria, edite ou apague.': 'All your transactions, like a statement. Filter by month and category, edit or delete.',
+  'Acompanhe onde o seu dinheiro está aplicado e quanto ele já rendeu.': 'Track where your money is invested and how much it has earned.',
+  'Defina o que quer conquistar, como a reserva de emergência, e veja o progresso a cada mês.': 'Set what you want to achieve, like an emergency fund, and watch your progress each month.',
+  'Controle a fatura e os gastos de cada cartão, sem surpresa no vencimento.': 'Keep track of each card’s bill and spending, with no surprises on the due date.',
+  'Investimentos, cartões, relatórios, o Manual, as configurações e todo o resto ficam aqui.': 'Investments, cards, reports, the Guide, settings and everything else live here.',
+  'Do seu jeito': 'Your way',
+  'Tocando no seu nome você abre as configurações: cores do app, tema claro ou escuro e os itens do menu.': 'Tap your name to open settings: app colours, light or dark theme and menu items.',
+  'Ficou com alguma dúvida? O Manual explica cada tela. Este passo a passo também fica lá, para ver de novo.': 'Got a question? The Guide explains every screen. This walkthrough is there too, so you can see it again.',
+  'Tudo pronto!': 'All set!',
+  'Que tal começar registrando a sua primeira receita? É o primeiro passo para ver o seu dinheiro crescer.': 'Why not start by recording your first income? It’s the first step to watching your money grow.',
+  'Fazer meu primeiro lançamento': 'Add my first transaction', 'Começar': 'Start', 'Próximo': 'Next', 'Voltar': 'Back', 'Pular': 'Skip',
+  'Passo a passo': 'Walkthrough', 'Cartões de crédito': 'Credit cards',
+}, [
+  [/^(\d+) de (\d+)$/, '$1 of $2'],
+]);
