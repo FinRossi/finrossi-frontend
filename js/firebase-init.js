@@ -270,6 +270,9 @@
         // Passo a passo pelo app: uma vez, para o cliente que está começando (js/app/41-passo-a-passo.js)
         // e, depois dele, o convite para ativar as notificações (js/app/32-notificacoes.js)
         else quandoAppAparecer(async () => {
+          // Abriu pelo toque numa notificação de vencimento: trata a conta ("Paguei / Vou pagar") e
+          // deixa o passo a passo e o convite para a próxima entrada
+          if(typeof talvezTratarVencPendente === 'function' && talvezTratarVencPendente()) return;
           if(typeof talvezIniciarPassoAPasso === 'function') await talvezIniciarPassoAPasso();
           if(typeof talvezConvidarNotificacoes === 'function') talvezConvidarNotificacoes();
         });

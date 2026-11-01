@@ -577,3 +577,17 @@ I18N_EN_ADD({
   'Avisamos no seu aparelho quando uma conta, assinatura ou fatura do cartão estiver para vencer: 2 dias antes, na véspera e no dia. Assim nada passa do prazo.': 'We’ll let you know on your device when a bill, subscription or card statement is about to fall due: 2 days before, the day before and on the day. So nothing slips past.',
   'Avisos no aparelho (com o app aberto) e no painel: 2 dias antes, na véspera e no dia': 'Alerts on your device (with the app open) and on the dashboard: 2 days before, the day before and on the day',
 });
+
+// ═══ Paguei / Vou pagar (js/app/32-notificacoes.js) ════════════════════════
+I18N_EN_ADD({
+  'Paguei': 'Paid', 'Vou pagar': 'Will pay', 'Desfazer': 'Undo', 'Lançamento desfeito.': 'Transaction undone.',
+  'Lança a despesa automaticamente, com a data do vencimento.': 'Adds the expense automatically, with the due date.',
+  'Marca a fatura deste mês como paga (as compras do cartão já estão nos seus lançamentos).': 'Marks this month’s statement as paid (your card purchases are already in your transactions).',
+  'Não encontramos essa conta. Ela pode ter sido apagada.': 'We couldn’t find that bill. It may have been deleted.',
+}, [
+  [/^Pronto! (.+) \((.+)\) foi lançada como despesa\.$/, 'Done! $1 ($2) was added as an expense.'],
+  [/^(.+) já estava marcada como paga\.$/, '$1 was already marked as paid.'],
+  [/^(.+) já está paga\.$/, '$1 is already paid.'],
+  [/^(.+) marcada como paga\. As compras do cartão já estão nos seus lançamentos\.$/, '$1 marked as paid. Your card purchases are already in your transactions.'],
+  [/^Vence hoje, dia (\d+)/, 'Due today, the $1'], [/^Vence amanhã, dia (\d+)/, 'Due tomorrow, the $1'], [/^Vence em (\d+) dias, dia (\d+)/, 'Due in $1 days, the $2'], [/^Venceu, dia (\d+)/, 'Overdue, the $1'],
+]);

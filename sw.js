@@ -1,4 +1,4 @@
-// FinRossi SW v12 (toque na notificação abre o app)
+// FinRossi SW v13 (lembretes de vencimento com o app fechado + "Paguei / Vou pagar" na notificação)
 // • Página (index.html): sempre da rede; sem internet, a última cópia salva.
 // • Na instalação já guarda TUDO que o index.html usa (CSS/JS com ?v=, Chart.js, Firebase, fontes).
 //   Antes só guardava o index.html: o app instalado abria quebrado sem internet até a 2ª visita.
@@ -8,7 +8,7 @@
 // • Versão nova não assume sozinha: o app avisa "Nova versão" e troca quando a pessoa toca
 //   (ou na próxima abertura). Antes recarregava no meio do uso e apagava o que estava sendo digitado.
 // • Banco de dados, login, backend e pagamentos: nunca passam pelo SW.
-const CACHE_NAME = 'finrossi-v12';
+const CACHE_NAME = 'finrossi-v13';
 
 // Bibliotecas e fontes com versão fixa na URL — seguras para guardar
 const IMUTAVEIS = [
@@ -175,14 +175,38 @@ self.addEventListener('fetch', e => {
   e.respondWith(redeOuCache(e.request, true));
 });
 
-// Toque na notificação: traz o app para a frente (ou abre, se estiver fechado)
+// Lembrete de vencimento enviado pelo servidor (backend/push.js), com o app fechado
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (er) {}
+  const opcoes = {
+    body: d.corpo || '', tag: d.tag || 'finrossi', icon: '/img/icon-192.png?v=5', badge: '/img/icon-192.png?v=5',
+    data: { url: '/?entrar=1', venc: d.venc || null },
+  };
+  // Botões na própria notificação (Android e computador; no iPhone o toque abre o app com as opções)
+  const b = Array.isArray(d.botoes) && d.botoes.length === 2 ? d.botoes : ['Paguei', 'Vou pagar'];
+  if (d.venc) opcoes.actions = [{ action: 'paguei', title: b[0] }, { action: 'depois', title: b[1] }];
+  e.waitUntil(self.registration.showNotification(d.titulo || 'FinRossi', opcoes));
+});
+
+// Toque na notificação: traz o app para a frente (ou abre, se estiver fechado).
+// Lembrete de vencimento: "Vou pagar" só fecha; "Paguei" e o toque no texto abrem o app com a conta
+// (o app lança o pagamento ou pergunta "Paguei / Vou pagar" — js/app/32-notificacoes.js).
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const destino = new URL((e.notification.data && e.notification.data.url) || '/?entrar=1', self.location.origin).href;
+  const dados = e.notification.data || {};
+  if (e.action === 'depois') return;
+  const venc = dados.venc;
+  const acao = e.action === 'paguei' ? 'paguei' : 'perguntar';
+  let destino = new URL(dados.url || '/?entrar=1', self.location.origin);
+  if (venc) { destino.searchParams.set('venc', `${venc.tipo}:${venc.id}:${venc.mes}`); destino.searchParams.set('acao', acao); }
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(janelas => {
     const aberta = janelas.find(j => j.url.startsWith(self.location.origin) && !j.url.includes('/landing/'));
-    if (aberta && 'focus' in aberta) return aberta.focus();
-    return self.clients.openWindow(destino);
+    if (aberta && 'focus' in aberta) {
+      if (venc) aberta.postMessage({ tipo: 'venc', venc, acao });   // app aberto: trata sem recarregar
+      return aberta.focus();
+    }
+    return self.clients.openWindow(destino.href);
   }));
 });
 
