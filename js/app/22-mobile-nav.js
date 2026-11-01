@@ -42,6 +42,24 @@ function vigiarLenteNav(navId, itemSel){
 }
 vigiarLenteNav('mobile-nav', '.mobile-nav-item');
 
+// Selo "Sync / Local" do topo no celular: cópia do selo do menu lateral (#sync-badge).
+// Acompanha na hora qualquer mudança dele (antes só copiava ao trocar de tela, e o celular mostrava
+// "Local" depois de entrar mesmo com tudo sincronizado, até a primeira troca de tela).
+function sincronizarSeloCelular(){
+  const sb = document.getElementById('sync-badge');
+  const msb = document.getElementById('mob-sync-badge');
+  const mtxt = document.getElementById('mob-sync-txt');
+  if(!sb || !msb) return;
+  if(msb.className !== sb.className) msb.className = sb.className;
+  const txt = sb.classList.contains('ok') ? 'Sync' : 'Local';
+  if(mtxt && mtxt.textContent !== txt) mtxt.textContent = txt;
+}
+(function(){
+  const sb = document.getElementById('sync-badge'); if(!sb) return;
+  new MutationObserver(sincronizarSeloCelular).observe(sb, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  sincronizarSeloCelular();
+})();
+
 function updateMobileNav(section){
   // todos os 6 itens são diretos agora
   document.querySelectorAll('.mobile-nav-item').forEach(b => {
@@ -56,14 +74,7 @@ function updateMobileNav(section){
     const top = document.getElementById('mob-top-'+section);
     if(top) top.classList.add('visible');
   }
-  // Atualiza sync badge mobile
-  const sb = document.getElementById('sync-badge');
-  const msb = document.getElementById('mob-sync-badge');
-  const mtxt = document.getElementById('mob-sync-txt');
-  if(sb && msb){
-    msb.className = sb.className;
-    if(mtxt) mtxt.textContent = sb.classList.contains('ok') ? 'Sync' : 'Local';
-  }
+  sincronizarSeloCelular();
   // Atualiza título mobile
   if(typeof atualizarCabecalhoDash === 'function') atualizarCabecalhoDash();
 }
