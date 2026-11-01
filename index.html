@@ -1604,7 +1604,7 @@ try{
     <input type="hidden" id="assin-edit-id">
     <div class="form-row">
       <div class="field"><label>Nome</label><input id="assin-nome" type="text" placeholder="Ex: Netflix, Spotify..." list="assin-sugestoes" autocomplete="off" oninput="assinSugerirTipo()"><datalist id="assin-sugestoes"></datalist></div>
-      <div class="field"><label>Valor (R$)</label><input id="assin-val" type="number" placeholder="0,00" min="0" step="0.01"></div>
+      <div class="field"><label>Valor (R$)</label><input id="assin-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" class="currency-input" oninput="maskCurrency(this)"></div>
     </div>
     <div class="form-row">
       <div class="field">
@@ -1614,7 +1614,7 @@ try{
         </label>
         <select id="assin-cat" onchange="window._assinTipoManual=true"></select>
       </div>
-      <div class="field"><label>Dia de vencimento</label><input id="assin-dia" type="number" placeholder="15" min="1" max="31"></div>
+      <div class="field"><label>Dia de vencimento</label><input id="assin-dia" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="15" oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)"></div>
     </div>
     <div class="form-row">
       <div class="field"><label>Status</label>
@@ -1637,7 +1637,7 @@ try{
     <input type="hidden" id="rec-edit-id">
     <div class="form-row">
       <div class="field"><label>Descrição</label><input id="rec-desc" type="text" placeholder="Ex: Aluguel, Energia..."></div>
-      <div class="field"><label>Valor (R$)</label><input id="rec-val" type="number" placeholder="0,00" min="0" step="0.01"></div>
+      <div class="field"><label>Valor (R$)</label><input id="rec-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" class="currency-input" oninput="maskCurrency(this)"></div>
     </div>
     <div class="form-row">
       <div class="field"><label>Categoria</label>
@@ -1646,7 +1646,7 @@ try{
           <option>Internet</option><option>Alimentação</option><option>Saúde</option><option>Outros</option>
         </select>
       </div>
-      <div class="field"><label>Dia de vencimento</label><input id="rec-dia" type="number" placeholder="10" min="1" max="31"></div>
+      <div class="field"><label>Dia de vencimento</label><input id="rec-dia" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="10" oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)"></div>
     </div>
     <div class="btn-row">
       <button class="btn primary" onclick="salvarRec()">Salvar</button>
@@ -1779,7 +1779,7 @@ try{
 <script src="planos/evolucao/10-renda-passiva.js?v=4"></script>
 <script src="js/app/11-modal-export.js?v=4"></script>
 <script src="planos/evolucao/14-notas.js?v=9"></script>
-<script src="planos/evolucao/15-assinaturas-calendario.js?v=7"></script>
+<script src="planos/evolucao/15-assinaturas-calendario.js?v=8"></script>
 <script src="js/app/16-manual.js?v=2"></script>
 <script src="acessos/17-servidor.js?v=1"></script>
 <script src="planos/18-regras-planos.js?v=11"></script>

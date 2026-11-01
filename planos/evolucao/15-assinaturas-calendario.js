@@ -66,7 +66,7 @@ function openModalAssin(id){
   const a = id ? getAssin().find(x=>x.id===id) : null;
   if(a){
     const tipo = tipoDaAssin(a); _assinGarantirOpcao(tipo);
-    document.getElementById('assin-nome').value=a.nome;document.getElementById('assin-val').value=a.val;document.getElementById('assin-cat').value=tipo;document.getElementById('assin-dia').value=a.dia;document.getElementById('assin-status').value=a.status||'ativa';document.getElementById('assin-obs').value=a.obs||'';
+    document.getElementById('assin-nome').value=a.nome;document.getElementById('assin-val').value=Number(a.val).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('assin-cat').value=tipo;document.getElementById('assin-dia').value=a.dia;document.getElementById('assin-status').value=a.status||'ativa';document.getElementById('assin-obs').value=a.obs||'';
   }else{
     ['assin-nome','assin-val','assin-dia','assin-obs'].forEach(i=>document.getElementById(i).value='');document.getElementById('assin-status').value='ativa';
     document.getElementById('assin-cat').value='Streaming';
@@ -75,7 +75,7 @@ function openModalAssin(id){
 }
 async function salvarAssin(){
   const nome=document.getElementById('assin-nome').value.trim();
-  const val=parseFloat(document.getElementById('assin-val').value);
+  const val=parseCurrency(document.getElementById('assin-val'));   // campo com máscara (1.234,56)
   const dia=parseInt(document.getElementById('assin-dia').value);
   if(!nome){showMsg('msg-assin','Informe o nome','err');return}
   if(!val||val<=0){showMsg('msg-assin','Valor inválido','err');return}
@@ -184,13 +184,13 @@ async function saveRec(){lsSave(cp,'recorrentes');fbSave(cp,'recorrentes');}
 function openModalRec(id){
   document.getElementById('mrec-title').textContent=id?'Editar conta':'Nova conta recorrente';
   document.getElementById('rec-edit-id').value=id||'';
-  if(id){const r=getRec().find(x=>x.id===id);if(r){document.getElementById('rec-desc').value=r.desc;document.getElementById('rec-val').value=r.val;document.getElementById('rec-cat').value=r.cat;document.getElementById('rec-dia').value=r.dia;}}
+  if(id){const r=getRec().find(x=>x.id===id);if(r){document.getElementById('rec-desc').value=r.desc;document.getElementById('rec-val').value=Number(r.val).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('rec-cat').value=r.cat;document.getElementById('rec-dia').value=r.dia;}}
   else{['rec-desc','rec-val','rec-dia'].forEach(i=>document.getElementById(i).value='');}
   document.getElementById('modal-rec').classList.add('open');
 }
 async function salvarRec(){
   const desc=document.getElementById('rec-desc').value.trim();
-  const val=parseFloat(document.getElementById('rec-val').value);
+  const val=parseCurrency(document.getElementById('rec-val'));   // campo com máscara (1.234,56)
   const dia=parseInt(document.getElementById('rec-dia').value);
   if(!desc){showMsg('msg-rec-modal','Informe a descrição','err');return}
   if(!val||val<=0){showMsg('msg-rec-modal','Valor inválido','err');return}
