@@ -39,27 +39,29 @@ function irisTransition(callback){
 }
 
 // ─── Acesso Master: só pelo Google (verificação em duas etapas da conta Google) ───
-// O e-mail do Master não fica escrito no site: só a impressão digital dele (SHA-256), comparada aqui
+// A tela de login é igual para todos: o Google fica em "Acesso da equipe" (alternarAcessoEquipe) e digitar
+// um e-mail não muda nada na tela. Antes o botão aparecia ao digitar o e-mail do Master, o que mostrava a
+// qualquer um qual conta é a do dono. O e-mail do Master não fica escrito no site: só a impressão digital
+// dele (SHA-256), usada apenas na etapa 2 abaixo.
 const HASH_EMAIL_MASTER = 'e75f4dc7f7cb90f39eb64c064602bd19a7195dfcef85bdb33aef58ee6c055fe0';
-let _emailMasterDigitado = false;   // resposta da última conferência (o campo muda a cada tecla)
+function alternarAcessoEquipe(){
+  const b = document.getElementById('login-equipe'); if(!b) return;
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
 async function ehEmailMaster(v){
   try{
     const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(v || '').trim().toLowerCase()));
     return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('') === HASH_EMAIL_MASTER;
   }catch(e){ return false; }
 }
-// Digitou o e-mail do Master: aparece o botão do Google.
-// Etapa 1 (agora): senha e Google lado a lado, até o Lucas confirmar que o Google funciona.
-// Etapa 2: MASTER_SO_GOOGLE = true esconde a senha (e as regras do banco passam a exigir o Google).
+// Etapa 1 (agora): o Master entra pela senha ou pelo Google ("Acesso da equipe"), até o Lucas confirmar que o Google funciona.
+// Etapa 2: MASTER_SO_GOOGLE = true esconde a senha ao digitar o e-mail do Master (e as regras do banco passam a exigir o Google).
 const MASTER_SO_GOOGLE = false;
 async function atualizarLoginMaster(){
+  if(!MASTER_SO_GOOGLE) return;
   const campo = document.getElementById('login-email'), v = campo?.value;
   const master = await ehEmailMaster(v);
   if(campo && campo.value !== v) return;   // digitou mais enquanto conferia: vale a conferência seguinte
-  _emailMasterDigitado = master;
-  const g = document.getElementById('btn-login-google');
-  if(g) g.style.display = master ? 'flex' : 'none';
-  if(!MASTER_SO_GOOGLE) return;
   const senhaBloco = document.getElementById('login-senha-bloco');
   const btn = document.getElementById('btn-login');
   if(senhaBloco) senhaBloco.style.display = master ? 'none' : '';
@@ -70,8 +72,7 @@ async function entrarComGoogle(){
   if(!f || !f.firebaseOk || !f.GoogleAuthProvider) return;
   erroEl.style.display = 'none';
   const provedor = new f.GoogleAuthProvider();
-  const digitado = String(document.getElementById('login-email')?.value || '').trim();
-  provedor.setCustomParameters(_emailMasterDigitado && digitado ? { login_hint: digitado, prompt: 'select_account' } : { prompt: 'select_account' });
+  provedor.setCustomParameters({ prompt: 'select_account' });
   try{
     await f.signInWithPopup(f.auth, provedor);
   }catch(e){

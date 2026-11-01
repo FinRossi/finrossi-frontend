@@ -512,3 +512,6 @@ I18N_EN_ADD({
 }, [
   [/^(\d+) de (\d+)$/, '$1 of $2'],
 ]);
+
+// ═══ Login: acesso da equipe (js/app/29-login.js) ═══════════════════════════
+I18N_EN_ADD({ 'Acesso da equipe': 'Team access', 'Somente para a equipe do FinRossi': 'FinRossi team only', 'Entrar com Google': 'Sign in with Google' });

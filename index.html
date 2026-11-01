@@ -11,7 +11,7 @@
 <!-- finrossi.com.br sem nada leva à landing (quem ainda não conhece vê os planos). Fica no app: app instalado,
      quem já entrou neste aparelho, links com parâmetros (?entrar, ?plano/?cupom dos e-mails) e a volta do login com Google -->
 <script>(function(){try{var inst=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;var param=location.search.length>1||location.hash.length>1;var ja=localStorage.getItem('fin_ja_entrou')==='1'||!!localStorage.getItem('fin_ultimo_acesso_ts');var g=sessionStorage.getItem('fin_login_google')==='1';if(!inst&&!param&&!ja&&!g){location.replace('/landing/');}}catch(e){}})();</script>
-<!-- Idioma e moeda (antes de todos os scripts): português e R$ ficam iguais; inglês baixa o dicionário --><script src="js/i18n.js?v=15"></script>
+<!-- Idioma e moeda (antes de todos os scripts): português e R$ ficam iguais; inglês baixa o dicionário --><script src="js/i18n.js?v=16"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinRossi — Aplicativo para construir sua riqueza</title>
 
@@ -222,11 +222,15 @@ try{
       <button onclick="fazerLogin()" id="btn-login" style="width:100%;background:#c9a84c;color:#000;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.background='#e8c96d'" onmouseout="this.style.background='#c9a84c'">
         <span id="btn-login-txt">Entrar</span>
       </button>
-      <!-- Acesso Master: só pelo Google (verificação em duas etapas da conta Google). Aparece ao digitar o e-mail do Master -->
-      <button type="button" onclick="entrarComGoogle()" id="btn-login-google" style="display:none;width:100%;background:#fff;color:#1f1f1f;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;align-items:center;justify-content:center;gap:10px">
+      <!-- Acesso da equipe (Master): pelo Google, com a verificação em duas etapas da conta Google. Fica escondido e
+           abre pelo link "Acesso da equipe" no rodapé, igual para todos (digitar um e-mail não muda nada na tela) -->
+      <div id="login-equipe" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
+      <div style="font-size:12px;color:#777;text-align:center;margin-bottom:10px">Somente para a equipe do FinRossi</div>
+      <button type="button" onclick="entrarComGoogle()" id="btn-login-google" style="display:flex;width:100%;background:#fff;color:#1f1f1f;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;align-items:center;justify-content:center;gap:10px">
         <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.1 1.4-4.9 2.3-8.2 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
         <span>Entrar com Google</span>
       </button>
+      </div>
 
       <div style="text-align:center;margin-top:14px">
         <button onclick="abrirResetSenha()" style="background:none;border:none;color:#666;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;text-underline-offset:3px" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#666'">Esqueci minha senha</button>
@@ -234,6 +238,10 @@ try{
 
       <div style="text-align:center;margin-top:10px">
         <a href="landing/#planos" style="font-size:13px;color:#666;text-decoration:none">Não tem conta? <span style="color:#c9a84c">Conheça os planos</span></a>
+      </div>
+
+      <div style="text-align:center;margin-top:12px">
+        <button type="button" onclick="alternarAcessoEquipe()" style="background:none;border:none;color:#4a4a4a;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px">Acesso da equipe</button>
       </div>
     </div>
     <!-- Card instalar app na tela de login -->
@@ -1796,7 +1804,7 @@ try{
 <script src="js/app/26-cursor-fx.js?v=2"></script>
 <script src="acessos/27-ver-como.js?v=8"></script>
 <script src="js/app/28-nav-personalizacao.js?v=7"></script>
-<script src="js/app/29-login.js?v=10"></script>
+<script src="js/app/29-login.js?v=11"></script>
 <script src="js/app/30-date-picker.js?v=2"></script>
 <script src="js/app/31-reset-senha.js?v=7"></script>
 <script src="js/app/32-notificacoes.js?v=8"></script>
