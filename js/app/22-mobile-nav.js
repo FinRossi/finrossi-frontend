@@ -15,6 +15,30 @@ function setupMobile(){
   }
 }
 
+// Lente de vidro da barra de baixo (css/07-layout-finrossi.css → .mnav-lente): segue o item ativo.
+// Observa a barra em vez de ser chamada: o ativo muda aqui (updateMobileNav) e na barra de atalhos
+// (34-barra-atalhos.js, que também recria os botões).
+function posicionarLenteNav(){
+  const nav = document.getElementById('mobile-nav'); if(!nav) return;
+  let lente = nav.querySelector('.mnav-lente');
+  if(!lente){ lente = document.createElement('span'); lente.className = 'mnav-lente'; lente.setAttribute('aria-hidden', 'true'); nav.prepend(lente); }
+  const ativo = nav.querySelector('.mobile-nav-item.active');
+  // (só mexe no que mudou: mudar a classe da própria lente dispararia o observador de novo)
+  if(!ativo || !ativo.offsetWidth){ if(lente.classList.contains('on')) lente.classList.remove('on'); return; }
+  const folga = 4, w = (ativo.offsetWidth - folga * 2) + 'px', x = `translateX(${ativo.offsetLeft + folga}px)`;
+  if(lente.style.width !== w) lente.style.width = w;
+  if(lente.style.transform !== x) lente.style.transform = x;
+  if(!lente.classList.contains('on')) lente.classList.add('on');
+}
+(function(){
+  const nav = document.getElementById('mobile-nav'); if(!nav) return;
+  let pendente = false;
+  const agendar = () => { if(pendente) return; pendente = true; requestAnimationFrame(() => { pendente = false; posicionarLenteNav(); }); };
+  new MutationObserver(agendar).observe(nav, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', agendar);
+  agendar();
+})();
+
 function updateMobileNav(section){
   // todos os 6 itens são diretos agora
   document.querySelectorAll('.mobile-nav-item').forEach(b => {
