@@ -109,7 +109,8 @@ function gerarInsights(){
 
   if(lancs.length === 0) return { semDados:true, insights:[] };
 
-  const doMesAtual    = lancs.filter(l=>l.data && l.data.startsWith(mesAtual));
+  // Só o que já aconteceu: lançamento com data futura é previsto (não saiu do bolso ainda)
+  const doMesAtual    = lancs.filter(l=>l.data && l.data.startsWith(mesAtual) && l.data <= new Date().toLocaleDateString('sv'));
   const doMesAnterior = lancs.filter(l=>l.data && l.data.startsWith(mesAnterior));
 
   const recAtual = doMesAtual.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
@@ -193,7 +194,7 @@ function gerarDesafios(){
   const hoje  = new Date();
   const mesAtual = curMes();
 
-  const doMesAtual = lancs.filter(l=>l.data && l.data.startsWith(mesAtual));
+  const doMesAtual = lancs.filter(l=>l.data && l.data.startsWith(mesAtual) && l.data <= new Date().toLocaleDateString('sv'));   // só o que já aconteceu
   const recAtual = doMesAtual.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const desAtual = doMesAtual.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const diasComLanc = new Set(doMesAtual.map(l=>l.data)).size;

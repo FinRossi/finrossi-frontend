@@ -80,15 +80,23 @@ function atualizarCabecalhoDash(){
 })();
 
 function refreshDash(){
-  const {lancs,invs}=pd(), mes=getMesFiltro();
+  const {invs}=pd(), mes=getMesFiltro();
   atualizarCabecalhoDash();
 
   populateMesFiltro();
-  // "Todos os meses": soma tudo até o mês atual (parcelas futuras ficam de fora); patrimônio e
+  // "Todos os meses": soma tudo até hoje (parcelas futuras ficam de fora); patrimônio e
   // gráficos usam o mês atual como referência; sem comparação com o mês anterior
   const todos = mes==='todos';
   const mesRef = todos ? curMes() : mes;
-  const doMes = todos ? lancs.filter(l=>l.data<=mesRef+'-31') : lancs.filter(l=>l.data.startsWith(mes));
+  // Lançamento com data futura é PREVISTO: aparece, mas só sai do saldo quando chega o dia (01/11/2026).
+  // Antes, lançar hoje a conta que vence dia 15 ("Lançar do mês", parcelas) já tirava o dinheiro do saldo.
+  // Olhando um mês futuro de propósito, mostra a projeção completa daquele mês.
+  const hojeStr = hoje(), projecao = !todos && mes > curMes();
+  const lancs = projecao ? pd().lancs : pd().lancs.filter(l => l.data <= hojeStr);
+  const previstos = projecao ? [] : pd().lancs.filter(l => l.data > hojeStr && l.data.startsWith(mesRef));
+  const recPrev = previstos.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
+  const desPrev = previstos.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
+  const doMes = todos ? lancs : lancs.filter(l=>l.data.startsWith(mes));
   const rec=doMes.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const des=doMes.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const saldo=rec-des;
@@ -207,6 +215,9 @@ function refreshDash(){
             <div class="ced-rotulo">${rotulo}</div>
             <div class="ced-valor-linha"><div class="ced-valor${atuais[k]<0?' ced-negativo':''}" id="ced-valor-${k}">${mostra(k)}</div>${cedDeltaHTML('ced-valor-' + k)}</div>
             <div class="ced-var">${varTxt(p, inv)}</div>
+            ${k === 'rec' && recPrev ? `<div class="ced-prev">+ ${fmtR(recPrev)} a receber até o fim do mês</div>` : ''}
+            ${k === 'des' && desPrev ? `<div class="ced-prev">+ ${fmtR(desPrev)} a pagar até o fim do mês</div>` : ''}
+            ${k === 'sal' && (recPrev || desPrev) ? `<div class="ced-prev">Previsto no fim do mês: ${fmtR(saldo + recPrev - desPrev)}</div>` : ''}
           </div>`).join('')}
       </div>`;
 
@@ -270,13 +281,13 @@ function refreshDash(){
   else renderComparativo(lancs,mes);
 
   // Parcelas
-  const parcelas=lancs.filter(l=>l.parcelado&&l.tipo==='despesa');
+  const parcelas=pd().lancs.filter(l=>l.parcelado&&l.tipo==='despesa');   // todas (as futuras contam como "restantes")
   const totalParcelaMes=doMes.filter(l=>l.parcelado).reduce((a,b)=>a+b.val,0);
   const grupos={};
   parcelas.forEach(l=>{
     if(!grupos[l.groupId])grupos[l.groupId]={desc:l.desc,cat:l.cat,valParc:l.val,total:l.valorTotal,n:l.totalParcelas,pagas:0,restantes:0,proxData:null};
     const g=grupos[l.groupId];
-    if(l.data<=mesRef+'-31')g.pagas++;
+    if(l.data<=(projecao?mesRef+'-31':hojeStr))g.pagas++;   // parcela com data futura ainda não foi paga
     else{g.restantes++;if(!g.proxData||l.data<g.proxData)g.proxData=l.data}
   });
 

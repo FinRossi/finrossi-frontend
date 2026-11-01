@@ -22,10 +22,18 @@ function _proximoVencimento(dia){
 // estão lançadas uma a uma; "Paguei" só marca a fatura do mês (cartoes[].faturasPagas[AAAA-MM]).
 // A mesma regra está no servidor (backend/push.js), que não lembra conta paga.
 function _dataNoMes(dia, mes){ const [a, m] = mes.split('-').map(Number); return `${mes}-${String(Math.min(dia, new Date(a, m, 0).getDate())).padStart(2, '0')}`; }
+// Paga = tem o "Paguei" daquela conta naquele mês (vencRef), ou um lançamento dela com data que já chegou.
+// Lançamento com data futura (ex.: "Lançar do mês") é só PREVISTO: o dinheiro ainda não saiu.
+function _vencRef(tipo, id, mes){ return `${tipo}:${id}:${mes}`; }
+function _lancDaConta(tipo, item, data){
+  const nome = tipo === 'recorrente' ? item.desc : item.nome, marca = tipo === 'recorrente' ? 'recorrente' : 'assinatura';
+  const lancs = pd().lancs || [], ref = _vencRef(tipo, item.id, data.slice(0, 7));
+  return lancs.find(l => l.vencRef === ref) || lancs.find(l => l.tipo === 'despesa' && l[marca] && !l.vencRef && l.desc === nome && l.data === data) || null;
+}
 function _contaPaga(tipo, item, data){
   if(tipo === 'cartao') return !!(item.faturasPagas && item.faturasPagas[data.slice(0, 7)]);
-  const nome = tipo === 'recorrente' ? item.desc : item.nome, marca = tipo === 'recorrente' ? 'recorrente' : 'assinatura';
-  return (pd().lancs || []).some(l => l.tipo === 'despesa' && l[marca] && l.desc === nome && l.data === data);
+  const l = _lancDaConta(tipo, item, data);
+  return !!l && (!!l.vencRef || l.data <= hoje());
 }
 
 // ── Calcula vencimentos próximos (só as contas ainda não pagas) ───────────────
@@ -208,8 +216,10 @@ async function _desativarPush(){
 }
 
 // ── "Paguei" / "Vou pagar" (notificação, card do dashboard) ────────────────────
-// Recorrente → despesa na categoria dela; assinatura → despesa "Assinaturas"; os dois com a data do
-// vencimento e a mesma marcação do "Lançar do mês" (nunca duplica). Fatura do cartão → só marca a fatura.
+// Recorrente → despesa na categoria dela; assinatura → despesa "Assinaturas". Entra com a data de HOJE
+// (o dia em que o dinheiro saiu) e a marca vencRef da conta/mês, para o "Lançar do mês" não lançar de novo.
+// Se a conta já estava prevista (lançada com data futura), só passa a data dela para hoje.
+// Fatura do cartão → só marca a fatura (as compras já estão lançadas).
 function _itemVenc(tipo, id){
   const lista = tipo === 'recorrente' ? pd().recorrentes : tipo === 'assinatura' ? pd().assinaturas : tipo === 'cartao' ? pd().cartoes : null;
   return (lista || []).find(x => x && x.id === id) || null;
@@ -226,12 +236,26 @@ async function registrarPagamentoVenc(tipo, id, mes){
     if(typeof saveCartoes === 'function') await saveCartoes(); else await saveCollection('cartoes');
     _avisoVenc(`${nome} marcada como paga. As compras do cartão já estão nos seus lançamentos.`, 'ok');
   } else {
-    const lanc = tipo === 'recorrente'
-      ? { id: uid(), tipo: 'despesa', desc: item.desc, val: item.val, data, cat: item.cat || 'Outros', obs: 'Pago pela notificação', recorrente: true }
-      : { id: uid(), tipo: 'despesa', desc: item.nome, val: item.val, data, cat: 'Assinaturas', obs: `Assinatura · pago pela notificação`, assinatura: true };
-    pd().lancs.push(lanc);
-    await saveCollection('lancs');
-    _avisoVenc(`Pronto! ${nome} (${fmtR(item.val)}) foi lançada como despesa.`, 'ok', () => desfazerPagamentoVenc(lanc.id));
+    // O dinheiro saiu HOJE (mesmo que o vencimento seja depois): a despesa entra com a data de hoje.
+    const ref = _vencRef(tipo, item.id, data.slice(0, 7));
+    const previsto = _lancDaConta(tipo, item, data);   // já lançada com data futura ("Lançar do mês")
+    if(previsto){
+      const antes = { data: previsto.data, obs: previsto.obs };
+      previsto.data = hoje(); previsto.vencRef = ref; previsto.obs = (previsto.obs ? previsto.obs + ' · ' : '') + 'pago antes do vencimento';
+      await saveCollection('lancs');
+      _avisoVenc(`Pronto! ${nome} (${fmtR(previsto.val)}) foi paga hoje e saiu do seu saldo.`, 'ok', async () => {
+        previsto.data = antes.data; previsto.obs = antes.obs; delete previsto.vencRef;
+        await saveCollection('lancs'); try{ refreshAll(); }catch(e){} _avisoVenc('Pagamento desfeito.', 'ok');
+      });
+    } else {
+      const base = { id: uid(), tipo: 'despesa', val: item.val, data: hoje(), vencRef: ref };
+      const lanc = tipo === 'recorrente'
+        ? { ...base, desc: item.desc, cat: item.cat || 'Outros', obs: `Conta do dia ${String(dia).padStart(2, '0')} · paga pelo FinRossi`, recorrente: true }
+        : { ...base, desc: item.nome, cat: 'Assinaturas', obs: `Assinatura do dia ${String(dia).padStart(2, '0')} · paga pelo FinRossi`, assinatura: true };
+      pd().lancs.push(lanc);
+      await saveCollection('lancs');
+      _avisoVenc(`Pronto! ${nome} (${fmtR(item.val)}) foi lançada como despesa de hoje.`, 'ok', () => desfazerPagamentoVenc(lanc.id));
+    }
   }
   try{ refreshAll(); }catch(e){}
   return true;
@@ -383,6 +407,86 @@ async function convNotifAtivar(){
 }
 function convNotifDepois(adiado){ _convFechar(); _convGravar((adiado || 0) + 1); }
 function convNotifNunca(){ _convFechar(); _convGravar('nunca'); }
+
+// ── Lembretes pelo WhatsApp: aceite do cliente (Configurações → Notificações) ──────────
+// O texto aceito, a versão, o número, a data, o aparelho e o IP ficam guardados no servidor a cada aceite
+// ou cancelamento (backend/whatsapp.js → consentimentos/<uid>/whatsapp). Os lembretes só saem depois que
+// o FinRossi tiver o número na Meta e o cliente confirmar o número respondendo SIM.
+let _whatsInfo = null;
+async function _whatsApi(metodo, corpo){
+  const u = window._firebaseUser;
+  if(!u || typeof fetchBackend !== 'function') throw new Error('Entre na sua conta.');
+  const res = await fetchBackend(`${BACKEND_URL}/whatsapp/consentimento`, { method: metodo, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await u.getIdToken() }, ...(corpo ? { body: JSON.stringify(corpo) } : {}) });
+  const d = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error(d.erro || 'Não deu agora. Tente de novo em instantes.');
+  return d;
+}
+const _whatsTelTela = t => { const d = String(t || '').replace(/\D/g, ''); return d.startsWith('55') ? d.slice(2) : d.startsWith('61') ? '0' + d.slice(2) : d; };
+async function renderWhatsConfig(){
+  const box = document.getElementById('cfg-whats'); if(!box) return;
+  const role = window._userRole || (typeof _userRole !== 'undefined' ? _userRole : '');
+  if(role !== 'cliente'){ box.style.display = 'none'; return; }
+  box.style.display = '';
+  const st = document.getElementById('cfg-whats-status'), btn = document.getElementById('cfg-whats-btn'), info = document.getElementById('cfg-whats-info');
+  try{ _whatsInfo = await _whatsApi('GET'); }catch(e){ st.textContent = 'Indisponível'; btn.style.display = 'none'; return; }
+  const w = _whatsInfo, pintar = (txt, verde) => { st.textContent = txt; st.style.background = verde ? 'rgba(74,222,128,.1)' : 'var(--surface3)'; st.style.color = verde ? 'var(--green)' : 'var(--muted)'; };
+  btn.style.display = '';
+  if(w.aceito){
+    pintar(w.canalAtivo && w.confirmadoEm ? 'Ativo' : 'Aceito', true);
+    const tel = typeof ncMascaraTelefone === 'function' && !String(w.telefone).startsWith('61') ? (() => { const e = { value: _whatsTelTela(w.telefone) }; ncMascaraTelefone(e); return e.value; })() : _whatsTelTela(w.telefone);
+    info.style.display = '';
+    info.textContent = `Você aceitou em ${new Date(w.aceitoEm).toLocaleDateString(LOCALE)} · número ${tel}. `
+      + (!w.canalAtivo ? 'Os lembretes começam assim que o WhatsApp do FinRossi estiver no ar.' : w.confirmadoEm ? 'Lembretes ligados.' : 'Para começar, responda SIM na mensagem que enviamos no WhatsApp.');
+    btn.textContent = 'Não quero mais pelo WhatsApp';
+    btn.style.background = 'var(--surface3)'; btn.style.color = 'var(--text)';
+    btn.onclick = cancelarAceiteWhats;
+  } else {
+    pintar('Desativado', false);
+    info.style.display = 'none';
+    btn.textContent = 'Quero receber pelo WhatsApp';
+    btn.style.background = 'var(--accent)'; btn.style.color = '#0f0f0f';
+    btn.onclick = abrirAceiteWhats;
+  }
+}
+// Janela de aceite: mostra o texto inteiro, o número (pode corrigir) e só libera com "Li e aceito"
+async function abrirAceiteWhats(){
+  try{ if(!_whatsInfo) _whatsInfo = await _whatsApi('GET'); }catch(e){ alert(e.message); return; }
+  const w = _whatsInfo, aud = typeof MOEDA !== 'undefined' && MOEDA === 'AUD';
+  let m = document.getElementById('whats-aceite');
+  if(!m){ m = document.createElement('div'); m.id = 'whats-aceite'; m.className = 'modal-overlay'; m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }); document.body.appendChild(m); }
+  m.innerHTML = `<div class="fav-vidro whats-aceite" role="dialog" aria-modal="true" aria-labelledby="wa-tit">
+    <div class="fav-topo"><div><h3 id="wa-tit">Lembretes pelo WhatsApp</h3><p>Receba o aviso das suas contas no WhatsApp e responda Paguei para lançar na hora.</p></div>
+      <button type="button" class="fav-fechar" onclick="document.getElementById('whats-aceite').classList.remove('open')" aria-label="Fechar">✕</button></div>
+    <div class="field" style="margin:0"><label for="wa-tel">Seu WhatsApp</label>
+      <input id="wa-tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="${aud ? '0412 345 678' : '(11) 98765-4321'}" oninput="${aud ? '' : 'ncMascaraTelefone(this)'}"></div>
+    <div class="wa-texto">${escHTML(w.texto)}</div>
+    <label class="wa-check"><input type="checkbox" id="wa-ok" onchange="document.getElementById('wa-aceitar').disabled=!this.checked"> <span>Li e aceito receber os lembretes pelo WhatsApp</span></label>
+    <div class="msg" id="msg-wa" style="margin:0;min-height:0"></div>
+    <div class="fav-acoes"><span style="flex:1"></span>
+      <button type="button" class="btn sm" onclick="document.getElementById('whats-aceite').classList.remove('open')">Agora não</button>
+      <button type="button" class="btn primary sm" id="wa-aceitar" disabled onclick="confirmarAceiteWhats()">Aceitar</button></div>
+  </div>`;
+  const tel = document.getElementById('wa-tel');
+  tel.value = _whatsTelTela(w.telefone);
+  if(!aud && tel.value && typeof ncMascaraTelefone === 'function') ncMascaraTelefone(tel);
+  m.classList.add('open');
+}
+async function confirmarAceiteWhats(){
+  const btn = document.getElementById('wa-aceitar');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  try{
+    let fuso = ''; try{ fuso = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){}
+    await _whatsApi('POST', { aceito: true, telefone: document.getElementById('wa-tel').value, versao: _whatsInfo.versao, fuso });
+    document.getElementById('whats-aceite').classList.remove('open');
+    _whatsInfo = null; renderWhatsConfig();
+    _avisoVenc('Pronto! Seu aceite foi registrado.', 'ok');
+  }catch(e){ showMsg('msg-wa', e.message, 'err'); btn.disabled = false; btn.textContent = 'Aceitar'; }
+}
+async function cancelarAceiteWhats(){
+  if(!confirm('Parar de receber os lembretes pelo WhatsApp?')) return;
+  try{ await _whatsApi('POST', { aceito: false }); _whatsInfo = null; renderWhatsConfig(); _avisoVenc('Pronto, os lembretes pelo WhatsApp foram cancelados.', 'ok'); }
+  catch(e){ alert(e.message); }
+}
 
 // Verifica e mostra notificações ao abrir o app (chamada a cada login: um relógio só)
 let _notifRelogio = null;

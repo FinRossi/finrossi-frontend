@@ -53,6 +53,7 @@ function abrirConfiguracoes(){
     const nStatus = document.getElementById('cfg-notif-status');
     const nBtn = document.getElementById('cfg-notif-btn');
     atualizarStatusNotificacoesConfig(nStatus, nBtn);
+    if(typeof renderWhatsConfig==='function') renderWhatsConfig();   // lembretes pelo WhatsApp (clientes)
     // Seletor de cores — exclusivo Patrimônio
     if(typeof initPatrimonioCores==='function') initPatrimonioCores();
     el('modal-config').style.display='flex';

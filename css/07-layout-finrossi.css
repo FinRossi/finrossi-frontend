@@ -654,3 +654,14 @@ body.sb-minimizado .dock-favoritos{
 .venc-aviso.ok{border-left:3px solid var(--green)}
 .venc-aviso.err{border-left:3px solid var(--red)}
 .venc-aviso button{background:none;border:none;color:var(--accent);font:600 13px 'DM Sans',sans-serif;cursor:pointer;padding:0;white-space:nowrap}
+
+/* Dashboard: o que está previsto (lançamento com data futura no mês) — só sai do saldo no dia */
+.ced-prev{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* ── Aceite dos lembretes pelo WhatsApp (js/app/32-notificacoes.js → abrirAceiteWhats) ── */
+#whats-aceite{z-index:9995}
+.whats-aceite{width:min(460px,100%)}
+.wa-texto{font-size:12.5px;line-height:1.6;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;max-height:180px;overflow-y:auto}
+.wa-check{display:flex;align-items:flex-start;gap:10px;font-size:13px;cursor:pointer;line-height:1.4}
+.wa-check input{width:18px;height:18px;margin-top:1px;accent-color:var(--accent);flex-shrink:0}
+[data-theme="claro"] .wa-texto{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.08)}

@@ -215,7 +215,8 @@ async function lancarRecorrentesDoMes(){
       const [yr,mo]=mes.split('-').map(Number);
       const dia=Math.min(r.dia,new Date(yr,mo,0).getDate());
       const data=`${mes}-${String(dia).padStart(2,'0')}`;
-      const jaLancado=pd().lancs.some(l=>l.desc===r.desc&&l.data===data&&l.tipo==='despesa'&&l.recorrente);
+      // Já lançada nesse vencimento, ou paga pelo "Paguei" (vencRef, com a data em que foi paga)
+      const jaLancado=pd().lancs.some(l=>(l.vencRef===`recorrente:${r.id}:${mes}`)||(l.desc===r.desc&&l.data===data&&l.tipo==='despesa'&&l.recorrente));
       if(!jaLancado){pd().lancs.push({id:uid(),tipo:'despesa',desc:r.desc,val:r.val,data,cat:r.cat,obs:'Automático',recorrente:true});lançados++;}
     });
   }
@@ -232,7 +233,7 @@ function lancarAssinaturasDoMes(mes){
   assin.forEach(a=>{
     const dia=Math.min(a.dia||1, new Date(yr,mo,0).getDate());
     const data=`${mes}-${String(dia).padStart(2,'0')}`;
-    const jaLancado=pd().lancs.some(l=>l.desc===a.nome&&l.data===data&&l.tipo==='despesa'&&l.assinatura);
+    const jaLancado=pd().lancs.some(l=>(l.vencRef===`assinatura:${a.id}:${mes}`)||(l.desc===a.nome&&l.data===data&&l.tipo==='despesa'&&l.assinatura));   // inclui o "Paguei"
     if(!jaLancado){
       // Lançamento entra na categoria de despesa "Assinaturas" (o tipo vai na observação)
       pd().lancs.push({id:uid(),tipo:'despesa',desc:a.nome,val:a.val,data,cat:'Assinaturas',obs:`Assinatura automática · ${tipoDaAssin(a)}`,assinatura:true});

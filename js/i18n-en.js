@@ -591,3 +591,23 @@ I18N_EN_ADD({
   [/^(.+) marcada como paga\. As compras do cartão já estão nos seus lançamentos\.$/, '$1 marked as paid. Your card purchases are already in your transactions.'],
   [/^Vence hoje, dia (\d+)/, 'Due today, the $1'], [/^Vence amanhã, dia (\d+)/, 'Due tomorrow, the $1'], [/^Vence em (\d+) dias, dia (\d+)/, 'Due in $1 days, the $2'], [/^Venceu, dia (\d+)/, 'Overdue, the $1'],
 ]);
+
+// ═══ Previstos no dashboard, Paguei com a data de hoje e aceite do WhatsApp ═══
+I18N_EN_ADD({
+  'Lembretes pelo WhatsApp': 'WhatsApp reminders', 'Com os botões Paguei e Vou pagar': 'With the Paid and Will pay buttons',
+  'Quero receber pelo WhatsApp': 'Get reminders on WhatsApp', 'Não quero mais pelo WhatsApp': 'Stop WhatsApp reminders',
+  'Desativado': 'Off', 'Aceito': 'Accepted', 'Ativo': 'On', 'Indisponível': 'Unavailable', 'Seu WhatsApp': 'Your WhatsApp',
+  'Receba o aviso das suas contas no WhatsApp e responda Paguei para lançar na hora.': 'Get your bill reminders on WhatsApp and reply Paid to record them straight away.',
+  'Li e aceito receber os lembretes pelo WhatsApp': 'I have read and agree to receive reminders on WhatsApp',
+  'Agora não': 'Not now', 'Aceitar': 'Accept', 'Pronto! Seu aceite foi registrado.': 'Done! Your consent has been recorded.',
+  'Pronto, os lembretes pelo WhatsApp foram cancelados.': 'Done, WhatsApp reminders have been cancelled.',
+  'Parar de receber os lembretes pelo WhatsApp?': 'Stop receiving reminders on WhatsApp?', 'Pagamento desfeito.': 'Payment undone.',
+  'Avisos no aparelho (mesmo com o app fechado) e no painel: 2 dias antes, na véspera e no dia': 'Alerts on your device (even with the app closed) and on the dashboard: 2 days before, the day before and on the day',
+}, [
+  [/^\+ (.+) a receber até o fim do mês$/, '+ $1 to come in by the end of the month'],
+  [/^\+ (.+) a pagar até o fim do mês$/, '+ $1 to pay by the end of the month'],
+  [/^Previsto no fim do mês: (.+)$/, 'Expected at the end of the month: $1'],
+  [/^Pronto! (.+) \((.+)\) foi lançada como despesa de hoje\.$/, 'Done! $1 ($2) was added as today’s expense.'],
+  [/^Pronto! (.+) \((.+)\) foi paga hoje e saiu do seu saldo\.$/, 'Done! $1 ($2) was paid today and taken from your balance.'],
+  [/^Você aceitou em (.+) · número (.+)\. (.*)$/, function(m, d, n, r){ return 'You accepted on ' + d + ' · number ' + n + '. ' + ({ 'Os lembretes começam assim que o WhatsApp do FinRossi estiver no ar.': 'Reminders start as soon as FinRossi’s WhatsApp is live.', 'Lembretes ligados.': 'Reminders on.', 'Para começar, responda SIM na mensagem que enviamos no WhatsApp.': 'To start, reply YES to the message we sent on WhatsApp.' }[r] || r); }],
+]);
