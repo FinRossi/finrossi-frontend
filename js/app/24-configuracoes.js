@@ -248,15 +248,16 @@ function atualizarRodapePerfil(){
 }
 
 function aplicarFotoAvatar(dataUrl){
-  const avatar = document.getElementById('sb-avatar');
-  if(avatar){
+  // Menu lateral (computador) e o botão redondo do topo das telas no celular (abre o perfil/menu)
+  [document.getElementById('sb-avatar'), ...document.querySelectorAll('.mob-avatar-img')].forEach(avatar => {
+    if(!avatar) return;
     if(dataUrl){
       avatar.innerHTML=imgFoto(dataUrl, true);
     } else {
       avatar.innerHTML = '';
       avatar.textContent = identidadePerfil().inicial;
     }
-  }
+  });
 }
 
 // Foto do perfil em uso (chamada ao entrar e a cada troca de perfil)

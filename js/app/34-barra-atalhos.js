@@ -115,6 +115,16 @@ function renderDockFavoritos(){
   if(typeof vigiarLenteNav === 'function') vigiarLenteNav('dock-favoritos', '.dock-item[data-ir]');
 }
 
+// ── Celular: o 5º e o 6º favoritos (não cabem na barra) ficam no topo do "Mais" ──
+function renderFavoritosMais(){
+  const el = document.getElementById('mob-fav-mais'); if(!el) return;
+  const extras = getAtalhosDock().slice(ATALHOS_QTD);
+  el.innerHTML = `<div class="mob-fav-topo"><h4>Seus favoritos</h4>
+      <button type="button" class="mob-fav-editar" onclick="abrirEditorFavoritos()">${ICO_EDITAR_FAV}Editar favoritos</button></div>
+    ${extras.length ? `<div class="mob-fav-grade">${extras.map(id => `<button type="button" class="mob-fav-item" onclick="goTo('${id}');closeMobileMoreForce()">${_icoNav(id)}<span>${ATALHOS_NOME_LONGO[id]}</span></button>`).join('')}</div>`
+      : `<p class="mob-fav-dica">Escolha até 6 favoritos: os 4 primeiros ficam na barra de baixo e os outros aparecem aqui.</p>`}`;
+}
+
 // ── Editor de favoritos (vidro) ──────────────────────────────────────────────
 // Abre pelo lápis do dock (computador), segurando o dedo na barra de baixo (celular) ou em Configurações.
 // Ordem importa: os 4 primeiros ficam na barra do celular e no dock; o 5º e o 6º só no dock do computador.
@@ -132,7 +142,7 @@ function abrirEditorFavoritos(){
   }
   m.innerHTML = `<div class="fav-vidro" role="dialog" aria-modal="true" aria-labelledby="fav-tit">
     <div class="fav-topo"><div><h3 id="fav-tit">Seus favoritos</h3>
-      <p>Os 4 primeiros ficam na barra do celular. No computador, o dock mostra até 6.</p></div>
+      <p>Os 4 primeiros ficam na barra de baixo do celular; o 5º e o 6º, no topo do Mais. No computador, o dock mostra os 6.</p></div>
       <button type="button" class="fav-fechar" onclick="fecharEditorFavoritos()" aria-label="Fechar">✕</button></div>
     <ol class="fav-lista" id="fav-lista"></ol>
     <div class="fav-sub">Adicionar <span id="fav-cont"></span></div>
@@ -151,7 +161,7 @@ function _favPintar(){
   const n = _favEdit.length;
   lista.innerHTML = _favEdit.map((id, i) => `<li class="fav-item" draggable="true" data-i="${i}">
       <span class="fav-pos">${i + 1}</span>${_icoNav(id)}<b>${ATALHOS_NOME_LONGO[id]}</b>
-      <small>${i < ATALHOS_QTD ? 'celular e computador' : 'só no computador'}</small>
+      <small>${i < ATALHOS_QTD ? 'barra do celular' : 'Mais do celular'}</small>
       <span class="fav-btns">
         <button type="button" onclick="favMover(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button>
         <button type="button" onclick="favMover(${i},1)" ${i === n - 1 ? 'disabled' : ''} aria-label="Descer">↓</button>

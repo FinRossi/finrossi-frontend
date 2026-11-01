@@ -611,3 +611,11 @@ I18N_EN_ADD({
   [/^Pronto! (.+) \((.+)\) foi paga hoje e saiu do seu saldo\.$/, 'Done! $1 ($2) was paid today and taken from your balance.'],
   [/^Você aceitou em (.+) · número (.+)\. (.*)$/, function(m, d, n, r){ return 'You accepted on ' + d + ' · number ' + n + '. ' + ({ 'Os lembretes começam assim que o WhatsApp do FinRossi estiver no ar.': 'Reminders start as soon as FinRossi’s WhatsApp is live.', 'Lembretes ligados.': 'Reminders on.', 'Para começar, responda SIM na mensagem que enviamos no WhatsApp.': 'To start, reply YES to the message we sent on WhatsApp.' }[r] || r); }],
 ]);
+
+// ═══ Favoritos no "Mais" do celular ═════════════════════════════════════════
+I18N_EN_ADD({
+  'Seus favoritos': 'Your favourites', 'barra do celular': 'phone bar', 'Mais do celular': 'phone More menu',
+  'Os 4 primeiros ficam na barra de baixo do celular; o 5º e o 6º, no topo do Mais. No computador, o dock mostra os 6.': 'The first 4 go in the phone’s bottom bar; the 5th and 6th at the top of More. On a computer, the dock shows all 6.',
+  'Escolha até 6 favoritos: os 4 primeiros ficam na barra de baixo e os outros aparecem aqui.': 'Choose up to 6 favourites: the first 4 go in the bottom bar and the others show up here.',
+  'As telas que você mais usa: as 4 primeiras ficam na barra de baixo do celular e as outras no topo do Mais; no computador, aparecem as 6 no dock (com o menu minimizado). Também dá para editar pelo Mais, segurando o dedo na barra do celular ou pelo lápis do dock.': 'The screens you use most: the first 4 go in the phone’s bottom bar and the others at the top of More; on a computer, all 6 appear in the dock (with the menu minimised). You can also edit from More, by holding your finger on the phone bar or with the dock’s pencil.',
+});

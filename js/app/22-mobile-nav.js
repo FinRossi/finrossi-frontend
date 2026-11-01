@@ -89,6 +89,7 @@ function openMobileMore(){
   vis('mnav-item-qr', noFR && typeof isMaster === 'function' && isMaster());   // QR Code: só o Master
   vis('mnav-item-preview', noFR && (_userRole === 'socio' || (typeof isMaster === 'function' && isMaster())));
   if(typeof _extrasAtualizarMenu === 'function') _extrasAtualizarMenu();   // ferramentas internas (só o Master)
+  if(typeof renderFavoritosMais === 'function') renderFavoritosMais();     // 5º e 6º favoritos no topo do Mais
 }
 function closeMobileMore(e){
   if(e.target === document.getElementById('mobile-more-drawer')) closeMobileMoreForce();
