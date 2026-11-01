@@ -523,3 +523,20 @@ I18N_EN_ADD({
   'WhatsApp inválido: use DDD + número, ex.: (11) 98765-4321.': 'Invalid WhatsApp: use area code + number, e.g. (11) 98765-4321.',
   'WhatsApp inválido: use o celular com 10 números, ex.: 0412 345 678.': 'Invalid WhatsApp: use a 10-digit mobile, e.g. 0412 345 678.',
 });
+
+// ═══ Clientes: janela "Atividade do cliente" (pacote da equipe) ═════════════
+I18N_EN_ADD({
+  'Online agora': 'Online now', 'Offline': 'Offline', 'Última entrada no sistema': 'Last sign-in', 'Dias com acesso': 'Days active',
+  'Cadastro': 'Signed up', 'Dias em que abriu o app': 'Days the app was opened', 'horário da 1ª entrada do dia': 'time of first sign-in that day',
+  'ainda não foi visto no app': 'not seen in the app yet', 'nenhuma ainda': 'none yet', 'Carregando…': 'Loading…',
+  'Ver atividade: online agora e últimas entradas no app': 'View activity: online now and recent sign-ins',
+}, [
+  [/^entrou (hoje|ontem) às (\d{2}:\d{2})$/, function(m, d, h){ return 'signed in ' + (d === 'hoje' ? 'today' : 'yesterday') + ' at ' + h; }],
+  [/^entrou em (\d{2}\/\d{2}\/\d{4}) às (\d{2}:\d{2})$/, 'signed in on $1 at $2'],
+  [/^visto por último (hoje|ontem) às (\d{2}:\d{2})$/, function(m, d, h){ return 'last seen ' + (d === 'hoje' ? 'today' : 'yesterday') + ' at ' + h; }],
+  [/^visto por último em (\d{2}\/\d{2}\/\d{4}) às (\d{2}:\d{2})$/, 'last seen on $1 at $2'],
+  [/^(hoje|ontem) às (\d{2}:\d{2})$/, function(m, d, h){ return (d === 'hoje' ? 'today' : 'yesterday') + ' at ' + h; }],
+  [/^em (\d{2}\/\d{2}\/\d{4}) às (\d{2}:\d{2})$/, 'on $1 at $2'],
+  [/^(\d+) nos últimos (\d+) dias$/, '$1 in the last $2 days'],
+  [/^Nenhuma entrada registrada nos últimos (\d+) dias\. \(Este registro começou em (.+)\.\)$/, 'No sign-ins recorded in the last $1 days. (This log started on $2.)'],
+]);
