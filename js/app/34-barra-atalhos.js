@@ -21,10 +21,10 @@ const ATALHOS_NOME_LONGO = {
 let _atalhosNuvem = null;          // configuração vinda da nuvem (clientes)
 let _ordemOriginalMenu = null;     // ordem do menu lateral antes de qualquer mudança
 
-function atalhosTemAcesso(){
-  if(typeof patrimonioTemAcesso === 'function') return patrimonioTemAcesso();
-  return false;
-}
+// Favoritos personalizáveis em todos os planos (01/11/2026, como as cores do app); só entram as telas
+// que o plano libera (_atalhoPermitido). Antes era só no Patrimônio.
+function atalhosTemAcesso(){ return true; }
+const ATALHOS_DOCK_QTD = 6;   // computador: os 4 da barra do celular + até 2 que aparecem só no dock
 function _atalhoPermitido(id){
   if(id === 'dashboard' || id === 'lancamentos' || id === 'historico') return true;
   if(typeof navOcultoNoPerfil === 'function' && navOcultoNoPerfil(id)) return false;
@@ -42,6 +42,15 @@ function getAtalhos(){
   const lista = [];
   [...salvos, ...ATALHOS_PADRAO, ...Object.keys(ATALHOS_NOME)].forEach(id => {
     if(lista.length < ATALHOS_QTD && ATALHOS_NOME[id] && !lista.includes(id) && _atalhoPermitido(id)) lista.push(id);
+  });
+  return lista;
+}
+
+// Dock do computador: os 4 da barra do celular + as posições 5 e 6 que a pessoa escolheu
+function getAtalhosDock(){
+  const lista = getAtalhos();
+  (_atalhosSalvos() || []).forEach(id => {
+    if(lista.length < ATALHOS_DOCK_QTD && ATALHOS_NOME[id] && !lista.includes(id) && _atalhoPermitido(id)) lista.push(id);
   });
   return lista;
 }
@@ -99,49 +108,131 @@ function renderDockFavoritos(){
     app.appendChild(dock);
   }
   const aberta = (document.querySelector('section:not(.section-hidden)')?.id || '').replace('sec-', '');
-  const itens = getAtalhos().map(id => `<button type="button" class="dock-item${id === aberta ? ' active' : ''}" data-ir="${id}" onclick="goTo('${id}')" title="${ATALHOS_NOME_LONGO[id]}">${_icoNav(id)}<span>${ATALHOS_NOME[id]}</span></button>`).join('');
-  const html = `<button type="button" class="dock-item dock-menu" onclick="toggleSidebar()" title="Mostrar o menu completo">${ICO_MENU_DOCK}<span>Menu</span></button><i class="dock-sep" aria-hidden="true"></i>${itens}`;
+  const itens = getAtalhosDock().map(id => `<button type="button" class="dock-item${id === aberta ? ' active' : ''}" data-ir="${id}" onclick="goTo('${id}')" title="${ATALHOS_NOME_LONGO[id]}">${_icoNav(id)}<span>${ATALHOS_NOME[id]}</span></button>`).join('');
+  const html = `<button type="button" class="dock-item dock-menu" onclick="toggleSidebar()" title="Mostrar o menu completo">${ICO_MENU_DOCK}<span>Menu</span></button><i class="dock-sep" aria-hidden="true"></i>${itens}`
+    + `<i class="dock-sep" aria-hidden="true"></i><button type="button" class="dock-item dock-editar" onclick="abrirEditorFavoritos()" title="Escolher e organizar os favoritos">${ICO_EDITAR_FAV}<span>Editar</span></button>`;
   if(dock._html !== html){ dock._html = html; dock.querySelectorAll('.dock-item,.dock-sep').forEach(e => e.remove()); dock.insertAdjacentHTML('beforeend', html); }
   if(typeof vigiarLenteNav === 'function') vigiarLenteNav('dock-favoritos', '.dock-item[data-ir]');
 }
 
-// ── Configurações → Dashboard ────────────────────────────────────────────────
+// ── Editor de favoritos (vidro) ──────────────────────────────────────────────
+// Abre pelo lápis do dock (computador), segurando o dedo na barra de baixo (celular) ou em Configurações.
+// Ordem importa: os 4 primeiros ficam na barra do celular e no dock; o 5º e o 6º só no dock do computador.
+const ICO_EDITAR_FAV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+let _favEdit = null;   // lista em edição
+function abrirEditorFavoritos(){
+  if(typeof closeMobileMoreForce === 'function') try{ closeMobileMoreForce(); }catch(e){}
+  _favEdit = getAtalhosDock();
+  let m = document.getElementById('fav-editor');
+  if(!m){
+    m = document.createElement('div');
+    m.id = 'fav-editor'; m.className = 'modal-overlay';
+    m.addEventListener('click', e => { if(e.target === m) fecharEditorFavoritos(); });
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `<div class="fav-vidro" role="dialog" aria-modal="true" aria-labelledby="fav-tit">
+    <div class="fav-topo"><div><h3 id="fav-tit">Seus favoritos</h3>
+      <p>Os 4 primeiros ficam na barra do celular. No computador, o dock mostra até 6.</p></div>
+      <button type="button" class="fav-fechar" onclick="fecharEditorFavoritos()" aria-label="Fechar">✕</button></div>
+    <ol class="fav-lista" id="fav-lista"></ol>
+    <div class="fav-sub">Adicionar <span id="fav-cont"></span></div>
+    <div class="fav-opcoes" id="fav-opcoes"></div>
+    <div class="msg" id="msg-fav" style="margin:0;min-height:0"></div>
+    <div class="fav-acoes"><button type="button" class="btn sm" onclick="favPadrao()">Voltar ao padrão</button>
+      <span style="flex:1"></span><button type="button" class="btn sm" onclick="fecharEditorFavoritos()">Cancelar</button>
+      <button type="button" class="btn primary sm" onclick="salvarEditorFavoritos()">Salvar</button></div>
+  </div>`;
+  _favPintar();
+  m.classList.add('open');
+}
+function _favPintar(){
+  const lista = document.getElementById('fav-lista'), opc = document.getElementById('fav-opcoes');
+  if(!lista || !opc) return;
+  const n = _favEdit.length;
+  lista.innerHTML = _favEdit.map((id, i) => `<li class="fav-item" draggable="true" data-i="${i}">
+      <span class="fav-pos">${i + 1}</span>${_icoNav(id)}<b>${ATALHOS_NOME_LONGO[id]}</b>
+      <small>${i < ATALHOS_QTD ? 'celular e computador' : 'só no computador'}</small>
+      <span class="fav-btns">
+        <button type="button" onclick="favMover(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button>
+        <button type="button" onclick="favMover(${i},1)" ${i === n - 1 ? 'disabled' : ''} aria-label="Descer">↓</button>
+        <button type="button" onclick="favTirar(${i})" aria-label="Tirar dos favoritos">✕</button>
+      </span></li>`).join('') || '<li class="fav-vazio">Nenhum favorito. Toque numa tela abaixo para adicionar.</li>';
+  const livres = Object.keys(ATALHOS_NOME).filter(id => _atalhoPermitido(id) && !_favEdit.includes(id));
+  const cheio = n >= ATALHOS_DOCK_QTD;
+  document.getElementById('fav-cont').textContent = cheio ? '(limite de 6 atingido)' : `(${n} de 6)`;
+  // Telas que o plano ainda não libera: aparecem com cadeado e levam à escolha de plano
+  const presas = Object.keys(ATALHOS_NOME).filter(id => !_atalhoPermitido(id) && !(typeof navOcultoNoPerfil === 'function' && navOcultoNoPerfil(id)));
+  const ICO_CADEADO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>';
+  opc.innerHTML = (livres.map(id => `<button type="button" class="fav-opcao" onclick="favAdicionar('${id}')" ${cheio ? 'disabled' : ''}>${_icoNav(id)}<span>${ATALHOS_NOME_LONGO[id]}</span></button>`).join('')
+    || '<span class="fav-vazio">Todas as telas do seu plano já estão nos favoritos.</span>')
+    + presas.map(id => `<button type="button" class="fav-opcao fav-presa" onclick="favPlano('${id}')" title="Disponível em outro plano">${ICO_CADEADO}<span>${ATALHOS_NOME_LONGO[id]}</span></button>`).join('');
+  // Arrastar para reordenar (computador)
+  lista.querySelectorAll('.fav-item').forEach(li => {
+    li.addEventListener('dragstart', e => { li.classList.add('arrastando'); e.dataTransfer.setData('text/plain', li.dataset.i); e.dataTransfer.effectAllowed = 'move'; });
+    li.addEventListener('dragend', () => li.classList.remove('arrastando'));
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('alvo'); });
+    li.addEventListener('dragleave', () => li.classList.remove('alvo'));
+    li.addEventListener('drop', e => {
+      e.preventDefault(); li.classList.remove('alvo');
+      const de = +e.dataTransfer.getData('text/plain'), para = +li.dataset.i;
+      if(isNaN(de) || de === para) return;
+      const [x] = _favEdit.splice(de, 1); _favEdit.splice(para, 0, x); _favPintar();
+    });
+  });
+}
+function favMover(i, d){ const j = i + d; if(i < 0 || i >= _favEdit.length || j < 0 || j >= _favEdit.length) return; [_favEdit[i], _favEdit[j]] = [_favEdit[j], _favEdit[i]]; _favPintar(); }
+function favTirar(i){ _favEdit.splice(i, 1); _favPintar(); }
+function favAdicionar(id){ if(_favEdit.length >= ATALHOS_DOCK_QTD || _favEdit.includes(id) || !ATALHOS_NOME[id] || !_atalhoPermitido(id)) return; _favEdit.push(id); _favPintar(); }
+// Tela com cadeado: a mesma janela "disponível no plano X" das telas bloqueadas (35-planos-bloqueio.js)
+function favPlano(id){
+  fecharEditorFavoritos();
+  if(typeof mostrarPlanoNecessario === 'function') mostrarPlanoNecessario(id);
+}
+function favPadrao(){ _favEdit = [...ATALHOS_PADRAO]; _favPintar(); }
+function fecharEditorFavoritos(){ _favEdit = null; const m = document.getElementById('fav-editor'); if(m) m.classList.remove('open'); }
+function salvarEditorFavoritos(){
+  if(!_favEdit || !_favEdit.length){ showMsg('msg-fav', 'Escolha pelo menos um favorito.', 'err'); return; }
+  const padrao = _favEdit.length === ATALHOS_PADRAO.length && _favEdit.every((id, i) => id === ATALHOS_PADRAO[i]);
+  if(padrao) restaurarAtalhos(); else _gravarAtalhos([..._favEdit]);
+  fecharEditorFavoritos();
+}
+
+// Celular: segurar o dedo na barra de baixo abre o editor (o toque curto continua abrindo a tela)
+(function(){
+  const nav = document.getElementById('mobile-nav'); if(!nav) return;
+  let t = null, x0 = 0, y0 = 0, abriu = false;
+  const cancelar = () => { clearTimeout(t); t = null; };
+  nav.addEventListener('pointerdown', e => {
+    abriu = false; x0 = e.clientX; y0 = e.clientY; cancelar();
+    t = setTimeout(() => { abriu = true; try{ navigator.vibrate && navigator.vibrate(12); }catch(er){} abrirEditorFavoritos(); }, 550);
+  });
+  nav.addEventListener('pointermove', e => { if(Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10) cancelar(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => nav.addEventListener(ev, cancelar));
+  nav.addEventListener('click', e => { if(abriu){ e.stopPropagation(); e.preventDefault(); abriu = false; } }, true);   // não abre a tela depois de segurar
+  nav.addEventListener('contextmenu', e => e.preventDefault());
+})();
+
+// ── Configurações → Itens do menu ────────────────────────────────────────────
 function renderAtalhosConfig(){
   const el = document.getElementById('cfg-atalhos');
   if(!el) return;
-  // Seção inteira só aparece no plano que permite personalizar
   const secao = document.getElementById('cfg-atalhos-secao');
-  if(secao) secao.style.display = atalhosTemAcesso() ? '' : 'none';
-  if(!atalhosTemAcesso()){ el.innerHTML = ''; return; }
-  const atual = getAtalhos();
-  const opcoes = Object.keys(ATALHOS_NOME).filter(_atalhoPermitido);
+  if(secao) secao.style.display = '';
+  const atual = getAtalhosDock();
   el.innerHTML = `
-    <div class="atalhos-grade">
-      ${atual.map((id, i) => `
-        <label class="atalhos-pos"><span>Posição ${i+1}</span>
-          <select id="atalho-${i}">${opcoes.map(o => `<option value="${o}"${o===id?' selected':''}>${ATALHOS_NOME_LONGO[o]}</option>`).join('')}</select>
-        </label>`).join('')}
-      <div class="atalhos-pos fixo"><span>Posição 5</span><b>Mais</b></div>
-    </div>
+    <div class="fav-resumo">${atual.map((id, i) => `<span class="fav-chip${i >= ATALHOS_QTD ? ' so-pc' : ''}">${_icoNav(id)}${ATALHOS_NOME[id]}</span>`).join('')}</div>
     <div class="atalhos-acoes">
-      <button class="btn primary sm" type="button" onclick="salvarAtalhos()">Salvar atalhos</button>
+      <button class="btn primary sm" type="button" onclick="abrirEditorFavoritos()">Editar favoritos</button>
       <button class="btn sm" type="button" onclick="restaurarAtalhos()">Voltar ao padrão</button>
     </div>
     <div class="msg" id="msg-atalhos"></div>`;
-}
-
-function salvarAtalhos(){
-  const escolhidos = [...Array(ATALHOS_QTD)].map((_, i) => document.getElementById('atalho-' + i)?.value).filter(Boolean);
-  if(new Set(escolhidos).size !== escolhidos.length){ showMsg('msg-atalhos', 'Cada posição precisa de uma tela diferente', 'err'); return; }
-  _gravarAtalhos(escolhidos);
-  showMsg('msg-atalhos', 'Atalhos salvos', 'ok');
 }
 function restaurarAtalhos(){
   try{ localStorage.removeItem(_atalhosChave()); }catch(e){}
   _atalhosNuvem = null;
   _gravarNuvem(null);
   aplicarAtalhos(); renderAtalhosConfig();
-  showMsg('msg-atalhos', 'Atalhos voltaram ao padrão', 'ok');
+  if(document.getElementById('msg-atalhos')) showMsg('msg-atalhos', 'Favoritos voltaram ao padrão', 'ok');
 }
 function _gravarAtalhos(lista){
   try{ localStorage.setItem(_atalhosChave(), JSON.stringify(lista)); }catch(e){}

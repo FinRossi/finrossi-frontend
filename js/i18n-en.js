@@ -555,3 +555,18 @@ I18N_EN_ADD({
 
 // ═══ Dock de favoritos (computador, menu minimizado) ═══════════════════════
 I18N_EN_ADD({ 'Favoritos': 'Favourites', 'Mostrar o menu completo': 'Show the full menu', 'Mostrar o menu': 'Show the menu', 'Minimizar o menu': 'Minimise the menu' });
+
+// ═══ Editor de favoritos (js/app/34-barra-atalhos.js) ══════════════════════
+I18N_EN_ADD({
+  'Seus favoritos': 'Your favourites', 'Favoritos': 'Favourites', 'Editar': 'Edit', 'Editar favoritos': 'Edit favourites',
+  'Os 4 primeiros ficam na barra do celular. No computador, o dock mostra até 6.': 'The first 4 go in the phone bar. On a computer, the dock shows up to 6.',
+  'celular e computador': 'phone and computer', 'só no computador': 'computer only', 'Adicionar': 'Add', '(limite de 6 atingido)': '(limit of 6 reached)',
+  'Nenhum favorito. Toque numa tela abaixo para adicionar.': 'No favourites. Tap a screen below to add it.',
+  'Todas as telas do seu plano já estão nos favoritos.': 'All screens in your plan are already favourites.',
+  'Escolha pelo menos um favorito.': 'Choose at least one favourite.', 'Favoritos voltaram ao padrão': 'Favourites reset to default',
+  'Escolher e organizar os favoritos': 'Choose and arrange favourites', 'Disponível em outro plano': 'Available on another plan',
+  'Tirar dos favoritos': 'Remove from favourites', 'Subir': 'Move up', 'Descer': 'Move down',
+  'As telas que você mais usa: as 4 primeiras ficam na barra de baixo do celular; no computador, aparecem até 6 no dock (com o menu minimizado). Também dá para editar segurando o dedo na barra do celular ou pelo lápis do dock.': 'The screens you use most: the first 4 go in the phone’s bottom bar; on a computer, up to 6 appear in the dock (with the menu minimised). You can also edit by holding your finger on the phone bar or with the dock’s pencil.',
+}, [
+  [/^\((\d+) de 6\)$/, '($1 of 6)'],
+]);
