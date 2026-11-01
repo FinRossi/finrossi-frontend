@@ -173,7 +173,7 @@ async function salvarSenhaPrimeiroAcesso(){
     try{ const f = window._firebase; if(f && f.firebaseOk && f.auth && f.auth.currentUser) await f.signOut(f.auth); }catch(e){}
     history.replaceState(null, '', location.pathname + '?entrar=1');
     // A próxima entrada (já com a senha nova) abre com as boas-vindas, mesmo dentro dos 30 minutos
-    try{ localStorage.removeItem('fin_ultimo_acesso_ts'); }catch(e){}
+    try{ Object.keys(localStorage).filter(k => k.startsWith('fin_ultimo_acesso_ts_')).forEach(k => localStorage.removeItem(k)); }catch(e){}
     m.innerHTML = _paCartao(
       _paCabeca('Pronto!', m._novaSenha ? 'Senha nova criada' : 'Senha criada e e-mail confirmado') +
       _paTexto('Agora é só entrar com o seu e-mail e a senha nova.') +

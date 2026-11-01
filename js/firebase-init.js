@@ -84,14 +84,17 @@
     appRevelado = false; aoRevelarApp.length = 0;
     sairDoLoadingParaLogin();
   };
-  const irParaApp = (nome) => {
+  const irParaApp = (nome, uid) => {
     if(entrouNoApp) return;   // nunca roda duas vezes (evita duas transições seguidas)
     entrouNoApp = true;
 
     const INTERVALO_BOAS_VINDAS_MS = 30 * 60 * 1000; // 30 minutos — ajuste aqui se quiser mudar
-    const ultimoAcesso = parseInt(localStorage.getItem('fin_ultimo_acesso_ts') || '0', 10);
+    // Contagem por conta (antes era por aparelho: entrar em outra conta logo depois pulava as boas-vindas dela)
+    const chaveBV = 'fin_ultimo_acesso_ts_' + (uid || 'local');
+    const ultimoAcesso = parseInt(localStorage.getItem(chaveBV) || '0', 10);
     const vaiMostrarBoasVindas = !!nome && (Date.now() - ultimoAcesso) >= INTERVALO_BOAS_VINDAS_MS && typeof window._abrirComBoasVindas === 'function';
-    localStorage.setItem('fin_ultimo_acesso_ts', String(Date.now()));
+    localStorage.setItem(chaveBV, String(Date.now()));
+    localStorage.setItem('fin_ultimo_acesso_ts', String(Date.now()));   // index.html: este aparelho já usa o app (abre o app, não a landing)
 
     prepararApp();
 
@@ -228,7 +231,7 @@
         // Este aparelho já usa o FinRossi: daqui em diante finrossi.com.br abre direto o app (não a landing)
         try{ localStorage.setItem('fin_ja_entrou', '1'); sessionStorage.removeItem('fin_login_google'); }catch(e){}
         if(new URLSearchParams(location.search).get('entrar') === '1') history.replaceState(null, '', location.pathname + location.hash);
-        irParaApp(nome);
+        irParaApp(nome, user.uid);
         // Conta criada pela equipe com senha provisória: cobre o app até criar a própria senha pelo e-mail
         // (espera a abertura de boas-vindas terminar e o app aparecer)
         if(window._primeiroAcesso) quandoAppAparecer(() => { if(typeof mostrarPrimeiroAcesso === 'function') mostrarPrimeiroAcesso(); });
