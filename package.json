@@ -1,0 +1,16 @@
+{
+  "name": "finrossi-frontend",
+  "private": true,
+  "description": "Site e app do FinRossi. 'npm run construir' gera a pasta dist/ (código compactado, sem comentários) que vai para o ar.",
+  "scripts": {
+    "construir": "node construir.js"
+  },
+  "devDependencies": {
+    "clean-css": "5.3.3",
+    "html-minifier-terser": "7.2.0",
+    "terser": "5.31.6"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
