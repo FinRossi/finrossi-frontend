@@ -266,16 +266,25 @@ function _numeroBR(s){
 }
 const _RE_VALOR = /(?:R\$\s*)?(\d{1,3}(?:[.\s]\d{3})+[,.]\d{2}|\d+[,.]\d{2})(?![\d,.]*\d)/g;
 const _valoresDaLinha = l => [...l.matchAll(_RE_VALOR)].map(m => _numeroBR(m[1])).filter(v => v != null && v > 0);
+// Erros da foto em valores: "38,4O" / "1O,00" (letra O no lugar do zero) e "38 ,40" (espaço antes da vírgula).
+// Mantém o tamanho da linha (o leitor do total corta a linha pela posição da palavra-chave).
+const _ocrValores = l => l
+  .replace(/\b[\dOo]{1,3}(?:\.[\dOo]{3})*,[\dOo]{2}\b/g, t => /\d/.test(t) ? t.replace(/[Oo]/g, '0') : t)
+  .replace(/(\d) ,(\d{2})\b/g, '$1,$2 ');
 
 const _CATEGORIAS_PALAVRAS = {
-  'Alimentação': ['SUPERMERCADO','MERCADO','MERCEARIA','ATACAD','HIPER','PADARIA','PANIFICADORA','RESTAURANTE','LANCHONETE','PIZZARIA','IFOOD','HORTIFRUTI','ACOUGUE','CARREFOUR','ASSAI','PAO DE ACUCAR','BURGER','MC DONALDS','MCDONALDS','CAFETERIA','SORVETERIA','DOCERIA','EMPORIO','RAPPI'],
-  'Transporte':  ['POSTO','COMBUSTIVE','GASOLINA','ETANOL','DIESEL','SHELL','IPIRANGA','PETROBRAS','UBER','99POP','99 TECNOLOGIA','ESTACIONAMENTO','PEDAGIO','SEM PARAR','METRO','ONIBUS','PASSAGEM'],
+  'Alimentação': ['SUPERMERCADO','MERCADO','MERCADINHO','MINIMERCADO','MINI MERCADO','MERCEARIA','SACOLAO','QUITANDA','ACAI','PASTELARIA','CHURRASCARIA','HAMBURGUERIA','ATACAD','HIPER','PADARIA','PANIFICADORA','RESTAURANTE','LANCHONETE','PIZZARIA','IFOOD','HORTIFRUTI','ACOUGUE','CARREFOUR','ASSAI','PAO DE ACUCAR','BURGER','MC DONALDS','MCDONALDS','CAFETERIA','SORVETERIA','DOCERIA','EMPORIO','RAPPI'],
+  'Transporte':  ['POSTO','COMBUSTIVE','GASOLINA','ETANOL','DIESEL','SHELL','IPIRANGA','PETROBRAS','UBER','99POP','99 TECNOLOGIA','ESTACIONAMENTO','PEDAGIO','SEM PARAR','METRO ','ONIBUS','PASSAGEM'],
   'Saúde':       ['FARMACIA','DROGARIA','DROGA ','RAIA','DROGASIL','PAGUE MENOS','PANVEL','HOSPITAL','CLINICA','LABORATORIO','ODONTO','OTICA','MEDIC'],
   'Moradia':     ['ALUGUEL','CONDOMINIO','ENERGIA','ELETRICIDADE','CPFL','ENEL','CEMIG','COPEL','LIGHT S','SABESP','SANEAMENTO','COMGAS','MATERIAL DE CONSTRUCAO','LEROY','TELHA NORTE'],
   'Lazer':       ['CINEMA','INGRESSO','TEATRO','SHOW','PARQUE','BAR ','CHOPERIA','CERVEJARIA','BOLICHE','CLUBE'],
   'Educação':    ['ESCOLA','COLEGIO','CURSO','FACULDADE','UNIVERSIDADE','LIVRARIA','PAPELARIA','MENSALIDADE ESCOLAR'],
   'Serviços':    ['INTERNET','TELEFONIA','VIVO','CLARO','TIM ','OI ','NETFLIX','SPOTIFY','LAVANDERIA','BARBEARIA','SALAO','ASSINATURA','SEGURO'],
 };
+const _RODAPE_CAT = /(CONSULTE|WWW\.|HTTP|SEFAZ|TRIBUT|IMPOSTO|\bLEI\b|PROCON|OUVIDORIA)/;
+const _RE_PALAVRA = {};
+// "POSTO" vale em "AUTO POSTO X", não em "IMPOSTO" (precisa começar no início da palavra)
+const _temPalavra = (L, p) => (_RE_PALAVRA[p] = _RE_PALAVRA[p] || new RegExp('[^A-Z0-9]' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).test(L);
 const _RECEITA_PALAVRAS = {
   'Salário': ['SALARIO','FOLHA DE PAGAMENTO','PROVENTOS','HOLERITE'],
   'Dividendos': ['DIVIDENDO','JCP','JUROS SOBRE CAPITAL','RENDIMENTO'],
@@ -290,6 +299,8 @@ const _RECEITA_PALAVRAS = {
 // Formatos: 28/10/2026 · 28.10.26 · 28-10-2026 · 2026-10-28 · 28 OUT 2026 · 28 de outubro de 2026 ·
 // 28/OUT/26 · 28/10 14:32 (sem ano: ano atual) · e erros de foto (O no lugar de 0, B no lugar de 8, espaços).
 const _MES3 = { JAN:1, FEV:2, FEB:2, MAR:3, ABR:4, APR:4, MAI:5, MAY:5, JUN:6, JUL:7, AGO:8, AUG:8, SET:9, SEP:9, OUT:10, OCT:10, NOV:11, DEZ:12, DEC:12 };
+// Mês só vale abreviado (3 letras) ou por extenso — "1 MARGARINA" / "2 MAIONESE" não são 1º de março / 2 de maio
+const _MES_EXTENSO = /^(JANEIRO|FEVEREIRO|MARCO|ABRIL|MAIO|JUNHO|JULHO|AGOSTO|SETEMBRO|OUTUBRO|NOVEMBRO|DEZEMBRO|JANUARY|FEBRUARY|MARCH|APRIL|JUNE|JULY|AUGUST|SEPTEMBER|SEPT|OCTOBER|NOVEMBER|DECEMBER)$/;
 const _ROT_PAGTO  = /(DATA (DO|DE|DA) (PAGAMENTO|COMPRA|TRANSACAO|OPERACAO|TRANSFERENCIA)|PAGO EM|PAGAMENTO (EFETUADO|REALIZADO)|REALIZAD[OA] EM|EFETUAD[OA] EM|COMPRA EM|DATA\/HORA|DATA E HORA|DATA HORA)/;
 const _ROT_DATA   = /(EMISSAO|EMITID|\bDATA\b|AUTORIZACAO|HORARIO|\bDT\b)/;
 const _ROT_NAO    = /(VENCIMENTO|\bVENC\b|VALIDADE|VALIDO ATE|\bVAL\b|NASCIMENTO|\bNASC\b|CLIENTE DESDE|DESDE|ABERTURA|PREVISAO|ENTREGA|PROXIMA|LIMITE)/;
@@ -318,8 +329,9 @@ function _dataDoComprovante(LINHAS, hojeISO){
     // 2026-10-28 · 2026/10/28
     for(const m of L.matchAll(/\b(20\d{2})[\/.\-](\d{1,2})[\/.\-](\d{1,2})\b/g)) add(+m[1], +m[2], +m[3]);
     // 28 OUT 2026 · 28 de outubro de 2026 · 28/OUT/26 · 28OUT26 · 30 Out, 14:22 (sem ano)
-    for(const m of L.matchAll(/\b(\d{1,2})\s*(?:DE\s+)?[\/.\-]?\s*([A-Z]{3,9})\.?\s*(?:DE\s+|[\/.\-,]\s*)?(\d{4}|\d{2}(?!\s*:))?\b/g)){
-      const mes = _MES3[m[2].slice(0, 3)]; if(!mes) continue;
+    for(const m of L.matchAll(/\b(\d{1,2})\s*(?:DE\s+)?[\/.\-]?\s*([A-Z0]{3,9})\.?\s*(?:DE\s+|[\/.\-,]\s*)?(\d{4}|\d{2}(?!\s*:))?\b/g)){
+      const nome = m[2].replace(/0/g, 'O');   // "0UTUBRO": zero no lugar do O
+      const mes = _MES3[nome.slice(0, 3)]; if(!mes || (nome.length > 3 && !_MES_EXTENSO.test(nome))) continue;
       let a = m[3] ? +m[3] : ano; if(a < 100) a += 2000;
       if(!m[3] && iso(a, mes, +m[1]) > hojeISO) a--;
       add(a, mes, +m[1]);
@@ -330,7 +342,7 @@ function _dataDoComprovante(LINHAS, hojeISO){
       add(a, +m[2], +m[1], -1);
     }
   });
-  if(!achadas.length) return hojeISO;
+  if(!achadas.length) return '';   // sem data: quem chama usa hoje e avisa para conferir
   achadas.sort((x, y) => y.n - x.n || x.i - y.i);   // maior nota; empate: a que aparece primeiro
   return achadas[0].v;
 }
@@ -340,13 +352,15 @@ function _dataDoComprovante(LINHAS, hojeISO){
 // valor pago" (ou na linha de baixo desse título). Não contam: propaganda ("aceitamos Pix", "desconto no
 // Pix", "parcele"), "crédito de ICMS / tributo", "crédito em conta" (é entrada, não cartão), limite de crédito.
 const _FORMAS = [
-  ['pix',           3, /\bP[I1L]X\b|CHAVE PIX|ID DA TRANSACAO|\bE\d{8}[A-Z0-9]{20,}\b/],
+  ['pix',           3, /\bP[I1L]X\b|CHAVE PIX|ID DA TRANSACAO|PAGAMENTO INSTANTANEO|\bE\d{8}[A-Z0-9]{20,}\b/],
   ['credito',       3, /\bCRED(ITO)?\b|CREDITO A VISTA|CREDITO PARCELADO|VENDA CREDITO|PARCELADO (LOJA|EMISSOR|ADM)|PARCELA \d{1,2}\s*\/\s*\d{1,2}|\b(AMEX|HIPERCARD|DINERS)\b/],
   ['debito',        3, /\bDEB(ITO)?\b|DEBITO A VISTA|VENDA DEBITO|MAESTRO|ELECTRON|REDESHOP|VISA DEBITO|ELO DEBITO/],
   ['dinheiro',      3, /DINHEIRO|\bESPECIE\b|\bTROCO\b/],
   ['boleto',        3, /BOLETO|LINHA DIGITAVEL|CODIGO DE BARRAS|\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}/],
   ['transferencia', 2, /\bTED\b|\bDOC\b|TRANSFERENCIA BANCARIA|TRANSFERENCIA ENTRE CONTAS/],
   ['deposito',      2, /\bDEPOSITO\b/],
+  // Vale-refeição / alimentação / benefícios: vai como "Outro" (não é crédito nem débito do cliente)
+  ['outro',         4, /\b(ALELO|SODEXO|PLUXEE|TICKET (RESTAURANTE|ALIMENTACAO|REFEICAO)|VALE[- ]?(REFEICAO|ALIMENTACAO)|VR (BENEFICIOS|REFEICAO|ALIMENTACAO)|BEN VISA|CAJU BENEFICIOS|SWILE|FLASH BENEFICIOS|VEROCARD|GREEN CARD|UP BRASIL)\b/],
 ];
 const _PAG_CONTEXTO = /(FORMAS? DE PAGAMENTO|MEIO DE PAGAMENTO|TIPO DE PAGAMENTO|FORMA PAGAMENTO|PAGO COM|PAGAMENTO\s*:|VALOR PAGO|PAGAMENTO (PIX|EM|VIA|NO|COM)|TIPO DE TRANSFERENCIA|TIPO DE TRANSACAO|MODALIDADE|PIX ENVIADO|PIX RECEBIDO|ENVIADO VIA|RECEBEU UM PIX|VIA CLIENTE|COMPROVANTE DE (VENDA|PAGAMENTO))/;
 const _PAG_PROPAGANDA = /(ACEITAMOS|ACEITA |PAGUE COM|PAGUE VIA|PAGUE NO|DESCONTO (NO|DE|PAGANDO)|PARCELE|EM ATE \d|CONDICOES|PROMOCAO|SIGA|INSTAGRAM|WWW\.|HTTP)/;
@@ -368,7 +382,7 @@ function _metodoDoComprovante(LINHAS, ehReceita){
 }
 
 function lerComprovanteTexto(texto, categorias){
-  const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 1);
+  const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 1).map(_ocrValores);
   const LINHAS = linhas.map(_semAcento);
   const TUDO = LINHAS.join('\n');
 
@@ -395,7 +409,8 @@ function lerComprovanteTexto(texto, categorias){
     if(todos.length) valor = Math.max(...todos);
   }
 
-  const data = _dataDoComprovante(LINHAS, hoje());   // hoje no fuso do aparelho (UTC errava depois das 21h)
+  const dataLida = _dataDoComprovante(LINHAS, hoje());   // hoje no fuso do aparelho (UTC errava depois das 21h)
+  const data = dataLida || hoje();
   const metodo = _metodoDoComprovante(LINHAS, ehReceita);
 
   // Descrição: em comprovante de Pix/transferência, quem recebeu (ou quem enviou);
@@ -403,9 +418,11 @@ function lerComprovanteTexto(texto, categorias){
   let descricao = '';
   const rotulos = ehReceita ? /^(DE|ORIGEM|PAGADOR|QUEM PAGOU|REMETENTE)\b/ : /^(PARA|DESTINO|RECEBEDOR|FAVORECIDO|DESTINATARIO|QUEM RECEBEU)\b/;
   for(let i = 0; i < LINHAS.length && !descricao; i++){
-    if(!rotulos.test(LINHAS[i])) continue;
-    const resto = linhas[i].replace(/^\S+\s*:?\s*/, '').trim();
+    const rot = LINHAS[i].match(rotulos);
+    if(!rot) continue;
+    const resto = linhas[i].slice(rot[0].length).replace(/^\s*:?\s*/, '').trim();   // "Quem recebeu: X" → "X"
     descricao = /[A-Za-zÀ-ú]{3}/.test(resto) ? resto : (linhas[i+1] || '');
+    descricao = descricao.replace(/^(nome|razão social|razao social)\s*:?\s*/i, '');   // Nubank/Inter: "Nome João…"
   }
   if(!descricao){
     const CABECALHO = /(CNPJ|\bCPF\b|\bIE\b|INSCRICAO|DOCUMENTO|CUPOM|NFC|NF-E|DANFE|CONSUMIDOR|AUXILIAR|ENDERECO|RUA |AV\.|AVENIDA|FONE|TEL|CEP|SAT|EXTRATO|COMPROVANTE|TRANSACAO|DATA|HORA|PROTOCOLO|CHAVE)/;
@@ -425,14 +442,62 @@ function lerComprovanteTexto(texto, categorias){
   // Categoria: palavras do estabelecimento/conteúdo → uma das categorias do próprio cliente
   const lista = (categorias || []).map(c => ({ nome: c, chave: _semAcento(c) }));
   const existe = nome => lista.find(c => c.chave === _semAcento(nome));
-  let categoria = '';
+  // Pontos por categoria: o topo (nome da loja) e a descrição valem 3x; rodapé (impostos, "consulte pela
+  // internet") não conta. A palavra tem que começar no início de uma palavra ("IMPOSTO" não é POSTO,
+  // "PRAIA" não é RAIA) e a bandeira Hipercard sai antes (não é hipermercado).
   const dicionario = ehReceita ? _RECEITA_PALAVRAS : _CATEGORIAS_PALAVRAS;
+  const trechos = LINHAS.map((L, i) => ({ L, peso: i < 4 ? 3 : 1 })).filter(x => !_RODAPE_CAT.test(x.L));
+  trechos.push({ L: _semAcento(descricao), peso: 3 });
+  trechos.forEach(x => { x.L = ' ' + x.L.replace(/HIPER ?CARD/g, ' ') + ' '; });
+  let categoria = '', melhor = 0;
   for(const [cat, palavras] of Object.entries(dicionario)){
-    if(palavras.some(p => TUDO.includes(p)) && existe(cat)){ categoria = existe(cat).nome; break; }
+    if(!existe(cat)) continue;
+    const pts = trechos.reduce((s, x) => s + (palavras.some(p => _temPalavra(x.L, p)) ? x.peso : 0), 0);
+    if(pts > melhor){ categoria = existe(cat).nome; melhor = pts; }
   }
   if(!categoria) categoria = (existe('Outros') || lista[0] || { nome: '' }).nome;
 
-  return { tipo, valor, data, descricao, metodo, categoria };
+  return { tipo, valor, data, descricao, metodo, categoria, semData: !dataLida };
+}
+
+// Preto e branco "adaptativo" (Bradley): cada ponto é comparado com a média da vizinhança, então sombra
+// da mão e papel térmico desbotado não apagam o texto. Usa soma acumulada (rápido mesmo em foto grande).
+function _binarizarPixels(p, w, h){
+  const S = new Uint32Array((w + 1) * (h + 1));
+  for(let y = 0; y < h; y++){
+    let linha = 0;
+    for(let x = 0; x < w; x++){
+      linha += p[(y * w + x) * 4];
+      S[(y + 1) * (w + 1) + x + 1] = S[y * (w + 1) + x + 1] + linha;
+    }
+  }
+  const r = Math.max(8, Math.round(w / 32)), T = .15;
+  for(let y = 0; y < h; y++){
+    const y0 = Math.max(0, y - r), y1 = Math.min(h, y + r + 1);
+    for(let x = 0; x < w; x++){
+      const x0 = Math.max(0, x - r), x1 = Math.min(w, x + r + 1);
+      const soma = S[y1 * (w + 1) + x1] - S[y0 * (w + 1) + x1] - S[y1 * (w + 1) + x0] + S[y0 * (w + 1) + x0];
+      const i = (y * w + x) * 4;
+      p[i] = p[i + 1] = p[i + 2] = p[i] * (x1 - x0) * (y1 - y0) <= soma * (1 - T) ? 0 : 255;
+    }
+  }
+}
+function _binarizarCanvas(c){
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  const dados = ctx.getImageData(0, 0, c.width, c.height);
+  _binarizarPixels(dados.data, c.width, c.height);
+  ctx.putImageData(dados, 0, 0);
+}
+// Junta 2 leituras: a base é a que achou o valor; da outra só entra o que faltou (data, forma, loja, categoria)
+function _juntarLeituras(a, b){
+  const base = a.valor ? a : b, outra = base === a ? b : a;
+  if(!base.valor || outra.tipo !== base.tipo) return base;
+  const r = Object.assign({}, base);
+  if(r.semData && !outra.semData){ r.data = outra.data; r.semData = false; }
+  if(!r.metodo) r.metodo = outra.metodo;
+  if(/^(Compra|Recebimento)$/.test(r.descricao) && !/^(Compra|Recebimento)$/.test(outra.descricao)) r.descricao = outra.descricao;
+  if(r.categoria === 'Outros' && outra.categoria && outra.categoria !== 'Outros') r.categoria = outra.categoria;
+  return r;
 }
 
 // ── Fluxo completo: foto → OCR → formulário preenchido para conferir ────────
@@ -443,17 +508,29 @@ async function processarFotoLanc(file){
     const canvas = await _prepararImagem(file);
     _fotoStatus('Carregando o leitor (só na primeira vez demora um pouco)…', 12);
     await _carregarTesseract();
+    let fase = { texto: 'Lendo o texto da foto…', de: 20, ate: 95 };
     const worker = await Tesseract.createWorker('por', 1, {
-      logger: m => { if(m.status === 'recognizing text') _fotoStatus('Lendo o texto da foto…', 20 + m.progress * 75); },
+      logger: m => { if(m.status === 'recognizing text') _fotoStatus(fase.texto, fase.de + m.progress * (fase.ate - fase.de)); },
     });
-    const { data } = await worker.recognize(canvas);
-    await worker.terminate();
-    _fotoStatus('Organizando os dados…', 98);
-
     const catsDesp = [...document.querySelectorAll('#d-cat option')].map(o => o.value).filter(Boolean);
     const catsRec  = [...document.querySelectorAll('#r-cat option')].map(o => o.value).filter(Boolean);
-    let r = lerComprovanteTexto(data.text || '', catsDesp);
-    if(r.tipo === 'receita') r = lerComprovanteTexto(data.text || '', catsRec);
+    const ler = texto => { const x = lerComprovanteTexto(texto || '', catsDesp); return x.tipo === 'receita' ? lerComprovanteTexto(texto || '', catsRec) : x; };
+    let r;
+    try{
+      r = ler((await worker.recognize(canvas)).data.text);
+      // Faltou valor, data ou forma de pagamento: 2ª leitura com a foto em preto e branco puro
+      // (tira sombra e papel amarelado) e lendo como uma coluna de cupom. Completa só o que faltou.
+      if(!r.valor || r.semData || !r.metodo){
+        fase = { texto: 'Conferindo a foto mais uma vez…', de: 55, ate: 95 };
+        _fotoStatus(fase.texto, fase.de);
+        _binarizarCanvas(canvas);
+        await worker.setParameters({ tessedit_pageseg_mode: '4' });
+        r = _juntarLeituras(r, ler((await worker.recognize(canvas)).data.text));
+      }
+    }finally{
+      await worker.terminate();
+    }
+    _fotoStatus('Organizando os dados…', 98);
 
     if(!r.valor){
       _fotoErro('Não consegui encontrar o valor nessa foto. Tente de novo com o comprovante esticado, bem iluminado e enquadrado — ou lance manualmente.');
@@ -489,7 +566,9 @@ function _preencherLancamento(r, foto){
   const msg = document.getElementById(`msg-${p}`);
   if(msg){
     msg.className = 'msg ok';
-    msg.textContent = 'Lido da foto. Confira os dados e toque em "Adicionar" para salvar.';
+    msg.textContent = r.semData
+      ? 'Lido da foto. Não encontrei a data da compra: confira a data e toque em "Adicionar" para salvar.'
+      : 'Lido da foto. Confira os dados e toque em "Adicionar" para salvar.';
   }
   // A foto do comprovante entra como anexo do lançamento
   if(foto && typeof definirAnexoPendente === 'function') definirAnexoPendente(p, foto);
