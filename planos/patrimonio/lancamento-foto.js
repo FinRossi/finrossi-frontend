@@ -500,6 +500,143 @@ function _juntarLeituras(a, b){
   return r;
 }
 
+// ── CNPJ da loja: nome e categoria certos pela atividade da empresa ─────────
+// O CNPJ impresso no cupom é consultado na BrasilAPI (dados públicos da Receita Federal, grátis):
+// vem o nome fantasia e a atividade (CNAE), que diz com certeza se é mercado, posto, farmácia…
+// Só o CNPJ da loja sai do aparelho. Dígitos verificadores conferidos: erro de foto não consulta.
+function _cnpjValido(c){
+  if(!/^\d{14}$/.test(c) || /^(\d)\1{13}$/.test(c)) return false;
+  const dv = n => { let s = 0, p = n - 7; for(let i = 0; i < n; i++){ s += +c[i] * p--; if(p < 2) p = 9; } const r = s % 11; return r < 2 ? 0 : 11 - r; };
+  return dv(12) === +c[12] && dv(13) === +c[13];
+}
+// Pula o CNPJ do banco/instituição (comprovante de Pix traz o do banco de quem enviou)
+const _CNPJ_DE_BANCO = /(INSTITUICAO|BANCO|PAGADOR|ORIGEM|PAGAMENTOS S|INSTITUICAO DE PAGAMENTO)/;
+function _cnpjDoComprovante(texto){
+  const L = texto.split(/\r?\n/).map(_semAcento);
+  for(let i = 0; i < L.length; i++){
+    if(_CNPJ_DE_BANCO.test(L[i]) || (i > 0 && _CNPJ_DE_BANCO.test(L[i - 1]) && !/CNPJ/.test(L[i - 1]))) continue;
+    const linha = L[i].replace(/(\d)[OQ](?=[\d.\/-])/g, '$10');
+    // formatado (12.345.678/0001-90) em qualquer linha; só números, apenas na linha com "CNPJ"
+    // (sem "lookbehind": iPhone com iOS antes do 16.4 não entende e o arquivo inteiro deixaria de funcionar)
+    const re = /CNPJ/.test(linha) ? /(?:^|\D)(\d{2})\.?\s?(\d{3})\.?\s?(\d{3})\s?\/?\s?(\d{4})\s?-?\s?(\d{2})(?!\d)/g
+                                  : /(?:^|\D)(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})-(\d{2})(?!\d)/g;
+    for(const m of linha.matchAll(re)){ const c = m.slice(1, 6).join(''); if(_cnpjValido(c)) return c; }
+  }
+  return '';
+}
+// Atividade (CNAE, 7 dígitos) → categoria padrão do app. O mais específico vem primeiro.
+const _CNAE_CATEGORIA = [
+  ['5611202', 'Lazer'],                                     // bares
+  ['4711', 'Alimentação'], ['4712', 'Alimentação'], ['4721', 'Alimentação'], ['4722', 'Alimentação'], ['4723', 'Alimentação'],
+  ['4724', 'Alimentação'], ['4729', 'Alimentação'], ['4637', 'Alimentação'], ['4639', 'Alimentação'], ['4691', 'Alimentação'],
+  ['1091', 'Alimentação'], ['561', 'Alimentação'], ['562', 'Alimentação'],
+  ['4731', 'Transporte'], ['4732', 'Transporte'], ['4520', 'Transporte'], ['4530', 'Transporte'], ['492', 'Transporte'],
+  ['4950', 'Transporte'], ['511', 'Transporte'], ['5221', 'Transporte'], ['5222', 'Transporte'], ['5223', 'Transporte'], ['7711', 'Transporte'],
+  ['4771', 'Saúde'], ['4773', 'Saúde'], ['4774', 'Saúde'], ['86', 'Saúde'], ['9313', 'Saúde'],
+  ['351', 'Moradia'], ['352', 'Moradia'], ['360', 'Moradia'], ['370', 'Moradia'], ['4741', 'Moradia'], ['4742', 'Moradia'],
+  ['4743', 'Moradia'], ['4744', 'Moradia'], ['4753', 'Moradia'], ['4754', 'Moradia'], ['681', 'Moradia'], ['682', 'Moradia'], ['8112', 'Moradia'],
+  ['85', 'Educação'], ['4761', 'Educação'],
+  ['551', 'Lazer'], ['559', 'Lazer'], ['791', 'Lazer'], ['799', 'Lazer'], ['5914', 'Lazer'], ['90', 'Lazer'], ['91', 'Lazer'], ['93', 'Lazer'],
+  ['61', 'Serviços'], ['9601', 'Serviços'], ['9602', 'Serviços'], ['65', 'Serviços'],
+];
+const _categoriaPorCnae = cnae => { const c = String(cnae || '').padStart(7, '0'); const m = _CNAE_CATEGORIA.find(([p]) => c.startsWith(p)); return m ? m[1] : ''; };
+const _nomeBonito = s => String(s || '').replace(/\s{2,}/g, ' ').trim().slice(0, 60).toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase());
+
+const _cacheCnpj = {};
+async function _consultarCnpj(cnpj){
+  if(cnpj in _cacheCnpj) return _cacheCnpj[cnpj];
+  let guardados = {};
+  try{ guardados = JSON.parse(localStorage.getItem('fin_cnpj_lojas') || '{}') || {}; }catch(e){}
+  if(guardados[cnpj]) return (_cacheCnpj[cnpj] = guardados[cnpj]);
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+  try{
+    const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, { signal: ctl.signal });
+    if(!resp.ok) return (_cacheCnpj[cnpj] = null);   // CNPJ inexistente: não consulta de novo nesta sessão
+    const j = await resp.json();
+    // Nome fantasia genérico ("DIRECAO GERAL", "MATRIZ", "FILIAL 12") não diz nada: usa a razão social
+    const fantasia = String(j.nome_fantasia || '').trim();
+    const generico = !fantasia || fantasia.length < 3 || /^(MATRIZ|SEDE|DIRECAO GERAL|FILIAL|LOJA)\b[\s\d-]*$/i.test(fantasia) || /^[\d\s.-]+$/.test(fantasia);
+    const info = { nome: generico ? String(j.razao_social || '').trim() : fantasia, cnae: String(j.cnae_fiscal || '') };
+    guardados[cnpj] = info;
+    const chaves = Object.keys(guardados); if(chaves.length > 150) delete guardados[chaves[0]];   // guarda as 150 últimas lojas
+    try{ localStorage.setItem('fin_cnpj_lojas', JSON.stringify(guardados)); }catch(e){}
+    return (_cacheCnpj[cnpj] = info);
+  }catch(e){
+    return null;   // sem internet ou demorou: segue com a leitura da foto
+  }finally{ clearTimeout(t); }
+}
+
+// ── Memória das lojas: o que o próprio cliente corrigiu vale na próxima foto ─
+// Ao salvar um lançamento lido da foto, guarda loja → descrição, categoria e forma de pagamento escolhidas.
+// Fica em financeiro/<perfil>/lojasFoto (só o próprio cliente lê; a equipe não vê) e no aparelho.
+let _leituraFoto = null;   // { p, chave, em } do último preenchimento pela foto
+const _chaveLoja = (descricao, cnpj) => {
+  if(cnpj) return 'c' + cnpj;
+  const n = _semAcento(descricao || '').replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
+  return n && !/^(COMPRA|RECEBIMENTO)$/.test(n) ? 'n' + n : '';
+};
+const _memLocalChave = () => 'fin_lojas_foto_' + cp;
+function _memLocal(){ try{ return JSON.parse(localStorage.getItem(_memLocalChave()) || '{}') || {}; }catch(e){ return {}; } }
+async function _lerMemoriaLoja(chave){
+  const local = _memLocal()[chave];
+  if(local) return local;
+  if(!window._db || !window._ref || !window._onValue) return null;
+  return new Promise(res => {
+    const t = setTimeout(() => res(null), 3000);
+    try{ window._onValue(window._ref(window._db, `financeiro/${cp}/lojasFoto/${chave}`), s => { clearTimeout(t); res(s.val()); }, () => { clearTimeout(t); res(null); }, { onlyOnce: true }); }
+    catch(e){ clearTimeout(t); res(null); }
+  });
+}
+function _salvarMemoriaLoja(chave, v){
+  if(!chave) return;
+  const item = { d: String(v.d || '').slice(0, 60), c: String(v.c || '').slice(0, 40), m: String(v.m || '').slice(0, 20), t: Date.now() };
+  const mem = _memLocal(); mem[chave] = item;
+  const chaves = Object.keys(mem);
+  if(chaves.length > 300) chaves.sort((a, b) => (mem[a].t || 0) - (mem[b].t || 0)).slice(0, chaves.length - 300).forEach(k => delete mem[k]);
+  try{ localStorage.setItem(_memLocalChave(), JSON.stringify(mem)); }catch(e){}
+  if(window._db && window._set && window._ref) window._set(window._ref(window._db, `financeiro/${cp}/lojasFoto/${chave}`), item).catch(e => console.warn('[Lançar por foto] memória da loja não salvou:', e && e.message));
+}
+// Envolve o "Adicionar" (uma vez): se o lançamento salvo veio da foto, aprende com o que ficou no formulário
+function _aprenderAoSalvar(){
+  if(window._memLojaPronta || typeof addLanc !== 'function') return;
+  window._memLojaPronta = true;
+  const _orig = addLanc;
+  window.addLanc = addLanc = function(tipo){
+    const p = tipo === 'receita' ? 'r' : 'd', L = _leituraFoto;
+    const valor = c => document.getElementById(`${p}-${c}`)?.value || '';
+    const usar = L && L.p === p && Date.now() - L.em < 30 * 60000;   // depois de 30 min não é mais a foto
+    const final = usar ? { d: valor('desc').trim(), c: valor('cat'), m: valor('metodo') } : null;
+    const antes = (pd().lancs || []).length;
+    const r = _orig.apply(this, arguments);
+    if(final && (pd().lancs || []).length > antes){ _salvarMemoriaLoja(L.chave, final); _leituraFoto = null; }
+    return r;
+  };
+}
+// CNPJ e memória entram depois da leitura. Ordem de confiança: o que o cliente escolheu > CNPJ > palavras da foto.
+async function _completarLeitura(r, texto, cats){
+  r = Object.assign({}, r);
+  const cnpj = r.tipo === 'despesa' ? _cnpjDoComprovante(texto) : '';
+  const chave = _chaveLoja(r.descricao, cnpj);
+  if(cnpj){
+    _fotoStatus('Conferindo a loja pelo CNPJ…', 99);
+    const info = await _consultarCnpj(cnpj);
+    if(info){
+      const cat = _categoriaPorCnae(info.cnae);
+      if(cat && cats.includes(cat)) r.categoria = cat;
+      // Pix/transferência: a descrição é quem recebeu (já lida); cupom: o nome da loja na Receita
+      if(info.nome && r.metodo !== 'pix' && r.metodo !== 'transferencia') r.descricao = _nomeBonito(info.nome);
+    }
+  }
+  const mem = chave ? await _lerMemoriaLoja(chave) : null;
+  if(mem){
+    if(mem.d) r.descricao = mem.d;
+    if(mem.c && cats.includes(mem.c)) r.categoria = mem.c;
+    if(mem.m && !r.metodo) r.metodo = mem.m;   // forma de pagamento muda de compra para compra: só completa
+  }
+  r.chaveLoja = chave;
+  return r;
+}
+
 // ── Fluxo completo: foto → OCR → formulário preenchido para conferir ────────
 async function processarFotoLanc(file){
   if(!file) return;
@@ -515,9 +652,10 @@ async function processarFotoLanc(file){
     const catsDesp = [...document.querySelectorAll('#d-cat option')].map(o => o.value).filter(Boolean);
     const catsRec  = [...document.querySelectorAll('#r-cat option')].map(o => o.value).filter(Boolean);
     const ler = texto => { const x = lerComprovanteTexto(texto || '', catsDesp); return x.tipo === 'receita' ? lerComprovanteTexto(texto || '', catsRec) : x; };
-    let r;
+    let r, textos = '';
     try{
-      r = ler((await worker.recognize(canvas)).data.text);
+      textos = (await worker.recognize(canvas)).data.text || '';
+      r = ler(textos);
       // Faltou valor, data ou forma de pagamento: 2ª leitura com a foto em preto e branco puro
       // (tira sombra e papel amarelado) e lendo como uma coluna de cupom. Completa só o que faltou.
       if(!r.valor || r.semData || !r.metodo){
@@ -525,7 +663,9 @@ async function processarFotoLanc(file){
         _fotoStatus(fase.texto, fase.de);
         _binarizarCanvas(canvas);
         await worker.setParameters({ tessedit_pageseg_mode: '4' });
-        r = _juntarLeituras(r, ler((await worker.recognize(canvas)).data.text));
+        const t2 = (await worker.recognize(canvas)).data.text || '';
+        textos += '\n' + t2;
+        r = _juntarLeituras(r, ler(t2));
       }
     }finally{
       await worker.terminate();
@@ -536,6 +676,7 @@ async function processarFotoLanc(file){
       _fotoErro('Não consegui encontrar o valor nessa foto. Tente de novo com o comprovante esticado, bem iluminado e enquadrado — ou lance manualmente.');
       return;
     }
+    r = await _completarLeitura(r, textos, r.tipo === 'receita' ? catsRec : catsDesp);
     closeModal('modal-lanc-foto');
     _preencherLancamento(r, file);
   }catch(e){
@@ -570,6 +711,9 @@ function _preencherLancamento(r, foto){
       ? 'Lido da foto. Não encontrei a data da compra: confira a data e toque em "Adicionar" para salvar.'
       : 'Lido da foto. Confira os dados e toque em "Adicionar" para salvar.';
   }
+  // Ao salvar, o app aprende com o que o cliente deixou no formulário (memória das lojas)
+  _leituraFoto = r.chaveLoja ? { p, chave: r.chaveLoja, em: Date.now() } : null;
+  _aprenderAoSalvar();
   // A foto do comprovante entra como anexo do lançamento
   if(foto && typeof definirAnexoPendente === 'function') definirAnexoPendente(p, foto);
   document.getElementById(`${p}-desc`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });

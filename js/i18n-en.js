@@ -360,7 +360,7 @@ I18N_EN_ADD({
   'Lido da foto. Não encontrei a data da compra: confira a data e toque em "Adicionar" para salvar.': 'Read from the photo. I couldn’t find the purchase date: check the date and tap "Add" to save.',
   'Lendo o comprovante': 'Reading the receipt', 'Preparando a foto…': 'Preparing the photo…', 'Lendo o texto da foto…': 'Reading the text in the photo…',
   'Carregando o leitor (só na primeira vez demora um pouco)…': 'Loading the reader (only slow the first time)…',
-  'Conferindo a foto mais uma vez…': 'Checking the photo one more time…', 'Organizando os dados…': 'Organising the details…',
+  'Conferindo a foto mais uma vez…': 'Checking the photo one more time…', 'Conferindo a loja pelo CNPJ…': 'Checking the store’s business number…','Organizando os dados…': 'Organising the details…',
   'Não consegui encontrar o valor nessa foto. Tente de novo com o comprovante esticado, bem iluminado e enquadrado — ou lance manualmente.': 'I couldn’t find the amount in this photo. Try again with the receipt flat, well lit and fully in frame — or add it manually.',
   'Não consegui abrir essa imagem. Tente outra foto.': 'Couldn’t open this image. Try another photo.',
   'Não foi possível carregar o leitor de fotos. Verifique a internet e tente de novo.': 'Couldn’t load the photo reader. Check your internet connection and try again.',
