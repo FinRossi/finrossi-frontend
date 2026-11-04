@@ -84,11 +84,11 @@
 <!-- Estilos do app (ordem importa) -->
 <link rel="stylesheet" href="css/01-variaveis-temas.css?v=3">
 <link rel="stylesheet" href="css/02-base-componentes.css?v=1">
-<link rel="stylesheet" href="css/03-responsivo.css?v=2">
+<link rel="stylesheet" href="css/03-responsivo.css?v=3">
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=9">
-<link rel="stylesheet" href="css/06-cedula-app.css?v=10">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=48">
+<link rel="stylesheet" href="css/06-cedula-app.css?v=12">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=50">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
@@ -940,7 +940,7 @@ try{
   <div class="card card-full" style="margin-top:16px">
     <h3><span class="dot" style="background:var(--green)"></span>Lançar contas do mês</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Gera automaticamente todos os lançamentos de contas recorrentes <strong>e assinaturas ativas</strong> do mês atual que ainda não foram lançados.</p>
-    <button class="btn primary" onclick="lancarRecorrentesDoMes()" style="height:46px;font-size:14px">
+    <button class="btn primary" onclick="lancarRecorrentesDoMes()">
       Gerar lançamentos de <span id="rec-mes-label"></span>
     </button>
     <div class="msg" id="msg-rec" style="margin-top:8px"></div>
@@ -1534,7 +1534,7 @@ try{
       <button onclick="fazerLogout();closeMobileMoreForce()" class="btn danger" style="flex:1;justify-content:center">Sair</button>
     </div>
 
-    <button class="btn" style="width:100%;margin-top:10px;justify-content:center;height:44px" onclick="closeMobileMoreForce()">Fechar</button>
+    <button class="btn" style="width:100%;margin-top:10px;justify-content:center" onclick="closeMobileMoreForce()">Fechar</button>
   </div>
 </div>
 
@@ -1826,7 +1826,7 @@ try{
 <script src="js/app/37-primeiros-passos.js?v=3"></script>
 <script src="js/app/38-primeiro-acesso.js?v=6"></script>
 <script src="js/app/41-passo-a-passo.js?v=2"></script>
-<script src="js/app/42-avaliacao.js?v=1"></script>
+<script src="js/app/42-avaliacao.js?v=2"></script>
 <script src="js/app/33-pwa-init.js?v=2"></script>
 </body>
 </html>

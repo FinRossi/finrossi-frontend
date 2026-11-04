@@ -625,7 +625,7 @@ body.sb-minimizado .dock-favoritos{
 .fav-opcao.fav-presa:hover{opacity:1}
 .fav-btns{margin-left:auto;flex-shrink:0}
 .fav-item small+.fav-btns{margin-left:0}
-.fav-acoes .btn{height:36px;padding:0 14px;font-size:13px}
+.fav-acoes .btn{padding:0 14px}   /* altura e letra = padrão dos botões pequenos */
 
 /* ── Convite para ativar as notificações (js/app/32-notificacoes.js) ── */
 #notif-convite{z-index:9994}
@@ -739,3 +739,9 @@ body.sb-minimizado .dock-favoritos{
 .btn.nota-ok.on{background:var(--green-s);color:var(--green);border-color:rgba(74,222,128,.35)}
 .nota-selo-feita{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--green-s);color:var(--green);white-space:nowrap}
 @media(max-width:600px){#nota-sit{margin-left:0;width:100%}#nota-sit button{flex:1}}
+
+/* Celular: área de toque mínima de 32px nos botões redondos/ícone (auditoria de botões, 04/11/2026) */
+@media(max-width:767px){
+  .fav-btns button{width:32px;height:32px}
+  .fav-fechar{width:32px;height:32px}
+}

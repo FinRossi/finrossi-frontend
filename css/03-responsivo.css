@@ -72,9 +72,14 @@
   .currency-input{font-size:16px!important}
   select,input{font-size:16px!important}
 
-  /* Botões maiores */
-  .btn.primary{height:52px;font-size:15px}
-  .btn{height:44px}
+  /* Botões maiores para o dedo, com UM padrão: normal e principal da mesma altura (o dourado se destaca
+     pela cor; antes o principal tinha 52px e o do lado 44px). Pequeno 36px; mini (editar/excluir) 32px. */
+  .btn{height:46px;font-size:14px}
+  .btn.primary{height:46px;font-size:15px}
+  .btn.sm,.btn.primary.sm,.btn.danger.sm,.btn.export.sm{height:36px;font-size:13px;padding:0 12px}
+  .btn.xs,.btn.danger.xs{height:32px;min-width:32px;padding:0 9px;font-size:12px}
+  /* "editar" das categorias (link pequeno): área de toque maior sem mexer no visual */
+  button[onclick^="abrirGerenciarCats"],#mel-cat-editar{padding:8px 6px!important;margin:-8px -6px!important}
 
   /* Cards */
   .card{padding:14px 16px}

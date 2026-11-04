@@ -60,7 +60,7 @@ async function abrirAvaliacao(){
       <textarea id="aval-com" rows="4" maxlength="1000" placeholder="O que você mais gosta? O que podemos melhorar?" oninput="document.getElementById('aval-cont').textContent=this.value.length+'/1000'">${escHTML(a.comentario || '')}</textarea>
       <div class="aval-cont" id="aval-cont">${(a.comentario || '').length}/1000</div></div>
     <div class="msg" id="msg-aval" style="margin:0;min-height:0"></div>
-    <button type="button" class="btn primary" id="aval-enviar" style="width:100%;justify-content:center;height:44px" onclick="enviarAvaliacao()" ${_avalNota ? '' : 'disabled'}>${a.estrelas ? 'Atualizar avaliação' : 'Enviar avaliação'}</button>
+    <button type="button" class="btn primary" id="aval-enviar" style="width:100%;justify-content:center" onclick="enviarAvaliacao()" ${_avalNota ? '' : 'disabled'}>${a.estrelas ? 'Atualizar avaliação' : 'Enviar avaliação'}</button>
   </div>`;
   avalPintar(_avalNota);
   m.classList.add('open');

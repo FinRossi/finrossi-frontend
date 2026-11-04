@@ -143,7 +143,7 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
   .ext-linha>.ext-dia,.ext-linha>div:nth-child(2){grid-row:1 / span 2}
   .ext-valor{grid-row:1;grid-column:3}
   .ext-acoes{grid-row:2;grid-column:3;justify-content:flex-end;opacity:1}
-  .ext-acoes .btn.xs{height:24px;padding:0 7px}
+  .ext-acoes .btn.xs{padding:0 8px}   /* altura = padrão dos mini no celular (32px), igual às outras listas */
   .ext-mes-nome{font-size:19px}
   .ext-valor{font-size:16px}
 }
@@ -154,7 +154,7 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
 .lanc-foto-bar .btn{border-color:var(--accent);color:var(--accent)}
 .lanc-foto-bar span{font-size:12.5px;color:var(--muted);flex:1;min-width:200px}
 .lf-lido{border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent);transition:box-shadow .4s}
-@media(max-width:767px){.lanc-foto-bar .btn{width:100%;justify-content:center;height:44px}}
+@media(max-width:767px){.lanc-foto-bar .btn{width:100%;justify-content:center}}   /* altura = padrão (46px) */
 .lanc-foto-botoes{display:flex;gap:8px;flex-wrap:wrap}
 .lanc-foto-bar .lanc-foto-principal{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600}
 .lanc-foto-bar .btn{border-color:var(--ced-gravura);color:var(--text)}
@@ -169,7 +169,7 @@ th{font-size:12px;font-weight:500;border-bottom-color:var(--ced-gravura-fina)}
 .cam-acoes .btn.primary{min-width:130px}
 @media(max-width:767px){
   .lanc-foto-botoes{width:100%}
-  .lanc-foto-botoes .btn{flex:1;height:44px;justify-content:center}
+  .lanc-foto-botoes .btn{flex:1;justify-content:center}
   .cam-palco{max-height:58vh}
 }
 
