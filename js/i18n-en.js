@@ -223,6 +223,11 @@ I18N_EN_ADD({
   'Escolha outro período acima ou registre receitas e despesas para o relatório ter o que analisar.': 'Choose another period above, or record income and expenses so the report has something to analyse.',
   'dados suficientes': 'enough data',
   // Notas
+  // Notas: concluída / pendente
+  'Pendentes': 'To do', 'Concluídas': 'Done', 'Todas': 'All', 'Concluída': 'Done', 'Situação das notas': 'Note status',
+  'Marcar como concluída': 'Mark as done', 'Reabrir nota': 'Reopen note', 'Nenhuma nota pendente': 'Nothing to do',
+  'Tudo concluído por aqui. As notas resolvidas ficam em Concluídas.': 'All done here. Finished notes are under Done.',
+  'Nenhuma nota concluída ainda': 'No finished notes yet', 'Quando resolver uma nota, toque no ✓ dela para marcar como concluída.': 'When you finish a note, tap its ✓ to mark it as done.',
   'Nova nota': 'New note', 'Editar nota': 'Edit note', 'Nenhuma nota ainda': 'No notes yet', 'Buscar notas...': 'Search notes...', 'Título': 'Title',
   'Conteúdo': 'Content', 'Cor': 'Colour', 'Escreva sua anotação aqui...': 'Write your note here...', 'Guarde ideias, combinados e lembretes.': 'Keep ideas, agreements and reminders.',
   'Anotações, ideias e lembretes': 'Notes, ideas and reminders', 'Um bloco de anotações integrado ao seu perfil.': 'A notepad built into your profile.',

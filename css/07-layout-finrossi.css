@@ -727,3 +727,15 @@ body.sb-minimizado .dock-favoritos{
 .aval-cont{text-align:right;font-size:11px;color:var(--muted2);margin-top:4px}
 @media(max-width:768px){#avaliacao-modal .fav-vidro{position:relative!important;bottom:auto!important;width:min(420px,calc(100vw - 24px))!important}}
 @media(prefers-reduced-motion:reduce){.aval-estrelas button.pulo{animation:none}}
+
+/* Notas: concluída / pendente (planos/evolucao/14-notas.js) */
+#nota-sit{margin-left:auto}
+#nota-sit .nota-qtd{font-size:11px;color:var(--muted2);margin-left:1px;font-variant-numeric:tabular-nums}
+#nota-sit button.ativo .nota-qtd{color:inherit;opacity:.75}
+.nota-card{transition:opacity .2s}
+.nota-card.feita{opacity:.62}
+.nota-card.feita:hover{opacity:.9}
+.nota-card.feita .nota-tit{text-decoration:line-through;text-decoration-color:var(--muted);text-decoration-thickness:1px}
+.btn.nota-ok.on{background:var(--green-s);color:var(--green);border-color:rgba(74,222,128,.35)}
+.nota-selo-feita{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--green-s);color:var(--green);white-space:nowrap}
+@media(max-width:600px){#nota-sit{margin-left:0;width:100%}#nota-sit button{flex:1}}
