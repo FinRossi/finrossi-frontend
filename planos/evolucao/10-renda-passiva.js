@@ -95,8 +95,8 @@ function renderRP(){
   const atual=parseFloat(campoAtual.value)||0;
   const aporte=parseFloat(cfg.aporte)||300;
 
-  document.getElementById('rp-label-cdi').textContent=(cdi*100).toFixed(2).replace('.',',')+"%";
-  document.getElementById('rp-label-custom').textContent=(custom*100).toFixed(2).replace('.',',')+"%";
+  document.getElementById('rp-label-cdi').textContent=decimalLocal((cdi*100).toFixed(2))+"%";
+  document.getElementById('rp-label-custom').textContent=decimalLocal((custom*100).toFixed(2))+"%";
 
   const rendas=cfg.rendas.slice();
   const labels=rendas.map(r=>`${fmtR0(r)} por mês`);
@@ -163,5 +163,5 @@ function renderRP(){
     </table>`;
 }
 
-function _rpPct(v){ const p = v*100; return (p>0 && p<1 ? p.toFixed(1) : Math.floor(p)).toString().replace('.',',')+'%'; }
+function _rpPct(v){ const p = v*100; return decimalLocal(p>0 && p<1 ? p.toFixed(1) : Math.floor(p))+'%'; }
 

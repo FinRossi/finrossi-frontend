@@ -139,7 +139,7 @@ function _relRecomendacoes(r){
   return out.slice(0, 5);
 }
 
-function _relPct(v){ return (Math.abs(v)*100).toFixed(Math.abs(v)<.1?1:0).replace('.',',')+'%'; }
+function _relPct(v){ return decimalLocal((Math.abs(v)*100).toFixed(Math.abs(v)<.1?1:0))+'%'; }
 function _relVar(atual, antes, inverter){
   if(!antes) return '<span class="rel-var">sem base anterior</span>';
   const v = (atual-antes)/antes;

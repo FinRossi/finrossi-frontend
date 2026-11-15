@@ -64,7 +64,7 @@ function renderMetas(){
           </div>
         </div>
         <div class="meta-valor">${fmtR0(m.valor)}</div>
-        <div class="prog-meta"><span>${fmtR(investido)} guardado</span><strong>${pct.toFixed(1).replace('.',',')}%</strong></div>
+        <div class="prog-meta"><span>${fmtR(investido)} guardado</span><strong>${decimalLocal(pct.toFixed(1))}%</strong></div>
         <div class="prog-track"><div class="prog-fill" style="width:${pct.toFixed(1)}%;background:${cor}"></div></div>
         <div class="meta-rodape">
           <span>${atingida?'Meta atingida':`Falta <b>${fmtR(falta)}</b>`}</span>

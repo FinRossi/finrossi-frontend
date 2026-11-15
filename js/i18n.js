@@ -28,7 +28,7 @@
     document.documentElement.classList.add('i18n-espera');
     setTimeout(function(){ document.documentElement.classList.remove('i18n-espera'); }, 2500);
     var s = document.createElement('script');
-    s.src = '/js/i18n-en.js?v=36';
+    s.src = '/js/i18n-en.js?v=37';
     s.onload = function(){ if(window.iniciarTraducao) window.iniciarTraducao(); };
     s.onerror = function(){ document.documentElement.classList.remove('i18n-espera'); };
     document.head.appendChild(s);
@@ -68,6 +68,9 @@ function simboloMoeda(){ return window.MOEDA === 'AUD' ? (window.IDIOMA === 'en'
 function fmtNumero(v, casas){
   return Number(v).toLocaleString(window.LOCALE, { minimumFractionDigits: casas, maximumFractionDigits: casas });
 }
+// Separador decimal da região num número já arredondado: "12.5" → "12,5" (português) ou "12.5" (inglês).
+// Use para porcentagens e medidas ("12,5%", "2,5 meses") no lugar de .replace('.', ',') fixo.
+function decimalLocal(s){ return String(s).replace('.', window.IDIOMA === 'en' ? '.' : ','); }
 function fmtMoeda(v, casas){
   var n = Number(v);
   if(window.MOEDA === 'BRL' && window.IDIOMA === 'pt') return 'R$ ' + fmtNumero(n, casas);   // Brasil: igual a sempre

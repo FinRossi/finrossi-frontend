@@ -135,7 +135,7 @@ function renderNotas(){
       ${preview?`<div style="font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;white-space:pre-wrap">${escHTML(preview)}</div>`:''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:11.5px;color:var(--muted)">
         <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="fr-selo">${escHTML(n.cat)}</span>${feita?`<span class="nota-selo-feita"><span>Concluída</span> ${_dataNotaBR(n.concluidaEm)}</span>`:''}</span>
-        <span>${n.data}${n.hora?' às '+n.hora:''}</span>
+        <span>${_dataNotaBR(n.data)}${n.hora?' · '+n.hora:''}</span>
       </div>
     </div>`;
   }).join('');

@@ -26,7 +26,7 @@ function renderComparativo(lancs,mes){
       <td>${rotulo}</td>
       <td class="ced-ant"><span class="ced-num">${fmtR(ant)}</span></td>
       <td><span class="ced-num">${fmtR(atual)}</span></td>
-      <td class="${bom ? 'ced-pos' : 'ced-neg'}">${diff >= 0 ? '↑' : '↓'} ${String(Math.abs(pct)).replace('.', ',')}%</td>
+      <td class="${bom ? 'ced-pos' : 'ced-neg'}">${diff >= 0 ? '↑' : '↓'} ${decimalLocal(Math.abs(pct))}%</td>
     </tr>`;
   };
   document.getElementById('dash-comparativo').innerHTML=`
@@ -128,7 +128,7 @@ function refreshDash(){
     return caixa + aplicado;
   };
   const pat = patrimonioAte(mesRef), patAnt = patrimonioAte(mesAnt);
-  const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${String(Math.abs(parseFloat(v))).replace('.', ',')}%`;
+  const varRotulo=v=>(v==='N+'||v==='N-')?'':` ${decimalLocal(Math.abs(parseFloat(v)))}%`;
 
   // Sparkline mini — últimos 6 meses de dados
   // Até o mês escolhido: ele e os 5 meses com lançamentos antes dele (antes pegava os 6 mais

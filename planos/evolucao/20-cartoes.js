@@ -263,7 +263,7 @@ function renderCartoes(){
 
   el.innerHTML=gridHTML+`
     <div class="card card-full" style="margin-bottom:20px">
-      <h3>Gastos com cartão em ${MONTHS[parseInt(mes.split('-')[1])-1].toLowerCase()}</h3>
+      <h3>${IDIOMA==='en'?'Card spending in '+new Date(+mes.slice(0,4),+mes.slice(5,7)-1,1).toLocaleDateString(LOCALE,{month:'long'}):'Gastos com cartão em '+MONTHS[parseInt(mes.split('-')[1])-1].toLowerCase()}</h3>
       <div id="cartoes-gastos-inner">${rowsHTML||'<p class="empty" style="text-align:left;padding:8px 0">Nenhuma despesa no cartão este mês. Ao lançar uma despesa, escolha o cartão usado.</p>'}</div>
     </div>
     <div class="grid2">
