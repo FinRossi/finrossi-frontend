@@ -21,11 +21,14 @@ function parseCurrency(el){
 function toggleMetodoPagamento(){
   const metodo = document.getElementById('d-metodo')?.value;
   const cartaoRow = document.querySelector('#d-cartao')?.closest('.form-row');
-  // Se método é crédito, mostra o campo de qual cartão foi usado
-  if(metodo==='credito'){
+  // Crédito ou débito: mostra o campo de qual cartão foi usado (o título acompanha a forma de pagamento).
+  // No débito o cartão é só informativo: fica em cartaoDebitoId e NÃO entra na fatura nem no limite.
+  if(metodo==='credito' || metodo==='debito'){
     if(cartaoRow) cartaoRow.style.display='';
+    const rot=document.getElementById('d-cartao-rotulo');
+    if(rot) rot.textContent = metodo==='debito' ? 'Cartão de débito' : 'Cartão de crédito';
   } else {
-    // Não é crédito: limpa seleção e esconde o campo
+    // Outras formas: limpa seleção e esconde o campo
     const cartaoSel = document.getElementById('d-cartao');
     if(cartaoSel) cartaoSel.value='';
     if(cartaoRow) cartaoRow.style.display='none';
@@ -42,6 +45,8 @@ function toggleMetodoPagamento(){
 
 function toggleParcelado(){
   const isParc=document.getElementById('d-parcelado').value==='parcelado';
+  const rotData=document.getElementById('d-data-rotulo');
+  if(rotData) rotData.textContent=isParc?'Data 1ª parcela':'Data';   // à vista: só "Data"
   document.getElementById('d-parcelas-wrap').style.display=isParc?'flex':'none';
   document.getElementById('d-parcela-preview').style.display=isParc?'block':'none';
   if(!isParc){document.getElementById('d-parcelas').value='';calcParcela()}
@@ -69,7 +74,9 @@ function addLanc(tipo){
   if(!val||val<=0){showMsg('msg-'+p,'Valor inválido','err');return}
 
   if(tipo==='despesa'){
-    const cartaoId=document.getElementById('d-cartao')?.value||'';
+    const cartaoSel=document.getElementById('d-cartao')?.value||'';
+    const cartaoId=metodo==='credito'?cartaoSel:'';                 // crédito: entra na fatura do cartão
+    const cartaoDebitoId=metodo==='debito'?cartaoSel:'';            // débito: só para saber qual cartão (fora da fatura)
     const parcelado=document.getElementById('d-parcelado').value==='parcelado';
     const nParc=parseInt(document.getElementById('d-parcelas').value)||1;
     if(parcelado){
@@ -89,7 +96,7 @@ function addLanc(tipo){
       return;
     }
     const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar('d'):null;
-    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId,...(anexo?{anexo}:{})});
+    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId,...(cartaoDebitoId?{cartaoDebitoId}:{}),...(anexo?{anexo}:{})});
     saveCollection('lancs');clearForm(p);showMsg('msg-d','Despesa adicionada!','ok');refreshDash();renderHistorico();
     return;
   }
@@ -150,7 +157,13 @@ async function salvarEdicaoLanc(){
   if(!val||val<=0){showMsg('msg-mel','Valor inválido','err');return}
   const idx=pd().lancs.findIndex(x=>x.id===id);
   if(idx<0){showMsg('msg-mel','Lançamento não encontrado','err');return}
-  pd().lancs[idx]={...pd().lancs[idx],desc,val,data,cat,metodo,obs};
+  // O cartão acompanha a forma de pagamento: crédito → fatura (cartaoId); débito → só informativo
+  // (cartaoDebitoId); outra forma → sem cartão. Antes, trocar crédito por débito deixava a compra na fatura.
+  const antes=pd().lancs[idx], cartao=antes.cartaoId||antes.cartaoDebitoId||'';
+  const editado={...antes,desc,val,data,cat,metodo,obs,cartaoId:metodo==='credito'?cartao:''};
+  delete editado.cartaoDebitoId;
+  if(metodo==='debito'&&cartao) editado.cartaoDebitoId=cartao;
+  pd().lancs[idx]=editado;
   await saveCollection('lancs');
   refreshDash();renderHistorico();
   closeModal('modal-editar-lanc');

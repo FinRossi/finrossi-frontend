@@ -52,7 +52,10 @@ function renderHistorico(){
       </div>
       ${g.itens.map(l=>{
         const dia=l.data.slice(8,10);
-        const detalhes=escHTML([l.cat, l.metodo?(METODO_NOME[l.metodo]||l.metodo):''].filter(Boolean).join(', '));
+        // Forma de pagamento + cartão usado, quando houver ("débito · Nubank")
+        const cartaoUsado=(l.cartaoId||l.cartaoDebitoId)?((pd().cartoes||[]).find(c=>c.id===(l.cartaoId||l.cartaoDebitoId))||{}).nome:'';
+        const formaPg=l.metodo?(METODO_NOME[l.metodo]||l.metodo)+(cartaoUsado?' · '+cartaoUsado:''):'';
+        const detalhes=escHTML([l.cat, formaPg].filter(Boolean).join(', '));
         const parc=l.parcelado?` <span class="ext-parc">parcela ${l.parcela}/${l.totalParcelas}</span>`:'';
         const obs=l.obs?`<div class="ext-meta">${escHTML(l.obs)}</div>`:'';
         const sinal=l.tipo==='receita'?'+':'−';
