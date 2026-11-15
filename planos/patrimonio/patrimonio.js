@@ -551,11 +551,36 @@ function toggleDashPersonalizar(){
   }
 
   if(_dashPersonalizando){
+    _dashAntes = _configDashboardAtual();   // como estava ao começar: o "Desfazer alterações" volta para isto
     ativarControlesWidgets();
   } else {
     removerControlesWidgets();
     salvarConfigDashboard();
+    _dashAntes = null;
   }
+  _atualizarBotaoDesfazerDash();
+}
+
+// ── Desfazer alterações (enquanto personaliza) ───────────────────────────────
+// Volta a ordem e os cards ocultos para como estavam ao tocar em "Personalizar dashboard".
+let _dashAntes = null;
+function _configDashboardAtual(){
+  const widgets = [...document.querySelectorAll('#dash-widgets-grid .dash-widget')];
+  return { ordem: widgets.map(w => w.dataset.widgetId), ocultos: widgets.filter(w => w.classList.contains('dash-widget-oculto')).map(w => w.dataset.widgetId) };
+}
+function _atualizarBotaoDesfazerDash(){
+  const b = document.getElementById('btn-dash-desfazer');
+  if(!b) return;
+  b.style.display = _dashPersonalizando ? '' : 'none';
+  const mudou = !!_dashAntes && JSON.stringify(_configDashboardAtual()) !== JSON.stringify(_dashAntes);
+  b.disabled = !mudou;
+  b.title = mudou ? 'Volta o dashboard para como estava antes de personalizar' : 'Nada para desfazer ainda';
+}
+function desfazerPersonalizacao(){
+  if(!_dashAntes) return;
+  aplicarConfigDashboard(_dashAntes);
+  removerControlesWidgets(); ativarControlesWidgets();   // redesenha o olho de cada card
+  _atualizarBotaoDesfazerDash();
 }
 
 function ativarControlesWidgets(){
@@ -607,6 +632,7 @@ function toggleWidgetVisibilidade(widgetId){
       ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
       : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
   }
+  _atualizarBotaoDesfazerDash();
 }
 
 function dashWidgetDragStart(){
@@ -638,6 +664,7 @@ function dashWidgetDrop(e){
   const targetIdx = allWidgets.indexOf(this);
   if(dragIdx < targetIdx) this.after(dragEl);
   else this.before(dragEl);
+  _atualizarBotaoDesfazerDash();
 }
 
 async function salvarConfigDashboard(){
