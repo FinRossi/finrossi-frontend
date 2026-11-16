@@ -35,7 +35,14 @@ function preencherMoedasLanc(){
 function aoTrocarMoedaLanc(p,quieto){
   const m=moedaForm(p), outra=m!==MOEDA;
   const av=document.getElementById(p+'-moeda-aviso');
-  if(av){ av.hidden=!outra; av.innerHTML=outra?`<span>Fica no saldo em</span> ${escHTML(SIMBOLO_MOEDA[m])}<span>, separado do saldo da conta.</span>`:''; }
+  // Título do campo acompanha a moeda: "Valor total (R$)" → "Valor total (US$)"; volta ao original na moeda da conta
+  const rot=document.getElementById(p+'-moeda')?.closest('.field')?.querySelector('label');
+  // (o símbolo da conta vem de simboloMoeda: R$, A$ ou $ no inglês — o mesmo que o resto do app usa)
+  if(rot&&/\((R\$|A\$|US\$|€|£|\$)\)/.test(rot.textContent)){
+    const novo=rot.textContent.replace(/\((R\$|A\$|US\$|€|£|\$)\)/,'('+(outra?SIMBOLO_MOEDA[m]:simboloMoeda())+')');
+    if(novo!==rot.textContent) rot.textContent=novo;
+  }
+  if(av){ av.hidden=!outra;av.innerHTML=outra?`<span>Fica no saldo em</span> ${escHTML(SIMBOLO_MOEDA[m])}<span>, separado do saldo da conta.</span>`:''; }
   if(p==='d'&&!quieto){ toggleMetodoPagamento(); calcParcela(); }
 }
 
