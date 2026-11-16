@@ -92,8 +92,8 @@ function refreshDash(){
   // Antes, lançar hoje a conta que vence dia 15 ("Lançar do mês", parcelas) já tirava o dinheiro do saldo.
   // Olhando um mês futuro de propósito, mostra a projeção completa daquele mês.
   const hojeStr = hoje(), projecao = !todos && mes > curMes();
-  const lancs = projecao ? pd().lancs : pd().lancs.filter(l => l.data <= hojeStr);
-  const previstos = projecao ? [] : pd().lancs.filter(l => l.data > hojeStr && l.data.startsWith(mesRef));
+  const lancs = projecao ? lancsConta() : lancsConta().filter(l => l.data <= hojeStr);   // só a moeda da conta
+  const previstos = projecao ? [] : lancsConta().filter(l => l.data > hojeStr && l.data.startsWith(mesRef));
   const recPrev = previstos.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const desPrev = previstos.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const doMes = todos ? lancs : lancs.filter(l=>l.data.startsWith(mes));
@@ -281,7 +281,7 @@ function refreshDash(){
   else renderComparativo(lancs,mes);
 
   // Parcelas
-  const parcelas=pd().lancs.filter(l=>l.parcelado&&l.tipo==='despesa');   // todas (as futuras contam como "restantes")
+  const parcelas=lancsConta().filter(l=>l.parcelado&&l.tipo==='despesa');   // todas (as futuras contam como "restantes")
   const totalParcelaMes=doMes.filter(l=>l.parcelado).reduce((a,b)=>a+b.val,0);
   const grupos={};
   parcelas.forEach(l=>{
@@ -505,6 +505,7 @@ function refreshDash(){
 
   renderDashCartaoWidget();
   renderTodosMeses();
+  renderOutrasMoedas(mesRef);
 
   // Plano Patrimônio: mantém o Score/Insights/Tarefas sempre atualizados,
   // sem precisar sair e voltar na tela (a função só existe se planos/patrimonio/patrimonio.js já carregou)
@@ -512,8 +513,20 @@ function refreshDash(){
   if(typeof initPersonalizacaoDashboard==='function') initPersonalizacaoDashboard();
   if(typeof initPatrimonioCores==='function') initPatrimonioCores();
 }
+// Saldos em outras moedas (lançamentos em US$, €, R$ numa conta em A$...): um cartão por moeda, sem converter
+function renderOutrasMoedas(mes){
+  const el=document.getElementById('dash-outras-moedas'); if(!el) return;
+  const s=saldosOutrasMoedas(mes), ms=Object.keys(s).sort((a,b)=>MOEDAS_LANC.indexOf(a)-MOEDAS_LANC.indexOf(b));
+  el.hidden=!ms.length;
+  if(!ms.length){ el.innerHTML=''; return; }
+  el.innerHTML='<div class="om-tit">Saldos em outras moedas</div>'+ms.map(m=>{ const o=s[m]; return `<div class="om-card">
+      <span><span>Saldo em</span> ${SIMBOLO_MOEDA[m]}</span>
+      <b style="color:${o.saldo>=0?'var(--green)':'var(--red)'}">${fmtMoedaDe(o.saldo,m)}</b>
+      <small><span>No mês</span>: + ${fmtMoedaDe(o.recMes,m)} · − ${fmtMoedaDe(o.desMes,m)}</small>
+    </div>`; }).join('');
+}
 function renderTodosMeses(){
-  const lancs=pd().lancs;
+  const lancs=lancsConta();   // só a moeda da conta
   const mesAtual=curMes();
   const mesesSet=new Set(lancs.map(l=>l.data.slice(0,7)));
   mesesSet.add(mesAtual);
@@ -602,7 +615,7 @@ function renderDashCartaoWidget(){
   }
   const c=cartoes.find(x=>x.id===_dashCartaoSelId)||cartoes[0];
   const mesSel=getMesFiltro(), mes=mesSel==='todos'?curMes():mesSel;   // fatura é sempre de um mês
-  const lancsMes=pd().lancs.filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));
+  const lancsMes=lancsConta().filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));
   const gastos=lancsMes.filter(l=>l.cartaoId===c.id).reduce((a,b)=>a+b.val,0);
   const disponivel=Math.max(0,(c.limite||0)-gastos);
   const pct=c.limite>0?Math.min(100,(gastos/c.limite)*100):0;

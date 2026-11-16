@@ -6,7 +6,7 @@
 
 // ─── SCORE DE SAÚDE FINANCEIRA ───────────────────────────────────────────────
 function calcularScoreSaude(){
-  const lancs = pd().lancs || [];
+  const lancs = lancsConta();   // só a moeda da conta
   const invs  = pd().invs  || [];
   const hoje  = new Date();
 
@@ -100,7 +100,7 @@ function calcularScoreSaude(){
 
 // ─── INSIGHTS AUTOMÁTICOS ────────────────────────────────────────────────────
 function gerarInsights(){
-  const lancs = pd().lancs || [];
+  const lancs = lancsConta();   // só a moeda da conta
   const invs  = pd().invs  || [];
   const assinaturas = pd().assinaturas || [];
   const hoje  = new Date();
@@ -189,7 +189,7 @@ function corInsight(tipo){
 
 // ─── DESAFIOS (gamificação) ──────────────────────────────────────────────────
 function gerarDesafios(){
-  const lancs = pd().lancs || [];
+  const lancs = lancsConta();   // só a moeda da conta
   const invs  = pd().invs  || [];
   const hoje  = new Date();
   const mesAtual = curMes();
@@ -389,7 +389,7 @@ function atualizarProjecaoTaxa(valor){
 }
 
 function calcularProjecoes(){
-  const lancs = pd().lancs || [];
+  const lancs = lancsConta();   // só a moeda da conta
   const invs  = pd().invs  || [];
   const hoje  = new Date();
 

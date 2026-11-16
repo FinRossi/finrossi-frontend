@@ -18,12 +18,34 @@ function parseCurrency(el){
   return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;  // português: 1.234,56
 }
 
+// ─── MOEDA DO LANÇAMENTO (saldos separados por moeda — js/app/01-base.js) ────
+// O seletor começa na moeda da conta. Outra moeda: o lançamento vai para o saldo daquela moeda, fora dos
+// totais da conta, e não pode ir para a fatura de cartão (que é na moeda da conta).
+const moedaForm=p=>document.getElementById(p+'-moeda')?.value||MOEDA;
+function preencherMoedasLanc(){
+  const lista=[MOEDA,...MOEDAS_LANC.filter(m=>m!==MOEDA)];
+  ['r','d','mel'].forEach(p=>{
+    const s=document.getElementById(p+'-moeda'); if(!s) return;
+    const cur=s.value;
+    s.innerHTML=lista.map(m=>`<option value="${m}">${SIMBOLO_MOEDA[m]}</option>`).join('');
+    s.value=lista.includes(cur)?cur:MOEDA;
+    aoTrocarMoedaLanc(p,true);
+  });
+}
+function aoTrocarMoedaLanc(p,quieto){
+  const m=moedaForm(p), outra=m!==MOEDA;
+  const av=document.getElementById(p+'-moeda-aviso');
+  if(av){ av.hidden=!outra; av.innerHTML=outra?`<span>Fica no saldo em</span> ${escHTML(SIMBOLO_MOEDA[m])}<span>, separado do saldo da conta.</span>`:''; }
+  if(p==='d'&&!quieto){ toggleMetodoPagamento(); calcParcela(); }
+}
+
 function toggleMetodoPagamento(){
   const metodo = document.getElementById('d-metodo')?.value;
   const cartaoRow = document.querySelector('#d-cartao')?.closest('.form-row');
+  const outraMoeda = moedaForm('d')!==MOEDA;   // cartão (fatura/limite) é na moeda da conta
   // Crédito ou débito: mostra o campo de qual cartão foi usado (o título acompanha a forma de pagamento).
   // No débito o cartão é só informativo: fica em cartaoDebitoId e NÃO entra na fatura nem no limite.
-  if(metodo==='credito' || metodo==='debito'){
+  if((metodo==='credito' || metodo==='debito') && !outraMoeda){
     if(cartaoRow) cartaoRow.style.display='';
     const rot=document.getElementById('d-cartao-rotulo');
     if(rot) rot.textContent = metodo==='debito' ? 'Cartão de débito' : 'Cartão de crédito';
@@ -59,8 +81,8 @@ function calcParcela(){
   if(!isParc||!val||n<2){document.getElementById('d-parcela-preview').style.display='none';return}
   const parcel=val/n;
   document.getElementById('d-parcela-preview').style.display='block';
-  document.getElementById('d-parcela-val').textContent=fmtR(parcel);
-  document.getElementById('d-parcela-desc').textContent=` × ${n} meses = ${fmtR(val)} total`;
+  document.getElementById('d-parcela-val').textContent=fmtMoedaDe(parcel,moedaForm('d'));
+  document.getElementById('d-parcela-desc').textContent=` × ${n} meses = ${fmtMoedaDe(val,moedaForm('d'))} total`;
 }
 function addLanc(tipo){
   const p=tipo==='receita'?'r':'d';
@@ -72,9 +94,10 @@ function addLanc(tipo){
   const metodo=document.getElementById(p+'-metodo')?.value||'';
   if(!desc){showMsg('msg-'+p,'Informe a descrição','err');return}
   if(!val||val<=0){showMsg('msg-'+p,'Valor inválido','err');return}
+  const moeda=moedaForm(p), mo=moeda!==MOEDA?{moeda}:{};   // só grava "moeda" quando não é a da conta
 
   if(tipo==='despesa'){
-    const cartaoSel=document.getElementById('d-cartao')?.value||'';
+    const cartaoSel=moeda===MOEDA?(document.getElementById('d-cartao')?.value||''):'';
     const cartaoId=metodo==='credito'?cartaoSel:'';                 // crédito: entra na fatura do cartão
     const cartaoDebitoId=metodo==='debito'?cartaoSel:'';            // débito: só para saber qual cartão (fora da fatura)
     const parcelado=document.getElementById('d-parcelado').value==='parcelado';
@@ -90,19 +113,19 @@ function addLanc(tipo){
         const ultimoDia=new Date(yr,mo+i,0).getDate();
         const d=new Date(yr,mo-1+i,Math.min(dy,ultimoDia));
         const dataParc=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        pd().lancs.push({id:uid(),tipo,desc,val:valParc,data:dataParc,cat,obs,metodo,parcelado:true,parcela:i+1,totalParcelas:nParc,valorTotal:val,groupId:gid,cartaoId,...(anexo?{anexo}:{})});
+        pd().lancs.push({id:uid(),tipo,desc,val:valParc,data:dataParc,cat,obs,metodo,parcelado:true,parcela:i+1,totalParcelas:nParc,valorTotal:val,groupId:gid,cartaoId,...mo,...(anexo?{anexo}:{})});
       }
-      saveCollection('lancs');clearForm(p);showMsg('msg-d',`${nParc} parcelas de ${fmtR(valParc)} adicionadas!`,'ok');refreshDash();renderHistorico();
+      saveCollection('lancs');clearForm(p);showMsg('msg-d',`${nParc} parcelas de ${fmtMoedaDe(valParc,moeda)} adicionadas!`,'ok');refreshDash();renderHistorico();
       return;
     }
     const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar('d'):null;
-    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId,...(cartaoDebitoId?{cartaoDebitoId}:{}),...(anexo?{anexo}:{})});
+    pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,cartaoId,...(cartaoDebitoId?{cartaoDebitoId}:{}),...mo,...(anexo?{anexo}:{})});
     saveCollection('lancs');clearForm(p);showMsg('msg-d','Despesa adicionada!','ok');refreshDash();renderHistorico();
     return;
   }
 
   const anexo=(typeof anexoParaSalvar==='function')?anexoParaSalvar(p):null;
-  pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,...(anexo?{anexo}:{})});
+  pd().lancs.push({id:uid(),tipo,desc,val,data,cat,obs,metodo,...mo,...(anexo?{anexo}:{})});
   saveCollection('lancs');clearForm(p);showMsg('msg-'+p,tipo==='receita'?'Receita adicionada!':'Despesa adicionada!','ok');refreshDash();renderHistorico();
 }
 function addInv(){
@@ -126,6 +149,8 @@ function editarLanc(id){
   document.getElementById('modal-editar-lanc')._tipo=l.tipo;
   preencherCatEdicao(l.cat);
   document.getElementById('mel-metodo').value=l.metodo||'';
+  const melMoeda=document.getElementById('mel-moeda');
+  if(melMoeda){ if(!melMoeda.options.length) preencherMoedasLanc(); melMoeda.value=moedaDoLanc(l); aoTrocarMoedaLanc('mel'); }
   document.getElementById('mel-obs').value=l.obs||'';
   document.getElementById('msg-mel').textContent='';
   document.getElementById('modal-editar-lanc').classList.add('open');
@@ -159,10 +184,13 @@ async function salvarEdicaoLanc(){
   if(idx<0){showMsg('msg-mel','Lançamento não encontrado','err');return}
   // O cartão acompanha a forma de pagamento: crédito → fatura (cartaoId); débito → só informativo
   // (cartaoDebitoId); outra forma → sem cartão. Antes, trocar crédito por débito deixava a compra na fatura.
-  const antes=pd().lancs[idx], cartao=antes.cartaoId||antes.cartaoDebitoId||'';
+  // Moeda: outra moeda sai da fatura (o cartão é na moeda da conta); "moeda" só fica gravada se não for a da conta.
+  const moeda=moedaForm('mel'), outraMoeda=moeda!==MOEDA;
+  const antes=pd().lancs[idx], cartao=outraMoeda?'':(antes.cartaoId||antes.cartaoDebitoId||'');
   const editado={...antes,desc,val,data,cat,metodo,obs,cartaoId:metodo==='credito'?cartao:''};
-  delete editado.cartaoDebitoId;
+  delete editado.cartaoDebitoId; delete editado.moeda;
   if(metodo==='debito'&&cartao) editado.cartaoDebitoId=cartao;
+  if(outraMoeda) editado.moeda=moeda;
   pd().lancs[idx]=editado;
   await saveCollection('lancs');
   refreshDash();renderHistorico();
@@ -192,6 +220,8 @@ function clearForm(p){
     ['desc','val','obs'].forEach(f=>{const el=document.getElementById(p+'-'+f);if(el)el.value=''});
     dpInit(p+'-data', hoje());
     if(typeof limparAnexoPendente==='function') limparAnexoPendente(p);
+    // Depois de salvar, a moeda volta para a da conta (evita lançar em outra moeda sem querer)
+    const ms=document.getElementById(p+'-moeda'); if(ms&&ms.value!==MOEDA){ ms.value=MOEDA; aoTrocarMoedaLanc(p); }
     if(p==='d'){
       const sel=document.getElementById('d-parcelado');if(sel)sel.value='avista';
       const pw=document.getElementById('d-parcelas-wrap');if(pw)pw.style.display='none';

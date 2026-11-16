@@ -15,6 +15,35 @@ const hoje=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMont
 // Dinheiro na moeda da conta (js/i18n.js). Em portugu\u00eas com R$, o texto \u00e9 exatamente o de antes.
 const fmtR=(v)=>fmtMoeda(v,2);
 const fmtR0=(v)=>fmtMoeda(v,0);
+// ─── Lançamentos em outras moedas (saldos separados) ─────────────────────────
+// Cada lançamento pode ter "moeda" (BRL, AUD, USD, EUR, GBP). Sem o campo = moeda da conta (MOEDA), como
+// sempre foi. Os totais da conta (saldo, gráficos, score, relatórios, metas, fatura do cartão) usam SÓ
+// lancsConta(); lançamentos em outra moeda têm saldo próprio (saldosOutrasMoedas) e nunca são somados
+// junto, porque não há conversão.
+const MOEDAS_LANC=['BRL','AUD','USD','EUR','GBP'];
+const SIMBOLO_MOEDA={BRL:'R$',AUD:'A$',USD:'US$',EUR:'€',GBP:'£'};
+const moedaDoLanc=l=>(l&&l.moeda&&MOEDAS_LANC.includes(l.moeda))?l.moeda:MOEDA;
+const daConta=l=>moedaDoLanc(l)===MOEDA;
+const lancsConta=()=>(pd().lancs||[]).filter(daConta);
+// Valor numa moeda qualquer, no formato do idioma ("US$ 1.234,56" / "US$1,234.56"); a da conta = fmtR
+function fmtMoedaDe(v,moeda,casas){
+  if(!moeda||moeda===MOEDA) return casas===0?fmtR0(v):fmtR(v);
+  const n=Number(v), s=SIMBOLO_MOEDA[moeda]||moeda, c=casas===0?0:2;
+  // Mesmo jeito do fmtMoeda: português "US$ -100,00" (sinal depois do símbolo); inglês "-US$100.00"
+  return IDIOMA==='en' ? (n<0?'-':'')+s+fmtNumero(Math.abs(n),c) : s+' '+fmtNumero(n,c);
+}
+// Saldos por moeda dos lançamentos fora da moeda da conta: { USD: {rec, des, saldo, recMes, desMes} }
+function saldosOutrasMoedas(mes){
+  const r={}, hojeStr=hoje();
+  (pd().lancs||[]).forEach(l=>{
+    if(daConta(l)||l.data>hojeStr) return;   // data futura = previsto (igual ao saldo da conta)
+    const m=moedaDoLanc(l), o=r[m]||(r[m]={rec:0,des:0,recMes:0,desMes:0});
+    const v=+l.val||0, doMes=mes&&l.data.startsWith(mes);
+    if(l.tipo==='receita'){ o.rec+=v; if(doMes) o.recMes+=v; } else if(l.tipo==='despesa'){ o.des+=v; if(doMes) o.desMes+=v; }
+  });
+  Object.values(r).forEach(o=>{ o.saldo=o.rec-o.des; });
+  return r;
+}
 const MESES_ROTULO = IDIOMA==='en' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const mesLbl=(ym)=>{const[y,m]=ym.split('-');return MESES_ROTULO[+m-1]+'/'+y.slice(2)};
 const curMes=()=>hoje().slice(0,7);

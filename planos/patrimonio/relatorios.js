@@ -72,7 +72,7 @@ function _relSeguinte(p, tipo){
 
 // ── Cálculo ─────────────────────────────────────────────────────────────────
 function _relTotais(ini, fim){
-  const lancs = (pd().lancs||[]).filter(l => l.data && l.data >= ini && l.data <= fim);
+  const lancs = lancsConta().filter(l => l.data && l.data >= ini && l.data <= fim);   // só a moeda da conta
   const rec = lancs.filter(l=>l.tipo==='receita').reduce((a,b)=>a+(+b.val||0),0);
   const des = lancs.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+(+b.val||0),0);
   const cats = {};

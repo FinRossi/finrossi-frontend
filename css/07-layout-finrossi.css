@@ -745,3 +745,19 @@ body.sb-minimizado .dock-favoritos{
   .fav-btns button{width:32px;height:32px}
   .fav-fechar{width:32px;height:32px}
 }
+
+/* Moeda do lançamento (saldos separados por moeda — js/app/06-lancamentos.js) */
+.valor-moeda{display:flex;gap:6px;align-items:stretch}
+.valor-moeda .moeda-sel{flex:0 0 auto;width:auto;min-width:74px;padding-right:28px}
+.valor-moeda input{flex:1;min-width:0}
+.moeda-aviso{display:block;margin-top:5px;font-size:11.5px;color:var(--accent);line-height:1.4}
+/* Dashboard: saldos em outras moedas, abaixo dos totais da conta */
+.dash-outras-moedas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.dash-outras-moedas .om-tit{width:100%;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dash-outras-moedas .om-card{flex:1 1 180px;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.dash-outras-moedas .om-card b{font-family:var(--ced-serif,serif);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.dash-outras-moedas .om-card small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Histórico: lançamento em outra moeda */
+.ext-mes-outras{width:100%;font-size:11.5px;color:var(--muted)}
+.ext-moeda{font-size:10px;padding:1px 6px;border-radius:10px;border:1px solid var(--border2);color:var(--accent);margin-left:6px;vertical-align:1px;letter-spacing:.03em}
+.dash-outras-moedas .om-card>span{font-size:12px;color:var(--muted)}

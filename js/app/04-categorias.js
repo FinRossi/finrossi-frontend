@@ -29,6 +29,7 @@ function getCatsOcultas(tipo){
 
 function populateCatSelects(){
   populateCartaoSelect();
+  if(typeof preencherMoedasLanc==='function') preencherMoedasLanc();   // seletor de moeda dos lançamentos
   // Despesa
   const dCat = document.getElementById('d-cat');
   if(dCat){

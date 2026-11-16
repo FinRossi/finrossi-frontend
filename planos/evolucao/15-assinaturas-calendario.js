@@ -313,7 +313,7 @@ function renderCalendario(){
   // Lançamentos
   lancs.forEach(l=>{
     const dia=parseInt(l.data.slice(8,10));
-    addEvt(dia,{label:l.desc,tipo:l.tipo==='receita'?'receita':'despesa',val:l.val});
+    addEvt(dia,{label:l.desc,tipo:l.tipo==='receita'?'receita':'despesa',val:l.val,moeda:moedaDoLanc(l)});
   });
   // Assinaturas
   assin.forEach(a=>{
@@ -389,7 +389,7 @@ function renderCalendario(){
     return`<div class="ext-linha" style="grid-template-columns:44px 1fr auto">
       <div class="ext-dia"><b>${String(e.dia).padStart(2,'0')}</b><span>${mesCurto}</span></div>
       <div style="min-width:0"><div class="ext-tit">${escHTML(e.label)}</div><div class="ext-meta">${tipoNome}</div></div>
-      <div class="ext-valor-col"><div class="ext-valor ${e.tipo==='receita'?'receita':''}">${e.tipo==='receita'?'+':'−'} ${fmtR(e.val).replace(/^R\$\s?/,'')}</div>${selo}</div>
+      <div class="ext-valor-col"><div class="ext-valor ${e.tipo==='receita'?'receita':''}">${e.tipo==='receita'?'+':'−'} ${e.moeda&&e.moeda!==MOEDA?fmtMoedaDe(e.val,e.moeda):fmtR(e.val).replace(/^R\$\s?/,'')}</div>${selo}</div>
     </div>`;
   }).join('');
   }catch(e){console.error('renderCalendario error:',e);}

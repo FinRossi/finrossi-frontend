@@ -38,9 +38,14 @@ function renderHistorico(){
   const valorFmt=v=>fmtR(v).replace(/^R\$\s?/,'');
   cont.innerHTML=grupos.map(g=>{
     const [yr,mo]=g.mes.split('-');
-    const ent=g.itens.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
-    const sai=g.itens.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
+    // Totais do mês: só a moeda da conta. Outras moedas têm o próprio saldo, numa linha à parte (sem converter).
+    const daMoeda=g.itens.filter(daConta);
+    const ent=daMoeda.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
+    const sai=daMoeda.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
     const saldo=ent-sai;
+    const outras={};
+    g.itens.filter(l=>!daConta(l)).forEach(l=>{ const m=moedaDoLanc(l); outras[m]=(outras[m]||0)+(l.tipo==='receita'?l.val:-l.val); });
+    const linhaOutras=Object.keys(outras).length?`<div class="ext-mes-outras"><span>Outras moedas</span>: ${Object.entries(outras).map(([m,v])=>`${v>=0?'+':'−'} ${fmtMoedaDe(Math.abs(v),m)}`).join(' · ')}</div>`:'';
     return`<div class="ext-mes">
       <div class="ext-mes-cab">
         <div class="ext-mes-nome">${MONTHS[+mo-1]} de ${yr}</div>
@@ -48,6 +53,7 @@ function renderHistorico(){
           <span>Entradas <b style="color:var(--green)">${fmtR(ent)}</b></span>
           <span>Saídas <b style="color:var(--text)">${fmtR(sai)}</b></span>
           <span>Saldo <b style="color:${saldo>=0?'var(--green)':'var(--red)'}">${fmtR(saldo)}</b></span>
+          ${linhaOutras}
         </div>
       </div>
       ${g.itens.map(l=>{
@@ -62,10 +68,10 @@ function renderHistorico(){
         return`<div class="ext-linha">
           <div class="ext-dia"><b>${dia}</b><span>${MESES_CURTOS[+mo-1]}</span></div>
           <div style="min-width:0">
-            <div class="ext-tit">${escHTML(l.desc)}</div>
+            <div class="ext-tit">${escHTML(l.desc)}${daConta(l)?'':`<span class="ext-moeda">${moedaDoLanc(l)}</span>`}</div>
             <div class="ext-meta">${detalhes}${parc}</div>${obs}
           </div>
-          <div class="ext-valor ${l.tipo==='receita'?'receita':'despesa'}">${sinal} ${valorFmt(l.val)}</div>
+          <div class="ext-valor ${l.tipo==='receita'?'receita':'despesa'}">${sinal} ${daConta(l)?valorFmt(l.val):fmtMoedaDe(l.val,moedaDoLanc(l))}</div>
           <div class="ext-acoes">
             ${l.anexo?`<button class="btn xs" onclick="verAnexo('${l.anexo.id}','${l.anexo.criadoEm||''}')" title="Ver anexo" aria-label="Ver anexo">${typeof ICO_ANEXO!=='undefined'?ICO_ANEXO:'Anexo'}</button>`:''}
             <button class="btn xs" onclick="editarLanc('${l.id}')" title="Editar" aria-label="Editar lançamento">${ICO_EDITAR}</button>

@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=37"></script>
+<script src="../js/i18n.js?v=38"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -601,6 +601,14 @@ body.modal-aberto{overflow:hidden}
 .cta-roseta svg{animation-duration:120s;animation-direction:reverse}
 @keyframes roseta-gira{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.hero-roseta.ced-anima{animation:none}.roseta-alvo svg{animation:none}}
+/* Cadastro: idioma do app (Português / English) */
+.cad-idioma{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.cad-idioma-rot{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px}
+.cad-idioma-opcoes{display:inline-flex;padding:3px;border-radius:9px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1)}
+.cad-idioma-opcoes button{border:0;background:none;color:#888;font:500 13px/1 inherit;font-family:inherit;padding:8px 14px;border-radius:7px;cursor:pointer;transition:background .2s,color .2s}
+.cad-idioma-opcoes button:hover{color:#f5f0e8}
+.cad-idioma-opcoes button.on{background:rgba(200,169,110,0.16);color:#C8A96E}
+.cad-idioma-opcoes button:focus-visible{outline:2px solid #C8A96E;outline-offset:1px}
 </style>
 </head>
 <body>
@@ -1627,6 +1635,41 @@ function abrirModalCadastro(plano, periodo){
   }
 }
 
+// ─── Idioma no cadastro ──────────────────────────────────────────────────────
+// Marca o idioma atual; trocar guarda o que já foi digitado (nunca a senha), recarrega a página no idioma
+// escolhido e reabre o cadastro preenchido. A conta é criada com esse idioma (e-mails no mesmo idioma).
+function marcarIdiomaCadastro(){
+  document.querySelectorAll('.cad-idioma-opcoes button').forEach(b => {
+    const on = b.dataset.idioma === IDIOMA;
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function escolherIdiomaCadastro(id){
+  if(id === IDIOMA) return;
+  try{
+    const v = x => (document.getElementById(x) || {}).value || '';
+    sessionStorage.setItem('fin_cad_rascunho', JSON.stringify({
+      plano: v('modal-plano-input') || 'gratuito', periodo: v('modal-periodo-input') || 'mensal',
+      nome: v('modal-nome'), email: v('modal-email'), whats: v('modal-whats'),
+    }));
+  }catch(e){}
+  _cadastroConcluido = true;   // recarregar para trocar o idioma não conta como "desistiu"
+  try{ localStorage.setItem('fin_idioma', id === 'en' ? 'en' : 'pt'); }catch(e){}
+  const u = new URL(location.href); u.searchParams.set('cadastro', 'retomar');
+  location.replace(u.toString());
+}
+window.addEventListener('load', () => {
+  marcarIdiomaCadastro();
+  let r = null;
+  try{ if(new URLSearchParams(location.search).get('cadastro') === 'retomar'){ r = JSON.parse(sessionStorage.getItem('fin_cad_rascunho') || 'null'); sessionStorage.removeItem('fin_cad_rascunho'); } }catch(e){}
+  if(!r) return;
+  setTimeout(() => {
+    abrirModalCadastro(r.plano, r.periodo);
+    [['modal-nome', r.nome], ['modal-email', r.email], ['modal-whats', r.whats]].forEach(([id, val]) => { const el = document.getElementById(id); if(el && val) el.value = val; });
+    try{ const u = new URL(location.href); u.searchParams.delete('cadastro'); history.replaceState(null, '', u.toString()); }catch(e){}
+  }, 400);
+});
+
 function fecharModal(){
   enviarLeadSeDesistiu();
   document.getElementById('modal-cadastro').classList.remove('open');
@@ -1996,6 +2039,15 @@ if(window.matchMedia('(pointer:fine)').matches){
 
     <!-- Card -->
     <div class="modal-card" style="background:#111;border:1px solid rgba(200,169,110,0.15);border-radius:16px;padding:28px">
+
+      <!-- Idioma do app: a conta nasce nele (e-mails também); trocar recarrega no idioma e reabre com o que já foi digitado -->
+      <div class="cad-idioma" role="group" aria-label="Idioma do app">
+        <span class="cad-idioma-rot">Idioma do app</span>
+        <div class="cad-idioma-opcoes" data-sem-traducao>
+          <button type="button" data-idioma="pt" onclick="escolherIdiomaCadastro('pt')">Português</button>
+          <button type="button" data-idioma="en" onclick="escolherIdiomaCadastro('en')">English</button>
+        </div>
+      </div>
 
       <!-- Plano selecionado -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;padding:10px 14px;background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.2);border-radius:10px">

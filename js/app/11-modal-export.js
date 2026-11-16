@@ -56,11 +56,11 @@ function exportarExcel(){
     if(expLanc&&lancs.length){
       const rows=[...lancs].sort((a,b)=>a.data.localeCompare(b.data)).map((l,i)=>({
         '#':i+1,'Tipo':l.tipo.charAt(0).toUpperCase()+l.tipo.slice(1),
-        'Descrição':l.desc,'Categoria':l.cat,'Valor (R$)':l.val,
+        'Descrição':l.desc,'Categoria':l.cat,'Valor':l.val,'Moeda':moedaDoLanc(l),
         'Data':l.data.split('-').reverse().join('/'),'Mês':mesLbl(l.data.slice(0,7)+'-01'),'Obs':l.obs||''
       }));
       const ws=XLSX.utils.json_to_sheet(rows);
-      ws['!cols']=[{wch:4},{wch:12},{wch:28},{wch:14},{wch:14},{wch:12},{wch:10},{wch:25}];
+      ws['!cols']=[{wch:4},{wch:12},{wch:28},{wch:14},{wch:14},{wch:8},{wch:12},{wch:10},{wch:25}];
       XLSX.utils.book_append_sheet(wb,ws,'Lançamentos');
     }
     if(expInv&&invs.length){

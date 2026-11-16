@@ -160,7 +160,10 @@ I18N_EN_ADD({
   'Categoria': 'Category', 'Observação': 'Note', 'Opcional': 'Optional', '(opcional)': '(optional)', 'Anexo (opcional)': 'Attachment (optional)',
   'Tipo de lançamento': 'Transaction type', 'Método de pagamento': 'Payment method', 'Método de recebimento': 'Received by',
   'Forma de pagamento': 'Payment method', 'Dinheiro': 'Cash', 'Débito': 'Debit', 'Crédito': 'Credit', 'Pix': 'PayID',
-  'Transferência': 'Bank transfer', 'Boleto': 'BPAY', 'Depósito': 'Deposit', 'Cartão': 'Card', 'Cartão de crédito': 'Credit card', 'Cartão de débito': 'Debit card', 'Desfazer alterações': 'Undo changes', 'Volta o dashboard para como estava antes de personalizar': 'Puts the dashboard back the way it was before you customised it', 'Nada para desfazer ainda': 'Nothing to undo yet', 'Data 1ª parcela': 'First instalment date',
+  'Transferência': 'Bank transfer', 'Boleto': 'BPAY', 'Depósito': 'Deposit', 'Cartão': 'Card', 'Cartão de crédito': 'Credit card', 'Cartão de débito': 'Debit card',
+  // Cadastro: idioma | Lançamentos em outras moedas (saldos separados)
+  'Idioma do app': 'App language', 'Moeda': 'Currency', 'Fica no saldo em': 'Goes into your', ', separado do saldo da conta.': ' balance, kept separate from your main balance.',
+  'Saldos em outras moedas': 'Balances in other currencies', 'Saldo em': 'Balance in', 'No mês': 'This month', 'Outras moedas': 'Other currencies', 'Desfazer alterações': 'Undo changes', 'Volta o dashboard para como estava antes de personalizar': 'Puts the dashboard back the way it was before you customised it', 'Nada para desfazer ainda': 'Nothing to undo yet', 'Data 1ª parcela': 'First instalment date',
   'Selecione o cartão usado': 'Choose the card used', 'Parcelado': 'In instalments', 'À vista': 'Paid in full', 'Nº de parcelas': 'Number of instalments',
   'nº de parcelas': 'number of instalments', 'Cada parcela:': 'Each instalment:', 'Tirar foto': 'Take photo', 'Escolher da galeria': 'Choose from gallery',
   'Galeria': 'Gallery', 'Fotografe a nota fiscal ou o comprovante. O app lê e preenche para você conferir.': 'Take a photo of the receipt. The app reads it and fills in the details for you to check.',

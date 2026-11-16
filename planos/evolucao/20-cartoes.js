@@ -176,7 +176,7 @@ function renderCartoes(){
 
   // Tem cartões
   if(hdrBtn) hdrBtn.innerHTML='<button class="btn primary" onclick="openModalCartao()">+ Novo cartão</button>';
-  const lancs=pd().lancs.filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));
+  const lancs=lancsConta().filter(l=>l.tipo==='despesa'&&l.data.startsWith(mes));   // fatura: só a moeda da conta
 
   // Grid de cartões — tamanho padrão fixo, paginado de 3 em 3
   const CARTAO_PAGE_SIZE = 3;
