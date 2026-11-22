@@ -103,7 +103,8 @@
         // Eixo de valores: reais compactos em português ("R$ 3,2 mil"), sem rótulos repetidos
         if(s.axis === 'y' || s === o.scales.y){
           s.ticks.maxTicksLimit = 5;
-          s.ticks.callback = v => simboloMoeda() + ' ' + COMPACTO.format(v);
+          const noDash = !!(chart.canvas && chart.canvas.closest && chart.canvas.closest('#sec-dashboard'));
+          s.ticks.callback = v => simboloMoeda(noDash && typeof moedaDash === 'function' ? moedaDash() : undefined) + ' ' + COMPACTO.format(v);
         }
       });
 

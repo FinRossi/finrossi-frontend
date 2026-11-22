@@ -24,8 +24,8 @@ function renderComparativo(lancs,mes){
     const bom = invertido ? diff <= 0 : diff >= 0;
     return `<tr>
       <td>${rotulo}</td>
-      <td class="ced-ant"><span class="ced-num">${fmtR(ant)}</span></td>
-      <td><span class="ced-num">${fmtR(atual)}</span></td>
+      <td class="ced-ant"><span class="ced-num">${fmtD(ant)}</span></td>
+      <td><span class="ced-num">${fmtD(atual)}</span></td>
       <td class="${bom ? 'ced-pos' : 'ced-neg'}">${diff >= 0 ? '↑' : '↓'} ${decimalLocal(Math.abs(pct))}%</td>
     </tr>`;
   };
@@ -80,7 +80,7 @@ function atualizarCabecalhoDash(){
 })();
 
 function refreshDash(){
-  const {invs}=pd(), mes=getMesFiltro();
+  const mes=getMesFiltro(), invs=moedaDash()===MOEDA?(pd().invs||[]):[];   // investimentos são na moeda da conta
   atualizarCabecalhoDash();
 
   populateMesFiltro();
@@ -92,8 +92,8 @@ function refreshDash(){
   // Antes, lançar hoje a conta que vence dia 15 ("Lançar do mês", parcelas) já tirava o dinheiro do saldo.
   // Olhando um mês futuro de propósito, mostra a projeção completa daquele mês.
   const hojeStr = hoje(), projecao = !todos && mes > curMes();
-  const lancs = projecao ? lancsConta() : lancsConta().filter(l => l.data <= hojeStr);   // só a moeda da conta
-  const previstos = projecao ? [] : lancsConta().filter(l => l.data > hojeStr && l.data.startsWith(mesRef));
+  const lancs = projecao ? lancsDash() : lancsDash().filter(l => l.data <= hojeStr);   // só a moeda que o Dashboard mostra
+  const previstos = projecao ? [] : lancsDash().filter(l => l.data > hojeStr && l.data.startsWith(mesRef));
   const recPrev = previstos.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
   const desPrev = previstos.filter(l=>l.tipo==='despesa').reduce((a,b)=>a+b.val,0);
   const doMes = todos ? lancs : lancs.filter(l=>l.data.startsWith(mes));
@@ -156,10 +156,10 @@ function refreshDash(){
   const ICON_WALLET    = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 000 4h4v-4Z"/></svg>`;
 
   const kpiCards=[
-    {id:'inv', label:'Patrimônio líquido', val:fmtR(pat), var:varPct(pat, patAnt), spark:sparkPat, color:'#C8A96E', icon:ICON_CHART_UP},
-    {id:'rec', label:'Receitas', val:fmtR(rec), var:varPct(rec,recAnt), spark:sparkRec, color:'#4ade80', icon:ICON_CASH},
-    {id:'des', label:'Despesas', val:fmtR(des), var:varPct(des,desAnt), spark:sparkDes, color:'#f87171', icon:ICON_TRENDING_DOWN},
-    {id:'sal', label:'Saldo disponível', val:fmtR(saldo), var:varPct(saldo,saldoAnt), spark:sparkSal, color:'#C8A96E', icon:ICON_WALLET},
+    {id:'inv', label:'Patrimônio líquido', val:fmtD(pat), var:varPct(pat, patAnt), spark:sparkPat, color:'#C8A96E', icon:ICON_CHART_UP},
+    {id:'rec', label:'Receitas', val:fmtD(rec), var:varPct(rec,recAnt), spark:sparkRec, color:'#4ade80', icon:ICON_CASH},
+    {id:'des', label:'Despesas', val:fmtD(des), var:varPct(des,desAnt), spark:sparkDes, color:'#f87171', icon:ICON_TRENDING_DOWN},
+    {id:'sal', label:'Saldo disponível', val:fmtD(saldo), var:varPct(saldo,saldoAnt), spark:sparkSal, color:'#C8A96E', icon:ICON_WALLET},
   ];
 
   const kpiEl=document.getElementById('dash-kpi-cards');
@@ -184,7 +184,7 @@ function refreshDash(){
     // partir de 13/10 só acontecia na primeiríssima vez do aparelho: a "evolução" tinha sumido)
     const anima = visivel && !window._cedAnimou;
     if(anima) window._cedAnimou = true;
-    const chaveVistos = cp + '|' + mes;
+    const chaveVistos = cp + '|' + mes + '|' + moedaDash();   // trocar a moeda não vira "subiu/caiu"
     const atuais = { pat, rec, des, sal: saldo };
     const vistos = visivel ? cedVistos(chaveVistos) : null;
     const BOM_SUBIR = { pat: true, rec: true, des: false, sal: true };
@@ -204,7 +204,7 @@ function refreshDash(){
         ${rosetaGuillocheViva().replace('class="ced-roseta ced-roseta-viva"', anima ? 'class="ced-roseta ced-roseta-viva ced-anima"' : 'class="ced-roseta ced-roseta-viva"')}
         <div class="ced-brilho" aria-hidden="true"></div>
         <div class="ced-serie">${todos ? 'FR-TODOS' : serieCedula(mes)}</div>
-        <div class="ced-rotulo">Patrimônio líquido</div>
+        <div class="ced-rotulo ced-rotulo-moeda"><span>Patrimônio líquido</span>${seletorMoedaDash()}</div>
         <div class="ced-valor-linha"><div class="ced-valor${pat<0?' ced-negativo':''}" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
         <div class="ced-var">${varTxt(varPct(pat, patAnt), false)}</div>
       </div></div>
@@ -215,9 +215,9 @@ function refreshDash(){
             <div class="ced-rotulo">${rotulo}</div>
             <div class="ced-valor-linha"><div class="ced-valor${atuais[k]<0?' ced-negativo':''}" id="ced-valor-${k}">${mostra(k)}</div>${cedDeltaHTML('ced-valor-' + k)}</div>
             <div class="ced-var">${varTxt(p, inv)}</div>
-            ${k === 'rec' && recPrev ? `<div class="ced-prev">+ ${fmtR(recPrev)} a receber até o fim do mês</div>` : ''}
-            ${k === 'des' && desPrev ? `<div class="ced-prev">+ ${fmtR(desPrev)} a pagar até o fim do mês</div>` : ''}
-            ${k === 'sal' && (recPrev || desPrev) ? `<div class="ced-prev">Previsto no fim do mês: ${fmtR(saldo + recPrev - desPrev)}</div>` : ''}
+            ${k === 'rec' && recPrev ? `<div class="ced-prev">+ ${fmtD(recPrev)} a receber até o fim do mês</div>` : ''}
+            ${k === 'des' && desPrev ? `<div class="ced-prev">+ ${fmtD(desPrev)} a pagar até o fim do mês</div>` : ''}
+            ${k === 'sal' && (recPrev || desPrev) ? `<div class="ced-prev">Previsto no fim do mês: ${fmtD(saldo + recPrev - desPrev)}</div>` : ''}
           </div>`).join('')}
       </div>`;
 
@@ -264,7 +264,7 @@ function refreshDash(){
 
   // Atualiza totais dos gráficos principais
   const evoTotEl=document.getElementById('dash-evo-total');
-  if(evoTotEl){ evoTotEl.textContent=fmtR(pat); evoTotEl.classList.toggle('ced-negativo', pat<0); }
+  if(evoTotEl){ evoTotEl.textContent=fmtD(pat); evoTotEl.classList.toggle('ced-negativo', pat<0); }
   const evoBadge=document.getElementById('dash-evo-badge');
   if(evoBadge){
     const v=varPct(pat,patAnt);
@@ -281,7 +281,7 @@ function refreshDash(){
   else renderComparativo(lancs,mes);
 
   // Parcelas
-  const parcelas=lancsConta().filter(l=>l.parcelado&&l.tipo==='despesa');   // todas (as futuras contam como "restantes")
+  const parcelas=lancsDash().filter(l=>l.parcelado&&l.tipo==='despesa');   // todas (as futuras contam como "restantes")
   const totalParcelaMes=doMes.filter(l=>l.parcelado).reduce((a,b)=>a+b.val,0);
   const grupos={};
   parcelas.forEach(l=>{
@@ -304,7 +304,7 @@ function refreshDash(){
           return`<div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px;border-left:3px solid ${concluida?'var(--green)':'var(--amber)'}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:6px">
               <div><div style="font-size:13px;font-weight:500">${escHTML(g.desc)}</div>
-              <div style="font-size:11px;color:var(--muted)">${escHTML(g.cat)} · ${fmtR(g.valParc)}/mês</div></div>
+              <div style="font-size:11px;color:var(--muted)">${escHTML(g.cat)} · ${fmtD(g.valParc)}/mês</div></div>
               <div style="text-align:right">${concluida
                 ?`<span style="font-size:11px;background:var(--green-s);color:var(--green);padding:2px 8px;border-radius:20px">✓ Quitado</span>`
                 :`<div style="font-size:12px;color:var(--amber);font-weight:500">${restam}x restantes</div>`}
@@ -365,7 +365,7 @@ function refreshDash(){
           borderWidth:1,
           titleColor:'#888',
           bodyColor:'#f0ede8',
-          callbacks:{label:ctx=>` ${fmtR(ctx.parsed.y)}`}
+          callbacks:{label:ctx=>` ${fmtD(ctx.parsed.y)}`}
         }
       },
       scales:{
@@ -448,7 +448,7 @@ function refreshDash(){
             legend:{display:false},
             tooltip:{
               callbacks:{
-                label:(ctx)=>{ const vis=catTotalVisivel(ctx.chart); return `${ctx.label}: ${fmtR(ctx.raw)} (${vis>0?Math.round(ctx.raw/vis*100):0}%)`; }
+                label:(ctx)=>{ const vis=catTotalVisivel(ctx.chart); return `${ctx.label}: ${fmtD(ctx.raw)} (${vis>0?Math.round(ctx.raw/vis*100):0}%)`; }
               }
             }
           }
@@ -464,7 +464,7 @@ function refreshDash(){
             ctx.font="500 22px 'FR Cifrao','Bodoni Moda',Georgia,serif";
             const corTxt=getComputedStyle(document.documentElement);   // segue a cor do texto do tema
             ctx.fillStyle=corTxt.getPropertyValue('--text').trim()||'#f0ede8';
-            ctx.fillText(fmtR(catTotalVisivel(chart)).replace('R$\u00a0','R$ '), cx, cy-8);
+            ctx.fillText(fmtD(catTotalVisivel(chart)).replace('R$\u00a0','R$ '), cx, cy-8);
             ctx.font="12px 'DM Sans',Arial";
             ctx.fillStyle=corTxt.getPropertyValue('--muted').trim()||'#777';
             ctx.fillText(catRotuloCentro(chart), cx, cy+12);
@@ -498,7 +498,7 @@ function refreshDash(){
       plugins:{legend:{labels:{color:'#888',font:{size:11},boxWidth:10,padding:12}}},
       scales:{
         x:{ticks:{color:'#666',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'},border:{display:false}},
-        y:{ticks:{color:'#666',font:{size:10},callback:v=>simboloMoeda()+v.toLocaleString(LOCALE)},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}}
+        y:{ticks:{color:'#666',font:{size:10},callback:v=>simboloMoeda(moedaDash())+v.toLocaleString(LOCALE)},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}}
       }
     }
   });
@@ -513,9 +513,17 @@ function refreshDash(){
   if(typeof initPersonalizacaoDashboard==='function') initPersonalizacaoDashboard();
   if(typeof initPatrimonioCores==='function') initPatrimonioCores();
 }
+// Seletor de moeda do Dashboard (no Patrimônio líquido): só com lançamentos em outra moeda
+const NOME_MOEDA=IDIOMA==='en'?{BRL:'Brazilian real',AUD:'Australian dollar',USD:'US dollar',EUR:'Euro',GBP:'British pound'}:{BRL:'Real',AUD:'Dólar australiano',USD:'Dólar americano',EUR:'Euro',GBP:'Libra'};
+function seletorMoedaDash(){
+  const ms=moedasComLanc(); if(ms.length<2) return '';
+  const atual=moedaDash();
+  return `<select class="ced-moeda-sel" aria-label="Moeda do saldo" title="Moeda do saldo" onchange="trocarMoedaDash(this.value)">${ms.map(m=>`<option value="${m}"${m===atual?' selected':''}>${simboloMoeda(m)} · ${NOME_MOEDA[m]}</option>`).join('')}</select>`;
+}
 // Saldos em outras moedas (lançamentos em US$, €, R$ numa conta em A$...): um cartão por moeda, sem converter
 function renderOutrasMoedas(mes){
   const el=document.getElementById('dash-outras-moedas'); if(!el) return;
+  if(moedaDash()!==MOEDA){ el.hidden=true; el.innerHTML=''; return; }   // vendo outra moeda: o seletor já mostra
   const s=saldosOutrasMoedas(mes), ms=Object.keys(s).sort((a,b)=>MOEDAS_LANC.indexOf(a)-MOEDAS_LANC.indexOf(b));
   el.hidden=!ms.length;
   if(!ms.length){ el.innerHTML=''; return; }
@@ -526,7 +534,7 @@ function renderOutrasMoedas(mes){
     </div>`; }).join('');
 }
 function renderTodosMeses(){
-  const lancs=lancsConta();   // só a moeda da conta
+  const lancs=lancsDash();   // só a moeda que o Dashboard mostra
   const mesAtual=curMes();
   const mesesSet=new Set(lancs.map(l=>l.data.slice(0,7)));
   mesesSet.add(mesAtual);
@@ -538,7 +546,7 @@ function renderTodosMeses(){
   if(!meses.length){container.innerHTML='';return;}
 
   // Valor sem o "R$" repetido em cada célula (o cabeçalho já diz que é dinheiro): cabe no celular
-  const num = v => fmtR(v).replace(/^R\$\s?/, '');
+  const num = v => fmtNumero(v, 2);   // sem o símbolo (o cabeçalho já diz que é dinheiro)
   const rows=meses.map(m=>{
     const doM=lancs.filter(l=>l.data.startsWith(m));
     const rec=doM.filter(l=>l.tipo==='receita').reduce((a,b)=>a+b.val,0);
@@ -665,11 +673,11 @@ function renderLegendaCat(chart){
     return `<div class="cat-leg${visivel ? '' : ' fora'}" onclick="toggleCatSlice(${i})" data-cat-idx="${i}" role="button" tabindex="0" title="${visivel ? 'Tirar do gráfico' : 'Voltar ao gráfico'}">
       <span class="cat-leg-cor" style="background:${d.cores[i]}"></span>
       <span class="cat-leg-nome">${escHTML(label)}</span>
-      <span class="cat-leg-val">${fmtR(d.cV[i])}</span>
+      <span class="cat-leg-val">${fmtD(d.cV[i])}</span>
       <span class="cat-leg-pct">${pct}</span>
     </div>`;
   }).join('');
   el.innerHTML = linhas + (foraTotal > 0
-    ? `<div class="cat-leg-fora"><span>Fora do gráfico</span><b>${fmtR(foraTotal)}</b></div>`
+    ? `<div class="cat-leg-fora"><span>Fora do gráfico</span><b>${fmtD(foraTotal)}</b></div>`
     : `<div class="cat-leg-dica">Toque numa categoria para tirar do gráfico</div>`);
 }

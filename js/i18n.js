@@ -28,7 +28,7 @@
     document.documentElement.classList.add('i18n-espera');
     setTimeout(function(){ document.documentElement.classList.remove('i18n-espera'); }, 2500);
     var s = document.createElement('script');
-    s.src = '/js/i18n-en.js?v=39';
+    s.src = '/js/i18n-en.js?v=40';
     s.onload = function(){ if(window.iniciarTraducao) window.iniciarTraducao(); };
     s.onerror = function(){ document.documentElement.classList.remove('i18n-espera'); };
     document.head.appendChild(s);
@@ -64,18 +64,23 @@ function ajustarRotulosMoeda(){
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ajustarRotulosMoeda); else ajustarRotulosMoeda();
 
 // ─── Dinheiro ────────────────────────────────────────────────────────────────
-function simboloMoeda(){ return window.MOEDA === 'AUD' ? (window.IDIOMA === 'en' ? '$' : 'A$') : 'R$'; }
+// m (opcional): outra moeda (lançamentos em US$, €… e o seletor do Dashboard); sem ela = a da conta
+function simboloMoeda(m){
+  m = m || window.MOEDA;
+  if(m === 'AUD') return window.IDIOMA === 'en' ? '$' : 'A$';
+  return { BRL: 'R$', USD: 'US$', EUR: '€', GBP: '£' }[m] || m;
+}
 function fmtNumero(v, casas){
   return Number(v).toLocaleString(window.LOCALE, { minimumFractionDigits: casas, maximumFractionDigits: casas });
 }
 // Separador decimal da região num número já arredondado: "12.5" → "12,5" (português) ou "12.5" (inglês).
 // Use para porcentagens e medidas ("12,5%", "2,5 meses") no lugar de .replace('.', ',') fixo.
 function decimalLocal(s){ return String(s).replace('.', window.IDIOMA === 'en' ? '.' : ','); }
-function fmtMoeda(v, casas){
-  var n = Number(v);
-  if(window.MOEDA === 'BRL' && window.IDIOMA === 'pt') return 'R$ ' + fmtNumero(n, casas);   // Brasil: igual a sempre
-  if(window.IDIOMA === 'en') return (n < 0 ? '-' : '') + simboloMoeda() + fmtNumero(Math.abs(n), casas);   // $1,234.56
-  return simboloMoeda() + ' ' + fmtNumero(n, casas);                                                 // A$ 1.234,56
+function fmtMoeda(v, casas, m){
+  var n = Number(v); m = m || window.MOEDA;   // m (opcional): outra moeda; sem ela = a da conta
+  if(m === 'BRL' && window.IDIOMA === 'pt') return 'R$ ' + fmtNumero(n, casas);   // Brasil: igual a sempre
+  if(window.IDIOMA === 'en') return (n < 0 ? '-' : '') + simboloMoeda(m) + fmtNumero(Math.abs(n), casas);   // $1,234.56
+  return simboloMoeda(m) + ' ' + fmtNumero(n, casas);                                                // A$ 1.234,56
 }
 
 // ─── Preços dos planos por moeda ─────────────────────────────────────────────

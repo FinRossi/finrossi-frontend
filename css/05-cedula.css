@@ -24,6 +24,11 @@
 @keyframes ced-gravar{from{opacity:0;transform:translateY(-50%) rotate(-24deg) scale(.94)}to{opacity:.55;transform:translateY(-50%) rotate(0) scale(1)}}
 .ced-serie{position:absolute;top:13px;left:18px;font-size:11px;letter-spacing:1.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .ced-rotulo{font-size:13px;color:var(--muted);margin-bottom:6px}
+/* Seletor de moeda no Patrimônio líquido (só aparece com lançamentos em outra moeda) */
+.ced-rotulo-moeda{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;z-index:2}
+.ced-moeda-sel{font:inherit;font-size:12px;color:var(--accent);background:var(--surface);border:1px solid var(--ced-gravura);border-radius:6px;height:26px;padding:0 8px;cursor:pointer;max-width:100%}
+.ced-moeda-sel:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@media(max-width:767px){.ced-moeda-sel{height:32px;font-size:13px}}
 .ced-valor{font-family:var(--ced-serif);font-weight:500;font-size:clamp(40px,5.4vw,64px);line-height:1;color:var(--text);letter-spacing:-1px;font-variant-numeric:lining-nums tabular-nums;position:relative}
 .ced-moeda{font-size:.42em;color:var(--accent);margin-right:.25em;vertical-align:.95em;letter-spacing:0}
 .ced-var{margin-top:12px;font-size:13px;display:flex;gap:6px;align-items:baseline}

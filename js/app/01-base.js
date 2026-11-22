@@ -26,12 +26,16 @@ const moedaDoLanc=l=>(l&&l.moeda&&MOEDAS_LANC.includes(l.moeda))?l.moeda:MOEDA;
 const daConta=l=>moedaDoLanc(l)===MOEDA;
 const lancsConta=()=>(pd().lancs||[]).filter(daConta);
 // Valor numa moeda qualquer, no formato do idioma ("US$ 1.234,56" / "US$1,234.56"); a da conta = fmtR
-function fmtMoedaDe(v,moeda,casas){
-  if(!moeda||moeda===MOEDA) return casas===0?fmtR0(v):fmtR(v);
-  const n=Number(v), s=SIMBOLO_MOEDA[moeda]||moeda, c=casas===0?0:2;
-  // Mesmo jeito do fmtMoeda: português "US$ -100,00" (sinal depois do símbolo); inglês "-US$100.00"
-  return IDIOMA==='en' ? (n<0?'-':'')+s+fmtNumero(Math.abs(n),c) : s+' '+fmtNumero(n,c);
-}
+function fmtMoedaDe(v,moeda,casas){ return fmtMoeda(v,casas===0?0:2,moeda||MOEDA); }   // mesmo formato do fmtMoeda
+// ─── Moeda que o Dashboard mostra (seletor no Patrimônio líquido) ─────────────
+// A da conta (padrão) ou outra moeda que tenha lançamentos: o Dashboard inteiro passa a mostrar só os
+// lançamentos daquela moeda, sem converter (saldos separados). Lembrada por perfil, só neste aparelho.
+// Investimentos, cartões, Score e as outras telas continuam na moeda da conta.
+const moedasComLanc=()=>[MOEDA,...MOEDAS_LANC.filter(m=>m!==MOEDA&&(pd().lancs||[]).some(l=>moedaDoLanc(l)===m))];
+function moedaDash(){ let m=null; try{ m=localStorage.getItem('fin_moeda_dash_'+cp); }catch(e){} return m&&moedasComLanc().includes(m)?m:MOEDA; }
+function trocarMoedaDash(m){ try{ localStorage.setItem('fin_moeda_dash_'+cp,m); }catch(e){} refreshDash(); }
+const lancsDash=()=>{ const m=moedaDash(); return (pd().lancs||[]).filter(l=>moedaDoLanc(l)===m); };
+const fmtD=v=>fmtMoeda(v,2,moedaDash());   // dinheiro do Dashboard, na moeda que ele mostra
 // Saldos por moeda dos lançamentos fora da moeda da conta: { USD: {rec, des, saldo, recMes, desMes} }
 function saldosOutrasMoedas(mes){
   const r={}, hojeStr=hoje();

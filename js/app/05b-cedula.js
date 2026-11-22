@@ -111,7 +111,7 @@ const CED_DELTA_MS = 3600;
 function cedMarcarDelta(id, diferenca, bomSubir){
   if(!diferenca || _cedSemMovimento()) return;
   const bom = bomSubir ? diferenca > 0 : diferenca < 0;
-  _cedDeltas[id] = { txt: `${diferenca > 0 ? '+' : '−'} ${fmtR(Math.abs(diferenca))}`, cls: bom ? 'pos' : 'neg', ate: performance.now() + CED_DELTA_MS };
+  _cedDeltas[id] = { txt: `${diferenca > 0 ? '+' : '−'} ${fmtD(Math.abs(diferenca))}`, cls: bom ? 'pos' : 'neg', ate: performance.now() + CED_DELTA_MS };
 }
 function cedDeltaHTML(id){
   const d = _cedDeltas[id];
@@ -124,7 +124,7 @@ function cedDeltaHTML(id){
 // Valor monetário com o "R$" pequeno, como numa cédula
 function valorCedula(v){
   const txt = fmtNumero(v, 2);   // em R$: o mesmo que fmtR sem o "R$ " (ex.: "-1.234,56")
-  return `<span class="ced-moeda">${simboloMoeda()}</span><span class="ced-num">${txt}</span>`;
+  return `<span class="ced-moeda">${simboloMoeda(moedaDash())}</span><span class="ced-num">${txt}</span>`;   // só no Dashboard
 }
 
 // "Número de série" discreto do painel: FR-MMAA (mês exibido)
