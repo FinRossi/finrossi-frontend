@@ -9,7 +9,7 @@
 <style id="anti-clickjack">html{display:none!important}</style>
 <script>if(self===top){var ac=document.getElementById('anti-clickjack');ac.parentNode.removeChild(ac);}else{top.location=self.location;}</script>
 <!-- Idioma e moeda (antes de tudo): português e R$ ficam iguais; inglês/Austrália em inglês e A$ -->
-<script src="../js/i18n.js?v=40"></script>
+<script src="../js/i18n.js?v=41"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
 <meta name="color-scheme" content="dark">
@@ -1782,7 +1782,7 @@ async function confirmarCadastro(){
   const vazios = CAMPOS_CADASTRO.filter(id => { const el = document.getElementById(id); return el.offsetParent !== null && !el.value.trim(); });
   if(vazios.length){ marcarCampos(vazios); showModalMsg(vazios.length > 1 ? 'Preencha os campos destacados em vermelho.' : 'Preencha o campo destacado em vermelho.','err'); return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ marcarCampos(['modal-email']); showModalMsg('Email inválido — verifique o formato.','err'); return; }
-  if(senha.length < 6){ marcarCampos(['modal-senha']); showModalMsg('A senha deve ter pelo menos 6 caracteres.','err'); return; }
+  if(senha.length < 8){ marcarCampos(['modal-senha']); showModalMsg('A senha deve ter pelo menos 8 caracteres.','err'); return; }
   const telefone = document.getElementById('modal-whats').value.replace(/\D/g,'');
   if(!validarWhats(telefone).ok){   // obrigatório e com a quantidade certa de números
     conferirWhats(true);
@@ -2078,7 +2078,7 @@ if(window.matchMedia('(pointer:fine)').matches){
         </div>
         <div style="margin-bottom:14px">
           <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Senha</label>
-          <input id="modal-senha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" enterkeyhint="done"
+          <input id="modal-senha" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" enterkeyhint="done"
             style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s"
             onfocus="this.style.borderColor='rgba(200,169,110,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
             onkeydown="if(event.key==='Enter')confirmarCadastro()">

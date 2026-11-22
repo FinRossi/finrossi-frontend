@@ -39,7 +39,7 @@
   <div class="logo">Fin<span>Rossi</span></div>
   <div class="doc-title">Política de Privacidade</div>
   <!-- EDITAR: atualize a data abaixo a cada alteração -->
-  <div class="updated">Última atualização: 3 de novembro de 2026 · Versão 1.7</div>
+  <div class="updated">Última atualização: 22 de novembro de 2026 · Versão 1.8</div>
 
   <div class="alert">
     Ao utilizar o FinRossi, você concorda com esta Política de Privacidade. Leia com atenção antes de criar sua conta.
@@ -142,9 +142,17 @@
   <h2>9. Segurança</h2>
   <p>
     Adotamos medidas técnicas e organizacionais para proteger seus dados, incluindo:
-    criptografia em trânsito (HTTPS/TLS), autenticação segura via Firebase Auth,
-    e acesso restrito por funções (roles) de usuário.
   </p>
+  <ul>
+    <li>Criptografia em trânsito (HTTPS/TLS) em todo o site, o app e o servidor</li>
+    <li>Login pelo Firebase Auth: a sua senha é guardada só em formato embaralhado (hash), e o FinRossi nunca a vê</li>
+    <li>Regras no próprio banco de dados: cada pessoa acessa só os próprios dados. A equipe do FinRossi não lê os seus lançamentos, investimentos, metas e anotações</li>
+    <li>Pagamentos pela Asaas: o número do cartão é digitado na página da Asaas e nunca passa pelo FinRossi. O CPF ou CNPJ vai só para a Asaas e não fica no nosso banco</li>
+    <li>Limite de tentativas no cadastro, no login e na recuperação de senha, contra robôs e tentativas de adivinhar senhas</li>
+    <li>Proteção contra código malicioso: textos digitados são tratados antes de aparecer na tela, e as bibliotecas externas são conferidas pela impressão digital (SRI) antes de carregar</li>
+    <li>Contas desativadas perdem o acesso: as sessões abertas em outros aparelhos são encerradas</li>
+    <li>Cópias de segurança diárias, com uma cópia criptografada separada (ver item 5)</li>
+  </ul>
   <p>
     Nenhum sistema é 100% seguro. Em caso de incidente de segurança que afete seus dados, 
     notificaremos você e a ANPD dentro dos prazos legais.

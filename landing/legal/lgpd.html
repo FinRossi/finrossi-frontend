@@ -120,10 +120,12 @@
   <h2>9. Medidas de segurança</h2>
   <ul>
     <li>Comunicação criptografada via HTTPS/TLS</li>
-    <li>Senhas armazenadas com hash (Firebase Auth)</li>
-    <li>Controle de acesso por roles (sócio, admin, dev, cliente)</li>
-    <li>Backups automáticos no Firebase</li>
-    <li>Acesso à infraestrutura restrito por autenticação de dois fatores</li>
+    <li>Senhas armazenadas com hash (Firebase Auth); o FinRossi nunca vê nem guarda a sua senha</li>
+    <li>Regras no próprio banco de dados: cada cliente acessa só os próprios dados, e a equipe do FinRossi não lê os seus lançamentos, investimentos, metas e anotações</li>
+    <li>Controle de acesso por funções (sócio, admin, dev, cliente), com as ações sensíveis restritas ao responsável pelo FinRossi</li>
+    <li>Limite de tentativas no cadastro, no login e na recuperação de senha</li>
+    <li>Pagamentos processados pela Asaas: o FinRossi não recebe nem guarda o número do cartão</li>
+    <li>Cópias de segurança diárias, com uma cópia criptografada separada</li>
   </ul>
 
   <h2>10. Incidentes de segurança</h2>

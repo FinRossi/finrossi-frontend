@@ -496,11 +496,11 @@ I18N_EN_ADD({
   'Posso cancelar quando quiser?': 'Can I cancel anytime?',
   'Sim, sem burocracia. Peça o cancelamento quando quiser pelo próprio app, em Minha Assinatura. Você continua com acesso até o fim do período pago.': 'Yes, no hassle. Cancel whenever you like in the app, under My subscription. You keep access until the end of the period you’ve paid for.',
   // Cadastro
-  'Criar conta': 'Create account', 'Nome completo': 'Full name', 'Seu nome': 'Your name', 'Senha': 'Password', 'Mínimo 6 caracteres': 'At least 6 characters',
+  'Criar conta': 'Create account', 'Nome completo': 'Full name', 'Seu nome': 'Your name', 'Senha': 'Password', 'Mínimo 6 caracteres': 'At least 6 characters', 'Mínimo 8 caracteres': 'At least 8 characters',
   'WhatsApp': 'Mobile', 'Quero receber dicas, lembretes e ofertas do FinRossi por e-mail e WhatsApp. Posso cancelar quando quiser.': 'I’d like tips, reminders and offers from FinRossi by email and SMS. I can opt out anytime.',
   'Ao criar sua conta você concorda com nossos': 'By creating an account you agree to our', 'termos de uso': 'terms of use', 'e': 'and', 'política de privacidade': 'privacy policy',
   'Conta criada!': 'Account created!', 'Criando conta...': 'Creating account...', 'Preencha todos os campos.': 'Please fill in all fields.', 'Preencha os campos destacados em vermelho.': 'Please fill in the fields highlighted in red.', 'Preencha o campo destacado em vermelho.': 'Please fill in the field highlighted in red.',
-  'A senha deve ter pelo menos 6 caracteres.': 'Your password must be at least 6 characters.', 'Celular inválido — ex.: 0412 345 678.': 'Invalid mobile number — e.g. 0412 345 678.', 'Informe seu celular — ex.: 0412 345 678.': 'Enter your mobile number — e.g. 0412 345 678.',
+  'A senha deve ter pelo menos 6 caracteres.': 'Your password must be at least 6 characters.', 'A senha deve ter pelo menos 8 caracteres.': 'Your password must be at least 8 characters.', 'Celular inválido — ex.: 0412 345 678.': 'Invalid mobile number — e.g. 0412 345 678.', 'Informe seu celular — ex.: 0412 345 678.': 'Enter your mobile number — e.g. 0412 345 678.',
   'Email já cadastrado': 'This email already has an account', 'Informe seu nome.': 'Enter your name.', 'Muitas tentativas. Aguarde alguns minutos e tente de novo.': 'Too many attempts. Wait a few minutes and try again.',
   'Os planos pagos em A$ chegam em breve. Comece pelo teste grátis': 'Paid plans in AUD are coming soon. Start with the free trial',
   // Rodapé
