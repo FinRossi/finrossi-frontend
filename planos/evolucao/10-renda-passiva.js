@@ -27,21 +27,23 @@ function rpTotalCarteira(){ return (pd().invs||[]).reduce((a,b)=>a+(+b.val||0),0
 // Leva a configuração salva para os campos (uma vez por perfil, ou quando a nuvem atualizar)
 function rpPreencherCampos(){
   const c = rpConfig();
-  document.getElementById('rp-cdi').value = c.cdi;
-  document.getElementById('rp-custom').value = c.custom;
-  document.getElementById('rp-ir').value = c.ir;
-  document.getElementById('rp-aporte').value = c.aporte;
+  // No formato da região: taxas "0,80" / "0.80"; aporte com a máscara de dinheiro
+  document.getElementById('rp-cdi').value = fmtNumero(+c.cdi || 0, 2);
+  document.getElementById('rp-custom').value = fmtNumero(+c.custom || 0, 2);
+  document.getElementById('rp-ir').value = fmtNumero(+c.ir || 0, 0);
+  document.getElementById('rp-aporte').value = fmtCampoValor(c.aporte);
   _rpCarregadoPara = cp + '|' + JSON.stringify(c);
 }
 
 function rpCampoMudou(campo){
   const c = rpConfig();
-  const num = id => parseFloat(document.getElementById(id).value);
+  const num = id => lerNumeroLocal(document.getElementById(id).value);              // taxas (vírgula ou ponto)
+  const din = id => { const el = document.getElementById(id); return el.value.trim() ? parseCurrency(el) : NaN; };   // dinheiro (máscara)
   if(!isNaN(num('rp-cdi'))) c.cdi = num('rp-cdi');
   if(!isNaN(num('rp-custom'))) c.custom = num('rp-custom');
   if(!isNaN(num('rp-ir'))) c.ir = num('rp-ir');
-  if(!isNaN(num('rp-aporte'))) c.aporte = num('rp-aporte');
-  if(campo === 'atual'){ const v = num('rp-atual'); c.atualManual = isNaN(v) ? null : v; }
+  if(!isNaN(din('rp-aporte'))) c.aporte = din('rp-aporte');
+  if(campo === 'atual'){ const v = din('rp-atual'); c.atualManual = isNaN(v) ? null : v; }
   _rpCarregadoPara = cp + '|' + JSON.stringify(c);
   clearTimeout(_rpTimer); _rpTimer = setTimeout(rpSalvar, 600);   // salva quando parar de digitar
   renderRP();
@@ -59,7 +61,7 @@ function _rpLerValor(txt){
 }
 function addRendaAlvo(){
   const inp = document.getElementById('rp-nova');
-  const v = _rpLerValor(inp.value);
+  const v = parseCurrency(inp);   // mesma máscara do Lançamentos
   const c = rpConfig();
   if(!v || v <= 0){ showMsg('msg-rp', 'Digite a renda mensal que você quer, por exemplo 8.000', 'err'); return; }
   if(c.rendas.some(r => Math.abs(r - v) < 0.01)){ showMsg('msg-rp', 'Essa renda já está salva', 'err'); return; }
@@ -84,8 +86,8 @@ function renderRP(){
   const campoAtual = document.getElementById('rp-atual');
   const carteira = rpTotalCarteira();
   if(cfg.atualManual === null || cfg.atualManual === undefined){
-    if(document.activeElement !== campoAtual) campoAtual.value = Math.round(carteira*100)/100;
-  } else if(document.activeElement !== campoAtual) campoAtual.value = cfg.atualManual;
+    if(document.activeElement !== campoAtual) campoAtual.value = fmtCampoValor(Math.round(carteira*100)/100);
+  } else if(document.activeElement !== campoAtual) campoAtual.value = fmtCampoValor(cfg.atualManual);
   const btnCarteira = document.getElementById('rp-usar-carteira');
   if(btnCarteira) btnCarteira.hidden = cfg.atualManual === null || cfg.atualManual === undefined;
 

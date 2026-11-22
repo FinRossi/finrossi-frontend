@@ -384,7 +384,7 @@ function renderDesafiosTabHTML(){
 let _projecaoTaxa = 0.8; // % ao mês — mesmo padrão usado na Renda Passiva (CDI)
 
 function atualizarProjecaoTaxa(valor){
-  _projecaoTaxa = parseFloat(valor) || 0;
+  _projecaoTaxa = Math.min(5, Math.max(0, lerNumeroLocal(valor) || 0));   // vírgula ou ponto; entre 0 e 5%
   renderScore();
 }
 
@@ -447,7 +447,7 @@ function renderProjecoesTabHTML(){
       <div class="pt-param">
         <div class="field">
           <label>Taxa de retorno esperada (%/mês)</label>
-          <input type="number" value="${r.taxa}" step="0.1" min="0" max="5" oninput="atualizarProjecaoTaxa(this.value)">
+          <input type="text" inputmode="decimal" value="${fmtNumero(r.taxa,1)}" onchange="atualizarProjecaoTaxa(this.value)" onkeydown="if(event.key==='Enter')this.blur()">
         </div>
         <div class="pt-param-nota">
           Baseado na sua média de poupança dos últimos 6 meses: <strong class="pt-num">${fmtR(r.mediaPoupanca)}</strong>/mês

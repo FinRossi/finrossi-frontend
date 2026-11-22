@@ -216,7 +216,7 @@ I18N_EN_ADD({
   'Taxa personalizada (%/mês)': 'Custom rate (%/month)', 'Parâmetros': 'Settings', 'Calculadora de renda passiva': 'Passive income calculator',
   'Comparando os dois cenários de taxa lado a lado': 'Comparing both rate scenarios side by side', 'Compare dois cenários de taxa lado a lado': 'Compare two rate scenarios side by side',
   'taxa mensal': 'monthly rate', 'ao mês)': 'a month)', 'Calcule quanto precisa investir para viver de renda. (Disponível no perfil Pessoal)': 'Work out how much you need to invest to live off passive income. (Available in the Personal profile)',
-  'Renda mensal, ex.: 8.000': 'Monthly income, e.g. 8,000',
+  'Renda mensal, ex.: 8.000': 'Monthly income, e.g. 8,000', 'Renda mensal, ex.: 8.000,00': 'Monthly income, e.g. 8,000.00',
   // Score / Patrimônio / Relatórios
   'Saúde do patrimônio': 'Wealth health', 'Saúde do seu patrimônio': 'Your wealth health',
   'Registre suas receitas e despesas do mês pra começar a calcular a saúde do seu patrimônio.': 'Record this month’s income and expenses to start measuring your wealth health.',

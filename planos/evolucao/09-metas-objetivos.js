@@ -7,8 +7,8 @@ function openModalMeta(id){
     const m=pd().metas.find(x=>x.id===id);
     if(m){
       document.getElementById('meta-nome').value=m.nome;
-      document.getElementById('meta-valor').value=m.valor;
-      document.getElementById('meta-investido').value=m.investido||0;
+      document.getElementById('meta-valor').value=fmtCampoValor(m.valor);
+      document.getElementById('meta-investido').value=fmtCampoValor(m.investido||0);
       document.getElementById('meta-icone').value=m.icone||'';
       document.getElementById('meta-cor').value=m.cor||'#C8A96E';
     }
@@ -23,8 +23,8 @@ function openModalMeta(id){
 }
 async function salvarMeta(){
   const nome=document.getElementById('meta-nome').value.trim();
-  const valor=parseFloat(document.getElementById('meta-valor').value);
-  const investido=parseFloat(document.getElementById('meta-investido').value)||0;
+  const valor=parseCurrency(document.getElementById('meta-valor'));
+  const investido=parseCurrency(document.getElementById('meta-investido'))||0;
   if(!nome){showMsg('msg-meta','Informe o nome','err');return}
   if(!valor||valor<=0){showMsg('msg-meta','Valor alvo inválido','err');return}
   const id=document.getElementById('meta-edit-id').value;
@@ -78,8 +78,11 @@ function renderMetas(){
 
 function renderSim(){
   const metas=pd().metas;
-  const aporte=parseFloat(document.getElementById('sim-aporte').value)||300;
-  const cdi=(parseFloat(document.getElementById('sim-cdi').value)||0.8)/100;
+  // Simulador: na primeira vez os campos vêm com o padrão (R$ 300 e 0,8%) no formato da região
+  const elA=document.getElementById('sim-aporte'), elC=document.getElementById('sim-cdi');
+  if(elA&&!elA.dataset.pronto){ elA.dataset.pronto='1'; if(!elA.value) elA.value=fmtCampoValor(300); if(!elC.value) elC.value=fmtNumero(0.8,2); }
+  const aporte=parseCurrency(elA)||300;
+  const cdi=(lerNumeroLocal(elC.value)||0.8)/100;
   if(!metas.length){document.getElementById('sim-resultado').innerHTML='<p class="empty" style="padding:8px 0;text-align:left">Crie uma meta para ver em quanto tempo chega lá.</p>';return}
 
   const rows=metas.map(m=>{

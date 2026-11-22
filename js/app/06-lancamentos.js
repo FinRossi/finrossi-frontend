@@ -17,6 +17,13 @@ function parseCurrency(el){
   if(IDIOMA==='en') return parseFloat(v.replace(/,/g,'')) || 0;   // inglês: 1,234.56
   return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;  // português: 1.234,56
 }
+// Mesmo formato que maskCurrency escreve (para preencher um campo de dinheiro com um valor salvo)
+const fmtCampoValor=v=>(+v||0).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2});
+// Taxas e porcentagens digitadas com vírgula ou ponto: "0,8" / "0.8" → 0.8 (inglês: "1,000.5" → 1000.5)
+function lerNumeroLocal(v){
+  const s=String(v==null?'':v).trim(); if(!s) return NaN;
+  return parseFloat(IDIOMA==='en'?s.replace(/,/g,''):s.replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.'));
+}
 
 // ─── MOEDA DO LANÇAMENTO (saldos separados por moeda — js/app/01-base.js) ────
 // O seletor começa na moeda da conta. Outra moeda: o lançamento vai para o saldo daquela moeda, fora dos
