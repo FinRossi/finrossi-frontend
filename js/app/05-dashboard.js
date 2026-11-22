@@ -204,7 +204,8 @@ function refreshDash(){
         ${rosetaGuillocheViva().replace('class="ced-roseta ced-roseta-viva"', anima ? 'class="ced-roseta ced-roseta-viva ced-anima"' : 'class="ced-roseta ced-roseta-viva"')}
         <div class="ced-brilho" aria-hidden="true"></div>
         <div class="ced-serie">${todos ? 'FR-TODOS' : serieCedula(mes)}</div>
-        <div class="ced-rotulo ced-rotulo-moeda"><span>Patrimônio líquido</span>${seletorMoedaDash()}</div>
+        ${seletorMoedaDash()}
+        <div class="ced-rotulo">Patrimônio líquido</div>
         <div class="ced-valor-linha"><div class="ced-valor${pat<0?' ced-negativo':''}" id="ced-valor-pat">${mostra('pat')}</div>${cedDeltaHTML('ced-valor-pat')}</div>
         <div class="ced-var">${varTxt(varPct(pat, patAnt), false)}</div>
       </div></div>
@@ -518,7 +519,8 @@ const NOME_MOEDA=IDIOMA==='en'?{BRL:'Brazilian real',AUD:'Australian dollar',USD
 function seletorMoedaDash(){
   const ms=moedasComLanc(); if(ms.length<2) return '';
   const atual=moedaDash();
-  return `<select class="ced-moeda-sel" aria-label="Moeda do saldo" title="Moeda do saldo" onchange="trocarMoedaDash(this.value)">${ms.map(m=>`<option value="${m}"${m===atual?' selected':''}>${simboloMoeda(m)} · ${NOME_MOEDA[m]}</option>`).join('')}</select>`;
+  // Discreto, na linha do número de série (canto de cima): só o símbolo, o nome completo vem na lista
+  return `<select class="ced-moeda-sel" aria-label="Moeda do saldo" title="Moeda do saldo" onchange="trocarMoedaDash(this.value)">${ms.map(m=>`<option value="${m}" title="${NOME_MOEDA[m]}"${m===atual?' selected':''}>${simboloMoeda(m)}</option>`).join('')}</select>`;
 }
 // Saldos em outras moedas (lançamentos em US$, €, R$ numa conta em A$...): um cartão por moeda, sem converter
 function renderOutrasMoedas(mes){
