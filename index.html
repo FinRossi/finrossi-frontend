@@ -88,7 +88,7 @@
 <link rel="stylesheet" href="css/04-sidebar-grupos.css?v=1">
 <link rel="stylesheet" href="css/05-cedula.css?v=10">
 <link rel="stylesheet" href="css/06-cedula-app.css?v=12">
-<link rel="stylesheet" href="css/07-layout-finrossi.css?v=51">
+<link rel="stylesheet" href="css/07-layout-finrossi.css?v=52">
 <link rel="stylesheet" href="planos/patrimonio/patrimonio.css?v=6">
 </head>
 <body>
@@ -473,7 +473,8 @@ try{
     <div class="dash-widget" data-widget-id="kpis" data-full="1">
       <div id="dash-kpi-cards" class="ced-kpis"></div>
       <!-- Saldos em outras moedas (lançamentos em US$, € etc.): separados, sem conversão (js/app/05-dashboard.js) -->
-      <div id="dash-outras-moedas" class="dash-outras-moedas" hidden></div>
+      <!-- section (e não div): vazio, um div faria a regra ":has(>div:empty)" esconder o painel inteiro do Patrimônio -->
+      <section id="dash-outras-moedas" class="dash-outras-moedas" hidden></section>
     </div>
 
     <!-- ALERTAS DE VENCIMENTO -->

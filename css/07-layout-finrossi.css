@@ -753,6 +753,7 @@ body.sb-minimizado .dock-favoritos{
 .moeda-aviso{display:block;margin-top:5px;font-size:11.5px;color:var(--accent);line-height:1.4}
 /* Dashboard: saldos em outras moedas, abaixo dos totais da conta */
 .dash-outras-moedas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.dash-outras-moedas[hidden]{display:none}
 .dash-outras-moedas .om-tit{width:100%;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .dash-outras-moedas .om-card{flex:1 1 180px;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
 .dash-outras-moedas .om-card b{font-family:var(--ced-serif,serif);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
